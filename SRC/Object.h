@@ -78,6 +78,10 @@ public:
 
 	[[nodiscard]] virtual int GetTabIndex() const = 0;
 
+	[[nodiscard]] virtual std::string GetApplicationName() const = 0;
+
+	[[nodiscard]] virtual std::string GetName() const = 0;
+	[[nodiscard]] virtual std::string GetDescription() const = 0;
 	[[nodiscard]] virtual std::string GetText() const = 0;
 
 	[[nodiscard]] virtual IObject* GetSelectedItem() const = 0;
