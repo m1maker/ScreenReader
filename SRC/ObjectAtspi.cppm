@@ -1,6 +1,7 @@
 export module ObjectAtspi;
 #include <atspi.h>
 #include "Object.h"
+#include <vector>
 
 [[nodiscard]] static constexpr IObject::EObjectType GetObjectTypeFromAtspiRole(const AtspiRole& role) {
 	switch (role) {
