@@ -81,6 +81,22 @@ export module ObjectAtspi;
 	return result;
 }
 
+[[nodiscard]] static unsigned int GetObjectStateFromAtspiStates(const ATSPIStateSet& states) {
+	GArray* array = atspi_state_set_get_states(&states);
+	if (!array) [[unlikely]] {
+		return 0;
+	}
+
+	std::vector<AtspiStateType> state_types;
+	for (int i = 0; i < array->len; ++i) {
+		gint64 state = g_array_index(array, gint64, i);
+		state_types.push_back(static_cast<AtspiStateType>(state));
+	}
+
+	g_array_unref(array);
+	return GetObjectStateFromAtspiStates(state_types);
+}
+
 export class CObjectAtspi final : public IObject {
 	ATSPIAccessible* m_accessible{nullptr};
 public:
