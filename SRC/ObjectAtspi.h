@@ -96,7 +96,38 @@
 
 class CObjectAtspi final : public IObject {
 	AtspiAccessible* m_accessible{nullptr};
-public:
 
+public:
+	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
+	~CObjectAtspi() override = default;
+
+	[[nodiscard]] EObjectType GetType() const override;
+	[[nodiscard]] bool IsVisible() const override;
+	[[nodiscard]] bool IsEnabled() const override;
+
+	[[nodiscard]] unsigned int GetState() const override;
+	[[nodiscard]] bool HasState(EObjectState state) const override;
+
+	bool HandleEvent(const CEvent& event) override;
+
+	[[nodiscard]] IObject* GetParent() const override;
+	[[nodiscard]] const std::vector<IObject*>& GetChildren() const override;
+
+	[[nodiscard]] SRect GetBounds() const override;
+
+	[[nodiscard]] int GetTabIndex() const override;
+
+	[[nodiscard]] std::string GetApplicationName() const override;
+
+	[[nodiscard]] std::string GetName() const override;
+	[[nodiscard]] std::string GetDescription() const override;
+	[[nodiscard]] std::string GetText() const override;
+
+	[[nodiscard]] IObject* GetSelectedItem() const override;
+	[[nodiscard]] const std::vector<IObject*>& GetItems() const override;
+
+	[[nodiscard]] double GetMinValue() const override;
+	[[nodiscard]] double GetMaxValue() const override;
+	[[nodiscard]] double GetCurrentValue() const override;
 };
 

@@ -31,6 +31,7 @@ set(SCREENREADER_SOURCES
     SRC/Engine.cpp
     SRC/EngineSpeechDispatcher.cpp
     SRC/SpeechEngine.cpp
+    SRC/ObjectAtspi.cpp
 )
 
 add_executable(ScreenReader
