@@ -40,6 +40,17 @@ bool CObjectAtspi::HandleEvent(const CEvent& event) {
 }
 
 [[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetChildren() {
+	if (!m_accessible) return m_children;
+	gint child_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
+	if (child_count == 0) return m_children;
+
+	for (gint i = 0; i < child_count; ++i) {
+		AtspiAccessible* child = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
+		if (!child) continue;
+		CObjectAtspi* child_object = new CObjectAtspi(child);
+		m_children.push_back(child_object);
+	}
+
 	return m_children;
 }
 
