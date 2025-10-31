@@ -3,24 +3,28 @@
 #include "Rect.h"
 
 [[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
+	if (!m_accessible) return IObject::UNKNOWN;
 	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
 	return GetObjectTypeFromAtspiRole(role);
 }
 
 [[nodiscard]] bool CObjectAtspi::IsVisible() {
-	return false;
+	return GetState() & IObject::VISIBLE;
 }
 
 [[nodiscard]] bool CObjectAtspi::IsEnabled() {
-	return false;
+	return GetState() & IObject::ENABLED;
 }
 
 [[nodiscard]] unsigned int CObjectAtspi::GetState() {
-	return 0;
+	if (!m_accessible) return 0;
+	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
+	if (!states) return 0;
+	return GetObjectStateFromAtspiStates(*states);
 }
 
 [[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {
-	return false;
+	return GetState() & state;
 }
 
 bool CObjectAtspi::HandleEvent(const CEvent& event) {
@@ -28,7 +32,11 @@ bool CObjectAtspi::HandleEvent(const CEvent& event) {
 }
 
 [[nodiscard]] IObject* CObjectAtspi::GetParent() {
-	return nullptr;
+	if (!m_accessible) return nullptr;
+	if (m_parent) return m_parent;
+	AtspiAccessible* parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
+	if (!parent) return nullptr;
+	return new CObjectAtspi(parent);
 }
 
 [[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetChildren() {
