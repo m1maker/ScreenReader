@@ -101,33 +101,36 @@ public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override = default;
 
-	[[nodiscard]] EObjectType GetType() const override;
-	[[nodiscard]] bool IsVisible() const override;
-	[[nodiscard]] bool IsEnabled() const override;
+	[[nodiscard]] EObjectType GetType() override;
+	[[nodiscard]] bool IsVisible() override;
+	[[nodiscard]] bool IsEnabled() override;
 
-	[[nodiscard]] unsigned int GetState() const override;
-	[[nodiscard]] bool HasState(EObjectState state) const override;
+	[[nodiscard]] unsigned int GetState() override;
+	[[nodiscard]] bool HasState(EObjectState state) override;
 
 	bool HandleEvent(const CEvent& event) override;
 
-	[[nodiscard]] IObject* GetParent() const override;
-	[[nodiscard]] const std::vector<IObject*>& GetChildren() const override;
+	[[nodiscard]] IObject* GetParent() override;
+	[[nodiscard]] const std::vector<IObject*>& GetChildren() override;
 
-	[[nodiscard]] SRect GetBounds() const override;
+	[[nodiscard]] SRect GetBounds() override;
 
-	[[nodiscard]] int GetTabIndex() const override;
+	[[nodiscard]] int GetTabIndex() override;
 
-	[[nodiscard]] std::string GetApplicationName() const override;
+	[[nodiscard]] std::string GetApplicationName() override;
 
-	[[nodiscard]] std::string GetName() const override;
-	[[nodiscard]] std::string GetDescription() const override;
-	[[nodiscard]] std::string GetText() const override;
+	[[nodiscard]] std::string GetName() override;
+	[[nodiscard]] std::string GetDescription() override;
+	[[nodiscard]] std::string GetText() override;
 
-	[[nodiscard]] IObject* GetSelectedItem() const override;
-	[[nodiscard]] const std::vector<IObject*>& GetItems() const override;
+	[[nodiscard]] IObject* GetSelectedItem() override;
+	[[nodiscard]] const std::vector<IObject*>& GetItems() override;
 
-	[[nodiscard]] double GetMinValue() const override;
-	[[nodiscard]] double GetMaxValue() const override;
-	[[nodiscard]] double GetCurrentValue() const override;
+	[[nodiscard]] double GetMinValue() override;
+	[[nodiscard]] double GetMaxValue() override;
+	[[nodiscard]] double GetCurrentValue() override;
+
+private:
+	GError* m_lastError{nullptr};
 };
 

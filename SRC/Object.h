@@ -62,34 +62,34 @@ public:
 
 	virtual ~IObject() = default;
 
-	[[nodiscard]] virtual EObjectType GetType() const = 0;
-	[[nodiscard]] virtual bool IsVisible() const = 0;
-	[[nodiscard]] virtual bool IsEnabled() const = 0;
+	[[nodiscard]] virtual EObjectType GetType() = 0;
+	[[nodiscard]] virtual bool IsVisible() = 0;
+	[[nodiscard]] virtual bool IsEnabled() = 0;
 
-	[[nodiscard]] virtual unsigned int GetState() const = 0;
-	[[nodiscard]] virtual bool HasState(EObjectState state) const = 0;
+	[[nodiscard]] virtual unsigned int GetState() = 0;
+	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
 
 	virtual bool HandleEvent(const CEvent& event) = 0;
 
-	[[nodiscard]] virtual IObject* GetParent() const = 0;
-	[[nodiscard]] virtual const std::vector<IObject*>& GetChildren() const = 0;
+	[[nodiscard]] virtual IObject* GetParent() = 0;
+	[[nodiscard]] virtual const std::vector<IObject*>& GetChildren() = 0;
 
-	[[nodiscard]] virtual struct SRect GetBounds() const = 0;
+	[[nodiscard]] virtual struct SRect GetBounds() = 0;
 
-	[[nodiscard]] virtual int GetTabIndex() const = 0;
+	[[nodiscard]] virtual int GetTabIndex() = 0;
 
-	[[nodiscard]] virtual std::string GetApplicationName() const = 0;
+	[[nodiscard]] virtual std::string GetApplicationName() = 0;
 
-	[[nodiscard]] virtual std::string GetName() const = 0;
-	[[nodiscard]] virtual std::string GetDescription() const = 0;
-	[[nodiscard]] virtual std::string GetText() const = 0;
+	[[nodiscard]] virtual std::string GetName() = 0;
+	[[nodiscard]] virtual std::string GetDescription() = 0;
+	[[nodiscard]] virtual std::string GetText() = 0;
 
-	[[nodiscard]] virtual IObject* GetSelectedItem() const = 0;
-	[[nodiscard]] virtual const std::vector<IObject*>& GetItems() const = 0;
+	[[nodiscard]] virtual IObject* GetSelectedItem() = 0;
+	[[nodiscard]] virtual const std::vector<IObject*>& GetItems() = 0;
 
-	[[nodiscard]] virtual double GetMinValue() const = 0;
-	[[nodiscard]] virtual double GetMaxValue() const = 0;
-	[[nodiscard]] virtual double GetCurrentValue() const = 0;
+	[[nodiscard]] virtual double GetMinValue() = 0;
+	[[nodiscard]] virtual double GetMaxValue() = 0;
+	[[nodiscard]] virtual double GetCurrentValue() = 0;
 
 protected:
 	IObject* m_parent{nullptr};

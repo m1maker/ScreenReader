@@ -2,23 +2,24 @@
 #include "Event.h"
 #include "Rect.h"
 
-[[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() const {
-	return IObject::UNKNOWN;
+[[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
+	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
+	return GetObjectTypeFromAtspiRole(role);
 }
 
-[[nodiscard]] bool CObjectAtspi::IsVisible() const {
+[[nodiscard]] bool CObjectAtspi::IsVisible() {
 	return false;
 }
 
-[[nodiscard]] bool CObjectAtspi::IsEnabled() const {
+[[nodiscard]] bool CObjectAtspi::IsEnabled() {
 	return false;
 }
 
-[[nodiscard]] unsigned int CObjectAtspi::GetState() const {
+[[nodiscard]] unsigned int CObjectAtspi::GetState() {
 	return 0;
 }
 
-[[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) const {
+[[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {
 	return false;
 }
 
@@ -26,54 +27,54 @@ bool CObjectAtspi::HandleEvent(const CEvent& event) {
 	return false;
 }
 
-[[nodiscard]] IObject* CObjectAtspi::GetParent() const {
+[[nodiscard]] IObject* CObjectAtspi::GetParent() {
 	return nullptr;
 }
 
-[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetChildren() const {
+[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetChildren() {
 	return m_children;
 }
 
-[[nodiscard]] SRect CObjectAtspi::GetBounds() const {
+[[nodiscard]] SRect CObjectAtspi::GetBounds() {
 	return SRect{};
 }
 
-[[nodiscard]] int CObjectAtspi::GetTabIndex() const {
+[[nodiscard]] int CObjectAtspi::GetTabIndex() {
 	return -1;
 }
 
-[[nodiscard]] std::string CObjectAtspi::GetApplicationName() const {
+[[nodiscard]] std::string CObjectAtspi::GetApplicationName() {
 	return "";
 }
 
-[[nodiscard]] std::string CObjectAtspi::GetName() const {
+[[nodiscard]] std::string CObjectAtspi::GetName() {
 	return "";
 }
 
-[[nodiscard]] std::string CObjectAtspi::GetDescription() const {
+[[nodiscard]] std::string CObjectAtspi::GetDescription() {
 	return "";
 }
 
-[[nodiscard]] std::string CObjectAtspi::GetText() const {
+[[nodiscard]] std::string CObjectAtspi::GetText() {
 	return "";
 }
 
-[[nodiscard]] IObject* CObjectAtspi::GetSelectedItem() const {
+[[nodiscard]] IObject* CObjectAtspi::GetSelectedItem() {
 	return nullptr;
 }
 
-[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetItems() const {
+[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetItems() {
 	return m_children;
 }
 
-[[nodiscard]] double CObjectAtspi::GetMinValue() const {
+[[nodiscard]] double CObjectAtspi::GetMinValue() {
 	return 0.0;
 }
 
-[[nodiscard]] double CObjectAtspi::GetMaxValue() const {
+[[nodiscard]] double CObjectAtspi::GetMaxValue() {
 	return 0.0;
 }
 
-[[nodiscard]] double CObjectAtspi::GetCurrentValue() const {
+[[nodiscard]] double CObjectAtspi::GetCurrentValue() {
 	return 0.0;
 }
