@@ -26,6 +26,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(ATSPI REQUIRED atspi-2)
 pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
 
+pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+
 set(SCREENREADER_SOURCES
     SRC/main.cpp
     SRC/Engine.cpp
@@ -53,6 +56,8 @@ target_include_directories(ScreenReader PRIVATE
 target_link_libraries(ScreenReader
     ${ATSPI_LIBRARIES}
     ${SPEECHD_LIBRARIES}
+    ${GOBJECT_LIBRARIES}
+    ${GLIB_LIBRARIES}
 )
 
 install(TARGETS ScreenReader DESTINATION bin)
