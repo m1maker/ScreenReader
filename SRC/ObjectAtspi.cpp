@@ -63,19 +63,28 @@ bool CObjectAtspi::HandleEvent(const CEvent& event) {
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetApplicationName() {
-	return "";
+	if (!m_accessible) return "Unknown";
+	gchar* name = atspi_accessible_get_toolkit_name(m_accessible, &m_lastError);
+	if (!name || !*name) return "Unknown";
+	return std::string(name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetName() {
-	return "";
+	if (!m_accessible) return "Unknown";
+	gchar* name = atspi_accessible_get_name(m_accessible, &m_lastError);
+	if (!name || !*name) return "Unknown";
+	return std::string(name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetDescription() {
-	return "";
+	if (!m_accessible) return "";
+	gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
+	if (!description || !*description) return "";
+	return std::string(description);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetText() {
-	return "";
+	return ""; /// I don't know, for what it will. Either editable text or static text.
 }
 
 [[nodiscard]] IObject* CObjectAtspi::GetSelectedItem() {
