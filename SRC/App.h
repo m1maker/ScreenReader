@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Singleton.h"
 #include "PlatformDependentWorker.h"
+#include "PlatformDependentWorkerLinux.h"
 
 inline bool g_running{false};
 inline int g_retcode{0};
@@ -30,7 +31,8 @@ public:
 	}
 
 	void Run() {
-		
+		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
+		m_worker->Loop();
 	}
 };
 
