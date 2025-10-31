@@ -24,3 +24,8 @@ public:
 	EEventType type;
 };
 
+class CObjectEvent : public IEvent {
+public:
+	IObject* object;
+};
+
