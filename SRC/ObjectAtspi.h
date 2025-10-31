@@ -1,9 +1,7 @@
-export module ObjectAtspi;
-#include <atspi.h>
 #include "Object.h"
-#include <vector>
+#include <atspi/atspi.h>
 
-[[nodiscard]] static constexpr IObject::EObjectType GetObjectTypeFromAtspiRole(const AtspiRole& role) {
+[[nodiscard]] static constexpr inline IObject::EObjectType GetObjectTypeFromAtspiRole(const AtspiRole& role) {
 	switch (role) {
 		case ATSPI_ROLE_INVALID:
 			return IObject::UNKNOWN;
@@ -18,7 +16,6 @@ export module ObjectAtspi;
 		case ATSPI_ROLE_PANEL:
 			return IObject::PANEL;
 		case ATSPI_ROLE_BUTTON:
-		case ATSPI_ROLE_PUSH_BUTTON:
 			return IObject::BUTTON;
 		case ATSPI_ROLE_RADIO_BUTTON:
 			return IObject::RADIO_BUTTON;
@@ -39,7 +36,7 @@ export module ObjectAtspi;
 	}
 }
 
-[[nodiscard]] static constexpr unsigned int GetObjectStateFromAtspiState(const AtspiStateType& state) {
+[[nodiscard]] static constexpr inline unsigned int GetObjectStateFromAtspiState(const AtspiStateType& state) {
 	switch (state) {
 		case ATSPI_STATE_VISIBLE:
 			return IObject::VISIBLE;
@@ -73,7 +70,7 @@ export module ObjectAtspi;
 	}
 }
 
-[[nodiscard]] static constexpr unsigned int GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
+[[nodiscard]] static constexpr inline unsigned int GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
 	unsigned int result = 0;
 	for (const auto& state : states) {
 		result |= GetObjectStateFromAtspiState(state);
@@ -81,7 +78,7 @@ export module ObjectAtspi;
 	return result;
 }
 
-[[nodiscard]] static unsigned int GetObjectStateFromAtspiStates(const ATSPIStateSet& states) {
+[[nodiscard]] static inline unsigned int GetObjectStateFromAtspiStates(AtspiStateSet& states) {
 	GArray* array = atspi_state_set_get_states(&states);
 	if (!array) [[unlikely]] {
 		return 0;
@@ -97,8 +94,8 @@ export module ObjectAtspi;
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
-export class CObjectAtspi final : public IObject {
-	ATSPIAccessible* m_accessible{nullptr};
+class CObjectAtspi final : public IObject {
+	AtspiAccessible* m_accessible{nullptr};
 public:
 
 };

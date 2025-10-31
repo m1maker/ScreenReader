@@ -1,15 +1,19 @@
-export module App;
-#include "Object.h"
-#include <string>
+#pragma once
 #include <vector>
+#include <memory>
+#include <string>
+#include "Object.h"
+#include "Engine.h"
 
-export bool g_running{false};
+inline bool g_running{false};
+inline int g_retcode{0};
 
 struct SScreenReaderOptions {
 };
 
-export class CScreenReaderApp final
+class CScreenReaderApp final {
 	SScreenReaderOptions m_options;
+	std::unique_ptr<Sral::Engine> m_speechEngine;
 public:
 	CScreenReaderApp() {
 		Run();
@@ -24,6 +28,7 @@ public:
 	}
 
 	void Run() {
+		
 	}
-
 };
+

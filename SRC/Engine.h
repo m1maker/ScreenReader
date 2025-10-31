@@ -1,17 +1,17 @@
-#ifndef ENGINE_H_
-#define ENGINE_H_
 #pragma once
-#include <stdint.h>
 #include <vector>
-#include <string.h>
 #include <string>
+#include <stdint.h>
+#include <cstring>
 
 namespace Sral {
 	class Engine {
 	public:
 		Engine();
 		virtual ~Engine();			
-		bool Speak(const std::string& text, bool interrupt);
+		virtual bool Speak(const std::string& text, bool interrupt);
+		virtual bool Braille(const std::string& text);
+
 		virtual void* SpeakToMemory(const std::string& text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
 		virtual bool StopSpeech();
 		virtual bool PauseSpeech();
@@ -47,4 +47,3 @@ namespace Sral {
 		}
 	};
 }
-#endif

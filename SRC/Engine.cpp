@@ -11,6 +11,10 @@ namespace Sral {
 		Uninitialize();
 	}
 
+	bool Engine::Braille(const std::string& text) {
+		return false;
+	}
+
 	bool Engine::GetActive() {
 		return false;
 	}
@@ -51,7 +55,7 @@ namespace Sral {
 		return false;
 	}
 
-	bool Engin::Speak(const std::string& text, bool interrupt) {
+	bool Engine::Speak(const std::string& text, bool interrupt) {
 		(void)text;
 		(void)interrupt;
 		return false;
