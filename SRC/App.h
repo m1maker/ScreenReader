@@ -1,9 +1,11 @@
 #pragma once
+#include <memory>
 #include <vector>
 #include <string>
 #include "Object.h"
 #include "Engine.h"
 #include "Singleton.h"
+#include "PlatformDependentWorker.h"
 
 inline bool g_running{false};
 inline int g_retcode{0};
@@ -13,6 +15,7 @@ struct SScreenReaderOptions {
 
 class CScreenReaderApp final {
 	SScreenReaderOptions m_options;
+	std::unique_ptr<IPlatformDependentWorker> m_worker;
 public:
 	CScreenReaderApp() {
 		Run();
