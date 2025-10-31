@@ -108,8 +108,6 @@ public:
 	[[nodiscard]] unsigned int GetState() override;
 	[[nodiscard]] bool HasState(EObjectState state) override;
 
-	bool HandleEvent(const CEvent& event) override;
-
 	[[nodiscard]] IObject* GetParent() override;
 	[[nodiscard]] const std::vector<IObject*>& GetChildren() override;
 

@@ -5,8 +5,6 @@
 #include "Event.h"
 #include "Rect.h"
 
-class CEvent;
-
 class IObject {
 public:
 	enum EObjectType : unsigned char {
@@ -42,22 +40,6 @@ public:
 		COLLAPSED = 1 << 13
 	};
 
-	enum EEventType {
-		EVENT_NONE = 0,
-		EVENT_FOCUS_GAINED,
-		EVENT_FOCUS_LOST,
-		EVENT_CLICKED,
-		EVENT_VALUE_CHANGED,
-		EVENT_SELECTION_CHANGED,
-		EVENT_STATE_CHANGED,
-		EVENT_VISIBILITY_CHANGED,
-		EVENT_ENABLED_CHANGED,
-		EVENT_TEXT_CHANGED,
-		EVENT_CHILD_ADDED,
-		EVENT_CHILD_REMOVED,
-		EVENT_LAYOUT_UPDATED
-	};
-
 	IObject() = default;
 
 	virtual ~IObject() = default;
@@ -68,8 +50,6 @@ public:
 
 	[[nodiscard]] virtual unsigned int GetState() = 0;
 	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
-
-	virtual bool HandleEvent(const CEvent& event) = 0;
 
 	[[nodiscard]] virtual IObject* GetParent() = 0;
 	[[nodiscard]] virtual const std::vector<IObject*>& GetChildren() = 0;

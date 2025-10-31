@@ -27,10 +27,6 @@
 	return GetState() & state;
 }
 
-bool CObjectAtspi::HandleEvent(const CEvent& event) {
-	return false;
-}
-
 [[nodiscard]] IObject* CObjectAtspi::GetParent() {
 	if (!m_accessible) return nullptr;
 	if (m_parent) return m_parent;
