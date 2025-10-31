@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-using EventQueue = std::shared_ptr<std::vector<CEvent>>;
+using EventQueue = std::vector<IEvent>;
 
 class IEventListener
 protected:
@@ -13,7 +13,7 @@ public:
 	IEventListener() = default;
 	virtual ~IEventListener() = default;
 
-	virtual void Post(CEvent& event) = 0;
+	virtual void Post(IEvent& event) = 0;
 
 	[[nodiscard]] virtual EventQueue RequestQueue() = 0;
 };

@@ -2,7 +2,7 @@
 
 class IObject;
 
-class CEvent {
+class IEvent {
 public:
 
 	enum EEventType {
@@ -22,8 +22,5 @@ public:
 	};
 
 	EEventType type;
-	IObject* source;
-	void* data;
 };
-
 

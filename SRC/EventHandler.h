@@ -8,4 +8,5 @@ public:
 	CEventHandler() = default;
 	~CEventHandler() = default;
 
-	
+};
+
