@@ -45,7 +45,7 @@ namespace Sral {
 			return false;
 		}
 
-		spd_set_data_mode(speech, SPD_DATA_SSML);
+		//spd_set_data_mode(speech, SPD_DATA_SSML);
 
 		speech->callback_begin = &SpeechDispatcher::SpeechNotificationCallback;
 		speech->callback_end = &SpeechDispatcher::SpeechNotificationCallback;

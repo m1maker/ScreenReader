@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <memory>
 #include <string>
 #include "Object.h"
 #include "Engine.h"
@@ -14,7 +13,6 @@ struct SScreenReaderOptions {
 
 class CScreenReaderApp final {
 	SScreenReaderOptions m_options;
-	std::shared_ptr<Sral::Engine> m_speechEngine;
 public:
 	CScreenReaderApp() {
 		Run();
