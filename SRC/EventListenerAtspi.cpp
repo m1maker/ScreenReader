@@ -3,7 +3,7 @@
 void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 }
 
-CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new(&CEventListenerAtspi::OnEventCallback, nullptr, nullptr)) {
+CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new(&CEventListenerAtspi::OnEventCallback, this, nullptr)) {
 	atspi_event_listener_register (&*m_listener, "object:state-changed:focused", nullptr);
 	atspi_event_listener_register (&*m_listener, "object:state-changed:selected", nullptr);
 }
