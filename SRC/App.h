@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "Object.h"
+#include "Logger.h"
 #include "Engine.h"
 #include "Singleton.h"
 #include "PlatformDependentWorker.h"
@@ -29,6 +30,7 @@ public:
 	}
 
 	~CScreenReaderApp() {
+		g_logger.Log(CLogger::DEBUG, "Application is shutting down now");
 	}
 
 	void Run() {
