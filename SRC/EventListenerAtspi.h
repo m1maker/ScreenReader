@@ -1,14 +1,14 @@
 #pragma once
 #include "EventListener.h"
 
-class CEventListenerAtspi final
+class CEventListenerAtspi final : public IEventListener {
 public:
 
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi();
 
-	void Post(IEvent& event);
+	void Post(IEvent& event) override;
 
-	[[nodiscard]] EventQueue RequestQueue();
+	[[nodiscard]] EventQueue RequestQueue() override;
 };
 
