@@ -1,5 +1,6 @@
 #include "EventListenerAtspi.h"
 #include "ObjectAtspi.h"
+#include "EventHandler.h"
 
 void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 	if (!event || !user_data || !event->type) [[unlikely]] return;
@@ -21,6 +22,7 @@ CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new
 
 void CEventListenerAtspi::Post(IEvent& event) {
 	m_eventQueue.push_back(event);
+	g_eventHandler.Handle();
 }
 
 [[nodiscard]] EventQueue& CEventListenerAtspi::RequestQueue() {
