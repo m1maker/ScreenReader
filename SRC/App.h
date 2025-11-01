@@ -30,16 +30,18 @@ public:
 	}
 
 	~CScreenReaderApp() {
-		g_logger.Log(CLogger::DEBUG, "Application is shutting down now");
+		g_logger.Log(CLogger::INFO, "Application is shutting down now");
 	}
 
 	void Run() {
+		g_logger.Log(CLogger::INFO, "Application is starting now");
 		auto state_speaker = g_speechEngine.GetSpeaker();
 		state_speaker->Initialize();
 		state_speaker->Speak("Screen reader on", true);
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
 		m_worker->Loop();
 		state_speaker->Uninitialize();
+		g_logger.Log(CLogger::INFO, "Main application loop is now stopped. Going to shut down");
 	}
 };
 

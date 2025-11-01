@@ -4,8 +4,6 @@
 #include "Singleton.h"
 
 class CLogger final {
-	std::ofstream m_file;
-	int m_level;
 public:
 
 	enum ELogLevel : unsigned char {
@@ -16,8 +14,14 @@ public:
 		ERROR
 	};
 
+private:
+	std::ofstream m_file;
+	ELogLevel m_level;
+public:
+
 	explicit CLogger() : m_level(INFO) {
 		m_file.open("ScreenReader.log");
+		Log(INFO, "Logger initialized. Log level is " + LogLevelToString(m_level));
 	}
 
 	~CLogger() = default;
@@ -28,15 +32,20 @@ public:
 			case DEBUG: return "Debug";
 			case WARNING: return "Warning";
 			case ERROR: return "Error";
-			default: return "";
+			default: return "Nothing";
 		}
 	}
 
 	template<typename T>
-	void Log(const ELogLevel& level, T value) {
+	inline void Log(const ELogLevel& level, T value) {
 		if (level < m_level) return;
 
 		m_file << LogLevelToString(level) << ": " << value << std::endl;
+	}
+
+	inline void SetLevel(const ELogLevel& level) {
+		m_level = level;
+		Log(INFO, "Log level is now " + LogLevelToString(m_level));
 	}
 };
 
