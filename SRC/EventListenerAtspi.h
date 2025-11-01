@@ -3,7 +3,7 @@
 #include <atspi/atspi.h>
 #include <memory>
 
-[[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromAtspiString(gchar* type) {
+[[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {
 	if (!type || !*type) [[unlikely]] return IEvent::NONE;
 
 	std::string type_str(type);
