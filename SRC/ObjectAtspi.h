@@ -95,7 +95,7 @@
 }
 
 class CObjectAtspi final : public IObject {
-	AtspiAccessible* m_accessible{nullptr};
+	std::unique_ptr<AtspiAccessible> m_accessible;
 
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
@@ -108,8 +108,8 @@ public:
 	[[nodiscard]] unsigned int GetState() override;
 	[[nodiscard]] bool HasState(EObjectState state) override;
 
-	[[nodiscard]] IObject* GetParent() override;
-	[[nodiscard]] const std::vector<IObject*>& GetChildren() override;
+	[[nodiscard]] std::weak_ptr<IObject> GetParent() override;
+	[[nodiscard]] const std::vector<std::shared_ptr<IObject>>& GetChildren() override;
 
 	[[nodiscard]] SRect GetBounds() override;
 
@@ -120,9 +120,6 @@ public:
 	[[nodiscard]] std::string GetName() override;
 	[[nodiscard]] std::string GetDescription() override;
 	[[nodiscard]] std::string GetText() override;
-
-	[[nodiscard]] IObject* GetSelectedItem() override;
-	[[nodiscard]] const std::vector<IObject*>& GetItems() override;
 
 	[[nodiscard]] double GetMinValue() override;
 	[[nodiscard]] double GetMaxValue() override;

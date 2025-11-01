@@ -4,7 +4,7 @@
 
 [[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
 	if (!m_accessible) return IObject::UNKNOWN;
-	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
+	AtspiRole role = atspi_accessible_get_role(&*m_accessible, &m_lastError);
 	return GetObjectTypeFromAtspiRole(role);
 }
 
@@ -18,7 +18,7 @@
 
 [[nodiscard]] unsigned int CObjectAtspi::GetState() {
 	if (!m_accessible) return 0;
-	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
+	AtspiStateSet* states = atspi_accessible_get_state_set(&*m_accessible);
 	if (!states) return 0;
 	return GetObjectStateFromAtspiStates(*states);
 }
@@ -27,23 +27,22 @@
 	return GetState() & state;
 }
 
-[[nodiscard]] IObject* CObjectAtspi::GetParent() {
-	if (!m_accessible) return nullptr;
-	if (m_parent) return m_parent;
-	AtspiAccessible* parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
-	if (!parent) return nullptr;
-	return new CObjectAtspi(parent);
+[[nodiscard]] std::weak_ptr<IObject> CObjectAtspi::GetParent() {
+	if (!m_accessible) return std::make_shared<CObjectAtspi>(nullptr);
+	AtspiAccessible* parent = atspi_accessible_get_parent(&*m_accessible, &m_lastError);
+	if (!parent) return std::make_shared<CObjectAtspi>(nullptr);
+	return std::make_shared<CObjectAtspi>(parent);
 }
 
-[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetChildren() {
+[[nodiscard]] const std::vector<std::shared_ptr<IObject>>& CObjectAtspi::GetChildren() {
 	if (!m_accessible) return m_children;
-	gint child_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
+	gint child_count = atspi_accessible_get_child_count(&*m_accessible, &m_lastError);
 	if (child_count == 0) return m_children;
 
 	for (gint i = 0; i < child_count; ++i) {
-		AtspiAccessible* child = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
+		AtspiAccessible* child = atspi_accessible_get_child_at_index(&*m_accessible, i, &m_lastError);
 		if (!child) continue;
-		CObjectAtspi* child_object = new CObjectAtspi(child);
+		std::shared_ptr<CObjectAtspi> child_object = std::make_shared<CObjectAtspi>(child);
 		m_children.push_back(child_object);
 	}
 
@@ -60,35 +59,27 @@
 
 [[nodiscard]] std::string CObjectAtspi::GetApplicationName() {
 	if (!m_accessible) return "Unknown";
-	gchar* name = atspi_accessible_get_toolkit_name(m_accessible, &m_lastError);
+	gchar* name = atspi_accessible_get_toolkit_name(&*m_accessible, &m_lastError);
 	if (!name || !*name) return "Unknown";
 	return std::string(name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetName() {
 	if (!m_accessible) return "Unknown";
-	gchar* name = atspi_accessible_get_name(m_accessible, &m_lastError);
+	gchar* name = atspi_accessible_get_name(&*m_accessible, &m_lastError);
 	if (!name || !*name) return "Unknown";
 	return std::string(name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetDescription() {
 	if (!m_accessible) return "";
-	gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
+	gchar* description = atspi_accessible_get_description(&*m_accessible, &m_lastError);
 	if (!description || !*description) return "";
 	return std::string(description);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetText() {
 	return ""; /// I don't know, for what it will. Either editable text or static text.
-}
-
-[[nodiscard]] IObject* CObjectAtspi::GetSelectedItem() {
-	return nullptr;
-}
-
-[[nodiscard]] const std::vector<IObject*>& CObjectAtspi::GetItems() {
-	return m_children;
 }
 
 [[nodiscard]] double CObjectAtspi::GetMinValue() {

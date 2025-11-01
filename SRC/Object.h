@@ -51,8 +51,8 @@ public:
 	[[nodiscard]] virtual unsigned int GetState() = 0;
 	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
 
-	[[nodiscard]] virtual IObject* GetParent() = 0;
-	[[nodiscard]] virtual const std::vector<IObject*>& GetChildren() = 0;
+	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent() = 0;
+	[[nodiscard]] virtual const std::vector<std::shared_ptr<IObject>>& GetChildren() = 0;
 
 	[[nodiscard]] virtual struct SRect GetBounds() = 0;
 
@@ -64,15 +64,12 @@ public:
 	[[nodiscard]] virtual std::string GetDescription() = 0;
 	[[nodiscard]] virtual std::string GetText() = 0;
 
-	[[nodiscard]] virtual IObject* GetSelectedItem() = 0;
-	[[nodiscard]] virtual const std::vector<IObject*>& GetItems() = 0;
-
 	[[nodiscard]] virtual double GetMinValue() = 0;
 	[[nodiscard]] virtual double GetMaxValue() = 0;
 	[[nodiscard]] virtual double GetCurrentValue() = 0;
 
 protected:
-	IObject* m_parent{nullptr};
-	std::vector<IObject*> m_children;
+	std::weak_ptr<IObject> m_parent;
+	std::vector<std::shared_ptr<IObject>> m_children;
 };
 
