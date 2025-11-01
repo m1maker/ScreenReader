@@ -1,14 +1,14 @@
 #pragma once
 #include "EventListener.h"
 
-class CEventListener final
+class CEventListenerAtspi final
 public:
 
-	IEventListener() = default;
-	virtual ~IEventListener() = default;
+	explicit CEventListenerAtspi();
+	~CEventListenerAtspi();
 
-	virtual void Post(IEvent& event) = 0;
+	void Post(IEvent& event);
 
-	[[nodiscard]] virtual EventQueue RequestQueue() = 0;
+	[[nodiscard]] EventQueue RequestQueue();
 };
 
