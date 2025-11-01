@@ -15,6 +15,6 @@ public:
 
 	virtual void Post(IEvent& event) = 0;
 
-	[[nodiscard]] virtual EventQueue RequestQueue() = 0;
+	[[nodiscard]] virtual EventQueue& RequestQueue() = 0;
 };
 

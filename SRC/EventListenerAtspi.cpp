@@ -23,7 +23,7 @@ void CEventListenerAtspi::Post(IEvent& event) {
 	m_eventQueue.push_back(event);
 }
 
-[[nodiscard]] EventQueue CEventListenerAtspi::RequestQueue() {
+[[nodiscard]] EventQueue& CEventListenerAtspi::RequestQueue() {
 	return m_eventQueue;
 }
 

@@ -23,6 +23,6 @@ public:
 
 	void Post(IEvent& event) override;
 
-	[[nodiscard]] EventQueue RequestQueue() override;
+	[[nodiscard]] EventQueue& RequestQueue() override;
 };
 
