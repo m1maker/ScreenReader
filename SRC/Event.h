@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 class IObject;
 
@@ -26,6 +27,6 @@ public:
 
 class CObjectEvent : public IEvent {
 public:
-	IObject* object;
+	std::shared_ptr<IObject> object;
 };
 
