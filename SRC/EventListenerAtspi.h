@@ -3,6 +3,15 @@
 #include <atspi/atspi.h>
 #include <memory>
 
+[[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromAtspiString(gchar* type) {
+	if (!type || !*type) [[unlikely]] return IEvent::NONE;
+
+	std::string type_str(type);
+	if (type_str == "object:state-changed:focused") return IEvent::FOCUS_GAINED;
+	else if (type_str == "object:state-changed:selected") return IEvent::SELECTION_CHANGED;
+	return IEvent::NONE;
+}
+
 class CEventListenerAtspi final : public IEventListener {
 	std::unique_ptr<AtspiEventListener> m_listener;
 public:
