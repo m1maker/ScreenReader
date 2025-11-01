@@ -1,11 +1,11 @@
 #include "Engine.h"
 #include <cstddef>
 
-
 namespace Sral {
 	Engine::Engine() {
 
 	}
+
 	Engine::~Engine() {
 		ReleaseAllStrings();
 		Uninitialize();

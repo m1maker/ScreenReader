@@ -7,6 +7,7 @@
 #include "Singleton.h"
 #include "PlatformDependentWorker.h"
 #include "PlatformDependentWorkerLinux.h"
+#include "SpeechEngine.h"
 
 inline bool g_running{false};
 inline int g_retcode{0};
@@ -31,8 +32,12 @@ public:
 	}
 
 	void Run() {
+		auto state_speaker = g_speechEngine.GetSpeaker();
+		state_speaker->Initialize();
+		state_speaker->Speak("Screen reader on", true);
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
 		m_worker->Loop();
+		state_speaker->Uninitialize();
 	}
 };
 
