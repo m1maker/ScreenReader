@@ -5,7 +5,7 @@
 
 using EventQueue = std::vector<IEvent>;
 
-class IEventListener
+class IEventListener {
 protected:
 	EventQueue m_eventQueue;
 public:
