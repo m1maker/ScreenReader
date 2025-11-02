@@ -21,7 +21,7 @@ public:
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() = default;
 
-	void Post(IEvent& event) override;
+	void Post(std::shared_ptr<IEvent> event) override;
 
 	[[nodiscard]] EventQueue& RequestQueue() override;
 };

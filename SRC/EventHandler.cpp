@@ -1,17 +1,25 @@
 #include "EventHandler.h"
 #include "EventListenerAtspi.h"
+#include "Logger.h"
 
 CEventHandler::CEventHandler() {
 	m_listener = std::make_unique<CEventListenerAtspi>();
 }
 
 void CEventHandler::Handle() {
-	if (!m_listener) [[unlikely]] return;
+	[[maybe_unused]] CScopedCatigory _("Event handler");
+	if (!m_listener) [[unlikely]] {
+		g_logger.Log(CLogger::ERROR, "There is no event listener registered for this platform");
+		return;
+	}
 
 	auto event_queue = m_listener->RequestQueue();
-	if (event_queue.empty()) [[unlikely]] return;
+	if (event_queue.empty()) [[unlikely]] {
+		g_logger.Log(CLogger::WARNING, "The event listener was called the handler, but there are no events to handle");
+		return;
+	}
 
-	IEvent event = event_queue.front();
+	auto event = event_queue.front();
 	event_queue.erase(event_queue.begin());
 
 }
