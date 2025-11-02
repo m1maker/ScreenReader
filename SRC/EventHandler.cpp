@@ -20,15 +20,15 @@ void CEventHandler::Handle() {
 		return;
 	}
 
-	auto event = event_queue.front();
-
-	switch (event->type) {
-		case IEvent::FOCUS_GAINED:
-			g_eventToSpeech.AnnounceFocusChange(dynamic_cast<CObjectEvent*>(&*event));
-			break;
-		default:
-			break;
+	for (auto& event : event_queue) {
+		switch (event->type) {
+			case IEvent::FOCUS_GAINED:
+				g_eventToSpeech.AnnounceFocusChange(dynamic_cast<CObjectEvent*>(&*event));
+				break;
+			default:
+				break;
+		}
 	}
 
-	event_queue.erase(event_queue.begin());
+	event_queue.clear();
 }
