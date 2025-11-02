@@ -101,6 +101,8 @@ public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override = default;
 
+	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(&*m_accessible); }
+
 	[[nodiscard]] inline bool IsValid() override { return m_accessible != nullptr; }
 
 	[[nodiscard]] EObjectType GetType() override;

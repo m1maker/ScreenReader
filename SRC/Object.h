@@ -43,6 +43,8 @@ public:
 
 	virtual ~IObject() = default;
 
+	[[nodiscard]] virtual void* GetNativeHandle() = 0;
+
 	[[nodiscard]] virtual bool IsValid() = 0;
 
 	[[nodiscard]] virtual EObjectType GetType() = 0;
