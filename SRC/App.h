@@ -9,6 +9,7 @@
 #include "PlatformDependentWorker.h"
 #include "PlatformDependentWorkerLinux.h"
 #include "SpeechEngine.h"
+#include "EventHandler.h"
 
 inline bool g_running{false};
 inline int g_retcode{0};
@@ -30,18 +31,19 @@ public:
 	}
 
 	~CScreenReaderApp() {
-		g_logger.Log(CLogger::INFO, "Application is shutting down now");
+		g_logger.Log(CLogger::INFO, "Application", "Shutting down");
 	}
 
 	void Run() {
-		g_logger.Log(CLogger::INFO, "Application is starting now");
+		g_logger.Log(CLogger::INFO, "Application", "Starting");
 		auto state_speaker = g_speechEngine.GetSpeaker();
 		state_speaker->Initialize();
 		state_speaker->Speak("Screen reader on", true);
+		g_eventHandler;
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
 		m_worker->Loop();
 		state_speaker->Uninitialize();
-		g_logger.Log(CLogger::INFO, "Main application loop is now stopped. Going to shut down");
+		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
 	}
 };
 
