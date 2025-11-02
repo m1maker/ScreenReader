@@ -44,6 +44,8 @@ public:
 
 	virtual ~IObject() = default;
 
+	[[nodiscard]] virtual bool IsValid() = 0;
+
 	[[nodiscard]] virtual EObjectType GetType() = 0;
 	[[nodiscard]] virtual bool IsVisible() = 0;
 	[[nodiscard]] virtual bool IsEnabled() = 0;

@@ -21,5 +21,4 @@ void CEventHandler::Handle() {
 
 	auto event = event_queue.front();
 	event_queue.erase(event_queue.begin());
-
 }

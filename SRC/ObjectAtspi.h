@@ -101,6 +101,8 @@ public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override = default;
 
+	[[nodiscard]] inline bool IsValid() override { return m_accessible != nullptr; }
+
 	[[nodiscard]] EObjectType GetType() override;
 	[[nodiscard]] bool IsVisible() override;
 	[[nodiscard]] bool IsEnabled() override;
