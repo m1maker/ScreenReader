@@ -2,17 +2,18 @@
 #include "Event.h"
 #include "Rect.h"
 
-[[nodiscard]] std::vector<AtspiRelation*> CObjectAtspi::GetRelations() {
+[[nodiscard]] std::vector<AtspiRelation> CObjectAtspi::GetRelations() {
 	if (m_relations) g_array_free(m_relations, TRUE);
 	if (!m_accessible) return{};
 
 	m_relations = atspi_accessible_get_relation_set(&*m_accessible, &m_lastError);
 	if (!m_relations) return {};
 
-	std::vector<AtspiRelation*> relations;
+	std::vector<AtspiRelation> relations;
+	relations.reserve(m_relations->len);
 	for (gint i = 0; i < m_relations->len; ++i) {
 		AtspiRelation* relation = g_array_index(m_relations, AtspiRelation*, i);
-		relations.push_back(relation);
+		relations.push_back(*relation);
 	}
 
 	return relations;
@@ -82,7 +83,19 @@
 
 [[nodiscard]] std::string CObjectAtspi::GetName() {
 	if (!m_accessible) return "Unknown";
-	gchar* name = atspi_accessible_get_name(&*m_accessible, &m_lastError);
+
+	bool name_found = false;
+	const gchar* name = atspi_accessible_get_name(&*m_accessible, &m_lastError);
+	std::vector<AtspiRelation> relations = GetRelations();
+	if (relations.empty()) return std::string(name);
+	for (AtspiRelation& relation : relations) {
+		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_LABELLED_BY) {
+			name = atspi_accessible_get_name(atspi_relation_get_target(&relation, 0), &m_lastError);
+			name_found = true;
+			break;
+		}
+	}
+
 	if (!name || !*name) return "Unknown";
 	return std::string(name);
 }

@@ -83,7 +83,7 @@ namespace Sral {
 	}
 
 	bool SpeechDispatcher::Speak(const std::string& text, bool interrupt) {
-		if (speech == nullptr)return false;
+		if (speech == nullptr || text.empty())return false;
 		if (interrupt) {
 			spd_stop(speech);
 			spd_cancel(speech);

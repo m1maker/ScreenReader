@@ -99,7 +99,7 @@ class CObjectAtspi final : public IObject {
 	std::unique_ptr<AtspiAccessible> m_accessible;
 	GArray* m_relations{nullptr};
 
-	[[nodiscard]] std::vector<AtspiRelation*> GetRelations();
+	[[nodiscard]] std::vector<AtspiRelation> GetRelations();
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
