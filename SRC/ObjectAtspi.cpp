@@ -20,7 +20,7 @@
 	if (!m_accessible) return 0;
 	AtspiStateSet* states = atspi_accessible_get_state_set(&*m_accessible);
 	if (!states) return 0;
-	return GetObjectStateFromAtspiStates(*states);
+	return GetObjectStateFromAtspiStates(states);
 }
 
 [[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {

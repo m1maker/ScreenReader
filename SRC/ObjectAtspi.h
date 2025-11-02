@@ -78,8 +78,8 @@
 	return result;
 }
 
-[[nodiscard]] static inline unsigned int GetObjectStateFromAtspiStates(AtspiStateSet& states) {
-	GArray* array = atspi_state_set_get_states(&states);
+[[nodiscard]] static inline unsigned int GetObjectStateFromAtspiStates(AtspiStateSet* states) {
+	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
 		return 0;
 	}
@@ -90,7 +90,8 @@
 		state_types.push_back(static_cast<AtspiStateType>(state));
 	}
 
-	g_array_unref(array);
+	g_array_free(array, TRUE);
+	g_object_unref(states);
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
