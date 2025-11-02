@@ -2,6 +2,22 @@
 #include "Event.h"
 #include "Rect.h"
 
+[[nodiscard]] std::vector<AtspiRelation*> CObjectAtspi::GetRelations() {
+	if (m_relations) g_array_free(m_relations, TRUE);
+	if (!m_accessible) return{};
+
+	m_relations = atspi_accessible_get_relation_set(&*m_accessible, &m_lastError);
+	if (!m_relations) return {};
+
+	std::vector<AtspiRelation*> relations;
+	for (gint i = 0; i < m_relations->len; ++i) {
+		AtspiRelation* relation = g_array_index(m_relations, AtspiRelation*, i);
+		relations.push_back(relation);
+	}
+
+	return relations;
+}
+
 [[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
 	if (!m_accessible) return IObject::UNKNOWN;
 	AtspiRole role = atspi_accessible_get_role(&*m_accessible, &m_lastError);
