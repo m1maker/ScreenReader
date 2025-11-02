@@ -18,7 +18,7 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 	IEvent::EEventType type = GetEventTypeFromString(event->type);
 
 	// Now only Object events.
-	std::shared_ptr<CObjectEvent> to_post = std::make_shared<CObjectEvent>();
+	auto to_post = std::make_shared<CObjectEvent>();
 	to_post->type = type;
 	to_post->object = std::make_shared<CObjectAtspi>(event->source);
 	listener->Post(to_post);

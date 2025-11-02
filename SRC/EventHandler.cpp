@@ -1,6 +1,7 @@
 #include "EventHandler.h"
 #include "EventListenerAtspi.h"
 #include "Logger.h"
+#include "EventToSpeech.h"
 
 CEventHandler::CEventHandler() {
 	m_listener = std::make_unique<CEventListenerAtspi>();
@@ -20,5 +21,14 @@ void CEventHandler::Handle() {
 	}
 
 	auto event = event_queue.front();
+
+	switch (event->type) {
+		case IEvent::FOCUS_GAINED:
+			g_eventToSpeech.AnnounceFocusChange(dynamic_cast<CObjectEvent*>(&*event));
+			break;
+		default:
+			break;
+	}
+
 	event_queue.erase(event_queue.begin());
 }

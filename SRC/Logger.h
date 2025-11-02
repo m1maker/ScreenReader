@@ -61,7 +61,6 @@ public:
 
 #define g_logger CSingleton<CLogger>::GetInstance()
 
-// Make sure only you invoke logger.
 class CScopedCatigory final {
 	std::string m_currentCatigory;
 public:

@@ -8,10 +8,10 @@ class CEventToSpeech final {
 	std::shared_ptr<Sral::Engine> m_speaker;
 public:
 
-	explicit CEventToSpeech() : m_speaker(g_speechEngine.RequestSpeaker()) {}
+	explicit CEventToSpeech() : m_speaker(g_speechEngine.GetSpeaker()) {}
 	~CEventToSpeech() = default;
 
-	void AnnounceFocusChange(std::shared_ptr<CObjectEvent> event);
+	void AnnounceFocusChange(CObjectEvent* event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };

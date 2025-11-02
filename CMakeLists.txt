@@ -37,6 +37,7 @@ set(SCREENREADER_SOURCES
     SRC/ObjectAtspi.cpp
     SRC/EventListenerAtspi.cpp
     SRC/EventHandler.cpp
+    SRC/EventToSpeech.cpp
 )
 
 add_executable(ScreenReader

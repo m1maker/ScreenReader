@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <memory>
-#include "Event.h"
 #include "Rect.h"
 
 class IObject {

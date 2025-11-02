@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
-
-class IObject;
+#include "Object.h"
 
 class IEvent {
 public:
@@ -23,6 +22,9 @@ public:
 	};
 
 	EEventType type;
+
+	IEvent() = default;
+	virtual ~IEvent() = default;
 };
 
 class CObjectEvent : public IEvent {

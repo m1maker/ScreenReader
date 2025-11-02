@@ -1,5 +1,5 @@
 #include "EventToSpeech.h"
 
-void CEventToSpeech::AnnounceFocusChange(std::shared_ptr<CObjectEvent> event) {
-	
+void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
+	m_speaker->Speak(event->object->GetName(), true);
 }
