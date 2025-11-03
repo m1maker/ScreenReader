@@ -44,6 +44,8 @@
 	if (states & CHECKED) state_names.push_back("checked");
 	if (states & EXPANDED) state_names.push_back("expanded");
 	if (states & READONLY) state_names.push_back("read-only");
+	if (states & MULTI_LINE) state_names.push_back("multi-line");
+	if (states & SECURE) state_names.push_back("secure");
 	if (states & REQUIRED) state_names.push_back("required");
 	if (states & INVALID) state_names.push_back("invalid");
 	if (states & HOVERED) state_names.push_back("hovered");
@@ -51,6 +53,14 @@
 	if (states & DEFAULT) state_names.push_back("default");
 	if (states & LOADING) state_names.push_back("loading");
 	if (states & COLLAPSED) state_names.push_back("collapsed");
+
+	if (states & EDITABLE && require_all) state_names.push_back("editable");
+	if (states & EXPANDABLE && require_all) state_names.push_back("expandable");
+	if (states & FOCUSABLE && require_all) state_names.push_back("focusable");
+	if (states & SELECTABLE && require_all) state_names.push_back("selectable");
+	if (states & MULTI_SELECTABLE) state_names.push_back("multi-selectable");
+	if (states & RESIZABLE && require_all) state_names.push_back("resizable");
+	if (states & CHECKABLE && require_all) state_names.push_back("checkable");
 
 	return state_names;
 }
