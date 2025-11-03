@@ -26,4 +26,5 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	}
 
 	m_speaker->Speak(announcement ,event->now);
+	m_speaker->Speak(event->object->GetDescription(), false);
 }
