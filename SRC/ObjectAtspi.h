@@ -131,6 +131,7 @@ public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
 		if (m_relations) g_array_free(m_relations, TRUE);
+		if (m_accessible) g_object_unref(m_accessible);
 	}
 
 	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(m_accessible); }
