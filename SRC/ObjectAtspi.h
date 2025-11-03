@@ -30,6 +30,7 @@
 			return IObject::PROGRESS_BAR;
 		case ATSPI_ROLE_WINDOW:
 		case ATSPI_ROLE_DESKTOP_FRAME:
+		case ATSPI_ROLE_APPLICATION:
 			return IObject::WINDOW;
 		case ATSPI_ROLE_DIALOG:
 			return IObject::DIALOG;
