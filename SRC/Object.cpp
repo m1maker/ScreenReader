@@ -14,18 +14,18 @@
 }
 
 // I need to make translations in the future, so don't make it constexpr or inline
-[[nodiscard]] std::string IObject::GetTypeName(const IObject::EObjectType& type) {
+[[nodiscard]] std::string IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) {
 	switch (type) {
 		case BUTTON: return "Button";
 		case TEXT_FIELD: return "Text field";
-		case LABEL: return "Label";
+		case LABEL: return require_all ? "Label" : "";
 		case CHECKBOX: return "Checkbox";
 		case RADIO_BUTTON: return "Radio button";
 		case COMBO_BOX: return "Combo box";
 		case LIST_BOX: return "List box";
-		case LIST_ITEM: return "List item";
+		case LIST_ITEM: return require_all ? "List item" : "";
 		case MENU: return "Menu";
-		case MENU_ITEM: return "Menu item";
+		case MENU_ITEM: return require_all ? "Menu item" : "";
 		case SLIDER: return "Slider";
 		case PROGRESS_BAR: return "Progress bar";
 		case IMAGE: return "Image";
