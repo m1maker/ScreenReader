@@ -60,6 +60,8 @@
 			return IObject::EXPANDED;
 		case ATSPI_STATE_READ_ONLY:
 			return IObject::READONLY;
+		case ATSPI_STATE_MULTI_LINE:
+			return IObject::MULTI_LINE;
 		case ATSPI_STATE_REQUIRED:
 			return IObject::REQUIRED;
 		case ATSPI_STATE_INVALID_ENTRY:
@@ -73,6 +75,21 @@
 			return IObject::COLLAPSED;
 		case ATSPI_STATE_IS_DEFAULT:
 			return IObject::DEFAULT;
+
+		case ATSPI_STATE_EDITABLE:
+			return IObject::EDITABLE;
+		case ATSPI_STATE_EXPANDABLE:
+			return IObject::EXPANDABLE;
+		case ATSPI_STATE_FOCUSABLE:
+			return IObject::FOCUSABLE;
+		case ATSPI_STATE_SELECTABLE:
+			return IObject::SELECTABLE;
+		case ATSPI_STATE_MULTISELECTABLE:
+			return IObject::MULTI_SELECTABLE;
+		case ATSPI_STATE_RESIZABLE:
+			return IObject::RESIZABLE;
+		case ATSPI_STATE_CHECKABLE:
+			return IObject::CHECKABLE;
 		default:
 			return IObject::NO;
 	}

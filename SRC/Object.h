@@ -25,7 +25,7 @@ public:
 		WINDOW
 	};
 
-	enum EObjectState : unsigned int {
+	enum EObjectState : unsigned long long {
 		NO = 0,
 		VISIBLE = 1 << 0,
 		ENABLED = 1 << 1,
@@ -34,13 +34,23 @@ public:
 		CHECKED = 1 << 4,
 		EXPANDED = 1 << 5,
 		READONLY = 1 << 6,
-		REQUIRED = 1 << 7,
-		INVALID = 1 << 8,
-		HOVERED = 1 << 9,
-		PRESSED = 1 << 10,
-		DEFAULT = 1 << 11,
-		LOADING = 1 << 12,
-		COLLAPSED = 1 << 13
+		MULTI_LINE = 1 << 7,
+		SECURE = 1 << 8,
+		REQUIRED = 1 << 9,
+		INVALID = 1 << 10,
+		HOVERED = 1 << 11,
+		PRESSED = 1 << 12,
+		DEFAULT = 1 << 13,
+		LOADING = 1 << 14,
+		COLLAPSED = 1 << 15,
+
+		EDITABLE = 1 << 16,
+		EXPANDABLE = 1 << 17,
+		FOCUSABLE = 1 << 18,
+		SELECTABLE = 1 << 19,
+		MULTI_SELECTABLE = 1 << 20,
+		RESIZABLE = 1 << 21,
+		CHECKABLE = 1 << 22
 	};
 
 	IObject() = default;
