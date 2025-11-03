@@ -145,6 +145,17 @@ public:
 	~CObjectAtspi() override {
 		if (m_relations) g_array_free(m_relations, TRUE);
 		if (m_accessible) g_object_unref(m_accessible);
+		if (m_actionInterface) g_object_unref(m_actionInterface);
+		if (m_collectionInterface) g_object_unref(m_collectionInterface);
+		if (m_componentInterface) g_object_unref(m_componentInterface);
+		if (m_documentInterface) g_object_unref(m_documentInterface);
+		if (m_editableTextInterface) g_object_unref(m_editableTextInterface);
+		if (m_hypertextInterface) g_object_unref(m_hypertextInterface);
+		if (m_imageInterface) g_object_unref(m_imageInterface);
+		if (m_selectionInterface) g_object_unref(m_selectionInterface);
+		if (m_tableInterface) g_object_unref(m_tableInterface);
+		if (m_textInterface) g_object_unref(m_textInterface);
+		if (m_valueInterface) g_object_unref(m_valueInterface);
 	}
 
 	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(m_accessible); }
