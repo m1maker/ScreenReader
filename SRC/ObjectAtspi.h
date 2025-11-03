@@ -37,7 +37,7 @@
 	}
 }
 
-[[nodiscard]] static constexpr inline unsigned int GetObjectStateFromAtspiState(const AtspiStateType& state) {
+[[nodiscard]] static constexpr inline IObject::EObjectState GetObjectStateFromAtspiState(const AtspiStateType& state) {
 	switch (state) {
 		case ATSPI_STATE_VISIBLE:
 			return IObject::VISIBLE;
@@ -67,22 +67,22 @@
 		case ATSPI_STATE_IS_DEFAULT:
 			return IObject::DEFAULT;
 		default:
-			return 0;
+			return IObject::NO;
 	}
 }
 
-[[nodiscard]] static constexpr inline unsigned int GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
-	unsigned int result = 0;
+[[nodiscard]] static constexpr inline IObject::EObjectState GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
+	unsigned int result = IObject::NO;
 	for (const auto& state : states) {
 		result |= GetObjectStateFromAtspiState(state);
 	}
-	return result;
+	return static_cast<IObject::EObjectState>(result);
 }
 
-[[nodiscard]] static inline unsigned int GetObjectStateFromAtspiStates(AtspiStateSet* states) {
+[[nodiscard]] static inline IObject::EObjectState GetObjectStateFromAtspiStates(AtspiStateSet* states) {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
-		return 0;
+		return IObject::NO;
 	}
 
 	std::vector<AtspiStateType> state_types;
@@ -115,7 +115,7 @@ public:
 	[[nodiscard]] bool IsVisible() override;
 	[[nodiscard]] bool IsEnabled() override;
 
-	[[nodiscard]] unsigned int GetState() override;
+	[[nodiscard]] EObjectState GetState() override;
 	[[nodiscard]] bool HasState(EObjectState state) override;
 
 	[[nodiscard]] std::weak_ptr<IObject> GetParent() override;

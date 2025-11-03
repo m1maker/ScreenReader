@@ -23,6 +23,7 @@ public:
 	};
 
 	enum EObjectState : unsigned int {
+		NO = 0,
 		VISIBLE = 1 << 0,
 		ENABLED = 1 << 1,
 		FOCUSED = 1 << 2,
@@ -53,7 +54,7 @@ public:
 	[[nodiscard]] virtual bool IsVisible() = 0;
 	[[nodiscard]] virtual bool IsEnabled() = 0;
 
-	[[nodiscard]] virtual unsigned int GetState() = 0;
+	[[nodiscard]] virtual EObjectState GetState() = 0;
 	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
 
 	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent() = 0;

@@ -37,10 +37,10 @@
 	return GetState() & IObject::ENABLED;
 }
 
-[[nodiscard]] unsigned int CObjectAtspi::GetState() {
-	if (!m_accessible) return 0;
+[[nodiscard]] IObject::EObjectState CObjectAtspi::GetState() {
+	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
-	if (!states) return 0;
+	if (!states) return IObject::NO;
 	return GetObjectStateFromAtspiStates(states);
 }
 
