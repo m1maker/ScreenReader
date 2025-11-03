@@ -22,6 +22,7 @@ public:
 	};
 
 	EEventType type;
+	bool now{false};
 
 	IEvent() = default;
 	virtual ~IEvent() = default;

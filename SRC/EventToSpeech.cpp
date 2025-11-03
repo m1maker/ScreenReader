@@ -8,6 +8,7 @@ void CEventToSpeech::AnnounceWhereAmI() {
 	if (!event || !listener) [[unlikely]] return;
 
 	event->type = IEvent::FOCUS_GAINED;
+	event->now = false;
 	event->object = GetDesktopObject();
 	listener->Post(event);
 }
@@ -24,5 +25,5 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 		announcement += cSeparator + state_name;
 	}
 
-	m_speaker->Speak(announcement ,true);
+	m_speaker->Speak(announcement ,event->now);
 }

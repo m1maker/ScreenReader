@@ -21,6 +21,7 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 		case IEvent::FOCUS_GAINED: {
 			auto to_post = std::make_shared<CObjectEvent>();
 			to_post->type = type;
+			to_post->now = true;
 			to_post->object = std::make_shared<CObjectAtspi>(event->source);
 			listener->Post(to_post);
 			break;
