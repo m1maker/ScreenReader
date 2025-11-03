@@ -16,41 +16,41 @@
 // I need to make translations in the future, so don't make it constexpr or inline
 [[nodiscard]] std::string IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) {
 	switch (type) {
-		case BUTTON: return "Button";
-		case TEXT_FIELD: return "Text field";
-		case LABEL: return require_all ? "Label" : "";
-		case CHECKBOX: return "Checkbox";
-		case RADIO_BUTTON: return "Radio button";
-		case COMBO_BOX: return "Combo box";
-		case LIST_BOX: return "List box";
-		case LIST_ITEM: return require_all ? "List item" : "";
-		case MENU: return "Menu";
-		case MENU_ITEM: return require_all ? "Menu item" : "";
-		case SLIDER: return "Slider";
-		case PROGRESS_BAR: return "Progress bar";
-		case IMAGE: return "Image";
-		case PANEL: return "Panel";
-		case WINDOW: return "Window";
-		default: return "Unknown";
+		case BUTTON: return "button";
+		case TEXT_FIELD: return "text field";
+		case LABEL: return require_all ? "label" : "";
+		case CHECKBOX: return "checkbox";
+		case RADIO_BUTTON: return "radio button";
+		case COMBO_BOX: return "combo box";
+		case LIST_BOX: return "list box";
+		case LIST_ITEM: return require_all ? "list item" : "";
+		case MENU: return "menu";
+		case MENU_ITEM: return require_all ? "menu item" : "";
+		case SLIDER: return "slider";
+		case PROGRESS_BAR: return "progress bar";
+		case IMAGE: return "image";
+		case PANEL: return "panel";
+		case WINDOW: return "window";
+		default: return "unknown";
 	}
 }
 
 [[nodiscard]] std::vector<std::string> IObject::GetStateNames(const IObject::EObjectState& states, bool require_all) {
 	std::vector<std::string> state_names;
-	if (states & VISIBLE && require_all) state_names.push_back("Visible");
-	if (states & ENABLED && require_all) state_names.push_back("Enabled");
-	if (states & FOCUSED && require_all) state_names.push_back("Focused");
-	if (states & SELECTED) state_names.push_back("Selected");
-	if (states & CHECKED) state_names.push_back("Checked");
-	if (states & EXPANDED) state_names.push_back("Expanded");
-	if (states & READONLY) state_names.push_back("Read-only");
-	if (states & REQUIRED) state_names.push_back("Required");
-	if (states & INVALID) state_names.push_back("Invalid");
-	if (states & HOVERED) state_names.push_back("Hovered");
-	if (states & PRESSED) state_names.push_back("Pressed");
-	if (states & DEFAULT) state_names.push_back("Default");
-	if (states & LOADING) state_names.push_back("Loading");
-	if (states & COLLAPSED) state_names.push_back("Collapsed");
+	if (states & VISIBLE && require_all) state_names.push_back("visible");
+	if (states & ENABLED && require_all) state_names.push_back("enabled");
+	if (states & FOCUSED && require_all) state_names.push_back("focused");
+	if (states & SELECTED) state_names.push_back("selected");
+	if (states & CHECKED) state_names.push_back("checked");
+	if (states & EXPANDED) state_names.push_back("expanded");
+	if (states & READONLY) state_names.push_back("read-only");
+	if (states & REQUIRED) state_names.push_back("required");
+	if (states & INVALID) state_names.push_back("invalid");
+	if (states & HOVERED) state_names.push_back("hovered");
+	if (states & PRESSED) state_names.push_back("pressed");
+	if (states & DEFAULT) state_names.push_back("default");
+	if (states & LOADING) state_names.push_back("loading");
+	if (states & COLLAPSED) state_names.push_back("collapsed");
 
 	return state_names;
 }
