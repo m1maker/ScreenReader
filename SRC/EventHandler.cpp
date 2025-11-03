@@ -14,7 +14,7 @@ void CEventHandler::Handle() {
 		return;
 	}
 
-	auto event_queue = m_listener->RequestQueue();
+	auto& event_queue = m_listener->RequestQueue();
 	if (event_queue.empty()) [[unlikely]] {
 		g_logger.Log(CLogger::WARNING, "The event listener was called the handler, but there are no events to handle");
 		return;
@@ -28,6 +28,8 @@ void CEventHandler::Handle() {
 			default:
 				break;
 		}
+
+		event.reset();
 	}
 
 	event_queue.clear();

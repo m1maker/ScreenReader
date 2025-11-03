@@ -96,7 +96,7 @@
 }
 
 class CObjectAtspi final : public IObject {
-	std::unique_ptr<AtspiAccessible> m_accessible;
+	AtspiAccessible* m_accessible{nullptr};
 	GArray* m_relations{nullptr};
 
 	[[nodiscard]] std::vector<AtspiRelation> GetRelations();
@@ -106,7 +106,7 @@ public:
 		if (m_relations) g_array_free(m_relations, TRUE);
 	}
 
-	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(&*m_accessible); }
+	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(m_accessible); }
 
 	[[nodiscard]] inline bool IsValid() override { return m_accessible != nullptr; }
 
