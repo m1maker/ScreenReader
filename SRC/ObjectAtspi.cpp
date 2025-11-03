@@ -105,6 +105,8 @@
 
 	ResetLastError();
 	const gchar* name = atspi_accessible_get_name(m_accessible, &m_lastError);
+	if (!name) return "";
+
 	std::vector<AtspiRelation> relations = GetRelations();
 	if (relations.empty()) return std::string(name);
 	for (AtspiRelation& relation : relations) {
@@ -117,7 +119,7 @@
 		}
 	}
 
-	if (!name || !*name) return "Unknown";
+	if (!name) return "";
 	return std::string(name);
 }
 
@@ -128,6 +130,8 @@
 	ResetLastError();
 
 	const gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
+	if (!description) return "";
+
 	std::vector<AtspiRelation> relations = GetRelations();
 	if (relations.empty()) return std::string(description);
 	for (AtspiRelation& relation : relations) {
@@ -140,7 +144,7 @@
 		}
 	}
 
-	if (!description || !*description) return "Unknown";
+	if (!description) return "";
 	return std::string(description);
 }
 
