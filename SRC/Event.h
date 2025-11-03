@@ -21,7 +21,7 @@ public:
 		LAYOUT_UPDATED
 	};
 
-	EEventType type;
+	EEventType type{NONE};
 	bool now{false};
 
 	IEvent() = default;
