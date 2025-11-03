@@ -140,6 +140,13 @@ class CObjectAtspi final : public IObject {
 
 	GArray* m_relations{nullptr};
 
+	inline void ResetLastError() {
+		if (m_lastError) {
+			g_error_free(m_lastError);
+			m_lastError = nullptr;
+		}
+	}
+
 	[[nodiscard]] std::vector<AtspiRelation> GetRelations();
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
@@ -157,6 +164,8 @@ public:
 		if (m_tableInterface) g_object_unref(m_tableInterface);
 		if (m_textInterface) g_object_unref(m_textInterface);
 		if (m_valueInterface) g_object_unref(m_valueInterface);
+
+		ResetLastError();
 	}
 
 	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(m_accessible); }
