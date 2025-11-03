@@ -16,8 +16,13 @@ void CEventToSpeech::AnnounceWhereAmI() {
 void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	std::string announcement = event->object->GetName();
 
-	if (event->object->GetType() != IObject::UNKNOWN) {
+	auto type = event->object->GetType();
+	if (type != IObject::UNKNOWN) {
 		announcement += cSeparator + IObject::GetTypeName(event->object->GetType());
+	}
+
+	if (type == IObject::SLIDER) {
+		announcement += cSeparator + std::to_string(event->object->GetCurrentValue());
 	}
 
 	auto state_names = IObject::GetStateNames(event->object->GetState());

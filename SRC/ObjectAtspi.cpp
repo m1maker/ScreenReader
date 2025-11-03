@@ -130,13 +130,31 @@
 }
 
 [[nodiscard]] double CObjectAtspi::GetMinValue() {
-	return 0.0;
+	if (!m_accessible) return 0.0;
+	if (!m_valueInterface) {
+		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
+		if (!m_valueInterface) return 0.0;
+	}
+
+	return atspi_value_get_minimum_value(m_valueInterface, &m_lastError);
 }
 
 [[nodiscard]] double CObjectAtspi::GetMaxValue() {
-	return 0.0;
+	if (!m_accessible) return 0.0;
+	if (!m_valueInterface) {
+		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
+		if (!m_valueInterface) return 0.0;
+	}
+
+	return atspi_value_get_maximum_value(m_valueInterface, &m_lastError);
 }
 
 [[nodiscard]] double CObjectAtspi::GetCurrentValue() {
-	return 0.0;
+	if (!m_accessible) return 0.0;
+	if (!m_valueInterface) {
+		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
+		if (!m_valueInterface) return 0.0;
+	}
+
+	return atspi_value_get_current_value(m_valueInterface, &m_lastError);
 }
