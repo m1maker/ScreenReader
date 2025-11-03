@@ -44,7 +44,7 @@ public:
 	virtual ~IObject() = default;
 
 	[[nodiscard]] static std::string GetTypeName(const EObjectType& type);
-	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectState& states, bool require_all = true);
+	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectState& states, bool require_all = false);
 
 	[[nodiscard]] virtual void* GetNativeHandle() = 0;
 
