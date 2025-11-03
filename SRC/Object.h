@@ -76,3 +76,5 @@ protected:
 	std::vector<std::shared_ptr<IObject>> m_children;
 };
 
+[[nodiscard]] std::shared_ptr<IObject> GetDesktopObject();
+

@@ -2,6 +2,10 @@
 #include "Event.h"
 #include "Rect.h"
 
+[[nodiscard]] std::shared_ptr<IObject> GetDesktopObject() {
+	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));
+}
+
 [[nodiscard]] std::vector<AtspiRelation> CObjectAtspi::GetRelations() {
 	if (m_relations) g_array_free(m_relations, TRUE);
 	if (!m_accessible) return{};
