@@ -23,6 +23,9 @@
 		case RADIO_BUTTON: return "Radio button";
 		case COMBO_BOX: return "Combo box";
 		case LIST_BOX: return "List box";
+		case LIST_ITEM: return "List item";
+		case MENU: return "Menu";
+		case MENU_ITEM: return "Menu item";
 		case SLIDER: return "Slider";
 		case PROGRESS_BAR: return "Progress bar";
 		case IMAGE: return "Image";

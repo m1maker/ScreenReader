@@ -13,6 +13,13 @@
 			return IObject::LABEL;
 		case ATSPI_ROLE_LIST:
 			return IObject::LIST_BOX;
+		case ATSPI_ROLE_LIST_ITEM:
+			return IObject::LIST_ITEM;
+		case ATSPI_ROLE_MENU:
+			return IObject::MENU;
+		case ATSPI_ROLE_MENU_ITEM:
+		case ATSPI_ROLE_CHECK_MENU_ITEM:
+			return IObject::MENU_ITEM;
 		case ATSPI_ROLE_PANEL:
 			return IObject::PANEL;
 		case ATSPI_ROLE_BUTTON:
