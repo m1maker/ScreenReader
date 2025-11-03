@@ -11,6 +11,8 @@ public:
 	explicit CEventToSpeech() : m_speaker(g_speechEngine.GetSpeaker()) {}
 	~CEventToSpeech() = default;
 
+	void AnnounceWhereAmI();
+
 	void AnnounceFocusChange(CObjectEvent* event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }

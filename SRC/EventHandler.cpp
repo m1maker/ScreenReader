@@ -4,7 +4,7 @@
 #include "EventToSpeech.h"
 
 CEventHandler::CEventHandler() {
-	m_listener = std::make_unique<CEventListenerAtspi>();
+	m_listener = std::make_shared<CEventListenerAtspi>();
 }
 
 void CEventHandler::Handle() {

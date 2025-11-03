@@ -10,6 +10,7 @@
 #include "PlatformDependentWorkerLinux.h"
 #include "SpeechEngine.h"
 #include "EventHandler.h"
+#include "EventToSpeech.h"
 
 inline bool g_running{false};
 inline int g_retcode{0};
@@ -41,6 +42,7 @@ public:
 		state_speaker->Speak("Screen reader on", true);
 		g_eventHandler;
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
+		g_eventToSpeech.AnnounceWhereAmI();
 		m_worker->Loop();
 		state_speaker->Uninitialize();
 		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
