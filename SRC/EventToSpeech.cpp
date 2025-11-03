@@ -9,7 +9,7 @@ void CEventToSpeech::AnnounceWhereAmI() {
 
 	event->type = IEvent::FOCUS_GAINED;
 	event->now = false;
-	event->object = GetDesktopObject();
+	event->object = FindFocusedObject(GetDesktopObject());
 	listener->Post(event);
 }
 
