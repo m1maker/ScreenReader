@@ -40,8 +40,10 @@ public:
 	};
 
 	IObject() = default;
-
 	virtual ~IObject() = default;
+
+	[[nodiscard]] static std::string GetTypeName(const EObjectType& type);
+	[[nodiscard]] static std::string GetStateNames(const EObjectState& states);
 
 	[[nodiscard]] virtual void* GetNativeHandle() = 0;
 
