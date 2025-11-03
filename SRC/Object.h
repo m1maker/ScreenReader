@@ -22,7 +22,8 @@ public:
 		PROGRESS_BAR,
 		IMAGE,
 		PANEL,
-		WINDOW
+		WINDOW,
+		DIALOG
 	};
 
 	enum EObjectState : unsigned long long {

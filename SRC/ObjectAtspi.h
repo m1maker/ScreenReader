@@ -31,6 +31,8 @@
 		case ATSPI_ROLE_WINDOW:
 		case ATSPI_ROLE_DESKTOP_FRAME:
 			return IObject::WINDOW;
+		case ATSPI_ROLE_DIALOG:
+			return IObject::DIALOG;
 		case ATSPI_ROLE_IMAGE:
 			return IObject::IMAGE;
 		case ATSPI_ROLE_SLIDER:

@@ -31,6 +31,7 @@
 		case IMAGE: return "image";
 		case PANEL: return "panel";
 		case WINDOW: return "window";
+		case DIALOG: return "dialog";
 		default: return "unknown";
 	}
 }
