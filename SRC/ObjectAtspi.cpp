@@ -106,8 +106,20 @@
 
 [[nodiscard]] std::string CObjectAtspi::GetDescription() {
 	if (!m_accessible) return "";
-	gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
-	if (!description || !*description) return "";
+
+	bool description_found = false;
+	const gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
+	std::vector<AtspiRelation> relations = GetRelations();
+	if (relations.empty()) return std::string(description);
+	for (AtspiRelation& relation : relations) {
+		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_DESCRIBED_BY) {
+			description = atspi_accessible_get_description(atspi_relation_get_target(&relation, 0), &m_lastError);
+			description_found = true;
+			break;
+		}
+	}
+
+	if (!description || !*description) return "Unknown";
 	return std::string(description);
 }
 
