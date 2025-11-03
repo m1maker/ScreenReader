@@ -2,11 +2,14 @@
 #include "Event.h"
 #include "SpeechEngine.h"
 #include "Singleton.h"
+#include <string>
 
 class CEventToSpeech final {
 	bool m_parentAnnounced{false};
 	std::shared_ptr<Sral::Engine> m_speaker;
 public:
+
+	static inline std::string cSeparator = "  ";
 
 	explicit CEventToSpeech() : m_speaker(g_speechEngine.GetSpeaker()) {}
 	~CEventToSpeech() = default;

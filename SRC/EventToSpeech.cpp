@@ -13,12 +13,16 @@ void CEventToSpeech::AnnounceWhereAmI() {
 }
 
 void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
-	m_speaker->StopSpeech();
-	m_speaker->Speak(event->object->GetName(), false);
-	m_speaker->Speak(IObject::GetTypeName(event->object->GetType()), false);
+	std::string announcement = event->object->GetName();
+
+	if (event->object->GetType() != IObject::UNKNOWN) {
+		announcement += cSeparator + IObject::GetTypeName(event->object->GetType());
+	}
 
 	auto state_names = IObject::GetStateNames(event->object->GetState());
-	for (const std::string& state_name : state_names) {
-		m_speaker->Speak(state_name, false);
+	for (std::string& state_name : state_names) {
+		announcement += cSeparator + state_name;
 	}
+
+	m_speaker->Speak(announcement ,true);
 }
