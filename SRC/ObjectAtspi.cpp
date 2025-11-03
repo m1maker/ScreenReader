@@ -26,6 +26,8 @@
 [[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
 	if (!m_accessible) return IObject::UNKNOWN;
 	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
+	if (role == ATSPI_ROLE_PASSWORD_TEXT) m_states = SECURE;
+	else if (m_states != NO) m_states = NO;
 	return GetObjectTypeFromAtspiRole(role);
 }
 
@@ -41,7 +43,7 @@
 	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
 	if (!states) return IObject::NO;
-	return GetObjectStateFromAtspiStates(states);
+	return static_cast<EObjectState>(GetObjectStateFromAtspiStates(states) | m_states);
 }
 
 [[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {

@@ -91,6 +91,7 @@ public:
 protected:
 	std::weak_ptr<IObject> m_parent;
 	std::vector<std::shared_ptr<IObject>> m_children;
+	EObjectState m_states{NO};
 };
 
 [[nodiscard]] std::shared_ptr<IObject> GetDesktopObject();
