@@ -124,6 +124,19 @@
 
 class CObjectAtspi final : public IObject {
 	AtspiAccessible* m_accessible{nullptr};
+
+	AtspiAction* m_actionInterface{nullptr};
+	AtspiCollection* m_collectionInterface{nullptr};
+	AtspiComponent* m_componentInterface{nullptr};
+	AtspiDocument* m_documentInterface{nullptr};
+	AtspiEditableText* m_editableTextInterface{nullptr};
+	AtspiHypertext* m_hypertextInterface{nullptr};
+	AtspiImage* m_imageInterface{nullptr};
+	AtspiSelection* m_selectionInterface{nullptr};
+	AtspiTable* m_tableInterface{nullptr};
+	AtspiText* m_textInterface{nullptr};
+	AtspiValue* m_valueInterface{nullptr};
+
 	GArray* m_relations{nullptr};
 
 	[[nodiscard]] std::vector<AtspiRelation> GetRelations();
