@@ -80,5 +80,5 @@ protected:
 };
 
 [[nodiscard]] std::shared_ptr<IObject> GetDesktopObject();
-[[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from);
+[[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false);
 

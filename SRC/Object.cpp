@@ -1,13 +1,13 @@
 #include "Object.h"
 
-[[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from) {
+[[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force) {
 	if (!start_from) [[unlikely]] return std::shared_ptr<IObject>();
-	if (start_from->GetState() & IObject::FOCUSED) return start_from;
+	if (!force && start_from->GetState() & IObject::FOCUSED) return start_from;
 
 	auto children = start_from->GetChildren();
 	for (auto child : children) {
 		if (child->GetState() & IObject::FOCUSED) return child;
-		return FindFocusedObject(child);
+		return FindFocusedObject(child, true);
 	}
 
 	return start_from;
