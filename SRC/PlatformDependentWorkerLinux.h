@@ -1,3 +1,4 @@
+// Platform dependent worker implementation for Linux.
 #pragma once
 #include <atspi/atspi.h>
 #include "PlatformDependentWorker.h"

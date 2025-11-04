@@ -1,5 +1,5 @@
+// Object interface.
 #pragma once
-
 #include <vector>
 #include <memory>
 #include "Rect.h"
@@ -92,9 +92,20 @@ public:
 protected:
 	std::weak_ptr<IObject> m_parent;
 	std::vector<std::shared_ptr<IObject>> m_children;
+	/*
+	This is an internal state; it may not be used in practice, but it simply exists.
+	For example, it was needed with AT-SPI.
+	AT-SPI has a password text object type, while IObject simply has a text field and a secure state.
+	We simply check within the AT-SPI implementation if the type is password text and add the secure state.
+	*/
 	EObjectState m_states{NO};
 };
 
-[[nodiscard]] std::shared_ptr<IObject> GetDesktopObject();
+/*
+Attention! GetDesktopObject is not implemented in
+ Object.cpp.
+This should be done by the platform implementation of IObject.
+*/
+[[nodiscard]] std::shared_ptr<IObject> GetDesktopObject(); // Root object.
 [[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false);
 

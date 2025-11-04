@@ -1,3 +1,4 @@
+// AT-SPI object implementation.
 #include "ObjectAtspi.h"
 #include "Event.h"
 #include "Rect.h"

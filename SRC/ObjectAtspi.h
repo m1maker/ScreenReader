@@ -1,3 +1,4 @@
+// AT-SPI object implementation and some inlines.
 #include "Object.h"
 #include <atspi/atspi.h>
 
