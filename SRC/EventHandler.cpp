@@ -25,6 +25,9 @@ void CEventHandler::Handle() {
 			case IEvent::FOCUS_GAINED:
 				g_eventToSpeech.AnnounceFocusChange(dynamic_cast<CObjectEvent*>(&*event));
 				break;
+			case IEvent::VALUE_CHANGED:
+				g_eventToSpeech.AnnounceValueChange(dynamic_cast<CObjectEvent*>(&*event));
+				break;
 			default:
 				break;
 		}

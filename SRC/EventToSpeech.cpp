@@ -33,3 +33,8 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	m_speaker->Speak(announcement ,event->now);
 	m_speaker->Speak(event->object->GetDescription(), false);
 }
+
+void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
+	if (event->object->GetType () != IObject::SLIDER) return;
+	m_speaker->Speak(std::to_string(event->object->GetCurrentValue()), event->now);
+}

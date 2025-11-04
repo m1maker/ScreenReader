@@ -18,7 +18,8 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 	IEvent::EEventType type = GetEventTypeFromString(event->type);
 
 	switch (type) {
-		case IEvent::FOCUS_GAINED: {
+		case IEvent::FOCUS_GAINED:
+		case IEvent::VALUE_CHANGED: {
 			auto to_post = std::make_shared<CObjectEvent>();
 			to_post->type = type;
 			to_post->now = true;
@@ -26,7 +27,7 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 			listener->Post(to_post);
 			break;
 		}
-	default: break;
+		default: break;
 	}
 
 	g_logger.Log(CLogger::DEBUG, "End event processing");

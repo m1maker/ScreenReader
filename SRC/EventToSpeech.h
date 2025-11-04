@@ -17,6 +17,7 @@ public:
 	void AnnounceWhereAmI();
 
 	void AnnounceFocusChange(CObjectEvent* event);
+	void AnnounceValueChange(CObjectEvent* event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };
