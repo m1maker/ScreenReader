@@ -33,8 +33,19 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 }
 
 CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new(&CEventListenerAtspi::OnEventCallback, this, nullptr)) {
-	atspi_event_listener_register (&*m_listener, "object:state-changed:focused", nullptr);
-	atspi_event_listener_register (&*m_listener, "object:state-changed:selected", nullptr);
+	[[maybe_unused]] CScopedCatigory _("ATSPI event listener");
+	if (!m_listener) {
+		g_logger.Log(CLogger::ERROR, "Failed to register the listener");
+		return;
+	}
+
+	GError* error = nullptr;
+	for (auto [atspi_event_type, event_type] : cAtspiEventTypeMap) {
+		atspi_event_listener_register(&*m_listener, atspi_event_type.c_str(), &error);
+		if (error) {
+			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));
+		}
+	}
 }
 
 void CEventListenerAtspi::Post(std::shared_ptr<IEvent> event) {
