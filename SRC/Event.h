@@ -1,3 +1,4 @@
+// An interface for abstracting event types. Categories are implemented here.
 #pragma once
 #include <memory>
 #include "Object.h"
@@ -22,12 +23,16 @@ public:
 	};
 
 	EEventType type{NONE};
-	bool now{false};
+	bool now{false}; // A very specific flag. I'll describe it in the handlers.
 
 	IEvent() = default;
-	virtual ~IEvent() = default;
+	virtual ~IEvent() = default; // C++ requires an interface to have at least one virtual method.
 };
 
+/*
+The object event category.
+Events such as changes to an object's focus, state, name, description, value, etc., always dispatch a CObjectEvent.
+*/
 class CObjectEvent : public IEvent {
 public:
 	std::shared_ptr<IObject> object;

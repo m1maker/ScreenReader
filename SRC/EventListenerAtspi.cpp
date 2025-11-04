@@ -4,7 +4,7 @@
 #include "Logger.h"
 
 void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
-	[[maybe_unused]] CScopedCatigory _("ATSPI event callback");
+	[[maybe_unused]] CScopedCategory _("ATSPI event callback");
 	g_logger.Log(CLogger::DEBUG, "Begin event processing");
 	if (!event || !user_data || !event->type) [[unlikely]] {
 		g_logger.Log(CLogger::DEBUG, "One or more pointers required by event handler was nullptr");
@@ -34,7 +34,7 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 }
 
 CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new(&CEventListenerAtspi::OnEventCallback, this, nullptr)) {
-	[[maybe_unused]] CScopedCatigory _("ATSPI event listener");
+	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
 	if (!m_listener) {
 		g_logger.Log(CLogger::ERROR, "Failed to register the listener");
 		return;

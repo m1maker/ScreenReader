@@ -17,7 +17,7 @@ public:
 private:
 	std::ofstream m_file;
 	ELogLevel m_level;
-	std::string m_currentCatigory{"Unknown"};
+	std::string m_currentCategory{"Unknown"};
 public:
 
 	explicit CLogger() : m_level(INFO) {
@@ -38,15 +38,15 @@ public:
 	}
 
 	template<typename T>
-	inline void Log(const ELogLevel& level, const std::string& catigory, T value) {
+	inline void Log(const ELogLevel& level, const std::string& category, T value) {
 		if (level < m_level) return;
 
-		m_file << LogLevelToString(level) << ": [" << catigory << "] " << value << std::endl;
+		m_file << LogLevelToString(level) << ": [" << category << "] " << value << std::endl;
 	}
 
 	template<typename T>
 	inline void Log(const ELogLevel& level, T value) {
-		Log(level, m_currentCatigory, value);
+		Log(level, m_currentCategory, value);
 	}
 
 	inline void SetLevel(const ELogLevel& level) {
@@ -55,23 +55,23 @@ public:
 	}
 	inline const ELogLevel& GetLevel() const { return m_level; }
 
-	inline void SetCurrentCatigory(const std::string& catigory) { m_currentCatigory = catigory; }
-	inline const std::string& GetCurrentCatigory() const { return m_currentCatigory; }
+	inline void SetCurrentCategory(const std::string& category) { m_currentCategory = category; }
+	inline const std::string& GetCurrentCategory() const { return m_currentCategory; }
 };
 
 #define g_logger CSingleton<CLogger>::GetInstance()
 
-class CScopedCatigory final {
-	std::string m_currentCatigory;
+class CScopedCategory final {
+	std::string m_currentCategory;
 public:
 
-	CScopedCatigory(const std::string& catigory) {
-		m_currentCatigory = g_logger.GetCurrentCatigory();
-		g_logger.SetCurrentCatigory(catigory);
+	CScopedCategory(const std::string& category) {
+		m_currentCategory = g_logger.GetCurrentCategory();
+		g_logger.SetCurrentCategory(category);
 	}
 
-	~CScopedCatigory() {
-		g_logger.SetCurrentCatigory(m_currentCatigory);
+	~CScopedCategory() {
+		g_logger.SetCurrentCategory(m_currentCategory);
 	}
 };
 

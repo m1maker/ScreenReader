@@ -1,14 +1,18 @@
+// Handling events of different types.
 #include "EventHandler.h"
 #include "EventListenerAtspi.h"
 #include "Logger.h"
 #include "EventToSpeech.h"
 
 CEventHandler::CEventHandler() {
-	m_listener = std::make_shared<CEventListenerAtspi>();
+	m_listener = std::make_shared<CEventListenerAtspi>(); // In the future, this will of course be platform specific.
 }
 
+/*
+This function is called by a platform-specific event listener when it has been typecast to IEvent::EEventType and dispatched with the desired event type category.
+*/
 void CEventHandler::Handle() {
-	[[maybe_unused]] CScopedCatigory _("Event handler");
+	[[maybe_unused]] CScopedCategory _("Event handler");
 	if (!m_listener) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "There is no event listener registered for this platform");
 		return;
