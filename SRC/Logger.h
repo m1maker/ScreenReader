@@ -1,8 +1,10 @@
+// Logger
 #pragma once
 #include <fstream>
 #include <string>
 #include "Singleton.h"
 
+// This is the simplest inline logger with levels and categories.
 class CLogger final {
 public:
 
@@ -59,8 +61,15 @@ public:
 	inline const std::string& GetCurrentCategory() const { return m_currentCategory; }
 };
 
-#define g_logger CSingleton<CLogger>::GetInstance()
+#define g_logger CSingleton<CLogger>::GetInstance() // Global instance.
 
+/*
+A scoped category is an object that keeps one category active in the logger during its lifetime.
+When we call the overloaded CLogger::Log without a category, it uses m_currentCategory.
+This is useful if we use the logger many times in a single function. Then we set the category.
+
+If a function that uses CScopedCategory calls a function that also uses the logger, we need to make sure that it also forces its category or also uses CScopedCategory.
+*/
 class CScopedCategory final {
 	std::string m_currentCategory;
 public:

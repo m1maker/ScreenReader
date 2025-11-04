@@ -3,17 +3,27 @@
 #include "Object.h"
 #include "EventHandler.h"
 
+/*
+This is the final step of object event processing. Announce it.
+*/
 void CEventToSpeech::AnnounceWhereAmI() {
+	/*
+	There's currently no general way to get a focused window. But we'll try to find one.
+
+	This will be a common practice when we send artificial events.
+	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
+	*/
 	auto event = std::make_shared<CObjectEvent>();
 	auto listener = g_eventHandler.GetListener();
 	if (!event || !listener) [[unlikely]] return;
 
 	event->type = IEvent::FOCUS_GAINED;
-	event->now = false;
+	event->now = false; // Don't interrupt speech.
 	event->object = FindFocusedObject(GetDesktopObject());
 	listener->Post(event);
 }
 
+// Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	std::string announcement = event->object->GetName();
 

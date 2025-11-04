@@ -1,5 +1,10 @@
+// Some implementations of common object methods.
 #include "Object.h"
 
+/*
+Attempt to find the focused object.
+The force parameter is used to continue searching for the object, regardless of the first one found.
+*/
 [[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force) {
 	if (!start_from) [[unlikely]] return std::shared_ptr<IObject>();
 	if (!force && start_from->GetState() & IObject::FOCUSED) return start_from;
@@ -14,6 +19,11 @@
 }
 
 // I need to make translations in the future, so don't make it constexpr or inline
+/*
+Just convert types and states to strings.
+
+require_all parameter is used to determine whether we request names/states simply to announce focus changes, or whether we log all states and names, or force the screen reader to request this.
+*/
 [[nodiscard]] std::string IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) {
 	switch (type) {
 		case BUTTON: return "button";
