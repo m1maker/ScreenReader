@@ -25,7 +25,7 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 		announcement += cSeparator + std::to_string(event->object->GetCurrentValue());
 	}
 
-	auto state_names = IObject::GetStateNames(event->object->GetState());
+	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}

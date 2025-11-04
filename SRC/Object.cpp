@@ -37,13 +37,33 @@
 	}
 }
 
-[[nodiscard]] std::vector<std::string> IObject::GetStateNames(const IObject::EObjectState& states, bool require_all) {
+/*
+The object type query also applies to state names.
+For example, there's no such state as EObjectState::UNCHECKED, but there is CHECKABLE.
+We need to understand what kind of object this is to more accurately determine the states for announcements when we don't request `require_all`.
+*/
+[[nodiscard]] std::vector<std::string> IObject::GetStateNames(const IObject::EObjectType& type, const IObject::EObjectState& states, bool require_all) {
 	std::vector<std::string> state_names;
 	if (states & VISIBLE && require_all) state_names.push_back("visible");
 	if (states & ENABLED && require_all) state_names.push_back("enabled");
 	if (states & FOCUSED && require_all) state_names.push_back("focused");
-	if (states & SELECTED) state_names.push_back("selected");
-	if (states & CHECKED) state_names.push_back("checked");
+	if (states & SELECTED) {
+		state_names.push_back("selected");
+	}
+	/*
+	A checkbox cannot be without checked, unchecked, or partially checked state.
+	However, for example, AT-SPI does not have an unchecked or partially checked state.
+	Let's try to standardize this.
+
+	With AT-SPI, I also found a toggle button with a checked state.
+	No! It should be either pressed or not pressed.
+	*/
+	if (states & CHECKED && type != TOGGLE_BUTTON) {
+		state_names.push_back("checked");
+	}
+	else if (type == CHECKBOX) { // Ignore CHECKABLE state. So it is a checkbox
+		state_names.push_back("not checked");
+	}
 	if (states & EXPANDED) state_names.push_back("expanded");
 	if (states & READONLY) state_names.push_back("read-only");
 	if (states & MULTI_LINE) state_names.push_back("multi-line");
@@ -51,7 +71,12 @@
 	if (states & REQUIRED) state_names.push_back("required");
 	if (states & INVALID) state_names.push_back("invalid");
 	if (states & HOVERED) state_names.push_back("hovered");
-	if (states & PRESSED) state_names.push_back("pressed");
+	if (states & PRESSED) {
+		state_names.push_back("pressed");
+	}
+	else if (type == TOGGLE_BUTTON) { // Same as checkboxes
+		state_names.push_back("not pressed");
+	}
 	if (states & DEFAULT) state_names.push_back("default");
 	if (states & LOADING) state_names.push_back("loading");
 	if (states & COLLAPSED) state_names.push_back("collapsed");
