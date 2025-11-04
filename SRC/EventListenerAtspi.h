@@ -1,3 +1,4 @@
+// AT_SPI's event listener.
 #pragma once
 #include "EventListener.h"
 #include <atspi/atspi.h>
@@ -5,6 +6,10 @@
 #include <unordered_map>
 #include <string>
 
+/*
+AT-SPI has a listener where you need to register the required events one by one.
+But there's one very strange thing: all of these types are strings. Look at this code.
+*/
 inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventTypeMap = {
 	{"object:state-changed:focused", IEvent::FOCUS_GAINED},
 	{"object:state-changed:selected", IEvent::SELECTION_CHANGED},
@@ -12,7 +17,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventType
 };
 
 [[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {
-	if (!type || !*type) [[unlikely]] return IEvent::NONE;
+	if (!type) [[unlikely]] return IEvent::NONE;
 
 	std::string type_str(type);
 
