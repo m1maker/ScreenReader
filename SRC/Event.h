@@ -5,7 +5,7 @@
 class IEvent {
 public:
 
-	enum EEventType {
+	enum EEventType : unsigned char {
 		NONE = 0,
 		FOCUS_GAINED,
 		FOCUS_LOST,
