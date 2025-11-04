@@ -17,6 +17,7 @@
 [[nodiscard]] std::string IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) {
 	switch (type) {
 		case BUTTON: return "button";
+		case TOGGLE_BUTTON: return "toggle button";
 		case TEXT_FIELD: return "text field";
 		case LABEL: return require_all ? "label" : "";
 		case CHECKBOX: return "checkbox";

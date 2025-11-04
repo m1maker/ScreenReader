@@ -9,6 +9,7 @@ public:
 	enum EObjectType : unsigned char {
 		UNKNOWN = 0,
 		BUTTON,
+		TOGGLE_BUTTON,
 		TEXT_FIELD,
 		LABEL,
 		CHECKBOX,

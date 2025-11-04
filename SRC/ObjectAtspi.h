@@ -26,6 +26,8 @@
 			return IObject::BUTTON;
 		case ATSPI_ROLE_RADIO_BUTTON:
 			return IObject::RADIO_BUTTON;
+		case ATSPI_ROLE_TOGGLE_BUTTON:
+			return IObject::TOGGLE_BUTTON;
 		case ATSPI_ROLE_PROGRESS_BAR:
 			return IObject::PROGRESS_BAR;
 		case ATSPI_ROLE_WINDOW:
