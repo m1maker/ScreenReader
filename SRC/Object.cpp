@@ -78,7 +78,7 @@ We need to understand what kind of object this is to more accurately determine t
 	if (states & READONLY) state_names.push_back("read-only");
 	if (states & MULTI_LINE) state_names.push_back("multi-line");
 	if (states & SECURE) state_names.push_back("secure");
-	if (states & REQUIRED) state_names.push_back("required");
+	if (states & REQUIRED && type == TEXT_FIELD) state_names.push_back("required");
 	if (states & INVALID) state_names.push_back("invalid");
 	if (states & HOVERED) state_names.push_back("hovered");
 	if (states & PRESSED) {

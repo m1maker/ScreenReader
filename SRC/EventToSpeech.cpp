@@ -69,6 +69,6 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 }
 
 void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
-	if (event->object->GetType () != IObject::SLIDER) return;
+	if (event->object->GetType () != IObject::SLIDER || !event->object->HasState(IObject::FOCUSED)) return;
 	m_speaker->Speak(std::to_string(event->object->GetCurrentValue()), event->now);
 }
