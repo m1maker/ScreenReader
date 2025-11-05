@@ -28,7 +28,18 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	/*
 	So, the parent updated event is considered focus changed, but it should not be interrupted by subsequent focus gained events.
 	*/
-	if (event->type == IEvent::PARENT_UPDATED) m_parentAnnounced = true;
+	if (event->type == IEvent::PARENT_UPDATED) {
+		m_parentAnnounced = true;
+		/*
+		When processing the "parent updated" event, AT-SPI can, for some reason, send an event with "parent updated" but no associated object.
+		Often, these are menu items and the like.
+		Let's try to catch those objects that, in 99% of cases, won't be parents of any other elements.
+		*/
+		if (!IObject::IsValidParent(event->object->GetType())) {
+			//m_parentAnnounced = false;
+			return;
+		}
+	}
 
 	std::string announcement = event->object->GetName();
 

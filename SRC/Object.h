@@ -61,6 +61,19 @@ public:
 	[[nodiscard]] static std::string GetTypeName(const EObjectType& type, bool require_all = false);
 	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectType& type, const EObjectState& states, bool require_all = false);
 
+	[[nodiscard]] static constexpr inline bool IsValidParent(const EObjectType& type) {
+		switch (type) {
+			case LIST_BOX:
+			case MENU:
+			case PANEL:
+			case WINDOW:
+			case DIALOG:
+				return true;
+		}
+
+		return false;
+	}
+
 	[[nodiscard]] virtual void* GetNativeHandle() = 0;
 
 	[[nodiscard]] virtual bool IsValid() = 0;
@@ -107,7 +120,7 @@ I don't know yet how much this will slow down the screen reader, but I hope it w
 
 For some reason, AT-SPI can send the same object to two focus events, so we'll throw such events in the event handler.
 */
-inline bool ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) {
+[[nodiscard]] inline bool ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) {
 	if (!obj1 || !obj2) {
 		return !obj1 && !obj2;
 	}
