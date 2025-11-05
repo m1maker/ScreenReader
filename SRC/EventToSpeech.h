@@ -22,6 +22,7 @@ public:
 
 	void AnnounceFocusChange(CObjectEvent* event);
 	void AnnounceValueChange(CObjectEvent* event);
+	void AnnounceStateChange(CObjectEvent* event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };

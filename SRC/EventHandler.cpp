@@ -39,6 +39,11 @@ void CEventHandler::Handle() {
 				g_eventToSpeech.AnnounceValueChange(object_event);
 				break;
 			}
+			case IEvent::STATE_CHANGED: {
+				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
+				g_eventToSpeech.AnnounceStateChange(object_event);
+				break;
+			}
 			default:
 				break;
 		}

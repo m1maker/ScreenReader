@@ -72,3 +72,13 @@ void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
 	if (event->object->GetType () != IObject::SLIDER || !event->object->HasState(IObject::FOCUSED)) return;
 	m_speaker->Speak(std::to_string(event->object->GetCurrentValue()), event->now);
 }
+
+void CEventToSpeech::AnnounceStateChange(CObjectEvent* event) {
+	std::string announcement = "";
+	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
+	for (std::string& state_name : state_names) {
+		announcement += cSeparator + state_name;
+	}
+
+	m_speaker->Speak(announcement, event->now);
+}
