@@ -51,6 +51,9 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	if (type == IObject::SLIDER) {
 		announcement += cSeparator + std::to_string(event->object->GetCurrentValue());
 	}
+	else if (type == IObject::TEXT_FIELD) {
+		announcement += cSeparator + event->object->GetText();
+	}
 
 	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
 	for (std::string& state_name : state_names) {

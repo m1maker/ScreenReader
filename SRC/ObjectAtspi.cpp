@@ -150,7 +150,22 @@
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetText() {
-	return ""; /// I don't know, for what it will. Either editable text or static text.
+	if (!m_accessible) return "";
+	if (!m_textInterface) {
+		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
+		if (!m_textInterface) return "";
+	}
+
+	ResetLastError();
+
+	gint character_count = atspi_text_get_character_count(m_textInterface, &m_lastError);
+	if (character_count <=0) return "";
+
+	ResetLastError();
+
+	gchar* text = atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError);
+	if (!text) [[unlikely]] return "";
+	return std::string(text);
 }
 
 [[nodiscard]] double CObjectAtspi::GetMinValue() {
