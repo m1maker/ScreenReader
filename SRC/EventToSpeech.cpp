@@ -74,6 +74,10 @@ void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
 }
 
 void CEventToSpeech::AnnounceStateChange(CObjectEvent* event) {
+	if (!event->object->HasState(IObject::FOCUSED)) {
+		AnnounceFocusChange(event);
+		return;
+	}
 	std::string announcement = "";
 	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
 	for (std::string& state_name : state_names) {

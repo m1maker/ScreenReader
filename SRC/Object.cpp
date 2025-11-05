@@ -6,16 +6,26 @@ Attempt to find the focused object.
 The force parameter is used to continue searching for the object, regardless of the first one found.
 */
 [[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force) {
-	if (!start_from) [[unlikely]] return std::shared_ptr<IObject>();
-	if (!force && start_from->GetState() & IObject::FOCUSED) return start_from;
+	if (!start_from) [[unlikely]] return nullptr;
 
-	auto children = start_from->GetChildren();
-	for (auto child : children) {
-		if (child->GetState() & IObject::FOCUSED) return child;
-		return FindFocusedObject(child, true);
+	if (!force && (start_from->GetState() & IObject::FOCUSED)) {
+		return start_from;
 	}
 
-	return start_from;
+	auto children = start_from->GetChildren();
+	for (auto& child : children) {
+		if (child->GetState() & IObject::FOCUSED) {
+			return child;
+		}
+	}
+
+	for (auto& child : children) {
+		if (auto result = FindFocusedObject(child, true)) {
+			return result;
+		}
+	}
+
+	return (force) ? nullptr : start_from;
 }
 
 // I need to make translations in the future, so don't make it constexpr or inline
