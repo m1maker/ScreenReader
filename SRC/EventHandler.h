@@ -3,6 +3,7 @@
 #include "EventListener.h"
 #include "Singleton.h"
 #include <memory>
+#include "Object.h"
 
 class CEventHandler final {
 	/*
@@ -10,6 +11,10 @@ class CEventHandler final {
 	Then this event handler then queries the queue of these events.
 	*/
 	std::shared_ptr<IEventListener> m_listener;
+	/*
+	Let's try to avoid duplicates of the announcer.
+	*/
+	std::shared_ptr<IObject> m_objectHandledPrevious;
 public:
 	explicit CEventHandler();
 	~CEventHandler() = default;

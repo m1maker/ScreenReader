@@ -13,6 +13,7 @@ But there's one very strange thing: all of these types are strings. Look at this
 inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventTypeMap = {
 	{"object:state-changed:focused", IEvent::FOCUS_GAINED},
 	{"object:state-changed:selected", IEvent::SELECTION_CHANGED},
+	{"object:property-change:accessible-parent", IEvent::PARENT_UPDATED},
 	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED}
 };
 

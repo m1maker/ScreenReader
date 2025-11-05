@@ -102,6 +102,44 @@ protected:
 };
 
 /*
+Compare two objects to avoid announcement duplicates.
+I don't know yet how much this will slow down the screen reader, but I hope it won't.
+
+For some reason, AT-SPI can send the same object to two focus events, so we'll throw such events in the event handler.
+*/
+inline bool ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) {
+	if (!obj1 || !obj2) {
+		return !obj1 && !obj2;
+	}
+
+	if (obj1.get() == obj2.get()) {
+		return true;
+	}
+
+	if (obj1->GetType() != obj2->GetType()) {
+		return false;
+	}
+
+	if (obj1->GetApplicationName() != obj2->GetApplicationName()) {
+		return false;
+	}
+
+	if (obj1->GetName() != obj2->GetName()) {
+		return false;
+	}
+
+	if (obj1->GetDescription() != obj2->GetDescription()) {
+		return false;
+	}
+
+	if (obj1->GetText() != obj2->GetText()) {
+		return false;
+	}
+
+	return true;
+}
+
+/*
 Attention! GetDesktopObject is not implemented in
  Object.cpp.
 This should be done by the platform implementation of IObject.

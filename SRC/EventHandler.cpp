@@ -27,16 +27,21 @@ void CEventHandler::Handle() {
 	for (auto& event : event_queue) {
 		switch (event->type) {
 			case IEvent::FOCUS_GAINED:
-				g_eventToSpeech.AnnounceFocusChange(dynamic_cast<CObjectEvent*>(&*event));
+			case IEvent::PARENT_UPDATED: {
+				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
+				if (ObjectIsSame(object_event->object, m_objectHandledPrevious)) break;
+				else m_objectHandledPrevious = object_event->object;
+				g_eventToSpeech.AnnounceFocusChange(object_event);
 				break;
-			case IEvent::VALUE_CHANGED:
-				g_eventToSpeech.AnnounceValueChange(dynamic_cast<CObjectEvent*>(&*event));
+			}
+			case IEvent::VALUE_CHANGED: {
+				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
+				g_eventToSpeech.AnnounceValueChange(object_event);
 				break;
+			}
 			default:
 				break;
 		}
-
-		event.reset();
 	}
 
 	event_queue.clear();

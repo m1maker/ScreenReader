@@ -25,6 +25,11 @@ void CEventToSpeech::AnnounceWhereAmI() {
 
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
+	/*
+	So, the parent updated event is considered focus changed, but it should not be interrupted by subsequent focus gained events.
+	*/
+	if (event->type == IEvent::PARENT_UPDATED) m_parentAnnounced = true;
+
 	std::string announcement = event->object->GetName();
 
 	auto type = event->object->GetType();
@@ -41,8 +46,15 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 		announcement += cSeparator + state_name;
 	}
 
-	m_speaker->Speak(announcement ,event->now);
+	/*
+	Now we determine whether to ignore the "now" flag.
+	If focus has been gained after the "parent updated" event, then we never interrupt the speech.
+	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
+	*/
+	m_speaker->Speak(announcement ,(event->type == IEvent::FOCUS_GAINED && m_parentAnnounced) || event->type == IEvent::PARENT_UPDATED ? false : event->now);
 	m_speaker->Speak(event->object->GetDescription(), false);
+
+	if (event->type != IEvent::PARENT_UPDATED) m_parentAnnounced = false;
 }
 
 void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
