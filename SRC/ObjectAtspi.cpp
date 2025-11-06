@@ -55,11 +55,11 @@
 }
 
 [[nodiscard]] std::weak_ptr<IObject> CObjectAtspi::GetParent() {
-	if (!m_accessible) return std::make_shared<CObjectAtspi>(nullptr);
+	if (!m_accessible) return std::weak_ptr<CObjectAtspi>();
 
 	ResetLastError();
 	AtspiAccessible* parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
-	if (!parent) return std::make_shared<CObjectAtspi>(nullptr);
+	if (!parent) return std::weak_ptr<CObjectAtspi>();
 	return std::make_shared<CObjectAtspi>(parent);
 }
 
@@ -94,9 +94,8 @@
 	if (!m_accessible) return "Unknown";
 
 	ResetLastError();
-	gchar* name = atspi_accessible_get_toolkit_name(m_accessible, &m_lastError);
-	if (!name || !*name) return "Unknown";
-	return std::string(name);
+	CGlibString name(atspi_accessible_get_toolkit_name(m_accessible, &m_lastError));
+	return name;
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetName() {
@@ -105,23 +104,21 @@
 	bool name_found = false;
 
 	ResetLastError();
-	const gchar* name = atspi_accessible_get_name(m_accessible, &m_lastError);
-	if (!name) return "";
+	CGlibString name(atspi_accessible_get_name(m_accessible, &m_lastError));
 
 	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) return std::string(name);
+	if (relations.empty()) return name;
 	for (AtspiRelation& relation : relations) {
 		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_LABELLED_BY) {
 			ResetLastError();
 
-			name = atspi_accessible_get_name(atspi_relation_get_target(&relation, 0), &m_lastError);
+			name = CGlibString(atspi_accessible_get_name(atspi_relation_get_target(&relation, 0), &m_lastError));
 			name_found = true;
 			break;
 		}
 	}
 
-	if (!name) return "";
-	return std::string(name);
+	return name;
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetDescription() {
@@ -130,23 +127,21 @@
 	bool description_found = false;
 	ResetLastError();
 
-	const gchar* description = atspi_accessible_get_description(m_accessible, &m_lastError);
-	if (!description) return "";
+	CGlibString description(atspi_accessible_get_description(m_accessible, &m_lastError));
 
 	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) return std::string(description);
+	if (relations.empty()) return description;
 	for (AtspiRelation& relation : relations) {
 		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_DESCRIBED_BY) {
 			ResetLastError();
 
-			description = atspi_accessible_get_description(atspi_relation_get_target(&relation, 0), &m_lastError);
+			description = CGlibString(atspi_accessible_get_description(atspi_relation_get_target(&relation, 0), &m_lastError));
 			description_found = true;
 			break;
 		}
 	}
 
-	if (!description) return "";
-	return std::string(description);
+	return description;
 }
 
 [[nodiscard]] int CObjectAtspi::GetCursor() {
@@ -175,15 +170,14 @@
 
 	ResetLastError();
 
-	gchar* text = nullptr;
+	CGlibString text(nullptr);
 	if (at_cursor) {
 		int cursor = GetCursor();
-		text = atspi_text_get_text(m_textInterface, cursor, cursor + 1, &m_lastError);
+		text = CGlibString(atspi_text_get_text(m_textInterface, cursor, cursor + 1, &m_lastError));
 	}
-	else 		text = atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError);
+	else 		text = CGlibString(atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError));
 
-	if (!text) [[unlikely]] return "";
-	return std::string(text);
+	return text;
 }
 
 [[nodiscard]] double CObjectAtspi::GetMinValue() {

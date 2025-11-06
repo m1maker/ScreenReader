@@ -126,6 +126,52 @@
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
+/*
+Wrapper class for GLib strings so that they are automatically freed.
+*/
+class CGlibString final {
+private:
+	gchar* m_pointer{nullptr};
+public:
+
+	explicit CGlibString(gchar* pointer) : m_pointer(pointer) {}
+
+	CGlibString(const CGlibString&) = delete;
+	CGlibString& operator=(const CGlibString&) = delete;
+
+	CGlibString(CGlibString&& other) noexcept : m_pointer(other.m_pointer) {
+		other.m_pointer = nullptr;
+	}
+
+	~CGlibString() {
+		if (m_pointer) {
+			g_free(m_pointer);
+		}
+	}
+
+	void reset(gchar* new_pointer = nullptr) {
+		if (m_pointer) {
+			g_free(m_pointer);
+		}
+		m_pointer = new_pointer;
+	}
+
+	CGlibString& operator=(CGlibString&& other) noexcept {
+		if (this != &other) {
+			reset(other.m_pointer);
+			other.m_pointer = nullptr;
+		}
+		return *this;
+	}
+
+	operator std::string() const {
+		return m_pointer ? std::string(m_pointer) : std::string();
+	}
+
+	[[nodiscard]] inline constexpr const char* c_str() const { return m_pointer ? m_pointer : ""; }
+	[[nodiscard]] inline bool empty() const { return !m_pointer || !*m_pointer; }
+};
+
 class CObjectAtspi final : public IObject {
 	AtspiAccessible* m_accessible{nullptr};
 
