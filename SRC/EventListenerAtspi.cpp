@@ -3,11 +3,16 @@
 #include "ObjectAtspi.h"
 #include "EventHandler.h"
 #include "Logger.h"
+#include "AppState.h"
 
 /*
 AT-SPI has a listener where you need to register the required events one by one and then process them with a callback.
 */
 void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
+	/*
+	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
+	*/
+	if (!g_running.load()) atspi_event_quit();
 	[[maybe_unused]] CScopedCategory _("ATSPI event callback");
 	g_logger.Log(CLogger::DEBUG, "Begin event processing");
 	if (!event || !user_data || !event->type) [[unlikely]] {

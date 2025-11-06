@@ -1,8 +1,10 @@
 // Main application class for screen reader.
 #pragma once
+#include "AppState.h"
 #include <memory>
 #include <vector>
 #include <string>
+#include <atomic>
 #include "Object.h"
 #include "Logger.h"
 #include "Engine.h"
@@ -12,16 +14,6 @@
 #include "SpeechEngine.h"
 #include "EventHandler.h"
 #include "EventToSpeech.h"
-
-/*
-If g_running is false, all processes, loops, and threads should exit.
-After that, application must return g_retcode.
-
-However, a screen reader is a program that must be robust against exceptions and continue running.
-Hopefully, these flags will only be used when we disable the screen reader.
-*/
-inline bool g_running{false};
-inline int g_retcode{0};
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderOptions {
@@ -51,6 +43,7 @@ public:
 
 	void Run() {
 		g_logger.Log(CLogger::INFO, "Application", "Starting");
+		g_running.store(true);
 		/*
 		We get a speaker for announcing states.
 		We get it from several places, so it's a shared_ptr.
@@ -66,6 +59,7 @@ public:
 		g_eventToSpeech.AnnounceWhereAmI();
 		m_worker->Loop(); // Start the main loop.
 		state_speaker->Uninitialize();
+		g_running.store(false);
 		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
 	}
 };
