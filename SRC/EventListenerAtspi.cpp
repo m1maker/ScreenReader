@@ -26,6 +26,7 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 		It looks like in the future this will all be CObjectEvent, but just in case, we'll use switch-case for now.
 		*/
 		case IEvent::FOCUS_GAINED:
+		case IEvent::CURSOR_MOVED:
 		case IEvent::PARENT_UPDATED:
 		case IEvent::STATE_CHANGED:
 		case IEvent::VALUE_CHANGED: {

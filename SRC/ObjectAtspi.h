@@ -193,7 +193,9 @@ public:
 
 	[[nodiscard]] std::string GetName() override;
 	[[nodiscard]] std::string GetDescription() override;
-	[[nodiscard]] std::string GetText() override;
+
+	[[nodiscard]] int GetCursor() override;
+	[[nodiscard]] std::string GetText(bool at_cursor = false) override;
 
 	[[nodiscard]] double GetMinValue() override;
 	[[nodiscard]] double GetMaxValue() override;

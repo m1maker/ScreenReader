@@ -89,3 +89,7 @@ void CEventToSpeech::AnnounceStateChange(CObjectEvent* event) {
 
 	m_speaker->Speak(announcement, event->now);
 }
+
+void CEventToSpeech::AnnounceCursorMove(CObjectEvent* event) {
+	m_speaker->Speak(event->object->GetText(true), event->now);
+}

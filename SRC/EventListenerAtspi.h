@@ -15,7 +15,8 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventType
 	{"object:state-changed:checked", IEvent::STATE_CHANGED},
 	{"object:state-changed:selected", IEvent::SELECTION_CHANGED},
 	{"object:property-change:accessible-parent", IEvent::PARENT_UPDATED},
-	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED}
+	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED},
+	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
 };
 
 [[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {

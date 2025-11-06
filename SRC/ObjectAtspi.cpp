@@ -149,7 +149,19 @@
 	return std::string(description);
 }
 
-[[nodiscard]] std::string CObjectAtspi::GetText() {
+[[nodiscard]] int CObjectAtspi::GetCursor() {
+	if (!m_accessible) return 0;
+	if (!m_textInterface) {
+		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
+		if (!m_textInterface) return 0;
+	}
+
+	ResetLastError();
+
+	return atspi_text_get_caret_offset(m_textInterface, &m_lastError);
+}
+
+[[nodiscard]] std::string CObjectAtspi::GetText(bool at_cursor) {
 	if (!m_accessible) return "";
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
@@ -163,7 +175,13 @@
 
 	ResetLastError();
 
-	gchar* text = atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError);
+	gchar* text = nullptr;
+	if (at_cursor) {
+		int cursor = GetCursor();
+		text = atspi_text_get_text(m_textInterface, cursor, cursor + 1, &m_lastError);
+	}
+	else 		text = atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError);
+
 	if (!text) [[unlikely]] return "";
 	return std::string(text);
 }

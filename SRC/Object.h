@@ -96,7 +96,9 @@ public:
 
 	[[nodiscard]] virtual std::string GetName() = 0;
 	[[nodiscard]] virtual std::string GetDescription() = 0;
-	[[nodiscard]] virtual std::string GetText() = 0;
+
+	[[nodiscard]] virtual int GetCursor() = 0;
+	[[nodiscard]] virtual std::string GetText(bool at_cursor = false) = 0;
 
 	[[nodiscard]] virtual double GetMinValue() = 0;
 	[[nodiscard]] virtual double GetMaxValue() = 0;
