@@ -8,19 +8,20 @@
 /*
 AT-SPI has a listener where you need to register the required events one by one and then process them with a callback.
 */
-void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
+void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_data) {
 	/*
 	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
 	*/
-	if (!g_running.load()) atspi_event_quit();
-	[[maybe_unused]] CScopedCategory _("ATSPI event callback");
-	g_logger.Log(CLogger::DEBUG, "Begin event processing");
+	if (!g_running.load()) {
+		atspi_event_quit();
+		return;
+	}
+
+	[[maybe_unused]] CScopedCategory _("ATSPI object event callback");
 	if (!event || !user_data || !event->type) [[unlikely]] {
 		g_logger.Log(CLogger::DEBUG, "One or more pointers required by event handler was nullptr");
 		return;
 	}
-
-	g_logger.Log(CLogger::DEBUG, "The event type is " + std::string(event->type));
 
 	CEventListenerAtspi* listener = static_cast<CEventListenerAtspi*>(user_data);
 
@@ -47,14 +48,44 @@ void CEventListenerAtspi::OnEventCallback(AtspiEvent* event, void* user_data) {
 		}
 		default: break;
 	}
-
-	g_logger.Log(CLogger::DEBUG, "End event processing");
 }
 
-CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new(&CEventListenerAtspi::OnEventCallback, this, nullptr)) {
+gboolean CEventListenerAtspi::OnDeviceEventCallback(AtspiDeviceEvent* event, void* user_data) {
+	/*
+	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
+	*/
+	if (!g_running.load()) {
+		atspi_event_quit();
+		return FALSE;
+	}
+
+	[[maybe_unused]] CScopedCategory _("ATSPI device event callback");
+	if (!event || !user_data) {
+		g_logger.Log(CLogger::DEBUG, "One or more pointers required by event handler was nullptr");
+		return FALSE;
+	}
+
+	CEventListenerAtspi* listener = static_cast<CEventListenerAtspi*>(user_data);
+
+	auto to_post = std::make_shared<CKeyboardEvent>();
+	to_post->type = AtspiEventTypeToEventType(event->type);
+	to_post->keycode = LinuxKeycodeToKeyboardEventKeycode(event->hw_code);
+	// Modifiers not complete.
+	listener->Post(to_post);
+	return FALSE;
+}
+
+CEventListenerAtspi::CEventListenerAtspi() : 
+	m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)), 
+	m_deviceEventListener(atspi_device_listener_new(&CEventListenerAtspi::OnDeviceEventCallback, this, nullptr)) {
 	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
-	if (!m_listener) {
-		g_logger.Log(CLogger::ERROR, "Failed to register the listener");
+	if (!m_objectEventListener) [[unlikely]] {
+		g_logger.Log(CLogger::ERROR, "Failed to register the object event listener");
+		return;
+	}
+
+	if (!m_deviceEventListener) [[unlikely]] {
+		g_logger.Log(CLogger::ERROR, "Failed to register the device event listener");
 		return;
 	}
 
@@ -64,9 +95,10 @@ CEventListenerAtspi::CEventListenerAtspi() : m_listener(atspi_event_listener_new
 	*/
 	GError* error = nullptr;
 	for (auto [atspi_event_type, event_type] : cAtspiEventTypeMap) {
-		atspi_event_listener_register(&*m_listener, atspi_event_type.c_str(), &error);
+		atspi_event_listener_register(m_objectEventListener, atspi_event_type.c_str(), &error);
 		if (error) {
 			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));
+			g_error_free(error);
 		}
 	}
 }
