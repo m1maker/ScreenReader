@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include "Singleton.h"
+#include <string_view>
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {
@@ -22,14 +23,14 @@ private:
 	std::string m_currentCategory{"Unknown"};
 public:
 
-	explicit CLogger() : m_level(INFO) {
+	explicit CLogger() : m_level(DEBUG) {
 		m_file.open("ScreenReader.log");
-		Log(INFO, "Logger", "Initialized. Log level is " + LogLevelToString(m_level));
+		Log(INFO, "Logger", "Initialized. Log level is " + std::string(LogLevelToString(m_level)));
 	}
 
 	~CLogger() = default;
 
-	[[nodiscard]] static constexpr inline std::string LogLevelToString(const ELogLevel& level) {
+	[[nodiscard]] static constexpr inline std::string_view LogLevelToString(const ELogLevel& level) {
 		switch (level) {
 			case INFO: return "Info";
 			case DEBUG: return "Debug";
@@ -41,7 +42,7 @@ public:
 
 	template<typename T>
 	inline void Log(const ELogLevel& level, const std::string& category, T value) {
-		if (level < m_level) return;
+		if (m_level < level) return;
 
 		m_file << LogLevelToString(level) << ": [" << category << "] " << value << std::endl;
 	}
@@ -53,7 +54,7 @@ public:
 
 	inline void SetLevel(const ELogLevel& level) {
 		m_level = level;
-		Log(INFO, "Logger", "Log level is now " + LogLevelToString(m_level));
+		Log(INFO, "Logger", "Log level is now " + std::string(LogLevelToString(m_level)));
 	}
 	inline const ELogLevel& GetLevel() const { return m_level; }
 

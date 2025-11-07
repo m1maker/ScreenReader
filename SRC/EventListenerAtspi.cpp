@@ -71,6 +71,7 @@ gboolean CEventListenerAtspi::OnDeviceEventCallback(AtspiDeviceEvent* event, voi
 	to_post->type = AtspiEventTypeToEventType(event->type);
 	to_post->keycode = LinuxKeycodeToKeyboardEventKeycode(event->hw_code);
 	// Modifiers not complete.
+	g_logger.Log(CLogger::INFO, CKeyboardEvent::GetKeycodeName(to_post->keycode));
 	listener->Post(to_post);
 	return FALSE;
 }
