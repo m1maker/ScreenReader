@@ -50,42 +50,41 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	}
 }
 
-gboolean CEventListenerAtspi::OnDeviceEventCallback(AtspiDeviceEvent* event, void* user_data) {
+void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data) {
 	/*
 	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
 	*/
 	if (!g_running.load()) {
 		atspi_event_quit();
-		return FALSE;
+		return;
 	}
 
 	[[maybe_unused]] CScopedCategory _("ATSPI device event callback");
-	if (!event || !user_data) {
+	if (!user_data) {
 		g_logger.Log(CLogger::DEBUG, "One or more pointers required by event handler was nullptr");
-		return FALSE;
+		return;
 	}
 
 	CEventListenerAtspi* listener = static_cast<CEventListenerAtspi*>(user_data);
 
 	auto to_post = std::make_shared<CKeyboardEvent>();
-	to_post->type = AtspiEventTypeToEventType(event->type);
-	to_post->keycode = LinuxKeycodeToKeyboardEventKeycode(event->hw_code);
+	to_post->type = pressed ? IEvent::KEY_PRESSED : IEvent::KEY_RELEASED;
+	to_post->keycode = LinuxKeycodeToKeyboardEventKeycode(keycode);
 	// Modifiers not complete.
-	g_logger.Log(CLogger::INFO, CKeyboardEvent::GetKeycodeName(to_post->keycode));
+	g_logger.Log(CLogger::INFO, std::to_string(keycode));
 	listener->Post(to_post);
-	return FALSE;
 }
 
 CEventListenerAtspi::CEventListenerAtspi() : 
 	m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)), 
-	m_deviceEventListener(atspi_device_listener_new(&CEventListenerAtspi::OnDeviceEventCallback, this, nullptr)) {
+	m_device(atspi_device_new()) {
 	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
 	if (!m_objectEventListener) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "Failed to register the object event listener");
 		return;
 	}
 
-	if (!m_deviceEventListener) [[unlikely]] {
+	if (!m_device) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "Failed to register the device event listener");
 		return;
 	}
@@ -103,14 +102,7 @@ CEventListenerAtspi::CEventListenerAtspi() :
 		}
 	}
 
-	for (auto event_type : cAtspiDeviceListenerEventTypes) {
-		atspi_register_device_event_listener(m_deviceEventListener, event_type, nullptr, &error);
-		if (error) {
-			g_logger.Log(CLogger::ERROR, "Failed to register event: " + std::to_string(event_type) + std::string(error->message));
-			g_error_free(error);
-			error = nullptr;
-		}
-	}
+	atspi_device_add_key_watcher(m_device, &CEventListenerAtspi::OnDeviceKeyEventCallback, this, nullptr);
 }
 
 void CEventListenerAtspi::Post(std::shared_ptr<IEvent> event) {

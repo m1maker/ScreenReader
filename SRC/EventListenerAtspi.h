@@ -2,6 +2,7 @@
 #pragma once
 #include "EventListener.h"
 #include <atspi/atspi.h>
+#include <atspi/atspi-device.h>
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -19,13 +20,6 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	{"object:property-change:accessible-parent", IEvent::PARENT_UPDATED},
 	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED},
 	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
-};
-
-constexpr inline std::array<AtspiEventType, 4> cAtspiDeviceListenerEventTypes = {
-	ATSPI_KEY_PRESSED_EVENT,
-	ATSPI_KEY_RELEASED_EVENT,
-	ATSPI_BUTTON_PRESSED_EVENT,
-	ATSPI_BUTTON_RELEASED_EVENT
 };
 
 [[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {
@@ -239,16 +233,16 @@ constexpr inline std::array<AtspiEventType, 4> cAtspiDeviceListenerEventTypes = 
 
 class CEventListenerAtspi final : public IEventListener {
 	AtspiEventListener* m_objectEventListener{nullptr};
-	AtspiDeviceListener* m_deviceEventListener{nullptr};
+	AtspiDevice* m_device{nullptr};
 public:
 
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
-	static gboolean OnDeviceEventCallback(AtspiDeviceEvent* event, void* user_data);
+	static void OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data);
 
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() {
 		if (m_objectEventListener) g_object_unref(m_objectEventListener);
-		if (m_deviceEventListener) g_object_unref(m_deviceEventListener);
+		if (m_device) g_object_unref(m_device);
 	}
 
 	void Post(std::shared_ptr<IEvent> event) override;
