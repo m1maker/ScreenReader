@@ -99,6 +99,7 @@ CEventListenerAtspi::CEventListenerAtspi() :
 		if (error) {
 			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));
 			g_error_free(error);
+			error = nullptr;
 		}
 	}
 
@@ -107,6 +108,7 @@ CEventListenerAtspi::CEventListenerAtspi() :
 		if (error) {
 			g_logger.Log(CLogger::ERROR, "Failed to register event: " + std::to_string(event_type) + std::string(error->message));
 			g_error_free(error);
+			error = nullptr;
 		}
 	}
 }
