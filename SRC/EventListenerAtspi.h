@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include <linux/input-event-codes.h>
+#include <array>
 
 /*
 AT-SPI has a listener where you need to register the required events one by one.
@@ -18,6 +19,13 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventType
 	{"object:property-change:accessible-parent", IEvent::PARENT_UPDATED},
 	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED},
 	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
+};
+
+constexpr inline std::array<AtspiEventType, 4> cDeviceListenerEventTypes = {
+	ATSPI_KEY_PRESSED_EVENT,
+	ATSPI_KEY_RELEASED_EVENT,
+	ATSPI_BUTTON_PRESSED_EVENT,
+	ATSPI_BUTTON_RELEASED_EVENT
 };
 
 [[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {
