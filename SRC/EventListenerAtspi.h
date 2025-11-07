@@ -12,7 +12,7 @@
 AT-SPI has a listener where you need to register the required events one by one.
 But there's one very strange thing: all of these types are strings. Look at this code.
 */
-inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventTypeMap = {
+inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEventTypeMap = {
 	{"object:state-changed:focused", IEvent::FOCUS_GAINED},
 	{"object:state-changed:checked", IEvent::STATE_CHANGED},
 	{"object:state-changed:selected", IEvent::SELECTION_CHANGED},
@@ -21,7 +21,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiEventType
 	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
 };
 
-constexpr inline std::array<AtspiEventType, 4> cDeviceListenerEventTypes = {
+constexpr inline std::array<AtspiEventType, 4> cAtspiDeviceListenerEventTypes = {
 	ATSPI_KEY_PRESSED_EVENT,
 	ATSPI_KEY_RELEASED_EVENT,
 	ATSPI_BUTTON_PRESSED_EVENT,
@@ -33,8 +33,8 @@ constexpr inline std::array<AtspiEventType, 4> cDeviceListenerEventTypes = {
 
 	std::string type_str(type);
 
-	auto it = cAtspiEventTypeMap.find(type_str);
-	if (it != cAtspiEventTypeMap.end()) {
+	auto it = cAtspiObjectEventTypeMap.find(type_str);
+	if (it != cAtspiObjectEventTypeMap.end()) {
 		return it->second;
 	}
 

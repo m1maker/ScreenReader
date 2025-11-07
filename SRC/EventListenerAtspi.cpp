@@ -92,13 +92,20 @@ CEventListenerAtspi::CEventListenerAtspi() :
 
 	/*
 	AT-SPI has a listener where you need to register the required events one by one.
-	But there's one very strange thing: all of these types are strings. They're defined in EventListenerAtspi.h.
 	*/
 	GError* error = nullptr;
-	for (auto [atspi_event_type, event_type] : cAtspiEventTypeMap) {
+	for (auto [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
 		atspi_event_listener_register(m_objectEventListener, atspi_event_type.c_str(), &error);
 		if (error) {
 			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));
+			g_error_free(error);
+		}
+	}
+
+	for (auto event_type : cAtspiDeviceListenerEventTypes) {
+		atspi_register_device_event_listener(m_deviceEventListener, event_type, nullptr, &error);
+		if (error) {
+			g_logger.Log(CLogger::ERROR, "Failed to register event: " + std::to_string(event_type) + std::string(error->message));
 			g_error_free(error);
 		}
 	}
