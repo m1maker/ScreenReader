@@ -28,6 +28,7 @@ pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
 
 pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
 pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GDK REQUIRED gdk-3.0)
 
 set(SCREENREADER_SOURCES
     SRC/main.cpp
@@ -55,6 +56,7 @@ target_include_directories(ScreenReader PRIVATE
     ${CMAKE_SOURCE_DIR}/SRC
     ${ATSPI_INCLUDE_DIRS}
     ${SPEECHD_INCLUDE_DIRS}
+    ${GDK_INCLUDE_DIRS}
 )
 
 target_link_libraries(ScreenReader
@@ -62,6 +64,7 @@ target_link_libraries(ScreenReader
     ${SPEECHD_LIBRARIES}
     ${GOBJECT_LIBRARIES}
     ${GLIB_LIBRARIES}
+    ${GDK_LIBRARIES}
 )
 
 install(TARGETS ScreenReader DESTINATION bin)

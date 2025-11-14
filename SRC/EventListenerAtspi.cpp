@@ -69,9 +69,9 @@ void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice*
 
 	auto to_post = std::make_shared<CKeyboardEvent>();
 	to_post->type = pressed ? IEvent::KEY_PRESSED : IEvent::KEY_RELEASED;
-	to_post->keycode = LinuxKeycodeToKeyboardEventKeycode(keycode);
+	to_post->keycode = GdkKeysymToKeyboardEventKeycode(keysym);
 	// Modifiers not complete.
-	g_logger.Log(CLogger::INFO, std::to_string(keycode));
+	g_logger.Log(CLogger::INFO, std::string(CKeyboardEvent::GetKeycodeName(to_post->keycode)));
 	listener->Post(to_post);
 }
 
