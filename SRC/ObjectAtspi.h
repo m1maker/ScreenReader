@@ -134,7 +134,7 @@ private:
 	gchar* m_pointer{nullptr};
 public:
 
-	explicit CGlibString(gchar* pointer) : m_pointer(pointer) {}
+	constexpr explicit CGlibString(gchar* pointer) : m_pointer(pointer) {}
 
 	CGlibString(const CGlibString&) = delete;
 	CGlibString& operator=(const CGlibString&) = delete;
@@ -149,7 +149,7 @@ public:
 		}
 	}
 
-	void reset(gchar* new_pointer = nullptr) {
+	constexpr void reset(gchar* new_pointer = nullptr) {
 		if (m_pointer) {
 			g_free(m_pointer);
 		}

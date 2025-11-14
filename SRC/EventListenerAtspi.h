@@ -250,7 +250,7 @@ class CEventListenerAtspi final : public IEventListener {
 public:
 
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
-	static void OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data);
+	static void OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, [[maybe_unused]] guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data);
 
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() {
