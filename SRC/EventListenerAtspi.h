@@ -4,6 +4,7 @@
 #include <atspi/atspi.h>
 #include <atspi/atspi-device.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdk.h>
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -233,6 +234,38 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 
 		default: return CKeyboardEvent::KEYCODE_NONE;
 	}
+}
+
+[[nodiscard]] constexpr inline unsigned char GdkModifierToKeyboardEventModifiers(const guint& gdk_modifiers) {
+	unsigned char modifiers = CKeyboardEvent::MODIFIER_NONE;
+
+	if (gdk_modifiers & GDK_SHIFT_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_SHIFT;
+	}
+	if (gdk_modifiers & GDK_CONTROL_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_CTRL;
+	}
+	if (gdk_modifiers & GDK_MOD1_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_ALT;
+	}
+	if (gdk_modifiers & GDK_MOD4_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
+	}
+	if (gdk_modifiers & GDK_SUPER_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
+	}
+	if (gdk_modifiers & GDK_META_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
+	}
+
+	if (gdk_modifiers & GDK_LOCK_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_CAPS_LOCK;
+	}
+	if (gdk_modifiers & GDK_MOD2_MASK) {
+		modifiers |= CKeyboardEvent::MODIFIER_NUM_LOCK;
+	}
+
+	return modifiers;
 }
 
 [[nodiscard]] constexpr inline IEvent::EEventType AtspiEventTypeToEventType(const AtspiEventType& type) {

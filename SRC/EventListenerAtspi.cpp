@@ -70,8 +70,9 @@ void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice*
 	auto to_post = std::make_shared<CKeyboardEvent>();
 	to_post->type = pressed ? IEvent::KEY_PRESSED : IEvent::KEY_RELEASED;
 	to_post->keycode = GdkKeysymToKeyboardEventKeycode(keysym);
-	// Modifiers not complete.
-	g_logger.Log(CLogger::INFO, std::string(CKeyboardEvent::GetKeycodeName(to_post->keycode)));
+	to_post->modifiers = GdkModifierToKeyboardEventModifiers(modifiers);
+
+	g_logger.Log(CLogger::INFO, CKeyboardEvent::KeyComboToString(to_post->keycode, to_post->modifiers));
 	listener->Post(to_post);
 }
 
