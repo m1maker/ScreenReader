@@ -101,15 +101,15 @@
 	}
 }
 
-[[nodiscard]] static constexpr inline IObject::EObjectState GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
-	unsigned int result = IObject::NO;
+[[nodiscard]] static constexpr inline unsigned long long GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
+	unsigned long long result = IObject::NO;
 	for (const auto& state : states) {
 		result |= GetObjectStateFromAtspiState(state);
 	}
-	return static_cast<IObject::EObjectState>(result);
+	return result;
 }
 
-[[nodiscard]] static inline IObject::EObjectState GetObjectStateFromAtspiStates(AtspiStateSet* states) {
+[[nodiscard]] static inline unsigned long long GetObjectStateFromAtspiStates(AtspiStateSet* states) {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
 		return IObject::NO;
@@ -169,7 +169,7 @@ public:
 	}
 
 	[[nodiscard]] inline constexpr const char* c_str() const { return m_pointer ? m_pointer : ""; }
-	[[nodiscard]] inline bool empty() const { return !m_pointer || !*m_pointer; }
+	[[nodiscard]] constexpr inline bool empty() const { return !m_pointer || !*m_pointer; }
 };
 
 class CObjectAtspi final : public IObject {
@@ -225,7 +225,7 @@ public:
 	[[nodiscard]] bool IsVisible() override;
 	[[nodiscard]] bool IsEnabled() override;
 
-	[[nodiscard]] EObjectState GetState() override;
+	[[nodiscard]] unsigned long long GetState() override;
 	[[nodiscard]] bool HasState(EObjectState state) override;
 
 	[[nodiscard]] std::weak_ptr<IObject> GetParent() override;

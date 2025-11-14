@@ -62,7 +62,7 @@ The object type query also applies to state names.
 For example, there's no such state as EObjectState::UNCHECKED, but there is CHECKABLE.
 We need to understand what kind of object this is to more accurately determine the states for announcements when we don't request `require_all`.
 */
-[[nodiscard]] std::vector<std::string> IObject::GetStateNames(const IObject::EObjectType& type, const IObject::EObjectState& states, bool require_all) {
+[[nodiscard]] std::vector<std::string> IObject::GetStateNames(const IObject::EObjectType& type, const unsigned long long& states, bool require_all) {
 	std::vector<std::string> state_names;
 	if (states & VISIBLE && require_all) state_names.push_back("visible");
 	if (states & ENABLED && require_all) state_names.push_back("enabled");

@@ -59,7 +59,7 @@ public:
 	virtual ~IObject() = default;
 
 	[[nodiscard]] static std::string GetTypeName(const EObjectType& type, bool require_all = false);
-	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectType& type, const EObjectState& states, bool require_all = false);
+	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false);
 
 	[[nodiscard]] static constexpr inline bool IsValidParent(const EObjectType& type) {
 		switch (type) {
@@ -82,7 +82,7 @@ public:
 	[[nodiscard]] virtual bool IsVisible() = 0;
 	[[nodiscard]] virtual bool IsEnabled() = 0;
 
-	[[nodiscard]] virtual EObjectState GetState() = 0;
+	[[nodiscard]] virtual unsigned long long GetState() = 0;
 	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
 
 	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent() = 0;
@@ -113,7 +113,7 @@ protected:
 	AT-SPI has a password text object type, while IObject simply has a text field and a secure state.
 	We simply check within the AT-SPI implementation if the type is password text and add the secure state.
 	*/
-	EObjectState m_states{NO};
+	unsigned long long m_states{NO};
 };
 
 /*

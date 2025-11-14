@@ -43,11 +43,11 @@
 	return GetState() & IObject::ENABLED;
 }
 
-[[nodiscard]] IObject::EObjectState CObjectAtspi::GetState() {
+[[nodiscard]] unsigned long long CObjectAtspi::GetState() {
 	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
 	if (!states) return IObject::NO;
-	return static_cast<EObjectState>(GetObjectStateFromAtspiStates(states) | m_states);
+	return GetObjectStateFromAtspiStates(states) | m_states;
 }
 
 [[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {
