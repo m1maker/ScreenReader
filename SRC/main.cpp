@@ -15,6 +15,6 @@ signed int main(signed int argc, char** argv) {
 		g_logger.Log(CLogger::ERROR, "Application", standard_exception.what());
 	}
 
-	return g_retcode;
+	return g_returnCode.ToInt();
 }
 

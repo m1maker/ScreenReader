@@ -38,7 +38,7 @@ public:
 	}
 
 	~CScreenReaderApp() {
-		g_logger.Log(CLogger::INFO, "Application", "Shutting down");
+		g_logger.Log(CLogger::INFO, "Application", "Shutting down with return code " + std::to_string(g_returnCode.ToInt()) + " - " + std::string(g_returnCode.ToString()));
 	}
 
 	void Run() {
