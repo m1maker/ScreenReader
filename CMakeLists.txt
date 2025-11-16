@@ -21,6 +21,48 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Git)
+
+function(get_git_version VERSION_HASH VERSION_TAG)
+    if(GIT_FOUND)
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --always --tags --dirty=-dirty
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_HASH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+    endif()
+
+    if(NOT GIT_VERSION)
+        set(GIT_VERSION "v${PROJECT_VERSION}-unknown")
+    endif()
+
+    if(NOT GIT_HASH)
+        set(GIT_HASH "unknown")
+    endif()
+
+    set(${VERSION_TAG} ${GIT_VERSION} PARENT_SCOPE)
+    set(${VERSION_HASH} ${GIT_HASH} PARENT_SCOPE)
+endfunction()
+
+get_git_version(GIT_COMMIT_HASH GIT_VERSION_TAG)
+
+configure_file(
+    SRC/Version.h.in
+    ${CMAKE_BINARY_DIR}/generated/Version.h
+)
+
+include_directories(${CMAKE_BINARY_DIR}/generated)
+
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(ATSPI REQUIRED atspi-2)

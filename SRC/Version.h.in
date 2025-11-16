@@ -1,0 +1,14 @@
+#pragma once
+#include <string_view>
+
+struct SScreenReaderVersion final {
+	static constexpr const char* PROJECT_NAME = "@PROJECT_NAME@";
+	static constexpr int MAJOR = @PROJECT_VERSION_MAJOR@;
+	static constexpr int MINOR = @PROJECT_VERSION_MINOR@;
+	static constexpr int PATCH = @PROJECT_VERSION_PATCH@;
+	static constexpr const char* STRING = "@PROJECT_VERSION@";
+
+	static constexpr const char* GIT_HASH = "@GIT_COMMIT_HASH@";
+	static constexpr const char* GIT_TAG = "@GIT_VERSION_TAG@";
+	static constexpr const char* BUILD_TIMESTAMP = __DATE__ " " __TIME__;
+};
