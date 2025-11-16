@@ -14,6 +14,7 @@
 #include "SpeechEngine.h"
 #include "EventHandler.h"
 #include "EventToSpeech.h"
+#include <Version.h>
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderOptions {
@@ -42,7 +43,7 @@ public:
 	}
 
 	void Run() {
-		g_logger.Log(CLogger::INFO, "Application", "Starting");
+		g_logger.Log(CLogger::INFO, "Application", "Starting " + std::string(SScreenReaderVersion::PROJECT_NAME) + " version " + std::string(SScreenReaderVersion::STRING));
 		g_running.store(true);
 		/*
 		We get a speaker for announcing states.
