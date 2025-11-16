@@ -4,31 +4,45 @@
 #include <string>
 #include "Singleton.h"
 #include <string_view>
+#include <mutex>
+#include "AppState.h"
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {
 public:
 
 	enum ELogLevel : unsigned char {
-		NOTHING = 0,
+		DEBUG = 0,
 		INFO,
 		WARNING,
 		ERROR,
-		DEBUG
+		NOTHING
 	};
 
 private:
 	std::ofstream m_file;
 	ELogLevel m_level;
 	std::string m_currentCategory{"Unknown"};
+	std::mutex m_mutex;
 public:
 
 	explicit CLogger() : m_level(DEBUG) {
-		m_file.open("ScreenReader.log");
+		m_file.open("ScreenReader.log", std::ios::app);
+		if (!m_file.is_open()) {
+			g_returnCode = CScreenReaderAppReturnCode::ERROR_LOGGER;
+			g_running.store(false);
+			return;
+		}
+
 		Log(INFO, "Logger", "Initialized. Log level is " + std::string(LogLevelToString(m_level)));
 	}
 
-	~CLogger() = default;
+	~CLogger() {
+		if (m_file.is_open()) {
+			m_file << std::endl;
+			m_file.close();
+		}
+	}
 
 	[[nodiscard]] static constexpr inline std::string_view LogLevelToString(const ELogLevel& level) {
 		switch (level) {
@@ -42,8 +56,9 @@ public:
 
 	template<typename T>
 	inline void Log(const ELogLevel& level, const std::string& category, T value) {
-		if (m_level < level) return;
+		if (m_level > level) return;
 
+		[[maybe_unused]] std::lock_guard _(m_mutex);
 		m_file << LogLevelToString(level) << ": [" << category << "] " << value << std::endl;
 	}
 
