@@ -28,6 +28,7 @@ class CScreenReaderApp final {
 	On Linux, it's an AT-SPI event loop; on Windows, I think it's some kind of GetMessage/DispatchMessage (windows-like loops).
 	*/
 	std::unique_ptr<IPlatformDependentWorker> m_worker;
+	unsigned int m_loopRestartAttempts{0};
 public:
 	CScreenReaderApp() { // Without command line options
 		Run();
@@ -58,7 +59,16 @@ public:
 		g_eventHandler; // It's the same as CSingleton<CEventHandler>::GetInstance()
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>(); // In the future, this will of course be platform specific.
 		g_eventToSpeech.AnnounceWhereAmI();
-		m_worker->Loop(); // Start the main loop.
+
+		/*
+		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to terminate the program.
+		Even if the main loop terminates for some strange reason, we'll restart it.
+		*/
+		while (g_running.load()) {
+			m_worker->Loop();
+			++m_loopRestartAttempts;
+		}
+
 		state_speaker->Uninitialize();
 		g_running.store(false);
 		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
