@@ -53,7 +53,7 @@ public:
 	}
 
 	[[nodiscard]] virtual bool RegisterAction(const T& event, const unsigned int& action_type, ActionInterface& action) = 0;
-	virtual void UnregisterAction(const unsigned int& action) = 0;
+	virtual void UnregisterAction(const T& action) = 0;
 };
 
 template<typename T>

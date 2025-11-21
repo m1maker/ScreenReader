@@ -4,13 +4,22 @@
 #include <unordered_map>
 #include <functional>
 
-class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent> {
+class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
+	struct SActionInfo final {
+		unsigned int id{0};
+		ActionInterface* executable{nullptr};
+	};
+
+	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
+
 public:
 
-	explicit CKeyboardHandler();
-	~CKeyboardHandler();
+	explicit CKeyboardHandler() = default;
+	~CKeyboardHandler() = default;
 
-	[[nodiscard]] bool RegisterAction(const CKeyboardEvent& event, const unsigned int& action_type, ActionInterface& action) override;
-	void UnregisterAction(const unsigned int& action) override;
+	[[nodiscard]] bool RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) override;
+	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
+
+	void Handle(CKeyboardEvent* pEvent);
 };
 

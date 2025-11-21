@@ -222,8 +222,14 @@ public:
 		MODIFIER_NUM_LOCK = 1 << 5
 	};
 
-	EKeycode keycode;
-	unsigned char modifiers;
+	struct SHotkeyInfo final {
+		EKeycode keycode;
+		unsigned char modifiers;
+
+		constexpr bool operator==(const SHotkeyInfo& info) const {
+			return this->keycode == info.keycode && this->modifiers == info.modifiers;
+		}
+	} hotkey;
 
 	[[nodiscard]] constexpr static inline std::string_view GetKeycodeName(const EKeycode& keycode) {
 		switch (keycode) {
@@ -429,4 +435,14 @@ public:
 		}
 	}
 };
+
+namespace std {
+	template<>
+	struct hash<CKeyboardEvent::SHotkeyInfo> {
+		std::size_t operator()(const CKeyboardEvent::SHotkeyInfo& k) const noexcept {
+			return std::hash<CKeyboardEvent::EKeycode>{}(k.keycode) ^ 
+				(std::hash<unsigned char>{}(k.modifiers) << 1);
+		}
+	};
+}
 
