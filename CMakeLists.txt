@@ -82,6 +82,7 @@ set(SCREENREADER_SOURCES
     SRC/EventHandler.cpp
     SRC/EventToSpeech.cpp
     SRC/Object.cpp
+    SRC/KeyboardHandler.cpp
 )
 
 add_executable(ScreenReader
