@@ -122,7 +122,6 @@
 	}
 
 	g_array_free(array, TRUE);
-	g_object_unref(states);
 	return GetObjectStateFromAtspiStates(state_types);
 }
 

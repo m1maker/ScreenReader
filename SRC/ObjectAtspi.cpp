@@ -2,6 +2,7 @@
 #include "ObjectAtspi.h"
 #include "Event.h"
 #include "Rect.h"
+#include "Defer.h"
 
 [[nodiscard]] std::shared_ptr<IObject> GetDesktopObject() {
 	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));
@@ -47,6 +48,7 @@
 	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
 	if (!states) return IObject::NO;
+	defer(g_object_unref(states));
 	return GetObjectStateFromAtspiStates(states) | m_states;
 }
 
