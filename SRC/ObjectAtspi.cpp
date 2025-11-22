@@ -27,13 +27,12 @@
 }
 
 [[nodiscard]] IObject::EObjectType CObjectAtspi::GetType() {
+	ReturnCache(m_type);
 	if (!m_accessible) return IObject::UNKNOWN;
 
 	ResetLastError();
 	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
-	if (role == ATSPI_ROLE_PASSWORD_TEXT) m_states = SECURE;
-	else if (m_states != NO) m_states = NO;
-	return GetObjectTypeFromAtspiRole(role);
+	CacheReturn(m_type, GetObjectTypeFromAtspiRole(role));
 }
 
 [[nodiscard]] bool CObjectAtspi::IsVisible() {
@@ -45,11 +44,12 @@
 }
 
 [[nodiscard]] unsigned long long CObjectAtspi::GetState() {
+	ReturnCache(m_states);
 	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
 	if (!states) return IObject::NO;
 	defer(g_object_unref(states));
-	return GetObjectStateFromAtspiStates(states) | m_states;
+	CacheReturn(m_states, GetObjectStateFromAtspiStates(states));
 }
 
 [[nodiscard]] bool CObjectAtspi::HasState(IObject::EObjectState state) {
@@ -57,20 +57,23 @@
 }
 
 [[nodiscard]] std::weak_ptr<IObject> CObjectAtspi::GetParent() {
+	ReturnCache(m_parent);
 	if (!m_accessible) return std::weak_ptr<CObjectAtspi>();
 
 	ResetLastError();
 	AtspiAccessible* parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
 	if (!parent) return std::weak_ptr<CObjectAtspi>();
-	return std::make_shared<CObjectAtspi>(parent);
+	CacheReturn(m_parent, std::make_shared<CObjectAtspi>(parent));
 }
 
 [[nodiscard]] const std::vector<std::shared_ptr<IObject>>& CObjectAtspi::GetChildren() {
-	if (!m_accessible) return m_children;
+	ReturnCache(m_children);
+	auto children = std::vector<std::shared_ptr<IObject>>();
+	if (!m_accessible) return m_children.value();
 
 	ResetLastError();
 	gint child_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
-	if (child_count == 0) return m_children;
+	if (child_count == 0) CacheReturn(m_children, children);
 
 	for (gint i = 0; i < child_count; ++i) {
 		ResetLastError();
@@ -78,10 +81,10 @@
 		AtspiAccessible* child = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
 		if (!child) continue;
 		std::shared_ptr<CObjectAtspi> child_object = std::make_shared<CObjectAtspi>(child);
-		m_children.push_back(child_object);
+		children.push_back(child_object);
 	}
 
-	return m_children;
+	CacheReturn(m_children, children);
 }
 
 [[nodiscard]] SRect CObjectAtspi::GetBounds() {
@@ -93,14 +96,16 @@
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetApplicationName() {
+	ReturnCache(m_applicationName);
 	if (!m_accessible) return "Unknown";
 
 	ResetLastError();
 	CGlibString name(atspi_accessible_get_toolkit_name(m_accessible, &m_lastError));
-	return name;
+	CacheReturn(m_applicationName, name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetName() {
+	ReturnCache(m_name);
 	if (!m_accessible) return "Unknown";
 
 	bool name_found = false;
@@ -109,7 +114,7 @@
 	CGlibString name(atspi_accessible_get_name(m_accessible, &m_lastError));
 
 	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) return name;
+	if (relations.empty()) CacheReturn(m_name, name);
 	for (AtspiRelation& relation : relations) {
 		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_LABELLED_BY) {
 			ResetLastError();
@@ -120,10 +125,11 @@
 		}
 	}
 
-	return name;
+	CacheReturn(m_name, name);
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetDescription() {
+	ReturnCache(m_description);
 	if (!m_accessible) return "";
 
 	bool description_found = false;
@@ -132,7 +138,7 @@
 	CGlibString description(atspi_accessible_get_description(m_accessible, &m_lastError));
 
 	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) return description;
+	if (relations.empty()) CacheReturn(m_description, description);
 	for (AtspiRelation& relation : relations) {
 		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_DESCRIBED_BY) {
 			ResetLastError();
@@ -143,19 +149,20 @@
 		}
 	}
 
-	return description;
+	CacheReturn(m_description, description);
 }
 
 [[nodiscard]] int CObjectAtspi::GetCursor() {
+	ReturnCache(m_cursor);
 	if (!m_accessible) return 0;
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) return 0;
+		if (!m_textInterface) CacheReturn(m_cursor, 0);
 	}
 
 	ResetLastError();
 
-	return atspi_text_get_caret_offset(m_textInterface, &m_lastError);
+	CacheReturn(m_cursor, atspi_text_get_caret_offset(m_textInterface, &m_lastError));
 }
 
 [[nodiscard]] std::string CObjectAtspi::GetText(bool at_cursor) {
@@ -183,37 +190,40 @@
 }
 
 [[nodiscard]] double CObjectAtspi::GetMinValue() {
+	ReturnCache(m_minValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) return 0.0;
+		if (!m_valueInterface) CacheReturn(m_minValue, 0.0);
 	}
 
 	ResetLastError();
 
-	return atspi_value_get_minimum_value(m_valueInterface, &m_lastError);
+	CacheReturn(m_minValue, atspi_value_get_minimum_value(m_valueInterface, &m_lastError));
 }
 
 [[nodiscard]] double CObjectAtspi::GetMaxValue() {
+	ReturnCache(m_maxValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) return 0.0;
+		if (!m_valueInterface) CacheReturn(m_maxValue, 0.0);
 	}
 
 	ResetLastError();
 
-	return atspi_value_get_maximum_value(m_valueInterface, &m_lastError);
+	CacheReturn(m_maxValue, atspi_value_get_maximum_value(m_valueInterface, &m_lastError));
 }
 
 [[nodiscard]] double CObjectAtspi::GetCurrentValue() {
+	ReturnCache(m_currentValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) return 0.0;
+		if (!m_valueInterface) CacheReturn(m_currentValue, 0.0);
 	}
 
 	ResetLastError();
 
-	return atspi_value_get_current_value(m_valueInterface, &m_lastError);
+	CacheReturn(m_currentValue, atspi_value_get_current_value(m_valueInterface, &m_lastError));
 }

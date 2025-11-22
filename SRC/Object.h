@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Rect.h"
+#include "Cache.h"
 
 class IObject {
 public:
@@ -105,15 +106,17 @@ public:
 	[[nodiscard]] virtual double GetCurrentValue() = 0;
 
 protected:
-	std::weak_ptr<IObject> m_parent;
-	std::vector<std::shared_ptr<IObject>> m_children;
-	/*
-	This is an internal state; it may not be used in practice, but it simply exists.
-	For example, it was needed with AT-SPI.
-	AT-SPI has a password text object type, while IObject simply has a text field and a secure state.
-	We simply check within the AT-SPI implementation if the type is password text and add the secure state.
-	*/
-	unsigned long long m_states{NO};
+	DeclareCache(EObjectType, m_type);
+	DeclareCache(unsigned long long, m_states);
+	DeclareCache(std::weak_ptr<IObject>, m_parent);
+	DeclareCache(std::vector<std::shared_ptr<IObject>>, m_children);
+	DeclareCache(std::string, m_name);
+	DeclareCache(std::string, m_applicationName);
+	DeclareCache(std::string, m_description);
+	DeclareCache(int, m_cursor);
+	DeclareCache(double, m_minValue);
+	DeclareCache(double, m_maxValue);
+	DeclareCache(double, m_currentValue);
 };
 
 /*
