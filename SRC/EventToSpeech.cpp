@@ -42,6 +42,23 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	}
 
 	std::string announcement = event->object->GetName();
+	/*
+	I don't know what to do here yet, but I hope I can eventually standardize this behavior.
+	When I'm in Caja Explorer, the file/folder name isn't announced in a tree view.
+	When I look at it with Orca's object navigator, I see that the first child is blank, and to the right is the file name and other data, such as size, etc.
+	Then it says it's the name column header, and then the name again, and so on.
+	Now we'll try to find a nearby object that has a name.
+	*/
+	if (announcement.empty()) {
+		auto children = event->object->GetChildren();
+		for (auto child : children) {
+			if (!child->GetName().empty()) {
+				event->object = child;
+				AnnounceFocusChange(event);
+				return;
+			}
+		}
+	}
 
 	auto type = event->object->GetType();
 	if (type != IObject::UNKNOWN) {
