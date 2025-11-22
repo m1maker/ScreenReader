@@ -226,6 +226,12 @@ public:
 		EKeycode keycode;
 		unsigned char modifiers;
 
+		explicit constexpr SHotkeyInfo(const EKeycode& keycode = KEYCODE_NONE, const unsigned char& modifiers = MODIFIER_NONE) : keycode(keycode), modifiers(modifiers) {}
+
+		static constexpr SHotkeyInfo GetAny() {
+			return SHotkeyInfo(KEYCODE_ANY, MODIFIER_NONE);
+		}
+
 		constexpr bool operator==(const SHotkeyInfo& info) const {
 			return this->keycode == info.keycode && this->modifiers == info.modifiers;
 		}

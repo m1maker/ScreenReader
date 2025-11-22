@@ -1,6 +1,7 @@
 #pragma once
 #include "SpeechEngine.h"
 #include <functional>
+#include "Singleton.h"
 
 enum class EAction {
 	NONE = 0,
@@ -60,8 +61,10 @@ template<typename T>
 class CActionStopSpeech final : public IAction<static_cast<unsigned int>(EAction::STOP_SPEECH), EActionHandleResult, const T&> {
 public:
 	EActionHandleResult Execute(const T& event) override {
-		auto& speaker = g_speechEngine.GetSpeaker();
+		auto speaker = g_speechEngine.GetSpeaker();
 		if (speaker) speaker->StopSpeech();
 		return EActionHandleResult::HANDLED;
 	}
 };
+
+#define g_actionStopSpeech(T) CSingleton<CActionStopSpeech<T>>::GetInstance()

@@ -55,7 +55,7 @@ public:
 	}
 
 	template<typename T>
-	inline void Log(const ELogLevel& level, const std::string& category, T value) {
+	inline void Log(const ELogLevel& level, const std::string& category, T value) noexcept {
 		if (m_level > level) return;
 
 		[[maybe_unused]] std::lock_guard _(m_mutex);
@@ -63,7 +63,7 @@ public:
 	}
 
 	template<typename T>
-	inline void Log(const ELogLevel& level, T value) {
+	inline void Log(const ELogLevel& level, T value) noexcept {
 		Log(level, m_currentCategory, value);
 	}
 

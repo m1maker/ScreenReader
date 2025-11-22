@@ -3,6 +3,7 @@
 #include "Event.h"
 #include <unordered_map>
 #include <functional>
+#include "Singleton.h"
 
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
 	struct SActionInfo final {
@@ -23,3 +24,4 @@ public:
 	void Handle(CKeyboardEvent* pEvent);
 };
 
+#define g_keyboardHandler CSingleton<CKeyboardHandler>::GetInstance()

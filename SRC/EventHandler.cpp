@@ -3,9 +3,15 @@
 #include "EventListenerAtspi.h"
 #include "Logger.h"
 #include "EventToSpeech.h"
+#include "KeyboardHandler.h"
+#include "Action.h"
 
 CEventHandler::CEventHandler() {
 	m_listener = std::make_shared<CEventListenerAtspi>(); // In the future, this will of course be platform specific.
+
+	bool success{false};
+
+	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo));
 }
 
 /*
@@ -47,6 +53,12 @@ void CEventHandler::Handle() {
 			case IEvent::CURSOR_MOVED: {
 				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
 				g_eventToSpeech.AnnounceCursorMove(object_event);
+				break;
+			}
+
+			case IEvent::KEY_PRESSED: {
+				auto keyboard_event = dynamic_cast<CKeyboardEvent*>(&*event);
+				g_keyboardHandler.Handle(keyboard_event);
 				break;
 			}
 			default:
