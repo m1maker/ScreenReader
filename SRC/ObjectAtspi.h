@@ -138,7 +138,7 @@ public:
 	CGlibString(const CGlibString&) = delete;
 	CGlibString& operator=(const CGlibString&) = delete;
 
-	CGlibString(CGlibString&& other) noexcept : m_pointer(other.m_pointer) {
+	CGlibString(CGlibString&& other) : m_pointer(other.m_pointer) {
 		other.m_pointer = nullptr;
 	}
 
@@ -155,7 +155,7 @@ public:
 		m_pointer = new_pointer;
 	}
 
-	CGlibString& operator=(CGlibString&& other) noexcept {
+	CGlibString& operator=(CGlibString&& other) {
 		if (this != &other) {
 			reset(other.m_pointer);
 			other.m_pointer = nullptr;
@@ -172,30 +172,30 @@ public:
 };
 
 class CObjectAtspi final : public IObject {
-	AtspiAccessible* m_accessible{nullptr};
+	mutable AtspiAccessible* m_accessible{nullptr};
 
-	AtspiAction* m_actionInterface{nullptr};
-	AtspiCollection* m_collectionInterface{nullptr};
-	AtspiComponent* m_componentInterface{nullptr};
-	AtspiDocument* m_documentInterface{nullptr};
-	AtspiEditableText* m_editableTextInterface{nullptr};
-	AtspiHypertext* m_hypertextInterface{nullptr};
-	AtspiImage* m_imageInterface{nullptr};
-	AtspiSelection* m_selectionInterface{nullptr};
-	AtspiTable* m_tableInterface{nullptr};
-	AtspiText* m_textInterface{nullptr};
-	AtspiValue* m_valueInterface{nullptr};
+	mutable AtspiAction* m_actionInterface{nullptr};
+	mutable AtspiCollection* m_collectionInterface{nullptr};
+	mutable AtspiComponent* m_componentInterface{nullptr};
+	mutable AtspiDocument* m_documentInterface{nullptr};
+	mutable AtspiEditableText* m_editableTextInterface{nullptr};
+	mutable AtspiHypertext* m_hypertextInterface{nullptr};
+	mutable AtspiImage* m_imageInterface{nullptr};
+	mutable AtspiSelection* m_selectionInterface{nullptr};
+	mutable AtspiTable* m_tableInterface{nullptr};
+	mutable AtspiText* m_textInterface{nullptr};
+	mutable AtspiValue* m_valueInterface{nullptr};
 
-	GArray* m_relations{nullptr};
+	mutable GArray* m_relations{nullptr};
 
-	inline void ResetLastError() {
+	inline void ResetLastError() const noexcept {
 		if (m_lastError) {
 			g_error_free(m_lastError);
 			m_lastError = nullptr;
 		}
 	}
 
-	[[nodiscard]] std::vector<AtspiRelation> GetRelations();
+	[[nodiscard]] std::vector<AtspiRelation> GetRelations() const noexcept;
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
@@ -216,37 +216,37 @@ public:
 		ResetLastError();
 	}
 
-	[[nodiscard]] void* GetNativeHandle() override { return reinterpret_cast<void*>(m_accessible); }
+	[[nodiscard]] void* GetNativeHandle() const noexcept override { return reinterpret_cast<void*>(m_accessible); }
 
-	[[nodiscard]] inline bool IsValid() override { return m_accessible != nullptr; }
+	[[nodiscard]] inline bool IsValid() const noexcept override { return m_accessible != nullptr; }
 
-	[[nodiscard]] EObjectType GetType() override;
-	[[nodiscard]] bool IsVisible() override;
-	[[nodiscard]] bool IsEnabled() override;
+	[[nodiscard]] EObjectType GetType() const noexcept override;
+	[[nodiscard]] bool IsVisible() const noexcept override;
+	[[nodiscard]] bool IsEnabled() const noexcept override;
 
-	[[nodiscard]] unsigned long long GetState() override;
-	[[nodiscard]] bool HasState(EObjectState state) override;
+	[[nodiscard]] unsigned long long GetState() const noexcept override;
+	[[nodiscard]] bool HasState(EObjectState state) const noexcept override;
 
-	[[nodiscard]] std::weak_ptr<IObject> GetParent() override;
-	[[nodiscard]] const std::vector<std::shared_ptr<IObject>>& GetChildren() override;
+	[[nodiscard]] std::weak_ptr<IObject> GetParent() const noexcept override;
+	[[nodiscard]] const std::vector<std::shared_ptr<IObject>>& GetChildren() const noexcept override;
 
-	[[nodiscard]] SRect GetBounds() override;
+	[[nodiscard]] SRect GetBounds() const noexcept override;
 
-	[[nodiscard]] int GetTabIndex() override;
+	[[nodiscard]] int GetTabIndex() const noexcept override;
 
-	[[nodiscard]] std::string GetApplicationName() override;
+	[[nodiscard]] std::string GetApplicationName() const noexcept override;
 
-	[[nodiscard]] std::string GetName() override;
-	[[nodiscard]] std::string GetDescription() override;
+	[[nodiscard]] std::string GetName() const noexcept override;
+	[[nodiscard]] std::string GetDescription() const noexcept override;
 
-	[[nodiscard]] int GetCursor() override;
-	[[nodiscard]] std::string GetText(bool at_cursor = false) override;
+	[[nodiscard]] int GetCursor() const noexcept override;
+	[[nodiscard]] std::string GetText(bool at_cursor = false) const noexcept override;
 
-	[[nodiscard]] double GetMinValue() override;
-	[[nodiscard]] double GetMaxValue() override;
-	[[nodiscard]] double GetCurrentValue() override;
+	[[nodiscard]] double GetMinValue() const noexcept override;
+	[[nodiscard]] double GetMaxValue() const noexcept override;
+	[[nodiscard]] double GetCurrentValue() const noexcept override;
 
 private:
-	GError* m_lastError{nullptr};
+	mutable GError* m_lastError{nullptr};
 };
 

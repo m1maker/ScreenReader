@@ -75,35 +75,35 @@ public:
 		return false;
 	}
 
-	[[nodiscard]] virtual void* GetNativeHandle() = 0;
+	[[nodiscard]] virtual void* GetNativeHandle()const noexcept = 0;
 
-	[[nodiscard]] virtual bool IsValid() = 0;
+	[[nodiscard]] virtual bool IsValid()const noexcept = 0;
 
-	[[nodiscard]] virtual EObjectType GetType() = 0;
-	[[nodiscard]] virtual bool IsVisible() = 0;
-	[[nodiscard]] virtual bool IsEnabled() = 0;
+	[[nodiscard]] virtual EObjectType GetType()const noexcept = 0;
+	[[nodiscard]] virtual bool IsVisible()const noexcept = 0;
+	[[nodiscard]] virtual bool IsEnabled()const noexcept = 0;
 
-	[[nodiscard]] virtual unsigned long long GetState() = 0;
-	[[nodiscard]] virtual bool HasState(EObjectState state) = 0;
+	[[nodiscard]] virtual unsigned long long GetState()const noexcept = 0;
+	[[nodiscard]] virtual bool HasState(EObjectState state)const noexcept = 0;
 
-	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent() = 0;
-	[[nodiscard]] virtual const std::vector<std::shared_ptr<IObject>>& GetChildren() = 0;
+	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent()const noexcept = 0;
+	[[nodiscard]] virtual const std::vector<std::shared_ptr<IObject>>& GetChildren()const noexcept = 0;
 
-	[[nodiscard]] virtual struct SRect GetBounds() = 0;
+	[[nodiscard]] virtual struct SRect GetBounds()const noexcept = 0;
 
-	[[nodiscard]] virtual int GetTabIndex() = 0;
+	[[nodiscard]] virtual int GetTabIndex()const noexcept = 0;
 
-	[[nodiscard]] virtual std::string GetApplicationName() = 0;
+	[[nodiscard]] virtual std::string GetApplicationName()const noexcept = 0;
 
-	[[nodiscard]] virtual std::string GetName() = 0;
-	[[nodiscard]] virtual std::string GetDescription() = 0;
+	[[nodiscard]] virtual std::string GetName()const noexcept = 0;
+	[[nodiscard]] virtual std::string GetDescription()const noexcept = 0;
 
-	[[nodiscard]] virtual int GetCursor() = 0;
-	[[nodiscard]] virtual std::string GetText(bool at_cursor = false) = 0;
+	[[nodiscard]] virtual int GetCursor()const noexcept = 0;
+	[[nodiscard]] virtual std::string GetText(bool at_cursor = false)const noexcept = 0;
 
-	[[nodiscard]] virtual double GetMinValue() = 0;
-	[[nodiscard]] virtual double GetMaxValue() = 0;
-	[[nodiscard]] virtual double GetCurrentValue() = 0;
+	[[nodiscard]] virtual double GetMinValue()const noexcept = 0;
+	[[nodiscard]] virtual double GetMaxValue()const noexcept = 0;
+	[[nodiscard]] virtual double GetCurrentValue()const noexcept = 0;
 
 protected:
 	DeclareCache(EObjectType, m_type);

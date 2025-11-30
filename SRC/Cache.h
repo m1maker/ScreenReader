@@ -1,7 +1,7 @@
 #pragma once
 #include <optional>
 
-#define DeclareCache(T, name) std::optional<T> name
+#define DeclareCache(T, name) mutable std::optional<T> name
 
 #define Cache(name, value) name = value
 #define ReturnCache(name)\
