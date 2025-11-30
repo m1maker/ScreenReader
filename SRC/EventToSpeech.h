@@ -9,15 +9,17 @@
 This is the final step of object event processing. Announce it.
 */
 class CEventToSpeech final {
+	DeclareSingleton(CEventToSpeech);
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 	std::shared_ptr<Sral::Engine> m_speaker;
 public:
 
-	static inline std::string cSeparator = "  "; // This is a separator for name, type and state.
-
+	static inline std::string cSeparator = "  "; // This is a separator for name, type and state.	
+private:
 	explicit CEventToSpeech() : m_speaker(g_speechEngine.GetSpeaker()) {}
 	~CEventToSpeech() = default;
 
+public:
 	void AnnounceWhereAmI();
 
 	void AnnounceFocusChange(CObjectEvent* event);

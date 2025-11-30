@@ -22,6 +22,11 @@ struct SScreenReaderOptions {
 };
 
 class CScreenReaderApp final {
+	DeclareSingleton(CScreenReaderApp);
+	explicit CScreenReaderApp() {
+		Run();
+	}
+
 	SScreenReaderOptions m_options;
 	/*
 	A platform dependent worker is the screen reader's most basic and main loop.
@@ -29,15 +34,6 @@ class CScreenReaderApp final {
 	*/
 	std::unique_ptr<IPlatformDependentWorker> m_worker;
 	unsigned int m_loopRestartAttempts{0};
-public:
-	CScreenReaderApp() { // Without command line options
-		Run();
-	}
-
-	CScreenReaderApp(const std::vector<std::string>& args) {
-		//...ParseParseParse
-		Run();
-	}
 
 	~CScreenReaderApp() {
 		g_logger.Log(CLogger::INFO, "Application", "Shutting down with return code " + std::to_string(g_returnCode.ToInt()) + " - " + std::string(g_returnCode.ToString()));

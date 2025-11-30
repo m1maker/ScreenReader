@@ -6,6 +6,7 @@
 #include "Singleton.h"
 
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
+	DeclareSingleton(CKeyboardHandler);
 	struct SActionInfo final {
 		unsigned int id{0};
 		ActionInterface* executable{nullptr};
@@ -13,10 +14,9 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 
 	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
 
-public:
-
 	explicit CKeyboardHandler() = default;
 	~CKeyboardHandler() = default;
+public:
 
 	[[nodiscard]] bool RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;

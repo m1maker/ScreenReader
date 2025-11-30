@@ -17,4 +17,6 @@ template <class T> class CSingleton {
     CSingleton() = default;
     ~CSingleton() = default;
 };
+
+#define DeclareSingleton(T) friend class CSingleton<T>
 #endif

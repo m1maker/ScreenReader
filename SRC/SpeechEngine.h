@@ -5,10 +5,11 @@
 #include "EngineSpeechDispatcher.h"
 
 class CSpeechEngine final {
+	DeclareSingleton(CSpeechEngine);
 	std::shared_ptr<Sral::Engine> m_speechEngine;
-public:
-	CSpeechEngine();
+	explicit CSpeechEngine();
 	~CSpeechEngine() = default;
+public:
 
 	[[nodiscard]] inline std::shared_ptr<Sral::Engine> GetSpeaker() {
 		return m_speechEngine;

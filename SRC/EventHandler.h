@@ -6,6 +6,7 @@
 #include "Object.h"
 
 class CEventHandler final {
+	DeclareSingleton(CEventHandler);
 	/*
 	A listener is a platform-specific interface that processes events and converts them to a common screen reader's IEvent.
 	Then this event handler then queries the queue of these events.
@@ -15,9 +16,9 @@ class CEventHandler final {
 	Let's try to avoid duplicates of the announcer.
 	*/
 	std::shared_ptr<IObject> m_objectHandledPrevious;
-public:
 	explicit CEventHandler();
 	~CEventHandler() = default;
+public:
 
 	void Handle(); // For now, the listener calls it at every new event.
 

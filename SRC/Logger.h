@@ -9,6 +9,7 @@
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {
+	DeclareSingleton(CLogger);
 public:
 
 	enum ELogLevel : unsigned char {
@@ -24,7 +25,6 @@ private:
 	ELogLevel m_level;
 	std::string m_currentCategory{"Unknown"};
 	std::mutex m_mutex;
-public:
 
 	explicit CLogger() : m_level(DEBUG) {
 		m_file.open("ScreenReader.log", std::ios::app);
@@ -43,6 +43,7 @@ public:
 			m_file.close();
 		}
 	}
+public:
 
 	[[nodiscard]] static constexpr inline std::string_view LogLevelToString(const ELogLevel& level) {
 		switch (level) {
