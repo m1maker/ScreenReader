@@ -15,7 +15,7 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
 
 	explicit CKeyboardHandler() = default;
-	~CKeyboardHandler() = default;
+	~CKeyboardHandler() override = default;
 public:
 
 	[[nodiscard]] bool RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) override;

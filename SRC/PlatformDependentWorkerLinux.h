@@ -11,7 +11,7 @@ We will also handle signals here to ensure safe exit.
 */
 class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
 private:
-	struct sigaction m_signalAction;
+	struct sigaction m_signalAction{};
 public:
 
 	static void HandleSignal(int signal) {

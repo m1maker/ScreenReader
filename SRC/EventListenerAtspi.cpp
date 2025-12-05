@@ -92,7 +92,7 @@ CEventListenerAtspi::CEventListenerAtspi() :
 	AT-SPI has a listener where you need to register the required events one by one.
 	*/
 	GError* error = nullptr;
-	for (auto [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
+	for (const auto& [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
 		atspi_event_listener_register(m_objectEventListener, atspi_event_type.c_str(), &error);
 		if (error) {
 			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));

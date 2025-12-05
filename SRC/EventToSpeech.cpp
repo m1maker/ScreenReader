@@ -51,7 +51,7 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	*/
 	if (announcement.empty()) {
 		auto children = event->object->GetChildren();
-		for (auto child : children) {
+		for (const auto& child : children) {
 			if (!child->GetName().empty()) {
 				event->object = child;
 				AnnounceFocusChange(event);

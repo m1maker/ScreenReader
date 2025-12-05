@@ -138,7 +138,7 @@ public:
 	CGlibString(const CGlibString&) = delete;
 	CGlibString& operator=(const CGlibString&) = delete;
 
-	CGlibString(CGlibString&& other) : m_pointer(other.m_pointer) {
+	CGlibString(CGlibString&& other)  noexcept : m_pointer(other.m_pointer) {
 		other.m_pointer = nullptr;
 	}
 
@@ -155,7 +155,7 @@ public:
 		m_pointer = new_pointer;
 	}
 
-	CGlibString& operator=(CGlibString&& other) {
+	CGlibString& operator=(CGlibString&& other)  noexcept {
 		if (this != &other) {
 			reset(other.m_pointer);
 			other.m_pointer = nullptr;

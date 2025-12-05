@@ -22,11 +22,11 @@ public:
 
 private:
 	std::ofstream m_file;
-	ELogLevel m_level;
+	ELogLevel m_level{DEBUG};
 	std::string m_currentCategory{"Unknown"};
 	std::mutex m_mutex;
 
-	explicit CLogger() : m_level(DEBUG) {
+	explicit CLogger()  {
 		m_file.open("ScreenReader.log", std::ios::app);
 		if (!m_file.is_open()) {
 			g_returnCode = CScreenReaderAppReturnCode::ERROR_LOGGER;
@@ -39,7 +39,7 @@ private:
 
 	~CLogger() {
 		if (m_file.is_open()) {
-			m_file << std::endl;
+			m_file << '\n';
 			m_file.close();
 		}
 	}
@@ -56,7 +56,7 @@ public:
 	}
 
 	template<typename T>
-	inline void Log(const ELogLevel& level, const std::string& category, T value) noexcept {
+	inline void Log(const ELogLevel& level, const std::string& category, const T& value) noexcept {
 		if (m_level > level) return;
 
 		[[maybe_unused]] std::lock_guard _(m_mutex);
@@ -91,8 +91,8 @@ class CScopedCategory final {
 	std::string m_currentCategory;
 public:
 
-	CScopedCategory(const std::string& category) {
-		m_currentCategory = g_logger.GetCurrentCategory();
+	CScopedCategory(const std::string& category) : m_currentCategory(g_logger.GetCurrentCategory()) {
+		
 		g_logger.SetCurrentCategory(category);
 	}
 

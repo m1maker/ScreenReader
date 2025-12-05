@@ -286,7 +286,7 @@ public:
 	static void OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, [[maybe_unused]] guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data);
 
 	explicit CEventListenerAtspi();
-	~CEventListenerAtspi() {
+	~CEventListenerAtspi() override {
 		if (m_objectEventListener) g_object_unref(m_objectEventListener);
 		if (m_device) g_object_unref(m_device);
 	}

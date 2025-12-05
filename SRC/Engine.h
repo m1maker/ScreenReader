@@ -25,7 +25,7 @@ namespace Sral {
 		virtual bool SetParameter(int param, const void* value);
 		virtual bool GetParameter(int param, void* value);
 
-		bool paused;
+		bool paused{};
 	protected:
 		std::vector<char*> m_strings;
 
