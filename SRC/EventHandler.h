@@ -22,7 +22,7 @@ public:
 
 	void Handle(); // For now, the listener calls it at every new event.
 
-	inline std::shared_ptr<IEventListener> GetListener() { return m_listener; }
+	inline auto GetListener() -> std::shared_ptr<IEventListener> { return m_listener; }
 };
 
 #define g_eventHandler CSingleton<CEventHandler>::GetInstance() // Global instance

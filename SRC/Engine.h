@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 #include <cstring>
 
 namespace Sral {
@@ -9,27 +9,27 @@ namespace Sral {
 	public:
 		Engine();
 		virtual ~Engine();			
-		virtual bool Speak(const std::string& text, bool interrupt);
-		virtual bool Braille(const std::string& text);
+		virtual auto Speak(const std::string& text, bool interrupt) -> bool;
+		virtual auto Braille(const std::string& text) -> bool;
 
-		virtual void* SpeakToMemory(const std::string& text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample);
-		virtual bool StopSpeech();
-		virtual bool PauseSpeech();
-		virtual bool ResumeSpeech();
-		virtual bool IsSpeaking();
-		virtual int GetNumber();
-		virtual bool GetActive();
-		virtual int GetFeatures();
-		virtual bool Initialize();
-		virtual bool Uninitialize();
-		virtual bool SetParameter(int param, const void* value);
-		virtual bool GetParameter(int param, void* value);
+		virtual auto SpeakToMemory(const std::string& text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) -> void*;
+		virtual auto StopSpeech() -> bool;
+		virtual auto PauseSpeech() -> bool;
+		virtual auto ResumeSpeech() -> bool;
+		virtual auto IsSpeaking() -> bool;
+		virtual auto GetNumber() -> int;
+		virtual auto GetActive() -> bool;
+		virtual auto GetFeatures() -> int;
+		virtual auto Initialize() -> bool;
+		virtual auto Uninitialize() -> bool;
+		virtual auto SetParameter(int param, const void* value) -> bool;
+		virtual auto GetParameter(int param, void* value) -> bool;
 
 		bool paused{};
 	protected:
 		std::vector<char*> m_strings;
 
-		inline const char* AddString(const char* str) {
+		inline auto AddString(const char* str) -> const char* {
 			if (!str) return nullptr;
 
 			size_t len = strlen(str) + 1;

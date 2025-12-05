@@ -37,15 +37,15 @@ private:
 public:
 
 	constexpr CScreenReaderAppReturnCode(const EReturnCode& return_code) : m_returnCode(return_code) {}
-	CScreenReaderAppReturnCode& operator=(const EReturnCode& return_code) {
+	auto operator=(const EReturnCode& return_code) -> CScreenReaderAppReturnCode& {
 		m_returnCode = return_code;
 		return *this;
 	}
 
 	operator EReturnCode() const { return m_returnCode; }
-	constexpr int ToInt() const { return static_cast<int>(m_returnCode); }
+	[[nodiscard]] constexpr auto ToInt() const -> int { return static_cast<int>(m_returnCode); }
 
-	constexpr inline std::string_view ToString() const {
+	[[nodiscard]] constexpr inline auto ToString() const -> std::string_view {
 		switch (m_returnCode) {
 			case SUCCESS:
 				return "Operation completed successfully";

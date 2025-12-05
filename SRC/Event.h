@@ -228,16 +228,16 @@ public:
 
 		explicit constexpr SHotkeyInfo(const EKeycode& keycode = KEYCODE_NONE, const unsigned char& modifiers = MODIFIER_NONE) : keycode(keycode), modifiers(modifiers) {}
 
-		static constexpr SHotkeyInfo GetAny() {
+		static constexpr auto GetAny() -> SHotkeyInfo {
 			return SHotkeyInfo(KEYCODE_ANY, MODIFIER_NONE);
 		}
 
-		constexpr bool operator==(const SHotkeyInfo& info) const {
+		constexpr auto operator==(const SHotkeyInfo& info) const -> bool {
 			return this->keycode == info.keycode && this->modifiers == info.modifiers;
 		}
 	} hotkey;
 
-	[[nodiscard]] constexpr static inline std::string_view GetKeycodeName(const EKeycode& keycode) {
+	[[nodiscard]] constexpr static inline auto GetKeycodeName(const EKeycode& keycode) -> std::string_view {
 		switch (keycode) {
 			case KEYCODE_A: return "A";
 			case KEYCODE_B: return "B";
@@ -401,19 +401,19 @@ public:
 		}
 	}
 
-	[[nodiscard]] static inline std::string GetModifierNames(const unsigned char& modifiers) {
+	[[nodiscard]] static inline auto GetModifierNames(const unsigned char& modifiers) -> std::string {
 		if (modifiers == MODIFIER_NONE) {
 			return "None";
 		}
 
 		std::vector<std::string> modifier_names;
 
-		if (modifiers & MODIFIER_SHIFT) modifier_names.push_back("Shift");
-		if (modifiers & MODIFIER_CTRL) modifier_names.push_back("Ctrl");
-		if (modifiers & MODIFIER_ALT) modifier_names.push_back("Alt");
-		if (modifiers & MODIFIER_SUPER) modifier_names.push_back("Super");
-		if (modifiers & MODIFIER_CAPS_LOCK) modifier_names.push_back("Caps Lock");
-		if (modifiers & MODIFIER_NUM_LOCK) modifier_names.push_back("Num Lock");
+		if (modifiers & MODIFIER_SHIFT) modifier_names.emplace_back("Shift");
+		if (modifiers & MODIFIER_CTRL) modifier_names.emplace_back("Ctrl");
+		if (modifiers & MODIFIER_ALT) modifier_names.emplace_back("Alt");
+		if (modifiers & MODIFIER_SUPER) modifier_names.emplace_back("Super");
+		if (modifiers & MODIFIER_CAPS_LOCK) modifier_names.emplace_back("Caps Lock");
+		if (modifiers & MODIFIER_NUM_LOCK) modifier_names.emplace_back("Num Lock");
 
 		if (modifier_names.empty()) {
 			return "None";
@@ -429,7 +429,7 @@ public:
 		return result;
 	}
 
-	[[nodiscard]] static inline std::string KeyComboToString(const EKeycode& keycode, const unsigned char& modifiers) {
+	[[nodiscard]] static inline auto KeyComboToString(const EKeycode& keycode, const unsigned char& modifiers) -> std::string {
 		std::string modifier_names = GetModifierNames(modifiers);
 		std::string_view keycode_name = GetKeycodeName(keycode);
 
@@ -445,7 +445,7 @@ public:
 namespace std {
 	template<>
 	struct hash<CKeyboardEvent::SHotkeyInfo> {
-		std::size_t operator()(const CKeyboardEvent::SHotkeyInfo& k) const noexcept {
+		auto operator()(const CKeyboardEvent::SHotkeyInfo& k) const noexcept -> std::size_t {
 			return std::hash<CKeyboardEvent::EKeycode>{}(k.keycode) ^ 
 				(std::hash<unsigned char>{}(k.modifiers) << 1);
 		}

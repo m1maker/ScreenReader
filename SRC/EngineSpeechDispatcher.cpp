@@ -2,7 +2,7 @@
 #include "EngineSpeechDispatcher.h"
 //#include <brlapi.h>
 #include <atomic>
-#include <locale.h>
+#include <clocale>
 
 std::atomic<bool> g_isSpeaking{false};
 
@@ -11,7 +11,7 @@ namespace Sral {
 	// Tell me! How do I get a current voice in SPD?
 	// I couldn't find anything better than choosing the first available voice based on locale.
 	// If someone can do this differently and better, I would be very grateful!
-	int SpeechDispatcher::SetVoiceIndex() {
+	auto SpeechDispatcher::SetVoiceIndex() -> int {
 		RefreshVoiceList();
 		if (!m_voiceList || m_voiceCount == 0) return 0;
 
@@ -35,7 +35,7 @@ namespace Sral {
 		return 0;
 	}
 
-	bool SpeechDispatcher::Initialize() {
+	auto SpeechDispatcher::Initialize() -> bool {
 		const auto* address = spd_get_default_address(nullptr);
 		if (address == nullptr) {
 			return false;
@@ -61,11 +61,11 @@ namespace Sral {
 		return true;
 	}
 
-	bool SpeechDispatcher::GetActive() {
+	auto SpeechDispatcher::GetActive() -> bool {
 		return speech != nullptr;
 	}
 
-	bool SpeechDispatcher::Uninitialize() {
+	auto SpeechDispatcher::Uninitialize() -> bool {
 		if (speech == nullptr)return false;
 		g_isSpeaking.store(false);
 		ReleaseAllStrings();
@@ -82,7 +82,7 @@ namespace Sral {
 		return true;
 	}
 
-	bool SpeechDispatcher::Speak(const std::string& text, bool interrupt) {
+	auto SpeechDispatcher::Speak(const std::string& text, bool interrupt) -> bool {
 		if (speech == nullptr || text.empty())return false;
 		if (interrupt) {
 			spd_stop(speech);
@@ -98,16 +98,16 @@ namespace Sral {
 		return spd_say(speech, SPD_IMPORTANT, text.c_str()) != -1;
 	}
 
-	bool SpeechDispatcher::Braille(const std::string& text) {
+	auto SpeechDispatcher::Braille(const std::string& text) -> bool {
 		if (!brailleInitialized) return false;
 		return true;/*brlapi_writeText(0, text);*/
 	}
 
-	bool SpeechDispatcher::IsSpeaking() {
+	auto SpeechDispatcher::IsSpeaking() -> bool {
 		return g_isSpeaking.load();
 	}
 
-	bool SpeechDispatcher::SetParameter(int param, const void* value) {
+	auto SpeechDispatcher::SetParameter(int param, const void* value) -> bool {
 /*
 		if (speech == nullptr)return false;
 		switch (param) {
@@ -141,7 +141,7 @@ namespace Sral {
 		return true;
 	}
 
-	bool SpeechDispatcher::GetParameter(int param, void* value) {
+	auto SpeechDispatcher::GetParameter(int param, void* value) -> bool {
 		if (speech == nullptr)return false;
 /*
 		switch (param) {
@@ -186,20 +186,20 @@ namespace Sral {
 		return false;
 	}
 
-	bool SpeechDispatcher::StopSpeech() {
+	auto SpeechDispatcher::StopSpeech() -> bool {
 		if (speech == nullptr)return false;
 		spd_stop(speech);
 		spd_cancel(speech);
 		return true;
 	}
 
-	bool SpeechDispatcher::PauseSpeech() {
+	auto SpeechDispatcher::PauseSpeech() -> bool {
 		if (!GetActive())return false;
 		this->paused = true;
 		return spd_pause(speech) == 0;
 	}
 
-	bool SpeechDispatcher::ResumeSpeech() {
+	auto SpeechDispatcher::ResumeSpeech() -> bool {
 		if (!GetActive())return false;
 		this->paused = false;
 		return spd_resume(speech) == 0;

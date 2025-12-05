@@ -11,7 +11,7 @@ class CSpeechEngine final {
 	~CSpeechEngine() = default;
 public:
 
-	[[nodiscard]] inline std::shared_ptr<Sral::Engine> GetSpeaker() {
+	[[nodiscard]] inline auto GetSpeaker() -> std::shared_ptr<Sral::Engine> {
 		return m_speechEngine;
 	}
 };

@@ -23,7 +23,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		return;
 	}
 
-	CEventListenerAtspi* listener = static_cast<CEventListenerAtspi*>(user_data);
+	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
 
 	IEvent::EEventType type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
 
@@ -65,7 +65,7 @@ void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice*
 		return;
 	}
 
-	CEventListenerAtspi* listener = static_cast<CEventListenerAtspi*>(user_data);
+	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
 
 	auto to_post = std::make_shared<CKeyboardEvent>();
 	to_post->type = pressed ? IEvent::KEY_PRESSED : IEvent::KEY_RELEASED;
@@ -110,7 +110,7 @@ void CEventListenerAtspi::Post(std::shared_ptr<IEvent> event) {
 	g_eventHandler.Handle();
 }
 
-[[nodiscard]] EventQueue& CEventListenerAtspi::RequestQueue() { // Required by CEventHandler.
+[[nodiscard]] auto CEventListenerAtspi::RequestQueue() -> EventQueue& { // Required by CEventHandler.
 	return m_eventQueue;
 }
 

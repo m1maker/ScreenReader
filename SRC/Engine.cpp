@@ -2,66 +2,64 @@
 #include <cstddef>
 
 namespace Sral {
-	Engine::Engine() {
-
-	}
+	Engine::Engine() = default;
 
 	Engine::~Engine() {
 		ReleaseAllStrings();
 		Uninitialize();
 	}
 
-	bool Engine::Braille(const std::string& text) {
+	auto Engine::Braille(const std::string& text) -> bool {
 		return false;
 	}
 
-	bool Engine::GetActive() {
+	auto Engine::GetActive() -> bool {
 		return false;
 	}
 
-	int Engine::GetFeatures() {
+	auto Engine::GetFeatures() -> int {
 		return 0;
 	}
 
-	int Engine::GetNumber() {
+	auto Engine::GetNumber() -> int {
 		return 0;
 	}
 
-	bool Engine::GetParameter(int parameter, void* value) {
+	auto Engine::GetParameter(int parameter, void* value) -> bool {
 		(void)parameter;
 		(void)value;
 		return false;
 	}
 
-	bool Engine::Initialize() {
+	auto Engine::Initialize() -> bool {
 		return false;
 	}
 
-	bool Engine::IsSpeaking() {
+	auto Engine::IsSpeaking() -> bool {
 		return false;
 	}
 
-	bool Engine::PauseSpeech() {
+	auto Engine::PauseSpeech() -> bool {
 		return false;
 	}
 
-	bool Engine::ResumeSpeech() {
+	auto Engine::ResumeSpeech() -> bool {
 		return false;
 	}
 
-	bool Engine::SetParameter(int parameter, const void* value) {
+	auto Engine::SetParameter(int parameter, const void* value) -> bool {
 		(void)parameter;
 		(void)value;
 		return false;
 	}
 
-	bool Engine::Speak(const std::string& text, bool interrupt) {
+	auto Engine::Speak(const std::string& text, bool interrupt) -> bool {
 		(void)text;
 		(void)interrupt;
 		return false;
 	}
 
-	void* Engine::SpeakToMemory(const std::string& text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) {
+	auto Engine::SpeakToMemory(const std::string& text, uint64_t* buffer_size, int* channels, int* sample_rate, int* bits_per_sample) -> void* {
 		(void)text;
 		(void)buffer_size;
 		(void)channels;
@@ -70,11 +68,11 @@ namespace Sral {
 		return nullptr;
 	}
 
-	bool Engine::StopSpeech() {
+	auto Engine::StopSpeech() -> bool {
 		return false;
 	}
 
-	bool Engine::Uninitialize() {
+	auto Engine::Uninitialize() -> bool {
 		return false;
 	}
 }

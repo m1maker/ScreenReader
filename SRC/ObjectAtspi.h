@@ -2,7 +2,9 @@
 #include "Object.h"
 #include <atspi/atspi.h>
 
-[[nodiscard]] static constexpr inline IObject::EObjectType GetObjectTypeFromAtspiRole(const AtspiRole& role) {
+#include <utility>
+
+[[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(const AtspiRole& role) -> IObject::EObjectType {
 	switch (role) {
 		case ATSPI_ROLE_INVALID:
 			return IObject::UNKNOWN;
@@ -50,7 +52,7 @@
 	}
 }
 
-[[nodiscard]] static constexpr inline IObject::EObjectState GetObjectStateFromAtspiState(const AtspiStateType& state) {
+[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(const AtspiStateType& state) -> IObject::EObjectState {
 	switch (state) {
 		case ATSPI_STATE_VISIBLE:
 			return IObject::VISIBLE;
@@ -101,7 +103,7 @@
 	}
 }
 
-[[nodiscard]] static constexpr inline unsigned long long GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) {
+[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states) -> unsigned long long {
 	unsigned long long result = IObject::NO;
 	for (const auto& state : states) {
 		result |= GetObjectStateFromAtspiState(state);
@@ -109,14 +111,14 @@
 	return result;
 }
 
-[[nodiscard]] static inline unsigned long long GetObjectStateFromAtspiStates(AtspiStateSet* states) {
+[[nodiscard]] static inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
 		return IObject::NO;
 	}
 
 	std::vector<AtspiStateType> state_types;
-	for (int i = 0; i < array->len; ++i) {
+	for (int i = 0; std::cmp_less(i , array->len); ++i) {
 		gint64 state = g_array_index(array, gint64, i);
 		state_types.push_back(static_cast<AtspiStateType>(state));
 	}
@@ -136,7 +138,7 @@ public:
 	constexpr explicit CGlibString(gchar* pointer) : m_pointer(pointer) {}
 
 	CGlibString(const CGlibString&) = delete;
-	CGlibString& operator=(const CGlibString&) = delete;
+	auto operator=(const CGlibString&) -> CGlibString& = delete;
 
 	CGlibString(CGlibString&& other)  noexcept : m_pointer(other.m_pointer) {
 		other.m_pointer = nullptr;
@@ -155,7 +157,7 @@ public:
 		m_pointer = new_pointer;
 	}
 
-	CGlibString& operator=(CGlibString&& other)  noexcept {
+	auto operator=(CGlibString&& other)  noexcept -> CGlibString& {
 		if (this != &other) {
 			reset(other.m_pointer);
 			other.m_pointer = nullptr;
@@ -167,8 +169,8 @@ public:
 		return m_pointer ? std::string(m_pointer) : std::string();
 	}
 
-	[[nodiscard]] inline constexpr const char* c_str() const { return m_pointer ? m_pointer : ""; }
-	[[nodiscard]] constexpr inline bool empty() const { return !m_pointer || !*m_pointer; }
+	[[nodiscard]] inline constexpr auto c_str() const -> const char* { return m_pointer ? m_pointer : ""; }
+	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
 };
 
 class CObjectAtspi final : public IObject {
@@ -195,7 +197,7 @@ class CObjectAtspi final : public IObject {
 		}
 	}
 
-	[[nodiscard]] std::vector<AtspiRelation> GetRelations() const noexcept;
+	[[nodiscard]] auto GetRelations() const noexcept -> std::vector<AtspiRelation>;
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
@@ -216,35 +218,35 @@ public:
 		ResetLastError();
 	}
 
-	[[nodiscard]] void* GetNativeHandle() const noexcept override { return reinterpret_cast<void*>(m_accessible); }
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* override { return reinterpret_cast<void*>(m_accessible); }
 
-	[[nodiscard]] inline bool IsValid() const noexcept override { return m_accessible != nullptr; }
+	[[nodiscard]] inline auto IsValid() const noexcept -> bool override { return m_accessible != nullptr; }
 
-	[[nodiscard]] EObjectType GetType() const noexcept override;
-	[[nodiscard]] bool IsVisible() const noexcept override;
-	[[nodiscard]] bool IsEnabled() const noexcept override;
+	[[nodiscard]] auto GetType() const noexcept -> EObjectType override;
+	[[nodiscard]] auto IsVisible() const noexcept -> bool override;
+	[[nodiscard]] auto IsEnabled() const noexcept -> bool override;
 
-	[[nodiscard]] unsigned long long GetState() const noexcept override;
-	[[nodiscard]] bool HasState(EObjectState state) const noexcept override;
+	[[nodiscard]] auto GetState() const noexcept -> unsigned long long override;
+	[[nodiscard]] auto HasState(EObjectState state) const noexcept -> bool override;
 
-	[[nodiscard]] std::weak_ptr<IObject> GetParent() const noexcept override;
-	[[nodiscard]] const std::vector<std::shared_ptr<IObject>>& GetChildren() const noexcept override;
+	[[nodiscard]] auto GetParent() const noexcept -> std::weak_ptr<IObject> override;
+	[[nodiscard]] auto GetChildren() const noexcept -> const std::vector<std::shared_ptr<IObject>>& override;
 
-	[[nodiscard]] SRect GetBounds() const noexcept override;
+	[[nodiscard]] auto GetBounds() const noexcept -> SRect override;
 
-	[[nodiscard]] int GetTabIndex() const noexcept override;
+	[[nodiscard]] auto GetTabIndex() const noexcept -> int override;
 
-	[[nodiscard]] std::string GetApplicationName() const noexcept override;
+	[[nodiscard]] auto GetApplicationName() const noexcept -> std::string override;
 
-	[[nodiscard]] std::string GetName() const noexcept override;
-	[[nodiscard]] std::string GetDescription() const noexcept override;
+	[[nodiscard]] auto GetName() const noexcept -> std::string override;
+	[[nodiscard]] auto GetDescription() const noexcept -> std::string override;
 
-	[[nodiscard]] int GetCursor() const noexcept override;
-	[[nodiscard]] std::string GetText(bool at_cursor = false) const noexcept override;
+	[[nodiscard]] auto GetCursor() const noexcept -> int override;
+	[[nodiscard]] auto GetText(bool at_cursor = false) const noexcept -> std::string override;
 
-	[[nodiscard]] double GetMinValue() const noexcept override;
-	[[nodiscard]] double GetMaxValue() const noexcept override;
-	[[nodiscard]] double GetCurrentValue() const noexcept override;
+	[[nodiscard]] auto GetMinValue() const noexcept -> double override;
+	[[nodiscard]] auto GetMaxValue() const noexcept -> double override;
+	[[nodiscard]] auto GetCurrentValue() const noexcept -> double override;
 
 private:
 	mutable GError* m_lastError{nullptr};

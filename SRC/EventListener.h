@@ -20,6 +20,6 @@ public:
 
 	virtual void Post(std::shared_ptr<IEvent> event) = 0;
 
-	[[nodiscard]] virtual EventQueue& RequestQueue() = 0;
+	[[nodiscard]] virtual auto RequestQueue() -> EventQueue& = 0;
 };
 

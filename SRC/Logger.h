@@ -45,7 +45,7 @@ private:
 	}
 public:
 
-	[[nodiscard]] static constexpr inline std::string_view LogLevelToString(const ELogLevel& level) {
+	[[nodiscard]] static constexpr inline auto LogLevelToString(const ELogLevel& level) -> std::string_view {
 		switch (level) {
 			case INFO: return "Info";
 			case DEBUG: return "Debug";
@@ -59,7 +59,7 @@ public:
 	inline void Log(const ELogLevel& level, const std::string& category, const T& value) noexcept {
 		if (m_level > level) return;
 
-		[[maybe_unused]] std::lock_guard _(m_mutex);
+		[[maybe_unused]] std::scoped_lock _(m_mutex);
 		m_file << LogLevelToString(level) << ": [" << category << "] " << value << std::endl;
 	}
 
@@ -72,10 +72,10 @@ public:
 		m_level = level;
 		Log(INFO, "Logger", "Log level is now " + std::string(LogLevelToString(m_level)));
 	}
-	inline const ELogLevel& GetLevel() const { return m_level; }
+	inline auto GetLevel() const -> const ELogLevel& { return m_level; }
 
 	inline void SetCurrentCategory(const std::string& category) { m_currentCategory = category; }
-	inline const std::string& GetCurrentCategory() const { return m_currentCategory; }
+	inline auto GetCurrentCategory() const -> const std::string& { return m_currentCategory; }
 };
 
 #define g_logger CSingleton<CLogger>::GetInstance() // Global instance.

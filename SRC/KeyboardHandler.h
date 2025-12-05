@@ -18,7 +18,7 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	~CKeyboardHandler() override = default;
 public:
 
-	[[nodiscard]] bool RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) override;
+	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) -> bool override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
 
 	void Handle(CKeyboardEvent* pEvent);

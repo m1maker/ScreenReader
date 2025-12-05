@@ -3,15 +3,15 @@
 
 template <class T> class CSingleton {
   public:
-    static T& GetInstance() {
+    static auto GetInstance() -> T& {
         static T instance;
         return instance;
     }
 
     CSingleton(const CSingleton&) = delete;
-    CSingleton& operator=(const CSingleton&) = delete;
+    auto operator=(const CSingleton&) -> CSingleton& = delete;
     CSingleton(CSingleton&&) = delete;
-    CSingleton& operator=(CSingleton&&) = delete;
+    auto operator=(CSingleton&&) -> CSingleton& = delete;
 
   private:
     CSingleton() = default;

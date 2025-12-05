@@ -1,6 +1,6 @@
 #include "KeyboardHandler.h"
 
-bool CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) {
+auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}

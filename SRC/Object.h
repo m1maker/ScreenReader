@@ -59,10 +59,10 @@ public:
 	IObject() = default;
 	virtual ~IObject() = default;
 
-	[[nodiscard]] static std::string GetTypeName(const EObjectType& type, bool require_all = false);
-	[[nodiscard]] static std::vector<std::string> GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false);
+	[[nodiscard]] static auto GetTypeName(const EObjectType& type, bool require_all = false) -> std::string;
+	[[nodiscard]] static auto GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false) -> std::vector<std::string>;
 
-	[[nodiscard]] static constexpr inline bool IsValidParent(const EObjectType& type) {
+	[[nodiscard]] static constexpr inline auto IsValidParent(const EObjectType& type) -> bool {
 		switch (type) {
 			case LIST_BOX:
 			case MENU:
@@ -75,35 +75,35 @@ public:
 		return false;
 	}
 
-	[[nodiscard]] virtual void* GetNativeHandle()const noexcept = 0;
+	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> void* = 0;
 
-	[[nodiscard]] virtual bool IsValid()const noexcept = 0;
+	[[nodiscard]] virtual auto IsValid()const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual EObjectType GetType()const noexcept = 0;
-	[[nodiscard]] virtual bool IsVisible()const noexcept = 0;
-	[[nodiscard]] virtual bool IsEnabled()const noexcept = 0;
+	[[nodiscard]] virtual auto GetType()const noexcept -> EObjectType = 0;
+	[[nodiscard]] virtual auto IsVisible()const noexcept -> bool = 0;
+	[[nodiscard]] virtual auto IsEnabled()const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual unsigned long long GetState()const noexcept = 0;
-	[[nodiscard]] virtual bool HasState(EObjectState state)const noexcept = 0;
+	[[nodiscard]] virtual auto GetState()const noexcept -> unsigned long long = 0;
+	[[nodiscard]] virtual auto HasState(EObjectState state)const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual std::weak_ptr<IObject> GetParent()const noexcept = 0;
-	[[nodiscard]] virtual const std::vector<std::shared_ptr<IObject>>& GetChildren()const noexcept = 0;
+	[[nodiscard]] virtual auto GetParent()const noexcept -> std::weak_ptr<IObject> = 0;
+	[[nodiscard]] virtual auto GetChildren()const noexcept -> const std::vector<std::shared_ptr<IObject>>& = 0;
 
-	[[nodiscard]] virtual struct SRect GetBounds()const noexcept = 0;
+	[[nodiscard]] virtual auto GetBounds()const noexcept -> struct SRect = 0;
 
-	[[nodiscard]] virtual int GetTabIndex()const noexcept = 0;
+	[[nodiscard]] virtual auto GetTabIndex()const noexcept -> int = 0;
 
-	[[nodiscard]] virtual std::string GetApplicationName()const noexcept = 0;
+	[[nodiscard]] virtual auto GetApplicationName()const noexcept -> std::string = 0;
 
-	[[nodiscard]] virtual std::string GetName()const noexcept = 0;
-	[[nodiscard]] virtual std::string GetDescription()const noexcept = 0;
+	[[nodiscard]] virtual auto GetName()const noexcept -> std::string = 0;
+	[[nodiscard]] virtual auto GetDescription()const noexcept -> std::string = 0;
 
-	[[nodiscard]] virtual int GetCursor()const noexcept = 0;
-	[[nodiscard]] virtual std::string GetText(bool at_cursor = false)const noexcept = 0;
+	[[nodiscard]] virtual auto GetCursor()const noexcept -> int = 0;
+	[[nodiscard]] virtual auto GetText(bool at_cursor = false)const noexcept -> std::string = 0;
 
-	[[nodiscard]] virtual double GetMinValue()const noexcept = 0;
-	[[nodiscard]] virtual double GetMaxValue()const noexcept = 0;
-	[[nodiscard]] virtual double GetCurrentValue()const noexcept = 0;
+	[[nodiscard]] virtual auto GetMinValue()const noexcept -> double = 0;
+	[[nodiscard]] virtual auto GetMaxValue()const noexcept -> double = 0;
+	[[nodiscard]] virtual auto GetCurrentValue()const noexcept -> double = 0;
 
 protected:
 	DeclareCache(EObjectType, m_type);
@@ -125,7 +125,7 @@ I don't know yet how much this will slow down the screen reader, but I hope it w
 
 For some reason, AT-SPI can send the same object to two focus events, so we'll throw such events in the event handler.
 */
-[[nodiscard]] inline bool ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) {
+[[nodiscard]] inline auto ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) -> bool {
 	if (!obj1 || !obj2) {
 		return !obj1 && !obj2;
 	}
@@ -162,6 +162,6 @@ Attention! GetDesktopObject is not implemented in
  Object.cpp.
 This should be done by the platform implementation of IObject.
 */
-[[nodiscard]] std::shared_ptr<IObject> GetDesktopObject(); // Root object.
-[[nodiscard]] std::shared_ptr<IObject> FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false);
+[[nodiscard]] auto GetDesktopObject() -> std::shared_ptr<IObject>; // Root object.
+[[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false) -> std::shared_ptr<IObject>;
 

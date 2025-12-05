@@ -24,7 +24,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
 };
 
-[[nodiscard]] constexpr inline IEvent::EEventType GetEventTypeFromString(gchar* type) {
+[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> IEvent::EEventType {
 	if (!type) [[unlikely]] return IEvent::NONE;
 
 	std::string type_str(type);
@@ -37,7 +37,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	return IEvent::NONE;
 }
 
-[[nodiscard]] constexpr inline CKeyboardEvent::EKeycode GdkKeysymToKeyboardEventKeycode(const uint32_t& gdk_keysym) {
+[[nodiscard]] constexpr inline auto GdkKeysymToKeyboardEventKeycode(const uint32_t& gdk_keysym) -> CKeyboardEvent::EKeycode {
 	switch (gdk_keysym) {
 		case GDK_KEY_F1: return CKeyboardEvent::KEYCODE_F1;
 		case GDK_KEY_F2: return CKeyboardEvent::KEYCODE_F2;
@@ -236,7 +236,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	}
 }
 
-[[nodiscard]] constexpr inline unsigned char GdkModifierToKeyboardEventModifiers(const guint& gdk_modifiers) {
+[[nodiscard]] constexpr inline auto GdkModifierToKeyboardEventModifiers(const guint& gdk_modifiers) -> unsigned char {
 	unsigned char modifiers = CKeyboardEvent::MODIFIER_NONE;
 
 	if (gdk_modifiers & GDK_SHIFT_MASK) {
@@ -268,7 +268,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	return modifiers;
 }
 
-[[nodiscard]] constexpr inline IEvent::EEventType AtspiEventTypeToEventType(const AtspiEventType& type) {
+[[nodiscard]] constexpr inline auto AtspiEventTypeToEventType(const AtspiEventType& type) -> IEvent::EEventType {
 	switch (type) {
 		case ATSPI_KEY_PRESSED_EVENT:
 		case ATSPI_BUTTON_PRESSED_EVENT:
@@ -293,6 +293,6 @@ public:
 
 	void Post(std::shared_ptr<IEvent> event) override;
 
-	[[nodiscard]] EventQueue& RequestQueue() override;
+	[[nodiscard]] auto RequestQueue() -> EventQueue& override;
 };
 

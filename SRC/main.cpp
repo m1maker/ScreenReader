@@ -2,7 +2,7 @@
 #include "App.h"
 #include <exception>
 
-signed int main(signed int argc, char** argv) {
+auto main(signed int argc, char** argv) -> signed int {
 	/*
 	We log exceptions directly from main, not from CScreenReaderApp.
 
@@ -11,7 +11,7 @@ signed int main(signed int argc, char** argv) {
 	try {
 		g_applicationInstance; // Call the application constructor.
 	}
-	catch (std::exception& standard_exception) {
+	catch (const std::exception& standard_exception) {
 		g_logger.Log(CLogger::ERROR, "Application", standard_exception.what());
 	}
 

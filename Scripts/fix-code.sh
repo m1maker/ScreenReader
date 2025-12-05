@@ -10,6 +10,6 @@ fi
 
 clang-tidy --fix --fix-errors \
   -p build/ \
-  -checks='performance-*,bugprone-*,cert-*,cppcoreguidelines-*' \
+  -checks='performance-*,bugprone-*,cert-*,cppcoreguidelines-*,modernize-*' \
   $(find . -name "*.h" -o -name "*.cpp")
 

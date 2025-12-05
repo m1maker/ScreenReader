@@ -17,9 +17,9 @@ template <std::invocable Func> class ScopeGuard {
     void dismiss() noexcept { m_isActive = false; }
 
     ScopeGuard(const ScopeGuard&) = delete;
-    ScopeGuard& operator=(const ScopeGuard&) = delete;
+    auto operator=(const ScopeGuard&) -> ScopeGuard& = delete;
     ScopeGuard(ScopeGuard&&) = delete;
-    ScopeGuard& operator=(ScopeGuard&&) = delete;
+    auto operator=(ScopeGuard&&) -> ScopeGuard& = delete;
 
   private:
     Func m_function;

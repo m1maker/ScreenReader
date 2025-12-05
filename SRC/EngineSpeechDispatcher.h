@@ -6,22 +6,22 @@
 namespace Sral {
 	class SpeechDispatcher final : public Engine {
 	public:
-		bool Speak(const std::string& text, bool interrupt)override;
+		auto Speak(const std::string& text, bool interrupt) -> bool override;
 
-		bool Braille(const std::string& text)override;
+		auto Braille(const std::string& text) -> bool override;
 
-		bool IsSpeaking()override;
+		auto IsSpeaking() -> bool override;
 
-		bool SetParameter(int param, const void* value)override;
-		bool GetParameter(int param, void* value) override;
+		auto SetParameter(int param, const void* value) -> bool override;
+		auto GetParameter(int param, void* value) -> bool override;
 
 
-		bool StopSpeech()override;
-		bool PauseSpeech()override;
-		bool ResumeSpeech()override;
-		bool GetActive()override;
-		bool Initialize()override;
-		bool Uninitialize()override;
+		auto StopSpeech() -> bool override;
+		auto PauseSpeech() -> bool override;
+		auto ResumeSpeech() -> bool override;
+		auto GetActive() -> bool override;
+		auto Initialize() -> bool override;
+		auto Uninitialize() -> bool override;
 
 	private:
 		SPDConnection* speech = nullptr;
@@ -31,7 +31,7 @@ namespace Sral {
 		SPDVoice** m_voiceList{nullptr};
 		int m_voiceCount{0};
 		int m_voiceIndex{0};
-		int SetVoiceIndex();
+		auto SetVoiceIndex() -> int;
 		inline void ClearVoiceList() {
 			if (m_voiceList) {
 				free_spd_voices(m_voiceList);
