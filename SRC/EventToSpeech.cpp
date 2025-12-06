@@ -31,6 +31,8 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		return;
 	}
 
+	g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object));
+
 	/*
 	So, the parent updated event is considered focus changed, but it should not be interrupted by subsequent focus gained events.
 	*/

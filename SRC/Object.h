@@ -165,3 +165,5 @@ This should be done by the platform implementation of IObject.
 [[nodiscard]] auto GetDesktopObject() -> std::shared_ptr<IObject>; // Root object.
 [[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false) -> std::shared_ptr<IObject>;
 
+[[nodiscard]] auto DumpObjectToString(const std::shared_ptr<IObject>& obj, int indent = 0, bool recursive = false, int max_depth = 3, int current_depth = 0) -> std::string;
+

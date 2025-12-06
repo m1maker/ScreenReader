@@ -1,5 +1,9 @@
 // Some implementations of common object methods.
 #include "Object.h"
+#include <sstream>
+#include <iomanip>
+#include <utility>
+
 
 /*
 Attempt to find the focused object.
@@ -111,3 +115,117 @@ We need to understand what kind of object this is to more accurately determine t
 
 	return state_names;
 }
+
+/*
+This function is used to represent an IObject as an std::string.
+Currently, it is only used in the logger.
+*/
+[[nodiscard]] auto DumpObjectToString(const std::shared_ptr<IObject>& obj, int indent, bool recursive, int max_depth, int current_depth) -> std::string {
+	if (!obj) {
+		return std::string(indent, ' ') + "[NULL OBJECT]\n";
+	}
+
+	if (current_depth > max_depth) {
+		return std::string(indent, ' ') + "[MAX DEPTH REACHED]\n";
+	}
+
+	std::ostringstream oss;
+	std::string indent_string(indent, ' ');
+
+	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0') 
+		<< reinterpret_cast<uintptr_t>(obj.get()) << std::dec << " {\n";
+
+	auto type = obj->GetType();
+	oss << indent_string << "  Type: " << IObject::GetTypeName(type, true) 
+		<< " (" << static_cast<int>(type) << ")\n";
+
+	oss << indent_string << "  Valid: " << (obj->IsValid() ? "true" : "false") << "\n";
+	oss << indent_string << "  Visible: " << (obj->IsVisible() ? "true" : "false") << "\n";
+	oss << indent_string << "  Enabled: " << (obj->IsEnabled() ? "true" : "false") << "\n";
+
+	unsigned long long states = obj->GetState();
+	auto state_names = IObject::GetStateNames(type, states, true);
+	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0') 
+		<< states << std::dec << " [";
+	for (size_t i = 0; std::cmp_less(i, state_names.size()); ++i) {
+		if (i > 0) oss << ", ";
+		oss << state_names[i];
+	}
+	oss << "]\n";
+
+	oss << indent_string << "  Name: \"" << obj->GetName() << "\"\n";
+	oss << indent_string << "  Description: \"" << obj->GetDescription() << "\"\n";
+	oss << indent_string << "  Text: \"" << obj->GetText() << "\"\n";
+
+	oss << indent_string << "  App: \"" << obj->GetApplicationName() << "\"\n";
+
+	auto bounds = obj->GetBounds();
+	oss << indent_string << "  Bounds: (" << bounds.x << ", " << bounds.y << ") "
+		<< bounds.width << "x" << bounds.height << "\n";
+
+	double min_value = obj->GetMinValue();
+	double max_value = obj->GetMaxValue();
+	double current_value = obj->GetCurrentValue();
+	if (min_value != 0.0 || max_value != 0.0 || current_value != 0.0) {
+		oss << indent_string << "  Value: " << current_value << " [" << min_value << " - " << max_value << "]\n";
+	}
+
+	oss << indent_string << "  TabIndex: " << obj->GetTabIndex() << "\n";
+
+	int cursor = obj->GetCursor();
+	if (cursor >= 0) {
+		oss << indent_string << "  Cursor: " << cursor << "\n";
+	}
+
+	auto parent = obj->GetParent().lock();
+	oss << indent_string << "  Parent: ";
+	if (parent) {
+		oss << parent->GetTypeName(parent->GetType(), true) << "@"
+			<< std::hex << std::setw(16) << std::setfill('0') 
+			<< reinterpret_cast<uintptr_t>(parent.get()) << std::dec;
+	}
+	else {
+		oss << "[none]";
+	}
+	oss << "\n";
+
+	const auto& children = obj->GetChildren();
+	oss << indent_string << "  Children: " << children.size() << "\n";
+
+	void* native_handle = obj->GetNativeHandle();
+	if (native_handle) {
+		oss << indent_string << "  NativeHandle: 0x" << std::hex 
+			<< reinterpret_cast<uintptr_t>(native_handle) << std::dec << "\n";
+	}
+
+	oss << indent_string << "}";
+
+	if (recursive && !children.empty()) {
+		oss << "\n" << indent_string << "Children details:\n";
+		for (size_t i = 0; std::cmp_less(i, children.size()); ++i) {
+			oss << indent_string << "[" << i << "] ";
+			std::string child_dump = DumpObjectToString(
+				children[i], 
+				indent + 4, 
+				recursive, 
+				max_depth, 
+				current_depth + 1
+			);
+
+			size_t first_newline = child_dump.find('\n');
+			if (first_newline != std::string::npos) {
+				oss << child_dump.substr(indent + 4, first_newline - (indent + 4));
+				oss << child_dump.substr(first_newline);
+			}
+			else {
+				oss << child_dump;
+			}
+			if (i < children.size() - 1) {
+				oss << "\n";
+			}
+		}
+	}
+
+	return oss.str();
+}
+
