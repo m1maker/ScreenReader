@@ -21,7 +21,7 @@ public:
 	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) -> bool override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
 
-	void Handle(CKeyboardEvent* pEvent);
+	void Handle(CKeyboardEvent& event);
 };
 
 #define g_keyboardHandler CSingleton<CKeyboardHandler>::GetInstance()

@@ -31,34 +31,33 @@ void CEventHandler::Handle() {
 	}
 
 	for (auto& event : event_queue) {
-		switch (event->type) {
-			case IEvent::FOCUS_GAINED:
-			case IEvent::PARENT_UPDATED: {
-				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
-				if (ObjectIsSame(object_event->object, m_objectHandledPrevious)) break;
-				else m_objectHandledPrevious = object_event->object;
-				g_eventToSpeech.AnnounceFocusChange(object_event);
+		switch (event.GetType()) {
+			case CEvent::FOCUS_GAINED:
+			case CEvent::PARENT_UPDATED: {
+				auto object_event = event.GetAs<CObjectEvent>();
+				if (!object_event.has_value()) break;
+				if (ObjectIsSame(object_event.value().object, m_objectHandledPrevious)) break;
+				else m_objectHandledPrevious = object_event.value().object;
+				g_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			}
-			case IEvent::VALUE_CHANGED: {
-				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
-				g_eventToSpeech.AnnounceValueChange(object_event);
+			case CEvent::VALUE_CHANGED: {
+				g_eventToSpeech.AnnounceValueChange(event);
 				break;
 			}
-			case IEvent::STATE_CHANGED: {
-				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
-				g_eventToSpeech.AnnounceStateChange(object_event);
+			case CEvent::STATE_CHANGED: {
+				g_eventToSpeech.AnnounceStateChange(event);
 				break;
 			}
-			case IEvent::CURSOR_MOVED: {
-				auto object_event = dynamic_cast<CObjectEvent*>(&*event);
-				g_eventToSpeech.AnnounceCursorMove(object_event);
+			case CEvent::CURSOR_MOVED: {
+				g_eventToSpeech.AnnounceCursorMove(event);
 				break;
 			}
 
-			case IEvent::KEY_PRESSED: {
-				auto keyboard_event = dynamic_cast<CKeyboardEvent*>(&*event);
-				g_keyboardHandler.Handle(keyboard_event);
+			case CEvent::KEY_PRESSED: {
+				auto keyboard_event = event.GetAs<CKeyboardEvent>();
+				if (!keyboard_event.has_value()) break;
+				g_keyboardHandler.Handle(keyboard_event.value());
 				break;
 			}
 			default:

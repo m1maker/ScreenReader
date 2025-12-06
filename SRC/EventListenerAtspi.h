@@ -15,17 +15,17 @@
 AT-SPI has a listener where you need to register the required events one by one.
 But there's one very strange thing: all of these types are strings. Look at this code.
 */
-inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEventTypeMap = {
-	{"object:state-changed:focused", IEvent::FOCUS_GAINED},
-	{"object:state-changed:checked", IEvent::STATE_CHANGED},
-	{"object:state-changed:selected", IEvent::SELECTION_CHANGED},
-	{"object:property-change:accessible-parent", IEvent::PARENT_UPDATED},
-	{"object:property-change:accessible-value", IEvent::VALUE_CHANGED},
-	{"object:text-caret-moved", IEvent::CURSOR_MOVED}
+inline const std::unordered_map<std::string, CEvent::EEventType> cAtspiObjectEventTypeMap = {
+	{"object:state-changed:focused", CEvent::FOCUS_GAINED},
+	{"object:state-changed:checked", CEvent::STATE_CHANGED},
+	{"object:state-changed:selected", CEvent::SELECTION_CHANGED},
+	{"object:property-change:accessible-parent", CEvent::PARENT_UPDATED},
+	{"object:property-change:accessible-value", CEvent::VALUE_CHANGED},
+	{"object:text-caret-moved", CEvent::CURSOR_MOVED}
 };
 
-[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> IEvent::EEventType {
-	if (!type) [[unlikely]] return IEvent::NONE;
+[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> CEvent::EEventType {
+	if (!type) [[unlikely]] return CEvent::NONE;
 
 	std::string type_str(type);
 
@@ -34,7 +34,7 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 		return it->second;
 	}
 
-	return IEvent::NONE;
+	return CEvent::NONE;
 }
 
 [[nodiscard]] constexpr inline auto GdkKeysymToKeyboardEventKeycode(const uint32_t& gdk_keysym) -> CKeyboardEvent::EKeycode {
@@ -268,12 +268,12 @@ inline const std::unordered_map<std::string, IEvent::EEventType> cAtspiObjectEve
 	return modifiers;
 }
 
-[[nodiscard]] constexpr inline auto AtspiEventTypeToEventType(const AtspiEventType& type) -> IEvent::EEventType {
+[[nodiscard]] constexpr inline auto AtspiEventTypeToEventType(const AtspiEventType& type) -> CEvent::EEventType {
 	switch (type) {
 		case ATSPI_KEY_PRESSED_EVENT:
 		case ATSPI_BUTTON_PRESSED_EVENT:
-			return IEvent::KEY_PRESSED;
-		default: return IEvent::KEY_RELEASED;
+			return CEvent::KEY_PRESSED;
+		default: return CEvent::KEY_RELEASED;
 	}
 }
 
@@ -291,7 +291,7 @@ public:
 		if (m_device) g_object_unref(m_device);
 	}
 
-	void Post(std::shared_ptr<IEvent> event) override;
+	void Post(const CEvent& event) override;
 
 	[[nodiscard]] auto RequestQueue() -> EventQueue& override;
 };

@@ -14,14 +14,14 @@ void CKeyboardHandler::UnregisterAction(const CKeyboardEvent::SHotkeyInfo& actio
 	m_actions.erase(action);
 }
 
-void CKeyboardHandler::Handle(CKeyboardEvent* pEvent) {
-	auto it = m_actions.find(pEvent->hotkey);
+void CKeyboardHandler::Handle(CKeyboardEvent& event) {
+	auto it = m_actions.find(event.hotkey);
 	if (it == m_actions.end()) {
 		it = m_actions.find(CKeyboardEvent::SHotkeyInfo::GetAny());
 		if (it == m_actions.end()) return;
 	}
 
 	if (it->second.executable) {
-		it->second.executable->Execute(pEvent->hotkey);
+		it->second.executable->Execute(event.hotkey);
 	}
 }

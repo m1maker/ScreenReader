@@ -22,10 +22,10 @@ private:
 public:
 	void AnnounceWhereAmI();
 
-	void AnnounceFocusChange(CObjectEvent* event);
-	void AnnounceValueChange(CObjectEvent* event);
-	void AnnounceStateChange(CObjectEvent* event);
-	void AnnounceCursorMove(CObjectEvent* event);
+	void AnnounceFocusChange(CEvent& event);
+	void AnnounceValueChange(CEvent& event);
+	void AnnounceStateChange(CEvent& event);
+	void AnnounceCursorMove(CEvent& event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };

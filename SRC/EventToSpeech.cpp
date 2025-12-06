@@ -2,6 +2,7 @@
 #include "EventToSpeech.h"
 #include "Object.h"
 #include "EventHandler.h"
+#include "Logger.h"
 
 /*
 This is the final step of object event processing. Announce it.
@@ -13,35 +14,40 @@ void CEventToSpeech::AnnounceWhereAmI() {
 	This will be a common practice when we send artificial events.
 	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
 	*/
-	auto event = std::make_shared<CObjectEvent>();
+	CObjectEvent object_event;
+	object_event.object = FindFocusedObject(GetDesktopObject());
 	auto listener = g_eventHandler.GetListener();
-	if (!event || !listener) [[unlikely]] return;
+	if (!listener) [[unlikely]] return;
 
-	event->type = IEvent::FOCUS_GAINED;
-	event->now = false; // Don't interrupt speech.
-	event->object = FindFocusedObject(GetDesktopObject());
-	listener->Post(event);
+	CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
+	listener->Post(to_post);
 }
 
 // Various Announcers
-void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
+void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
+	auto object_event = event.GetAs<CObjectEvent>();
+	if (!object_event.has_value()) {
+		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+		return;
+	}
+
 	/*
 	So, the parent updated event is considered focus changed, but it should not be interrupted by subsequent focus gained events.
 	*/
-	if (event->type == IEvent::PARENT_UPDATED) {
+	if (event.GetType() == CEvent::PARENT_UPDATED) {
 		m_parentAnnounced = true;
 		/*
 		When processing the "parent updated" event, AT-SPI can, for some reason, send an event with "parent updated" but no associated object.
 		Often, these are menu items and the like.
 		Let's try to catch those objects that, in 99% of cases, won't be parents of any other elements.
 		*/
-		if (!IObject::IsValidParent(event->object->GetType())) {
+		if (!IObject::IsValidParent(object_event.value().object->GetType())) {
 			//m_parentAnnounced = false;
 			return;
 		}
 	}
 
-	std::string announcement = event->object->GetName();
+	std::string announcement = object_event.value().object->GetName();
 	/*
 	I don't know what to do here yet, but I hope I can eventually standardize this behavior.
 	When I'm in Caja Explorer, the file/folder name isn't announced in a tree view.
@@ -50,29 +56,32 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	Now we'll try to find a nearby object that has a name.
 	*/
 	if (announcement.empty()) {
-		auto children = event->object->GetChildren();
+		auto children = object_event.value().object->GetChildren();
 		for (const auto& child : children) {
 			if (!child->GetName().empty()) {
-				event->object = child;
-				AnnounceFocusChange(event);
+				CObjectEvent object_event_to_announce;
+				object_event_to_announce.object = child;
+
+				CEvent to_announce(std::move(object_event_to_announce), event.GetType(), event.GetNow());
+				AnnounceFocusChange(to_announce);
 				return;
 			}
 		}
 	}
 
-	auto type = event->object->GetType();
+	auto type = object_event.value().object->GetType();
 	if (type != IObject::UNKNOWN) {
-		announcement += cSeparator + IObject::GetTypeName(event->object->GetType());
+		announcement += cSeparator + IObject::GetTypeName(object_event.value().object->GetType());
 	}
 
 	if (type == IObject::SLIDER) {
-		announcement += cSeparator + std::to_string(event->object->GetCurrentValue());
+		announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
 	}
 	else if (type == IObject::TEXT_FIELD) {
-		announcement += cSeparator + event->object->GetText();
+		announcement += cSeparator + object_event.value().object->GetText();
 	}
 
-	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
+	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}
@@ -82,31 +91,49 @@ void CEventToSpeech::AnnounceFocusChange(CObjectEvent* event) {
 	If focus has been gained after the "parent updated" event, then we never interrupt the speech.
 	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
 	*/
-	m_speaker->Speak(announcement ,(event->type == IEvent::FOCUS_GAINED && m_parentAnnounced) || event->type == IEvent::PARENT_UPDATED ? false : event->now);
-	m_speaker->Speak(event->object->GetDescription(), false);
+	m_speaker->Speak(announcement ,(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
+	m_speaker->Speak(object_event.value().object->GetDescription(), false);
 
-	if (event->type != IEvent::PARENT_UPDATED) m_parentAnnounced = false;
+	if (event.GetType() != CEvent::PARENT_UPDATED) m_parentAnnounced = false;
 }
 
-void CEventToSpeech::AnnounceValueChange(CObjectEvent* event) {
-	if (event->object->GetType () != IObject::SLIDER || !event->object->HasState(IObject::FOCUSED)) return;
-	m_speaker->Speak(std::to_string(event->object->GetCurrentValue()), event->now);
+void CEventToSpeech::AnnounceValueChange(CEvent& event) {
+	auto object_event = event.GetAs<CObjectEvent>();
+	if (!object_event.has_value()) {
+		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+		return;
+	}
+
+	if (object_event.value().object->GetType () != IObject::SLIDER || !object_event.value().object->HasState(IObject::FOCUSED)) return;
+	m_speaker->Speak(std::to_string(object_event.value().object->GetCurrentValue()), event.GetNow());
 }
 
-void CEventToSpeech::AnnounceStateChange(CObjectEvent* event) {
-	if (!event->object->HasState(IObject::FOCUSED)) {
+void CEventToSpeech::AnnounceStateChange(CEvent& event) {
+	auto object_event = event.GetAs<CObjectEvent>();
+	if (!object_event.has_value()) {
+		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+		return;
+	}
+
+	if (!object_event.value().object->HasState(IObject::FOCUSED)) {
 		AnnounceFocusChange(event);
 		return;
 	}
 	std::string announcement = "";
-	auto state_names = IObject::GetStateNames(event->object->GetType(), event->object->GetState());
+	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}
 
-	m_speaker->Speak(announcement, event->now);
+	m_speaker->Speak(announcement, event.GetNow());
 }
 
-void CEventToSpeech::AnnounceCursorMove(CObjectEvent* event) {
-	m_speaker->Speak(event->object->GetText(true), event->now);
+void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
+	auto object_event = event.GetAs<CObjectEvent>();
+	if (!object_event.has_value()) {
+		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+		return;
+	}
+
+	m_speaker->Speak(object_event.value().object->GetText(true), event.GetNow());
 }

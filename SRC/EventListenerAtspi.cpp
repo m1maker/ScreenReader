@@ -25,24 +25,23 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 
 	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
 
-	IEvent::EEventType type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
+	CEvent::EEventType type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
 
 	switch (type) { // Then send it to the handler
 		/*
 		It looks like in the future this will all be CObjectEvent, but just in case, we'll use switch-case for now.
 		*/
-		case IEvent::FOCUS_GAINED:
-		case IEvent::CURSOR_MOVED:
-		case IEvent::PARENT_UPDATED:
-		case IEvent::STATE_CHANGED:
-		case IEvent::VALUE_CHANGED: {
-			auto to_post = std::make_shared<CObjectEvent>();
-			to_post->type = type;
+		case CEvent::FOCUS_GAINED:
+		case CEvent::CURSOR_MOVED:
+		case CEvent::PARENT_UPDATED:
+		case CEvent::STATE_CHANGED:
+		case CEvent::VALUE_CHANGED: {
+			CObjectEvent object_event;
+			object_event.object = std::make_shared<CObjectAtspi>(event->source);
 			/*
-			Here's the IEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
+			Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
 			*/
-			to_post->now = true;
-			to_post->object = std::make_shared<CObjectAtspi>(event->source);
+			CEvent to_post(std::move(object_event), type, true);
 			listener->Post(to_post);
 			break;
 		}
@@ -67,10 +66,10 @@ void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice*
 
 	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
 
-	auto to_post = std::make_shared<CKeyboardEvent>();
-	to_post->type = pressed ? IEvent::KEY_PRESSED : IEvent::KEY_RELEASED;
-	to_post->hotkey.keycode = GdkKeysymToKeyboardEventKeycode(keysym);
-	to_post->hotkey.modifiers = GdkModifierToKeyboardEventModifiers(modifiers);
+	CKeyboardEvent keyboard_event;
+	keyboard_event.hotkey.keycode = GdkKeysymToKeyboardEventKeycode(keysym);
+	keyboard_event.hotkey.modifiers = GdkModifierToKeyboardEventModifiers(modifiers);
+	CEvent to_post(std::move(keyboard_event), static_cast<CEvent::EEventType>(pressed ? CEvent::KEY_PRESSED : CEvent::KEY_RELEASED), false);
 	listener->Post(to_post);
 }
 
@@ -104,7 +103,7 @@ CEventListenerAtspi::CEventListenerAtspi() :
 	atspi_device_add_key_watcher(m_device, &CEventListenerAtspi::OnDeviceKeyEventCallback, this, nullptr);
 }
 
-void CEventListenerAtspi::Post(std::shared_ptr<IEvent> event) {
+void CEventListenerAtspi::Post(const CEvent& event) {
 	// Just push and handle.
 	m_eventQueue.push_back(event);
 	g_eventHandler.Handle();

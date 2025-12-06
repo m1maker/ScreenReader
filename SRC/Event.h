@@ -1,46 +1,17 @@
 // An interface for abstracting event types. Categories are implemented here.
 #pragma once
 #include <memory>
+#include <optional>
 #include "Object.h"
 #include <string_view>
 #include <string>
-
-class IEvent {
-public:
-
-	enum EEventType : unsigned char {
-		NONE = 0,
-		FOCUS_GAINED,
-		FOCUS_LOST,
-		CLICKED,
-		VALUE_CHANGED,
-		SELECTION_CHANGED,
-		STATE_CHANGED,
-		VISIBILITY_CHANGED,
-		ENABLED_CHANGED,
-		TEXT_CHANGED,
-		CURSOR_MOVED,
-		CHILD_ADDED,
-		CHILD_REMOVED,
-		PARENT_UPDATED,
-		LAYOUT_UPDATED,
-
-		KEY_PRESSED,
-		KEY_RELEASED
-	};
-
-	EEventType type{NONE};
-	bool now{false}; // A very specific flag. I'll describe it in the handlers.
-
-	IEvent() = default;
-	virtual ~IEvent() = default; // C++ requires an interface to have at least one virtual method.
-};
+#include <variant>
 
 /*
 The object event category.
 Events such as changes to an object's focus, state, name, description, value, etc., always dispatch a CObjectEvent.
 */
-class CObjectEvent final : public IEvent {
+class CObjectEvent final {
 public:
 	std::shared_ptr<IObject> object;
 };
@@ -49,7 +20,7 @@ public:
 The keyboard event category.
 Key pressed and released events. always dispatch a CKeyboardEvent.
 */
-class CKeyboardEvent final : public IEvent {
+class CKeyboardEvent final {
 public:
 
 	enum EKeycode : unsigned short {
@@ -451,4 +422,78 @@ namespace std {
 		}
 	};
 }
+
+using EventVariant = std::variant<std::monostate, CObjectEvent, CKeyboardEvent>;
+
+class CEvent final {
+	EventVariant m_variant;
+	bool m_now{false}; // A very specific flag. I'll describe it in the handlers.
+public:
+
+	enum EEventType : unsigned char {
+		NONE = 0,
+		FOCUS_GAINED,
+		FOCUS_LOST,
+		CLICKED,
+		VALUE_CHANGED,
+		SELECTION_CHANGED,
+		STATE_CHANGED,
+		VISIBILITY_CHANGED,
+		ENABLED_CHANGED,
+		TEXT_CHANGED,
+		CURSOR_MOVED,
+		CHILD_ADDED,
+		CHILD_REMOVED,
+		PARENT_UPDATED,
+		LAYOUT_UPDATED,
+
+		KEY_PRESSED,
+		KEY_RELEASED
+	};
+
+private:
+	EEventType m_type{NONE};
+public:
+
+	~CEvent() = default;
+	CEvent(CObjectEvent&& object_event, EEventType type, bool now = false)
+		: m_variant(std::move(object_event)), m_type(type), m_now(now) {}
+
+	CEvent(CKeyboardEvent&& keyboard_event, EEventType type, bool now = false)
+		: m_variant(std::move(keyboard_event)), m_type(type), m_now(now) {}
+
+	[[nodiscard]] auto GetType() const -> EEventType { 
+		return m_type;
+	}
+
+	[[nodiscard]] auto GetNow() const -> bool { 
+		return m_now;
+	}
+
+	template<typename T>
+	auto GetAs() -> std::optional<T> {
+		if (auto* ptr = std::get_if<T>(&m_variant)) {
+			return *ptr;
+		}
+		return std::nullopt;
+	}
+
+	template<typename T>
+	auto GetAs() const -> std::optional<const T> {
+		if (const auto* ptr = std::get_if<T>(&m_variant)) {
+			return *ptr;
+		}
+		return std::nullopt;
+	}
+
+	template<typename Visitor>
+	auto Visit(Visitor&& visitor) -> decltype(auto) {
+		return std::visit(std::forward<Visitor>(visitor), m_variant);
+	}
+
+	template<typename Visitor>
+	auto Visit(Visitor&& visitor) const -> decltype(auto) {
+		return std::visit(std::forward<Visitor>(visitor), m_variant);
+	}
+};
 
