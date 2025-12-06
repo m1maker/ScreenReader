@@ -79,31 +79,31 @@ public:
 
 	[[nodiscard]] virtual auto IsValid()const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual auto GetType()const noexcept -> EObjectType = 0;
-	[[nodiscard]] virtual auto IsVisible()const noexcept -> bool = 0;
-	[[nodiscard]] virtual auto IsEnabled()const noexcept -> bool = 0;
+	[[nodiscard]] virtual auto GetType()const -> EObjectType = 0;
+	[[nodiscard]] virtual auto IsVisible()const -> bool = 0;
+	[[nodiscard]] virtual auto IsEnabled()const -> bool = 0;
 
-	[[nodiscard]] virtual auto GetState()const noexcept -> unsigned long long = 0;
-	[[nodiscard]] virtual auto HasState(EObjectState state)const noexcept -> bool = 0;
+	[[nodiscard]] virtual auto GetState()const -> unsigned long long = 0;
+	[[nodiscard]] virtual auto HasState(EObjectState state)const -> bool = 0;
 
-	[[nodiscard]] virtual auto GetParent()const noexcept -> std::weak_ptr<IObject> = 0;
-	[[nodiscard]] virtual auto GetChildren()const noexcept -> const std::vector<std::shared_ptr<IObject>>& = 0;
+	[[nodiscard]] virtual auto GetParent()const -> std::weak_ptr<IObject> = 0;
+	[[nodiscard]] virtual auto GetChildren()const -> const std::vector<std::shared_ptr<IObject>>& = 0;
 
-	[[nodiscard]] virtual auto GetBounds()const noexcept -> struct SRect = 0;
+	[[nodiscard]] virtual auto GetBounds()const -> struct SRect = 0;
 
-	[[nodiscard]] virtual auto GetTabIndex()const noexcept -> int = 0;
+	[[nodiscard]] virtual auto GetTabIndex()const -> int = 0;
 
-	[[nodiscard]] virtual auto GetApplicationName()const noexcept -> std::string = 0;
+	[[nodiscard]] virtual auto GetApplicationName()const -> std::string = 0;
 
-	[[nodiscard]] virtual auto GetName()const noexcept -> std::string = 0;
-	[[nodiscard]] virtual auto GetDescription()const noexcept -> std::string = 0;
+	[[nodiscard]] virtual auto GetName()const -> std::string = 0;
+	[[nodiscard]] virtual auto GetDescription()const -> std::string = 0;
 
-	[[nodiscard]] virtual auto GetCursor()const noexcept -> int = 0;
-	[[nodiscard]] virtual auto GetText(bool at_cursor = false)const noexcept -> std::string = 0;
+	[[nodiscard]] virtual auto GetCursor()const -> int = 0;
+	[[nodiscard]] virtual auto GetText(bool at_cursor = false)const -> std::string = 0;
 
-	[[nodiscard]] virtual auto GetMinValue()const noexcept -> double = 0;
-	[[nodiscard]] virtual auto GetMaxValue()const noexcept -> double = 0;
-	[[nodiscard]] virtual auto GetCurrentValue()const noexcept -> double = 0;
+	[[nodiscard]] virtual auto GetMinValue()const -> double = 0;
+	[[nodiscard]] virtual auto GetMaxValue()const -> double = 0;
+	[[nodiscard]] virtual auto GetCurrentValue()const -> double = 0;
 
 protected:
 	DeclareCache(EObjectType, m_type);

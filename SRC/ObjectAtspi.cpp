@@ -10,7 +10,7 @@
 	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetRelations() const noexcept -> std::vector<AtspiRelation> {
+[[nodiscard]] auto CObjectAtspi::GetRelations() const -> std::vector<AtspiRelation> {
 	if (m_relations) g_array_free(m_relations, TRUE);
 	if (!m_accessible) return{};
 	ResetLastError();
@@ -28,7 +28,7 @@
 	return relations;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetType() const noexcept -> IObject::EObjectType {
+[[nodiscard]] auto CObjectAtspi::GetType() const -> IObject::EObjectType {
 	ReturnCache(m_type);
 	if (!m_accessible) return IObject::UNKNOWN;
 
@@ -37,15 +37,15 @@
 	CacheReturn(m_type, GetObjectTypeFromAtspiRole(role));
 }
 
-[[nodiscard]] auto CObjectAtspi::IsVisible() const noexcept -> bool {
+[[nodiscard]] auto CObjectAtspi::IsVisible() const -> bool {
 	return GetState() & IObject::VISIBLE;
 }
 
-[[nodiscard]] auto CObjectAtspi::IsEnabled() const noexcept -> bool {
+[[nodiscard]] auto CObjectAtspi::IsEnabled() const -> bool {
 	return GetState() & IObject::ENABLED;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetState() const noexcept -> unsigned long long {
+[[nodiscard]] auto CObjectAtspi::GetState() const -> unsigned long long {
 	ReturnCache(m_states);
 	if (!m_accessible) return IObject::NO;
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
@@ -54,11 +54,11 @@
 	CacheReturn(m_states, GetObjectStateFromAtspiStates(states));
 }
 
-[[nodiscard]] auto CObjectAtspi::HasState(IObject::EObjectState state) const noexcept -> bool {
+[[nodiscard]] auto CObjectAtspi::HasState(IObject::EObjectState state) const -> bool {
 	return GetState() & state;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetParent() const noexcept -> std::weak_ptr<IObject> {
+[[nodiscard]] auto CObjectAtspi::GetParent() const -> std::weak_ptr<IObject> {
 	ReturnCache(m_parent);
 	if (!m_accessible) return std::weak_ptr<CObjectAtspi>();
 
@@ -68,7 +68,7 @@
 	CacheReturn(m_parent, std::make_shared<CObjectAtspi>(parent));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetChildren() const noexcept -> const std::vector<std::shared_ptr<IObject>>& {
+[[nodiscard]] auto CObjectAtspi::GetChildren() const -> const std::vector<std::shared_ptr<IObject>>& {
 	ReturnCache(m_children);
 	auto children = std::vector<std::shared_ptr<IObject>>();
 	if (!m_accessible) return m_children.value();
@@ -89,15 +89,15 @@
 	CacheReturn(m_children, children);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetBounds() const noexcept -> SRect {
+[[nodiscard]] auto CObjectAtspi::GetBounds() const -> SRect {
 	return SRect{};
 }
 
-[[nodiscard]] auto CObjectAtspi::GetTabIndex() const noexcept -> int {
+[[nodiscard]] auto CObjectAtspi::GetTabIndex() const -> int {
 	return -1;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetApplicationName() const noexcept -> std::string {
+[[nodiscard]] auto CObjectAtspi::GetApplicationName() const -> std::string {
 	ReturnCache(m_applicationName);
 	if (!m_accessible) return "Unknown";
 
@@ -106,7 +106,7 @@
 	CacheReturn(m_applicationName, name);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetName() const noexcept -> std::string {
+[[nodiscard]] auto CObjectAtspi::GetName() const -> std::string {
 	ReturnCache(m_name);
 	if (!m_accessible) return "Unknown";
 
@@ -130,7 +130,7 @@
 	CacheReturn(m_name, name);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetDescription() const noexcept -> std::string {
+[[nodiscard]] auto CObjectAtspi::GetDescription() const -> std::string {
 	ReturnCache(m_description);
 	if (!m_accessible) return "";
 
@@ -154,7 +154,7 @@
 	CacheReturn(m_description, description);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetCursor() const noexcept -> int {
+[[nodiscard]] auto CObjectAtspi::GetCursor() const -> int {
 	ReturnCache(m_cursor);
 	if (!m_accessible) return 0;
 	if (!m_textInterface) {
@@ -167,7 +167,7 @@
 	CacheReturn(m_cursor, atspi_text_get_caret_offset(m_textInterface, &m_lastError));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetText(bool at_cursor) const noexcept -> std::string {
+[[nodiscard]] auto CObjectAtspi::GetText(bool at_cursor) const -> std::string {
 	if (!m_accessible) return "";
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
@@ -191,7 +191,7 @@
 	return text;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetMinValue() const noexcept -> double {
+[[nodiscard]] auto CObjectAtspi::GetMinValue() const -> double {
 	ReturnCache(m_minValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {
@@ -204,7 +204,7 @@
 	CacheReturn(m_minValue, atspi_value_get_minimum_value(m_valueInterface, &m_lastError));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetMaxValue() const noexcept -> double {
+[[nodiscard]] auto CObjectAtspi::GetMaxValue() const -> double {
 	ReturnCache(m_maxValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {
@@ -217,7 +217,7 @@
 	CacheReturn(m_maxValue, atspi_value_get_maximum_value(m_valueInterface, &m_lastError));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetCurrentValue() const noexcept -> double {
+[[nodiscard]] auto CObjectAtspi::GetCurrentValue() const -> double {
 	ReturnCache(m_currentValue);
 	if (!m_accessible) return 0.0;
 	if (!m_valueInterface) {

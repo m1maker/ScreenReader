@@ -197,7 +197,7 @@ class CObjectAtspi final : public IObject {
 		}
 	}
 
-	[[nodiscard]] auto GetRelations() const noexcept -> std::vector<AtspiRelation>;
+	[[nodiscard]] auto GetRelations() const -> std::vector<AtspiRelation>;
 public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
@@ -222,31 +222,31 @@ public:
 
 	[[nodiscard]] inline auto IsValid() const noexcept -> bool override { return m_accessible != nullptr; }
 
-	[[nodiscard]] auto GetType() const noexcept -> EObjectType override;
-	[[nodiscard]] auto IsVisible() const noexcept -> bool override;
-	[[nodiscard]] auto IsEnabled() const noexcept -> bool override;
+	[[nodiscard]] auto GetType() const -> EObjectType override;
+	[[nodiscard]] auto IsVisible() const -> bool override;
+	[[nodiscard]] auto IsEnabled() const -> bool override;
 
-	[[nodiscard]] auto GetState() const noexcept -> unsigned long long override;
-	[[nodiscard]] auto HasState(EObjectState state) const noexcept -> bool override;
+	[[nodiscard]] auto GetState() const -> unsigned long long override;
+	[[nodiscard]] auto HasState(EObjectState state) const -> bool override;
 
-	[[nodiscard]] auto GetParent() const noexcept -> std::weak_ptr<IObject> override;
-	[[nodiscard]] auto GetChildren() const noexcept -> const std::vector<std::shared_ptr<IObject>>& override;
+	[[nodiscard]] auto GetParent() const -> std::weak_ptr<IObject> override;
+	[[nodiscard]] auto GetChildren() const -> const std::vector<std::shared_ptr<IObject>>& override;
 
-	[[nodiscard]] auto GetBounds() const noexcept -> SRect override;
+	[[nodiscard]] auto GetBounds() const -> SRect override;
 
-	[[nodiscard]] auto GetTabIndex() const noexcept -> int override;
+	[[nodiscard]] auto GetTabIndex() const -> int override;
 
-	[[nodiscard]] auto GetApplicationName() const noexcept -> std::string override;
+	[[nodiscard]] auto GetApplicationName() const -> std::string override;
 
-	[[nodiscard]] auto GetName() const noexcept -> std::string override;
-	[[nodiscard]] auto GetDescription() const noexcept -> std::string override;
+	[[nodiscard]] auto GetName() const -> std::string override;
+	[[nodiscard]] auto GetDescription() const -> std::string override;
 
-	[[nodiscard]] auto GetCursor() const noexcept -> int override;
-	[[nodiscard]] auto GetText(bool at_cursor = false) const noexcept -> std::string override;
+	[[nodiscard]] auto GetCursor() const -> int override;
+	[[nodiscard]] auto GetText(bool at_cursor = false) const -> std::string override;
 
-	[[nodiscard]] auto GetMinValue() const noexcept -> double override;
-	[[nodiscard]] auto GetMaxValue() const noexcept -> double override;
-	[[nodiscard]] auto GetCurrentValue() const noexcept -> double override;
+	[[nodiscard]] auto GetMinValue() const -> double override;
+	[[nodiscard]] auto GetMaxValue() const -> double override;
+	[[nodiscard]] auto GetCurrentValue() const -> double override;
 
 private:
 	mutable GError* m_lastError{nullptr};
