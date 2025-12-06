@@ -60,12 +60,19 @@
 
 [[nodiscard]] auto CObjectAtspi::GetParent() const -> std::weak_ptr<IObject> {
 	ReturnCache(m_parent);
+
 	if (!m_accessible) return std::weak_ptr<CObjectAtspi>();
 
 	ResetLastError();
-	AtspiAccessible* parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
-	if (!parent) return std::weak_ptr<CObjectAtspi>();
-	CacheReturn(m_parent, std::make_shared<CObjectAtspi>(parent));
+	AtspiAccessible* native_parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
+
+	if (!native_parent) return std::weak_ptr<CObjectAtspi>();
+
+	auto parent_object = g_objectAtspiCache.GetOrCreate(native_parent);
+
+	m_strongParentCache = parent_object;
+
+	CacheReturn(m_parent, m_strongParentCache);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetChildren() const -> const std::vector<std::shared_ptr<IObject>>& {
@@ -79,22 +86,37 @@
 
 	for (gint i = 0; i < child_count; ++i) {
 		ResetLastError();
+		AtspiAccessible* child_native = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
+		if (!child_native) continue;
 
-		AtspiAccessible* child = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
-		if (!child) continue;
-		std::shared_ptr<CObjectAtspi> child_object = std::make_shared<CObjectAtspi>(child);
+		auto child_object = g_objectAtspiCache.GetOrCreate(child_native);
+
 		children.push_back(child_object);
 	}
 
 	CacheReturn(m_children, children);
 }
 
+[[nodiscard]] auto CObjectAtspi::GetChildrenCount() const -> int {
+	ReturnCache(m_childrenCount);
+	if (!m_accessible) return 0;
+
+	ResetLastError();
+	int children_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
+	CacheReturn(m_childrenCount, children_count);
+}
+
 [[nodiscard]] auto CObjectAtspi::GetBounds() const -> SRect {
 	return SRect{};
 }
 
-[[nodiscard]] auto CObjectAtspi::GetTabIndex() const -> int {
-	return -1;
+[[nodiscard]] auto CObjectAtspi::GetIndex() const -> int {
+	ReturnCache(m_index);
+	if (!m_accessible) return -1;
+
+	ResetLastError();
+	int index = atspi_accessible_get_index_in_parent(m_accessible, &m_lastError);
+	CacheReturn(m_index, index);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetApplicationName() const -> std::string {
@@ -229,3 +251,32 @@
 
 	CacheReturn(m_currentValue, atspi_value_get_current_value(m_valueInterface, &m_lastError));
 }
+
+[[nodiscard]] auto CObjectAtspiCache::GetOrCreate(AtspiAccessible* accessible) -> std::shared_ptr<CObjectAtspi> {
+	if (!accessible) return nullptr;
+
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	auto it = m_cache.find(accessible);
+	if (it != m_cache.end()) {
+		if (auto existing = it->second.lock()) {
+			g_object_unref(accessible); 
+			return existing;
+		}
+		else {
+			m_cache.erase(it);
+		}
+	}
+
+	auto new_object = std::make_shared<CObjectAtspi>(accessible);
+
+	m_cache[accessible] = new_object;
+
+	return new_object;
+}
+
+void CObjectAtspiCache::Remove(AtspiAccessible* accessible) {
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_cache.erase(accessible);
+}
+

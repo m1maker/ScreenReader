@@ -2,7 +2,10 @@
 #include "Object.h"
 #include <atspi/atspi.h>
 
+#include <map>
+#include <mutex>
 #include <utility>
+#include "Singleton.h"
 
 [[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(const AtspiRole& role) -> IObject::EObjectType {
 	switch (role) {
@@ -174,6 +177,8 @@ public:
 };
 
 class CObjectAtspi final : public IObject {
+	mutable std::shared_ptr<IObject> m_strongParentCache;
+
 	mutable AtspiAccessible* m_accessible{nullptr};
 
 	mutable AtspiAction* m_actionInterface{nullptr};
@@ -231,10 +236,12 @@ public:
 
 	[[nodiscard]] auto GetParent() const -> std::weak_ptr<IObject> override;
 	[[nodiscard]] auto GetChildren() const -> const std::vector<std::shared_ptr<IObject>>& override;
+	[[nodiscard]] auto GetChildrenCount() const -> int override;
+
 
 	[[nodiscard]] auto GetBounds() const -> SRect override;
 
-	[[nodiscard]] auto GetTabIndex() const -> int override;
+	[[nodiscard]] auto GetIndex() const -> int override;
 
 	[[nodiscard]] auto GetApplicationName() const -> std::string override;
 
@@ -251,4 +258,22 @@ public:
 private:
 	mutable GError* m_lastError{nullptr};
 };
+
+class CObjectAtspiCache final {
+	DeclareSingleton(CObjectAtspiCache);
+	explicit CObjectAtspiCache() = default;
+	std::mutex m_mutex;
+	std::map<AtspiAccessible*, std::weak_ptr<CObjectAtspi>> m_cache;
+public:
+
+	[[nodiscard]] auto GetOrCreate(AtspiAccessible* accessible) -> std::shared_ptr<CObjectAtspi>;
+
+	void Remove(AtspiAccessible* accessible);
+};
+
+#define g_objectAtspiCache CSingleton<CObjectAtspiCache>::GetInstance()
+
+
+
+
 

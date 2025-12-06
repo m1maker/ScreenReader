@@ -9,7 +9,7 @@ auto main(signed int argc, char** argv) -> signed int {
 	We'll simply log anything we don't handle in other parts of the application.
 	*/
 	try {
-		g_applicationInstance; // Call the application constructor.
+		g_applicationInstance.Run(); // Call the application
 	}
 	catch (const std::exception& standard_exception) {
 		g_logger.Log(CLogger::ERROR, "Application", standard_exception.what());

@@ -13,8 +13,8 @@ Items that have already been completed will be marked as checked.
 - [x] Add modifier key state tracking
 
 ## Advanced Element Vocalization
-- [ ] Implement table reading with row/column navigation
-- [ ] Add list item counting and navigation
+- [x] Implement table reading with row/column navigation
+- [x] Add list item counting and navigation
 - [ ] Create cursor position tracking and announcement (read by word or line and other)
 - [ ] Implement selection change detection and reading
 - [ ] Add webview content extraction and reading

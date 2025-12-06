@@ -4,6 +4,7 @@
 #include "EventHandler.h"
 #include "Logger.h"
 #include <functional>
+#include "App.h"
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
@@ -57,7 +58,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 
 	if (recursive) {
 		auto children = obj->GetChildren();
-		for (const auto& child : children) {
+			for (const auto& child : children) {
 			std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
 			if (!child_announcement.empty()) {
 				return child_announcement;
@@ -136,15 +137,27 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	}
 
 	auto type = object_event.value().object->GetType();
-	if (type != IObject::UNKNOWN) {
-		announcement += cSeparator + IObject::GetTypeName(object_event.value().object->GetType());
-	}
+	announcement += cSeparator + IObject::GetTypeName(type);
 
-	if (type == IObject::SLIDER) {
-		announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
-	}
-	else if (type == IObject::TEXT_FIELD) {
-		announcement += cSeparator + object_event.value().object->GetText();
+	auto& settings = g_applicationInstance.GetSettings();
+	switch (type){
+		case IObject::SLIDER:
+			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
+			break;
+		case IObject::TEXT_FIELD:
+			announcement += cSeparator + object_event.value().object->GetText();
+			break;
+		case IObject::MENU_ITEM:
+		case IObject::LIST_ITEM: {
+			if (!settings.read_list_item_count) break;
+			auto index = object_event.value().object->GetIndex() + 1;
+			auto parent = object_event.value().object->GetParent().lock();
+			if (!parent) break;
+			auto children_count = parent->GetChildrenCount();
+			announcement += cSeparator + std::to_string(index) + " of " + std::to_string(children_count);
+			break;
+		}
+		default: break;
 	}
 
 	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());

@@ -88,10 +88,11 @@ public:
 
 	[[nodiscard]] virtual auto GetParent()const -> std::weak_ptr<IObject> = 0;
 	[[nodiscard]] virtual auto GetChildren()const -> const std::vector<std::shared_ptr<IObject>>& = 0;
+	[[nodiscard]] virtual auto GetChildrenCount()const -> int = 0;
 
 	[[nodiscard]] virtual auto GetBounds()const -> struct SRect = 0;
 
-	[[nodiscard]] virtual auto GetTabIndex()const -> int = 0;
+	[[nodiscard]] virtual auto GetIndex()const -> int = 0;
 
 	[[nodiscard]] virtual auto GetApplicationName()const -> std::string = 0;
 
@@ -110,6 +111,8 @@ protected:
 	DeclareCache(unsigned long long, m_states);
 	DeclareCache(std::weak_ptr<IObject>, m_parent);
 	DeclareCache(std::vector<std::shared_ptr<IObject>>, m_children);
+	DeclareCache(int, m_childrenCount);
+	DeclareCache(int, m_index);
 	DeclareCache(std::string, m_name);
 	DeclareCache(std::string, m_applicationName);
 	DeclareCache(std::string, m_description);

@@ -15,19 +15,19 @@
 #include "EventHandler.h"
 #include "EventToSpeech.h"
 #include <Version.h>
+#include "Config.h"
 
 // Define different screen reader startup options, command line and configuration.
-struct SScreenReaderOptions {
-	// Now empty
+struct SScreenReaderAppOptions final {
+	SScreenReaderAppSettings settings;
 };
 
 class CScreenReaderApp final {
 	DeclareSingleton(CScreenReaderApp);
 	explicit CScreenReaderApp() {
-		Run();
 	}
 
-	SScreenReaderOptions m_options;
+	SScreenReaderAppOptions m_options;
 	/*
 	A platform dependent worker is the screen reader's most basic and main loop.
 	On Linux, it's an AT-SPI event loop; on Windows, I think it's some kind of GetMessage/DispatchMessage (windows-like loops).
@@ -39,6 +39,7 @@ class CScreenReaderApp final {
 		g_logger.Log(CLogger::INFO, "Application", "Shutting down with return code " + std::to_string(g_returnCode.ToInt()) + " - " + std::string(g_returnCode.ToString()));
 	}
 
+public:
 	void Run() {
 		g_logger.Log(CLogger::INFO, "Application", "Starting " + std::string(SScreenReaderVersion::PROJECT_NAME) + " version " + std::string(SScreenReaderVersion::STRING));
 		g_running.store(true);
@@ -68,6 +69,10 @@ class CScreenReaderApp final {
 		state_speaker->Uninitialize();
 		g_running.store(false);
 		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
+	}
+
+	[[nodiscard]] auto GetSettings() -> SScreenReaderAppSettings& {
+		return m_options.settings;
 	}
 };
 

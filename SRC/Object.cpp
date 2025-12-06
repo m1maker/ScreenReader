@@ -57,7 +57,7 @@ require_all parameter is used to determine whether we request names/states simpl
 		case PANEL: return "panel";
 		case WINDOW: return "window";
 		case DIALOG: return "dialog";
-		default: return "unknown";
+		default: return require_all ? "unknown" : "";
 	}
 }
 
@@ -170,7 +170,7 @@ Currently, it is only used in the logger.
 		oss << indent_string << "  Value: " << current_value << " [" << min_value << " - " << max_value << "]\n";
 	}
 
-	oss << indent_string << "  TabIndex: " << obj->GetTabIndex() << "\n";
+	oss << indent_string << "  Index: " << obj->GetIndex() << "\n";
 
 	int cursor = obj->GetCursor();
 	if (cursor >= 0) {
