@@ -3,13 +3,47 @@
 #include "Object.h"
 #include "EventHandler.h"
 #include "Logger.h"
+#include <functional>
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
 For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere in there are information labels.
 */
-[[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true) -> std::string {
+[[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) -> std::string {
 	if (!obj) return "";
+
+	if (obj->GetType() == IObject::LIST_ITEM || collect_all_labels) {
+		std::vector<std::string> texts;
+
+		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels = [&](const std::shared_ptr<IObject>& current) {
+			if (!current) return;
+
+			if (current->GetType() == IObject::LABEL) {
+				std::string name = current->GetName();
+				if (!name.empty()) {
+					texts.push_back(name);
+				}
+			}
+
+			auto children = current->GetChildren();
+			for (const auto& child : children) {
+				CollectLabels(child);
+			}
+		};
+
+		CollectLabels(obj);
+
+		if (!texts.empty()) {
+			std::string result;
+			for (size_t i = 0; i < texts.size(); ++i) {
+				if (i > 0) {
+					result += CEventToSpeech::cSeparator;
+				}
+				result += texts[i];
+			}
+			return result;
+		}
+	}
 
 	std::string announcement = obj->GetName();
 	if (!announcement.empty()) {
@@ -24,7 +58,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	if (recursive) {
 		auto children = obj->GetChildren();
 		for (const auto& child : children) {
-			std::string child_announcement = FindAnnouncementInHierarchy(child, true);
+			std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
 			if (!child_announcement.empty()) {
 				return child_announcement;
 			}
