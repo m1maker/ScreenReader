@@ -20,10 +20,10 @@ The central speech and braille engine that provides:
 
 ### Event System
 
-#### Base Event Interface (`IEvent`)
+#### Base Event (`CEvent`)
 Foundation for all screen reader events with:
 - **Event types**: Focus changes, clicks, value changes, selection changes, etc.
-- **Categories**: Object events and keyboard events
+- **Categori variants**: Object events and keyboard events
 
 #### Object Events (`CObjectEvent`)
 Handles UI element changes:
