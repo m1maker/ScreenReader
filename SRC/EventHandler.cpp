@@ -48,6 +48,11 @@ void CEventHandler::Handle() {
 				g_eventToSpeech.AnnounceStateChange(event);
 				break;
 			}
+			case CEvent::SELECTION_CHANGED: {
+				g_eventToSpeech.AnnounceSelectionChange(event);
+				break;
+			}
+
 			case CEvent::CURSOR_MOVED: {
 				g_eventToSpeech.AnnounceCursorMove(event);
 				break;

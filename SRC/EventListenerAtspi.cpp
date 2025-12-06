@@ -35,6 +35,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		case CEvent::CURSOR_MOVED:
 		case CEvent::PARENT_UPDATED:
 		case CEvent::STATE_CHANGED:
+		case CEvent::SELECTION_CHANGED:
 		case CEvent::VALUE_CHANGED: {
 			CObjectEvent object_event;
 			object_event.object = std::make_shared<CObjectAtspi>(event->source);

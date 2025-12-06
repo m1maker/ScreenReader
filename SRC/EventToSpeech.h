@@ -25,6 +25,8 @@ public:
 	void AnnounceFocusChange(CEvent& event);
 	void AnnounceValueChange(CEvent& event);
 	void AnnounceStateChange(CEvent& event);
+	void AnnounceSelectionChange(CEvent& event);
+
 	void AnnounceCursorMove(CEvent& event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }

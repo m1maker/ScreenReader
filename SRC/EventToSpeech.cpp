@@ -5,6 +5,36 @@
 #include "Logger.h"
 
 /*
+This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
+For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere in there are information labels.
+*/
+[[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true) -> std::string {
+	if (!obj) return "";
+
+	std::string announcement = obj->GetName();
+	if (!announcement.empty()) {
+		return announcement;
+	}
+
+	announcement = obj->GetText();
+	if (!announcement.empty()) {
+		return announcement;
+	}
+
+	if (recursive) {
+		auto children = obj->GetChildren();
+		for (const auto& child : children) {
+			std::string child_announcement = FindAnnouncementInHierarchy(child, true);
+			if (!child_announcement.empty()) {
+				return child_announcement;
+			}
+		}
+	}
+
+	return "";
+}
+
+/*
 This is the final step of object event processing. Announce it.
 */
 void CEventToSpeech::AnnounceWhereAmI() {
@@ -49,7 +79,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		}
 	}
 
-	std::string announcement = object_event.value().object->GetName();
+	std::string announcement = FindAnnouncementInHierarchy(object_event.value().object);
 	/*
 	I don't know what to do here yet, but I hope I can eventually standardize this behavior.
 	When I'm in Caja Explorer, the file/folder name isn't announced in a tree view.
@@ -128,6 +158,10 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	}
 
 	m_speaker->Speak(announcement, event.GetNow());
+}
+
+void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
+	return;
 }
 
 void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
