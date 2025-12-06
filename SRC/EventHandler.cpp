@@ -10,8 +10,7 @@ CEventHandler::CEventHandler() {
 	m_listener = std::make_shared<CEventListenerAtspi>(); // In the future, this will of course be platform specific.
 
 	bool success{false};
-
-	//success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo)());
+	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo));
 }
 
 /*

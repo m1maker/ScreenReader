@@ -67,4 +67,4 @@ public:
 	}
 };
 
-#define g_actionStopSpeech(T) CSingleton<CActionStopSpeech<(T)>>::GetInstance()
+#define g_actionStopSpeech(T) CSingleton<CActionStopSpeech<T>>::GetInstance()
