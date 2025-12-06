@@ -120,10 +120,7 @@ protected:
 };
 
 /*
-Compare two objects to avoid announcement duplicates.
-I don't know yet how much this will slow down the screen reader, but I hope it won't.
-
-For some reason, AT-SPI can send the same object to two focus events, so we'll throw such events in the event handler.
+Compare two objects.
 */
 [[nodiscard]] inline auto ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) -> bool {
 	if (!obj1 || !obj2) {
