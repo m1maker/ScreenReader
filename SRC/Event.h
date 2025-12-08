@@ -2,10 +2,12 @@
 #pragma once
 #include <memory>
 #include <optional>
-#include "Object.h"
 #include <string_view>
 #include <string>
 #include <variant>
+#include <vector>
+
+class IObject;
 
 /*
 The object event category.

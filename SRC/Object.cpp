@@ -4,6 +4,35 @@
 #include <iomanip>
 #include <utility>
 
+void IObject::UpdateCacheByEvent(const CEvent::EEventType& event) {
+	switch (event) {
+		case CEvent::VALUE_CHANGED:
+			Cache(m_minValue, std::nullopt);
+			Cache(m_maxValue, std::nullopt);
+			Cache(m_currentValue, std::nullopt);
+			break;
+		//case CEvent::SELECTION_CHANGED:
+		case CEvent::STATE_CHANGED:
+		case CEvent::VISIBILITY_CHANGED:
+		case CEvent::ENABLED_CHANGED:
+			Cache(m_states, std::nullopt);
+			break;
+		//case CEvent::TEXT_CHANGED:
+			//Cache(m_text, std::nullopt);
+			//break;
+		case CEvent::CURSOR_MOVED:
+			Cache(m_cursor, std::nullopt);
+			break;
+		case CEvent::CHILD_ADDED:
+		case CEvent::CHILD_REMOVED:
+			Cache(m_children, std::nullopt);
+			break;
+		case CEvent::PARENT_UPDATED:
+			Cache(m_parent, std::nullopt);
+			break;
+		default: break;
+	}
+}
 
 /*
 Attempt to find the focused object.

@@ -4,6 +4,7 @@
 #include <memory>
 #include "Rect.h"
 #include "Cache.h"
+#include "Event.h"
 
 class IObject {
 public:
@@ -105,6 +106,8 @@ public:
 	[[nodiscard]] virtual auto GetMinValue()const -> double = 0;
 	[[nodiscard]] virtual auto GetMaxValue()const -> double = 0;
 	[[nodiscard]] virtual auto GetCurrentValue()const -> double = 0;
+
+	void UpdateCacheByEvent(const CEvent::EEventType& event);
 
 protected:
 	DeclareCache(EObjectType, m_type);
