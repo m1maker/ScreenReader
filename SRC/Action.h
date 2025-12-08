@@ -2,6 +2,9 @@
 #include "SpeechEngine.h"
 #include <functional>
 #include "Singleton.h"
+#include <string_view>
+#include <string>
+#include "Logger.h"
 
 enum class EAction {
 	NONE = 0,
@@ -44,9 +47,20 @@ template <EDeviceType D, class T>
 class IActionHandler {
 public:
 
+	[[nodiscard]] static constexpr auto GetDeviceTypeName() -> std::string_view {
+		switch (D) {
+			case EDeviceType::KEYBOARD: return "Keyboard";
+			case EDeviceType::MOUSE: return "Mouse";
+			case EDeviceType::TOUCHSCREEN: return "Touchscreen";
+			default: return "Unknown";
+		}
+	}
+
 	using ActionInterface = IActionExecutable<EActionHandleResult, const T&>;
 
-	IActionHandler() = default;
+	IActionHandler() {
+		g_logger.Log(CLogger::INFO, "Action handler", "Registered handler for device " + std::string(GetDeviceTypeName()));
+	}
 	virtual ~IActionHandler() = default;
 
 	[[nodiscard]] static constexpr auto GetDeviceType() -> EDeviceType {
