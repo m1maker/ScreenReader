@@ -189,28 +189,24 @@
 	CacheReturn(m_cursor, atspi_text_get_caret_offset(m_textInterface, &m_lastError));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetText(bool at_cursor) const -> std::string {
-	if (!m_accessible) return "";
+[[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const -> STextRange {
+	STextRange text_range;
+	if (!m_accessible) return text_range;
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) return "";
+		if (!m_textInterface) return text_range;
 	}
 
 	ResetLastError();
 
-	gint character_count = atspi_text_get_character_count(m_textInterface, &m_lastError);
-	if (character_count <=0) return "";
-
-	ResetLastError();
-
-	CGlibString text(nullptr);
-	if (at_cursor) {
-		int cursor = GetCursor();
-		text = CGlibString(atspi_text_get_text(m_textInterface, cursor, cursor + 1, &m_lastError));
-	}
-	else 		text = CGlibString(atspi_text_get_text(m_textInterface, 0, character_count, &m_lastError));
-
-	return text;
+	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(m_textInterface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_lastError);
+	if (!pTextRange) return text_range;
+	defer(g_free(pTextRange));
+	CGlibString content(pTextRange->content);
+	text_range.start = pTextRange->start_offset;
+	text_range.end = pTextRange->end_offset;
+	text_range.text = content;
+	return text_range;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> double {

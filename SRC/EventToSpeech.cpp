@@ -4,6 +4,7 @@
 #include "EventHandler.h"
 #include "Logger.h"
 #include <functional>
+#include <cmath>
 #include "App.h"
 
 /*
@@ -51,10 +52,10 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		return announcement;
 	}
 
-	announcement = obj->GetText();
-	if (!announcement.empty()) {
-		return announcement;
-	}
+	//announcement = obj->GetText();
+	//if (!announcement.empty()) {
+		//return announcement;
+	//}
 
 	if (recursive) {
 		auto children = obj->GetChildren();
@@ -67,6 +68,32 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	}
 
 	return "";
+}
+
+[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position) -> std::string {
+	if (!obj) return "";
+
+	int current_cursor = obj->GetCursor();
+	int delta = std::abs(current_cursor - previous_cursor_position);
+
+	STextRange line_range = obj->GetText(current_cursor, ETextGranularity::LINE);
+
+	if (previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
+		return line_range.text;
+	}
+
+	if (delta == 1) {
+		STextRange char_range = obj->GetText(current_cursor, ETextGranularity::CHARACTER);
+		return char_range.text;
+	}
+
+	STextRange word_range = obj->GetText(current_cursor, ETextGranularity::WORD);
+	if (previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
+		return word_range.text;
+	}
+
+	STextRange char_range = obj->GetText(current_cursor, ETextGranularity::CHARACTER);
+	return char_range.text;
 }
 
 /*
@@ -144,9 +171,9 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		case IObject::SLIDER:
 			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
 			break;
-		case IObject::TEXT_FIELD:
-			announcement += cSeparator + object_event.value().object->GetText();
-			break;
+		//case IObject::TEXT_FIELD:
+			//announcement += cSeparator + object_event.value().object->GetText();
+			//break;
 		case IObject::MENU_ITEM:
 		case IObject::LIST_ITEM: {
 			if (!settings.read_list_item_count) break;
@@ -218,5 +245,5 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		return;
 	}
 
-	m_speaker->Speak(object_event.value().object->GetText(true), event.GetNow());
+	m_speaker->Speak(FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position), true);
 }

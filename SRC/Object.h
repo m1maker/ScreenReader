@@ -5,6 +5,7 @@
 #include "Rect.h"
 #include "Cache.h"
 #include "Event.h"
+#include "Text.h"
 
 class IObject {
 public:
@@ -101,7 +102,7 @@ public:
 	[[nodiscard]] virtual auto GetDescription()const -> std::string = 0;
 
 	[[nodiscard]] virtual auto GetCursor()const -> int = 0;
-	[[nodiscard]] virtual auto GetText(bool at_cursor = false)const -> std::string = 0;
+	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity)const -> STextRange = 0;
 
 	[[nodiscard]] virtual auto GetMinValue()const -> double = 0;
 	[[nodiscard]] virtual auto GetMaxValue()const -> double = 0;
@@ -150,10 +151,6 @@ Compare two objects.
 	}
 
 	if (obj1->GetDescription() != obj2->GetDescription()) {
-		return false;
-	}
-
-	if (obj1->GetText() != obj2->GetText()) {
 		return false;
 	}
 

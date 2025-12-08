@@ -130,6 +130,22 @@
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
+[[nodiscard]] static constexpr inline auto GetAtspiTextGranularityFromTextGranularity(const ETextGranularity& granularity) -> AtspiTextGranularity {
+	switch (granularity) {
+		case ETextGranularity::CHARACTER:
+			return ATSPI_TEXT_GRANULARITY_CHAR;
+		case ETextGranularity::WORD:
+			return ATSPI_TEXT_GRANULARITY_WORD;
+		case ETextGranularity::SENTENCE:
+			return ATSPI_TEXT_GRANULARITY_SENTENCE;
+		case ETextGranularity::LINE:
+			return ATSPI_TEXT_GRANULARITY_LINE;
+		case ETextGranularity::PARAGRAPH:
+			return ATSPI_TEXT_GRANULARITY_PARAGRAPH;
+		default: return ATSPI_TEXT_GRANULARITY_CHAR;
+	}
+}
+
 /*
 Wrapper class for GLib strings so that they are automatically freed.
 */
@@ -249,7 +265,7 @@ public:
 	[[nodiscard]] auto GetDescription() const -> std::string override;
 
 	[[nodiscard]] auto GetCursor() const -> int override;
-	[[nodiscard]] auto GetText(bool at_cursor = false) const -> std::string override;
+	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> STextRange override;
 
 	[[nodiscard]] auto GetMinValue() const -> double override;
 	[[nodiscard]] auto GetMaxValue() const -> double override;

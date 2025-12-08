@@ -184,7 +184,7 @@ Currently, it is only used in the logger.
 
 	oss << indent_string << "  Name: \"" << obj->GetName() << "\"\n";
 	oss << indent_string << "  Description: \"" << obj->GetDescription() << "\"\n";
-	oss << indent_string << "  Text: \"" << obj->GetText() << "\"\n";
+	//oss << indent_string << "  Text: \"" << obj->GetText() << "\"\n";
 
 	oss << indent_string << "  App: \"" << obj->GetApplicationName() << "\"\n";
 
