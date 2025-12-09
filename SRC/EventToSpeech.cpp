@@ -52,10 +52,10 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		return announcement;
 	}
 
-	//announcement = obj->GetText();
-	//if (!announcement.empty()) {
-		//return announcement;
-	//}
+	announcement = obj->GetText(obj->GetCursor(), ETextGranularity::LINE).text;
+	if (!announcement.empty()) {
+		return announcement;
+	}
 
 	if (recursive) {
 		auto children = obj->GetChildren();
@@ -171,9 +171,9 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		case IObject::SLIDER:
 			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
 			break;
-		//case IObject::TEXT_FIELD:
-			//announcement += cSeparator + object_event.value().object->GetText();
-			//break;
+		case IObject::TEXT_FIELD:
+			announcement += cSeparator + object_event.value().object->GetText(object_event.value().object->GetCursor(), ETextGranularity::LINE).text;
+			break;
 		case IObject::MENU_ITEM:
 		case IObject::LIST_ITEM: {
 			if (!settings.read_list_item_count) break;
