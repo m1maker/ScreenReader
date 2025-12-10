@@ -6,6 +6,7 @@
 #include <functional>
 #include <cmath>
 #include "App.h"
+#include "FocusManager.h"
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
@@ -210,7 +211,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		return;
 	}
 
-	if (object_event.value().object->GetType () != IObject::SLIDER || !object_event.value().object->HasState(IObject::FOCUSED)) return;
+	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
 	m_speaker->Speak(std::to_string(object_event.value().object->GetCurrentValue()), event.GetNow());
 }
 
@@ -221,10 +222,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 		return;
 	}
 
-	if (!object_event.value().object->HasState(IObject::FOCUSED)) {
-		AnnounceFocusChange(event);
-		return;
-	}
+	if (g_focusManager.GetFocus() != object_event.value().object) return;
 	std::string announcement = "";
 	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());
 	for (std::string& state_name : state_names) {
@@ -245,5 +243,6 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		return;
 	}
 
+	//if (g_focusManager.GetFocus() != object_event.value().object) return;
 	m_speaker->Speak(FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position), true);
 }

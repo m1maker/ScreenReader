@@ -12,10 +12,6 @@ class CEventHandler final {
 	Then this event handler then queries the queue of these events.
 	*/
 	std::shared_ptr<IEventListener> m_listener;
-	/*
-	Let's try to avoid duplicates of the announcer.
-	*/
-	std::shared_ptr<IObject> m_objectHandledPrevious;
 	explicit CEventHandler();
 	~CEventHandler() = default;
 public:

@@ -5,6 +5,7 @@
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Action.h"
+#include "FocusManager.h"
 
 CEventHandler::CEventHandler() {
 	m_listener = std::make_shared<CEventListenerAtspi>(); // In the future, this will of course be platform specific.
@@ -33,12 +34,9 @@ void CEventHandler::Handle() {
 		switch (event.GetType()) {
 			case CEvent::FOCUS_GAINED:
 			case CEvent::PARENT_UPDATED: {
-				/*
 				auto object_event = event.GetAs<CObjectEvent>();
 				if (!object_event.has_value()) break;
-				if (ObjectIsSame(object_event.value().object, m_objectHandledPrevious) && object_event.value().object) break;
-				else m_objectHandledPrevious = object_event.value().object;
-				*/
+				g_focusManager.m_objectInFocus = object_event.value().object;
 				g_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			}
