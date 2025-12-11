@@ -12,7 +12,11 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 		ActionInterface* executable{nullptr};
 	};
 
+	friend class CEventHandler;
+
 	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
+	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
+	unsigned char m_modifiers;
 
 	explicit CKeyboardHandler() = default;
 	~CKeyboardHandler() override = default;
@@ -22,6 +26,11 @@ public:
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
 
 	void Handle(CKeyboardEvent& event);
+
+	[[nodiscard]] auto IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool;
+	[[nodiscard]] auto GetModifiers() const -> unsigned char { return m_modifiers; }
+
+	void ResetState();
 };
 
 #define g_keyboardHandler CSingleton<CKeyboardHandler>::GetInstance()

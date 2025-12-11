@@ -25,3 +25,13 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 		it->second.executable->Execute(event.hotkey);
 	}
 }
+
+[[nodiscard]] auto CKeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
+	auto it = m_keysDown.find(keycode);
+	if (it!= m_keysDown.end()) return it->second;
+	return false;
+}
+
+void CKeyboardHandler::ResetState() {
+	m_keysDown.clear();
+}

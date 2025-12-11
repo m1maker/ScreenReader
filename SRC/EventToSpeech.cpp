@@ -7,6 +7,7 @@
 #include <cmath>
 #include "App.h"
 #include "FocusManager.h"
+#include "KeyboardHandler.h"
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
@@ -77,19 +78,23 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	int current_cursor = obj->GetCursor();
 	int delta = std::abs(current_cursor - previous_cursor_position);
 
+	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN);
+	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT);
+	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
+
 	STextRange line_range = obj->GetText(current_cursor, ETextGranularity::LINE);
 
-	if (previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
+	if (vertical_keys_down || previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
 		return line_range.text;
 	}
 
-	if (delta == 1) {
+	if (horizontal_keys_down || delta == 1) {
 		STextRange char_range = obj->GetText(current_cursor, ETextGranularity::CHARACTER);
 		return char_range.text;
 	}
 
 	STextRange word_range = obj->GetText(current_cursor, ETextGranularity::WORD);
-	if (previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
+	if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
 		return word_range.text;
 	}
 

@@ -61,7 +61,18 @@ void CEventHandler::Handle() {
 			case CEvent::KEY_PRESSED: {
 				auto keyboard_event = event.GetAs<CKeyboardEvent>();
 				if (!keyboard_event.has_value()) break;
+				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
+				g_keyboardHandler.m_modifiers |= keyboard_event.value().hotkey.modifiers;
+
 				g_keyboardHandler.Handle(keyboard_event.value());
+				break;
+			}
+			case CEvent::KEY_RELEASED: {
+				auto keyboard_event = event.GetAs<CKeyboardEvent>();
+				if (!keyboard_event.has_value()) break;
+				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
+				g_keyboardHandler.m_modifiers &= ~keyboard_event.value().hotkey.modifiers;
+
 				break;
 			}
 			default:
