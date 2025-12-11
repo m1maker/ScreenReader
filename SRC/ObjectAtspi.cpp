@@ -132,23 +132,8 @@
 	ReturnCache(m_name);
 	if (!m_accessible) return "Unknown";
 
-	bool name_found = false;
-
 	ResetLastError();
 	CGlibString name(atspi_accessible_get_name(m_accessible, &m_lastError));
-
-	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) CacheReturn(m_name, name);
-	for (AtspiRelation& relation : relations) {
-		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_LABELLED_BY) {
-			ResetLastError();
-
-			name = CGlibString(atspi_accessible_get_name(atspi_relation_get_target(&relation, 0), &m_lastError));
-			name_found = true;
-			break;
-		}
-	}
-
 	CacheReturn(m_name, name);
 }
 
@@ -156,22 +141,9 @@
 	ReturnCache(m_description);
 	if (!m_accessible) return "";
 
-	bool description_found = false;
 	ResetLastError();
 
 	CGlibString description(atspi_accessible_get_description(m_accessible, &m_lastError));
-
-	std::vector<AtspiRelation> relations = GetRelations();
-	if (relations.empty()) CacheReturn(m_description, description);
-	for (AtspiRelation& relation : relations) {
-		if (atspi_relation_get_relation_type(&relation) == ATSPI_RELATION_DESCRIBED_BY) {
-			ResetLastError();
-
-			description = CGlibString(atspi_accessible_get_description(atspi_relation_get_target(&relation, 0), &m_lastError));
-			description_found = true;
-			break;
-		}
-	}
 
 	CacheReturn(m_description, description);
 }
