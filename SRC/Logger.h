@@ -101,3 +101,10 @@ public:
 	}
 };
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LogCalled() [[maybe_unused]] CScopedCategory _(std::string(__PRETTY_FUNCTION__))
+#elif defined(_MSC_VER)
+#define LogCalled() [[maybe_unused]] CScopedCategory _(std::string(__FUNCSIG__))
+#else
+#define LogCalled() [[maybe_unused]] CScopedCategory _(std::string(__PRETTY_func__))
+#endif

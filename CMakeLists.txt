@@ -17,6 +17,16 @@ endif()
 
 project(ScreenReader VERSION 1.0.0 LANGUAGES CXX)
 
+include(FetchContent)
+FetchContent_Declare(SRAL
+  GIT_REPOSITORY https://github.com/m1maker/SRAL.git
+  GIT_TAG main
+  GIT_SHALLOW ON
+  SYSTEM
+)
+set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(SRAL)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -28,6 +38,8 @@ set(CMAKE_CXX_CLANG_TIDY
 )
 
 find_package(Git)
+find_library(BRLAPI "libbrlapi.so")
+
 
 function(get_git_version VERSION_HASH VERSION_TAG)
     if(GIT_FOUND)
@@ -80,9 +92,6 @@ pkg_check_modules(GDK REQUIRED gdk-3.0)
 
 set(SCREENREADER_SOURCES
     SRC/main.cpp
-    SRC/Engine.cpp
-    SRC/EngineSpeechDispatcher.cpp
-    SRC/SpeechEngine.cpp
     SRC/ObjectAtspi.cpp
     SRC/EventListenerAtspi.cpp
     SRC/EventHandler.cpp
@@ -110,10 +119,12 @@ target_include_directories(ScreenReader PRIVATE
 
 target_link_libraries(ScreenReader
     ${ATSPI_LIBRARIES}
-    ${SPEECHD_LIBRARIES}
     ${GOBJECT_LIBRARIES}
     ${GLIB_LIBRARIES}
     ${GDK_LIBRARIES}
+    ${SPEECHD_LIBRARIES}
+    ${BRLAPI}
+    SRAL_static
 )
 
 install(TARGETS ScreenReader DESTINATION bin)

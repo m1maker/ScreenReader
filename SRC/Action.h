@@ -1,5 +1,5 @@
 #pragma once
-#include "SpeechEngine.h"
+#include "App.h"
 #include <functional>
 #include "Singleton.h"
 #include <string_view>
@@ -75,8 +75,8 @@ template<typename T>
 class CActionStopSpeech final : public IAction<static_cast<unsigned int>(EAction::STOP_SPEECH), EActionHandleResult, const T&> {
 public:
 	auto Execute(const T& event) -> EActionHandleResult override {
-		auto speaker = g_speechEngine.GetSpeaker();
-		if (speaker) speaker->StopSpeech();
+		auto speaker = g_speechEngine;
+		speaker.Stop();
 		return EActionHandleResult::HANDLED;
 	}
 };

@@ -7,13 +7,11 @@
 #include <atomic>
 #include "Object.h"
 #include "Logger.h"
-#include "Engine.h"
 #include "Singleton.h"
 #include "PlatformDependentWorker.h"
 #include "PlatformDependentWorkerLinux.h"
 #include "SpeechEngine.h"
 #include "EventHandler.h"
-#include "EventToSpeech.h"
 #include <Version.h>
 #include "Config.h"
 
@@ -28,6 +26,8 @@ class CScreenReaderApp final {
 	}
 
 	SScreenReaderAppOptions m_options;
+
+	Sral::System m_speechSystem;
 	/*
 	A platform dependent worker is the screen reader's most basic and main loop.
 	On Linux, it's an AT-SPI event loop; on Windows, I think it's some kind of GetMessage/DispatchMessage (windows-like loops).
@@ -43,36 +43,32 @@ public:
 	void Run() {
 		g_logger.Log(CLogger::INFO, "Application", "Starting " + std::string(SScreenReaderVersion::PROJECT_NAME) + " version " + std::string(SScreenReaderVersion::STRING));
 		g_running.store(true);
-		/*
-		We get a speaker for announcing states.
-		We get it from several places, so it's a shared_ptr.
-
-		When the screen reader's voice changes, it will change everywhere; for now, there's only one speaker.
-		Perhaps in the future, I'll implement different voices for attributes.
-		*/
-		auto state_speaker = g_speechEngine.GetSpeaker();
-		state_speaker->Initialize(); // Here initializing
-		state_speaker->Speak("Screen reader on", true);
+		g_speechEngineIndex = m_speechSystem.GetCurrentEngineId();
+		m_speechSystem.GetEngine(g_speechEngineIndex).Speak("Screen reader on");
 		g_eventHandler; // It's the same as CSingleton<CEventHandler>::GetInstance()
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>(); // In the future, this will of course be platform specific.
-		g_eventToSpeech.AnnounceWhereAmI();
 
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to terminate the program.
 		Even if the main loop terminates for some strange reason, we'll restart it.
 		*/
 		while (g_running.load()) {
+			g_logger.Log(CLogger::DEBUG, "Application", "Entering worker loop. Attempt: " + std::to_string(m_loopRestartAttempts + 1));
 			m_worker->Loop();
 			++m_loopRestartAttempts;
+			if (g_running) g_logger.Log(CLogger::WARNING, "Application", "Worker loop exited. Restarting");
 		}
 
-		state_speaker->Uninitialize();
 		g_running.store(false);
 		g_logger.Log(CLogger::INFO, "Application", "Worker finished");
 	}
 
 	[[nodiscard]] auto GetSettings() -> SScreenReaderAppSettings& {
 		return m_options.settings;
+	}
+
+	[[nodiscard]] inline auto GetSpeechSystem() -> Sral::System& {
+		return m_speechSystem;
 	}
 };
 

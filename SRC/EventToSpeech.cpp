@@ -203,8 +203,8 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	If focus has been gained after the "parent updated" event, then we never interrupt the speech.
 	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
 	*/
-	m_speaker->Speak(announcement ,(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
-	m_speaker->Speak(object_event.value().object->GetDescription(), false);
+	g_speechEngine.Speak(std::string_view(announcement),(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
+	g_speechEngine.Speak(object_event.value().object->GetDescription(), false);
 
 	if (event.GetType() != CEvent::PARENT_UPDATED) m_parentAnnounced = false;
 }
@@ -217,7 +217,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	}
 
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
-	m_speaker->Speak(std::to_string(object_event.value().object->GetCurrentValue()), event.GetNow());
+	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue())), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -234,7 +234,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 		announcement += cSeparator + state_name;
 	}
 
-	m_speaker->Speak(announcement, event.GetNow());
+	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
@@ -249,5 +249,5 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	}
 
 	//if (g_focusManager.GetFocus() != object_event.value().object) return;
-	m_speaker->Speak(FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position), true);
+	g_speechEngine.Speak(std::string_view(FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position)), true);
 }

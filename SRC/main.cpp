@@ -12,7 +12,7 @@ auto main(signed int argc, char** argv) -> signed int {
 		g_applicationInstance.Run(); // Call the application
 	}
 	catch (const std::exception& standard_exception) {
-		g_logger.Log(CLogger::ERROR, "Application", standard_exception.what());
+		g_logger.Log(CLogger::ERROR, standard_exception.what());
 	}
 
 	return g_returnCode.ToInt();

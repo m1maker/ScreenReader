@@ -1,20 +1,14 @@
 #pragma once
-#include <memory>
-#include "Singleton.h"
-#include "Engine.h"
-#include "EngineSpeechDispatcher.h"
+#include "Sral.hpp"
 
-class CSpeechEngine final {
-	DeclareSingleton(CSpeechEngine);
-	std::shared_ptr<Sral::Engine> m_speechEngine;
-	explicit CSpeechEngine();
-	~CSpeechEngine() = default;
-public:
+inline constinit int g_speechEngineIndex = SRAL_ENGINE_NONE;
+static constexpr inline int cSralEnginesExclude = 
+	SRAL_ENGINE_NVDA | 
+	SRAL_ENGINE_JAWS | 
+	SRAL_ENGINE_ZDSR | 
+	SRAL_ENGINE_NARRATOR | 
+	SRAL_ENGINE_UIA | 
+	SRAL_ENGINE_VOICE_OVER
+;
 
-	[[nodiscard]] inline auto GetSpeaker() -> std::shared_ptr<Sral::Engine> {
-		return m_speechEngine;
-	}
-};
-
-#define g_speechEngine CSingleton<CSpeechEngine>::GetInstance()
-
+#define g_speechEngine g_applicationInstance.GetSpeechSystem().GetEngine(g_speechEngineIndex)
