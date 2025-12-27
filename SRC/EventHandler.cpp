@@ -31,55 +31,62 @@ void CEventHandler::Handle() {
 		return;
 	}
 
-	for (auto& event : event_queue) {
-		switch (event.GetType()) {
-			case CEvent::FOCUS_GAINED:
-			case CEvent::PARENT_UPDATED: {
-				auto object_event = event.GetAs<CObjectEvent>();
-				if (!object_event.has_value()) break;
-				g_focusManager.m_objectInFocus = object_event.value().object;
-				g_eventToSpeech.AnnounceFocusChange(event);
-				break;
-			}
-			case CEvent::VALUE_CHANGED: {
-				g_eventToSpeech.AnnounceValueChange(event);
-				break;
-			}
-			case CEvent::STATE_CHANGED: {
-				g_eventToSpeech.AnnounceStateChange(event);
-				break;
-			}
-			case CEvent::SELECTION_CHANGED: {
-				g_eventToSpeech.AnnounceSelectionChange(event);
-				break;
-			}
+	try {
+		for (auto& event : event_queue) {
+			switch (event.GetType()) {
+				case CEvent::FOCUS_GAINED:
+				case CEvent::PARENT_UPDATED: {
+					auto object_event = event.GetAs<CObjectEvent>();
+					if (!object_event.has_value()) break;
+					g_focusManager.m_objectInFocus = object_event.value().object;
+					g_eventToSpeech.AnnounceFocusChange(event);
+					break;
+				}
+				case CEvent::VALUE_CHANGED: {
+					g_eventToSpeech.AnnounceValueChange(event);
+					break;
+				}
+				case CEvent::STATE_CHANGED: {
+					g_eventToSpeech.AnnounceStateChange(event);
+					break;
+				}
+				case CEvent::SELECTION_CHANGED: {
+					g_eventToSpeech.AnnounceSelectionChange(event);
+					break;
+				}
 
-			case CEvent::CURSOR_MOVED: {
-				g_eventToSpeech.AnnounceCursorMove(event);
-				break;
-			}
+				case CEvent::CURSOR_MOVED: {
+					g_eventToSpeech.AnnounceCursorMove(event);
+					break;
+				}
 
-			case CEvent::KEY_PRESSED: {
-				auto keyboard_event = event.GetAs<CKeyboardEvent>();
-				if (!keyboard_event.has_value()) break;
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
-				g_keyboardHandler.m_modifiers |= keyboard_event.value().hotkey.modifiers;
+				case CEvent::KEY_PRESSED: {
+					auto keyboard_event = event.GetAs<CKeyboardEvent>();
+					if (!keyboard_event.has_value()) break;
+					g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
+					g_keyboardHandler.m_modifiers |= keyboard_event.value().hotkey.modifiers;
 
-				g_keyboardHandler.Handle(keyboard_event.value());
-				break;
-			}
-			case CEvent::KEY_RELEASED: {
-				auto keyboard_event = event.GetAs<CKeyboardEvent>();
-				if (!keyboard_event.has_value()) break;
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
-				g_keyboardHandler.m_modifiers &= ~keyboard_event.value().hotkey.modifiers;
+					g_keyboardHandler.Handle(keyboard_event.value());
+					break;
+				}
+				case CEvent::KEY_RELEASED: {
+					auto keyboard_event = event.GetAs<CKeyboardEvent>();
+					if (!keyboard_event.has_value()) break;
+					g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
+					g_keyboardHandler.m_modifiers &= ~keyboard_event.value().hotkey.modifiers;
 
-				break;
+					break;
+				}
+				default:
+					break;
 			}
-			default:
-				break;
 		}
+
+		event_queue.clear();
 	}
 
-	event_queue.clear();
+	catch(const std::exception& standard_exception) {
+		g_logger.Log(CLogger::ERROR, standard_exception.what());
+		event_queue.clear();
+	}
 }

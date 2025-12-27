@@ -255,7 +255,7 @@ extern "C++" {
 			EngineProxy(int engine_id, System& system) : id(engine_id), sys(system) {}
 
 			void Speak(std::string_view text, bool interrupt = true) {
-				/*Check(*/SRAL_SpeakEx(id, text.data(), interrupt)/*)*/;
+				Check(SRAL_SpeakEx(id, text.data(), interrupt), "Speak failed");
 			}
 
 			void SpeakSsml(std::string_view ssml, bool interrupt = true) {

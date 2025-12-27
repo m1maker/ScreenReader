@@ -97,4 +97,4 @@ However, a screen reader is a program that must be robust against exceptions and
 Hopefully, these flags will only be used when we disable the screen reader.
 */
 inline std::atomic<bool> g_running{false};
-inline CScreenReaderAppReturnCode g_returnCode{CScreenReaderAppReturnCode::SUCCESS};
+inline constinit CScreenReaderAppReturnCode g_returnCode{CScreenReaderAppReturnCode::SUCCESS};
