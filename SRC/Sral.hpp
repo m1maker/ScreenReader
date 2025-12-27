@@ -1,5 +1,6 @@
 #ifndef SRAL_CPP_HPP
 #define SRAL_CPP_HPP
+#pragma once
 
 #include <SRAL.h>
 
@@ -326,23 +327,23 @@ extern "C++" {
 		// Global Hooks & Utils
 		// -------------------------------------------------------------------------
 
-		static void Delay(int ms) {
+		void Delay(int ms) {
 			SRAL_Delay(ms);
 		}
 
-		static void RegisterKeyboardHooks() {
+		void RegisterKeyboardHooks() {
 			Check(SRAL_RegisterKeyboardHooks(), "Failed to register keyboard hooks");
 		}
 
-		static void UnregisterKeyboardHooks() {
+		void UnregisterKeyboardHooks() {
 			SRAL_UnregisterKeyboardHooks();
 		}
 
-		static int GetAvailableEngines() {
+		[[nodiscard]] int GetAvailableEngines() {
 			return SRAL_GetAvailableEngines();
 		}
 
-		static int GetActiveEngines() {
+		[[nodiscard]] int GetActiveEngines() {
 			return SRAL_GetActiveEngines();
 		}
 	};
