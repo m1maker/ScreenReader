@@ -11,4 +11,5 @@ static constexpr inline int cSralEnginesExclude =
 	SRAL_ENGINE_VOICE_OVER
 ;
 
-#define g_speechEngine g_applicationInstance.GetSpeechSystem().GetEngine(g_speechEngineIndex)
+#define g_speechSystem g_applicationInstance.GetSpeechSystem()
+#define g_speechEngine g_speechSystem.GetEngine(g_speechEngineIndex)

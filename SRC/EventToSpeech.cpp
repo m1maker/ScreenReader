@@ -72,7 +72,11 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	return "";
 }
 
-[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position) -> std::string {
+/*
+This static function tries to determine where the cursor has moved and returns a chunk of text.
+Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
+*/
+[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
 	if (!obj) return "";
 
 	int current_cursor = obj->GetCursor();
@@ -82,23 +86,25 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT);
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
-	STextRange line_range = obj->GetText(current_cursor, ETextGranularity::LINE);
+	granularity = ETextGranularity::LINE;
+	STextRange line_range = obj->GetText(current_cursor, granularity);
 
 	if (vertical_keys_down || previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
 		return line_range.text;
 	}
 
 	if (horizontal_keys_down || delta == 1) {
-		STextRange char_range = obj->GetText(current_cursor, ETextGranularity::CHARACTER);
+		granularity = ETextGranularity::CHARACTER;
+		STextRange char_range = obj->GetText(current_cursor, granularity);
 		return char_range.text;
 	}
-
-	STextRange word_range = obj->GetText(current_cursor, ETextGranularity::WORD);
+	granularity = ETextGranularity::WORD;
+	STextRange word_range = obj->GetText(current_cursor, granularity);
 	if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
 		return word_range.text;
 	}
-
-	STextRange char_range = obj->GetText(current_cursor, ETextGranularity::CHARACTER);
+	granularity = ETextGranularity::CHARACTER;
+	STextRange char_range = obj->GetText(current_cursor, granularity);
 	return char_range.text;
 }
 
@@ -249,5 +255,10 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	}
 
 	//if (g_focusManager.GetFocus() != object_event.value().object) return;
-	g_speechEngine.Speak(std::string_view(FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position)), true);
+	ETextGranularity granularity{ETextGranularity::CHARACTER};
+	std::string announcement = FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position, granularity);
+	bool enable_spelling{false};
+	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
+	g_speechEngine.Speak(std::string_view(announcement), true);
+	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
 }
