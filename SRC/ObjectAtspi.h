@@ -1,11 +1,39 @@
 // AT-SPI object implementation and some inlines.
 #include "Object.h"
+#include "RefCountedObject.h"
 #include <atspi/atspi.h>
 
 #include <map>
 #include <mutex>
 #include <utility>
 #include "Singleton.h"
+
+template<class T>
+class CGlibRefCountedObject : public IRefCountedObject<T> {
+public:
+	explicit CGlibRefCountedObject(T* instance, bool take_ownership = true) 
+	: IRefCountedObject<T>(instance) {
+		if (instance && !take_ownership) {
+			AddRef();
+		}
+	}
+
+	~CGlibRefCountedObject() override {
+		Release();
+	}
+
+	void AddRef() const override {
+		if (this->operator T*()) {
+			g_object_ref(this->operator T*());
+		}
+	}
+
+	void Release() const override {
+		if (this->operator T*()) {
+			g_object_unref(this->operator T*());
+		}
+	}
+};
 
 [[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(const AtspiRole& role) -> IObject::EObjectType {
 	switch (role) {
@@ -193,6 +221,7 @@ public:
 };
 
 class CObjectAtspi final : public IObject {
+	friend class CObjectCache<AtspiAccessible, CObjectAtspi>;	
 	mutable std::shared_ptr<IObject> m_strongParentCache;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
@@ -274,22 +303,4 @@ public:
 private:
 	mutable GError* m_lastError{nullptr};
 };
-
-class CObjectAtspiCache final {
-	DeclareSingleton(CObjectAtspiCache);
-	explicit CObjectAtspiCache() = default;
-	std::mutex m_mutex;
-	std::map<AtspiAccessible*, std::weak_ptr<CObjectAtspi>> m_cache;
-public:
-
-	[[nodiscard]] auto GetOrCreate(AtspiAccessible* accessible) -> std::shared_ptr<CObjectAtspi>;
-
-	void Remove(AtspiAccessible* accessible);
-};
-
-#define g_objectAtspiCache CSingleton<CObjectAtspiCache>::GetInstance()
-
-
-
-
 

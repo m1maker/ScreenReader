@@ -43,7 +43,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		case CEvent::SELECTION_CHANGED:
 		case CEvent::VALUE_CHANGED: {
 			CObjectEvent object_event;
-			object_event.object = g_objectAtspiCache.GetOrCreate(event->source);
+			object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
 			object_event.previous_cursor_position = object_event.object->GetCursor();
 			object_event.object->UpdateCacheByEvent(type);
 			/*

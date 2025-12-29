@@ -68,7 +68,7 @@
 
 	if (!native_parent) return std::weak_ptr<CObjectAtspi>();
 
-	auto parent_object = g_objectAtspiCache.GetOrCreate(native_parent);
+	auto parent_object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(native_parent);
 
 	m_strongParentCache = parent_object;
 
@@ -89,7 +89,7 @@
 		AtspiAccessible* child_native = atspi_accessible_get_child_at_index(m_accessible, i, &m_lastError);
 		if (!child_native) continue;
 
-		auto child_object = g_objectAtspiCache.GetOrCreate(child_native);
+		auto child_object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(child_native);
 
 		children.push_back(child_object);
 	}
@@ -218,33 +218,5 @@
 	ResetLastError();
 
 	CacheReturn(m_currentValue, atspi_value_get_current_value(m_valueInterface, &m_lastError));
-}
-
-[[nodiscard]] auto CObjectAtspiCache::GetOrCreate(AtspiAccessible* accessible) -> std::shared_ptr<CObjectAtspi> {
-	if (!accessible) return nullptr;
-
-	std::lock_guard<std::mutex> lock(m_mutex);
-
-	auto it = m_cache.find(accessible);
-	if (it != m_cache.end()) {
-		if (auto existing = it->second.lock()) {
-			g_object_unref(accessible); 
-			return existing;
-		}
-		else {
-			m_cache.erase(it);
-		}
-	}
-
-	auto new_object = std::make_shared<CObjectAtspi>(accessible);
-
-	m_cache[accessible] = new_object;
-
-	return new_object;
-}
-
-void CObjectAtspiCache::Remove(AtspiAccessible* accessible) {
-	std::lock_guard<std::mutex> lock(m_mutex);
-	m_cache.erase(accessible);
 }
 

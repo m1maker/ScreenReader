@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <utility>
+#include <type_traits>
 
 void IObject::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	switch (event) {

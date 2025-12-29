@@ -6,6 +6,7 @@
 #include "Cache.h"
 #include "Event.h"
 #include "Text.h"
+#include <map>
 
 class IObject {
 public:
@@ -125,6 +126,45 @@ protected:
 	DeclareCache(double, m_maxValue);
 	DeclareCache(double, m_currentValue);
 };
+
+template<class T, class U>
+class CObjectCache final {
+	std::mutex m_mutex;
+	std::map<T*, std::weak_ptr<U>> m_cache;
+public:
+
+	explicit CObjectCache() = default;
+
+	[[nodiscard]] auto GetOrCreate(T* native_handle) -> std::shared_ptr<U> {
+		if (!native_handle) return nullptr;
+
+		std::lock_guard<std::mutex> lock(m_mutex);
+
+		auto it = m_cache.find(native_handle);
+		if (it != m_cache.end()) {
+			if (auto existing = it->second.lock()) {
+				//g_object_unref(accessible); 
+				return existing;
+			}
+			else {
+				m_cache.erase(it);
+			}
+		}
+
+		auto new_object = std::make_shared<U>(native_handle);
+
+		m_cache[native_handle] = new_object;
+
+		return new_object;
+	}
+
+	void Remove(T* native_handle) {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		m_cache.erase(native_handle);
+	}
+};
+
+#define g_objectCache(T, U) CSingleton<CObjectCache<T, U>>::GetInstance()
 
 /*
 Compare two objects.
