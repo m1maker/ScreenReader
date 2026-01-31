@@ -268,37 +268,37 @@ public:
 		ResetLastError();
 	}
 
-	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* override { return reinterpret_cast<void*>(m_accessible); }
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> override { return reinterpret_cast<void*>(m_accessible); }
 
 	[[nodiscard]] inline auto IsValid() const noexcept -> bool override { return m_accessible != nullptr; }
 
-	[[nodiscard]] auto GetType() const -> EObjectType override;
-	[[nodiscard]] auto IsVisible() const -> bool override;
-	[[nodiscard]] auto IsEnabled() const -> bool override;
+	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType> override;
+	[[nodiscard]] auto IsVisible() const -> ObjectResult<bool> override;
+	[[nodiscard]] auto IsEnabled() const -> ObjectResult<bool> override;
 
-	[[nodiscard]] auto GetState() const -> unsigned long long override;
-	[[nodiscard]] auto HasState(EObjectState state) const -> bool override;
+	[[nodiscard]] auto GetState() const -> ObjectResult<unsigned long long> override;
+	[[nodiscard]] auto HasState(EObjectState state) const -> ObjectResult<bool> override;
 
-	[[nodiscard]] auto GetParent() const -> std::weak_ptr<IObject> override;
-	[[nodiscard]] auto GetChildren() const -> const std::vector<std::shared_ptr<IObject>>& override;
-	[[nodiscard]] auto GetChildrenCount() const -> int override;
+	[[nodiscard]] auto GetParent() const -> ObjectResult<std::weak_ptr<IObject>> override;
+	[[nodiscard]] auto GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> override;
+	[[nodiscard]] auto GetChildrenCount() const -> ObjectResult<int> override;
 
 
-	[[nodiscard]] auto GetBounds() const -> SRect override;
+	[[nodiscard]] auto GetBounds() const -> ObjectResult<SRect> override;
 
-	[[nodiscard]] auto GetIndex() const -> int override;
+	[[nodiscard]] auto GetIndex() const -> ObjectResult<int> override;
 
-	[[nodiscard]] auto GetApplicationName() const -> std::string override;
+	[[nodiscard]] auto GetApplicationName() const -> ObjectResult<std::string> override;
 
-	[[nodiscard]] auto GetName() const -> std::string override;
-	[[nodiscard]] auto GetDescription() const -> std::string override;
+	[[nodiscard]] auto GetName() const -> ObjectResult<std::string> override;
+	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string> override;
 
-	[[nodiscard]] auto GetCursor() const -> int override;
-	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> STextRange override;
+	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
+	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;
 
-	[[nodiscard]] auto GetMinValue() const -> double override;
-	[[nodiscard]] auto GetMaxValue() const -> double override;
-	[[nodiscard]] auto GetCurrentValue() const -> double override;
+	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
+	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double> override;
+	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double> override;
 
 private:
 	mutable GError* m_lastError{nullptr};

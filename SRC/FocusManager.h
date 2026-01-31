@@ -14,15 +14,15 @@ class CFocusManager final {
 		m_contextChain.clear();
 		if (!m_objectInFocus) return;
 
-		auto current = m_objectInFocus->GetParent().lock();
+		auto current = m_objectInFocus->GetParent()->lock();
 		while (current) {
 			m_contextChain.push_back(current);
 
 			auto type = current->GetType();
-			if (IObject::IsValidParent(type)) {
+			if (IObject::IsValidParent(*type)) {
 				break;
 			}
-			current = current->GetParent().lock();
+			current = current->GetParent()->lock();
 		}
 	}
 

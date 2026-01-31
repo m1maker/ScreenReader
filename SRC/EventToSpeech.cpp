@@ -23,13 +23,13 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 			if (!current) return;
 
 			if (current->GetType() == IObject::LABEL) {
-				std::string name = current->GetName();
+				std::string name = *current->GetName();
 				if (!name.empty()) {
 					texts.push_back(name);
 				}
 			}
 
-			auto children = current->GetChildren();
+			auto children = current->GetChildren().value();
 			for (const auto& child : children) {
 				CollectLabels(child);
 			}
@@ -49,19 +49,19 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		}
 	}
 
-	std::string announcement = obj->GetName();
+	std::string announcement = obj->GetName().value();
 	if (!announcement.empty()) {
 		return announcement;
 	}
 
-	announcement = obj->GetText(obj->GetCursor(), ETextGranularity::LINE).text;
+	announcement = obj->GetText(obj->GetCursor().value(), ETextGranularity::LINE)->text;
 	if (!announcement.empty()) {
 		return announcement;
 	}
 
 	if (recursive) {
-		auto children = obj->GetChildren();
-			for (const auto& child : children) {
+		auto children = obj->GetChildren().value();
+		for (const auto& child : children) {
 			std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
 			if (!child_announcement.empty()) {
 				return child_announcement;
@@ -79,7 +79,7 @@ Granularity is needed if the cursor has moved one character, in which case spell
 [[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
 	if (!obj) return "";
 
-	int current_cursor = obj->GetCursor();
+	int current_cursor = obj->GetCursor().value();
 	int delta = std::abs(current_cursor - previous_cursor_position);
 
 	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN);
@@ -87,7 +87,7 @@ Granularity is needed if the cursor has moved one character, in which case spell
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
 	granularity = ETextGranularity::LINE;
-	STextRange line_range = obj->GetText(current_cursor, granularity);
+	STextRange line_range = obj->GetText(current_cursor, granularity).value();
 
 	if (vertical_keys_down || previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
 		return line_range.text;
@@ -95,16 +95,16 @@ Granularity is needed if the cursor has moved one character, in which case spell
 
 	if (horizontal_keys_down || delta == 1) {
 		granularity = ETextGranularity::CHARACTER;
-		STextRange char_range = obj->GetText(current_cursor, granularity);
+		STextRange char_range = obj->GetText(current_cursor, granularity).value();
 		return char_range.text;
 	}
 	granularity = ETextGranularity::WORD;
-	STextRange word_range = obj->GetText(current_cursor, granularity);
+	STextRange word_range = obj->GetText(current_cursor, granularity).value();
 	if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
 		return word_range.text;
 	}
 	granularity = ETextGranularity::CHARACTER;
-	STextRange char_range = obj->GetText(current_cursor, granularity);
+	STextRange char_range = obj->GetText(current_cursor, granularity).value();
 	return char_range.text;
 }
 
@@ -151,7 +151,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		Often, these are menu items and the like.
 		Let's try to catch those objects that, in 99% of cases, won't be parents of any other elements.
 		*/
-		if (!IObject::IsValidParent(object_event.value().object->GetType())) {
+		if (!IObject::IsValidParent(object_event.value().object->GetType().value())) {
 			//m_parentAnnounced = false;
 			return;
 		}
@@ -166,9 +166,9 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	Now we'll try to find a nearby object that has a name.
 	*/
 	if (announcement.empty()) {
-		auto children = object_event.value().object->GetChildren();
+		auto children = object_event.value().object->GetChildren().value();
 		for (const auto& child : children) {
-			if (!child->GetName().empty()) {
+			if (!child->GetName()->empty()) {
 				CObjectEvent object_event_to_announce;
 				object_event_to_announce.object = child;
 
@@ -179,31 +179,31 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		}
 	}
 
-	auto type = object_event.value().object->GetType();
+	auto type = object_event.value().object->GetType().value();
 	announcement += cSeparator + IObject::GetTypeName(type);
 
 	auto& settings = g_applicationInstance.GetSettings();
-	switch (type){
+	switch (type) {
 		case IObject::SLIDER:
-			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue());
+			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue().value());
 			break;
 		case IObject::TEXT_FIELD:
-			announcement += cSeparator + object_event.value().object->GetText(object_event.value().object->GetCursor(), ETextGranularity::LINE).text;
+			announcement += cSeparator + object_event.value().object->GetText(object_event.value().object->GetCursor().value(), ETextGranularity::LINE)->text;
 			break;
 		case IObject::MENU_ITEM:
 		case IObject::LIST_ITEM: {
 			if (!settings.read_list_item_count) break;
-			auto index = object_event.value().object->GetIndex() + 1;
-			auto parent = object_event.value().object->GetParent().lock();
+			auto index = *object_event.value().object->GetIndex() + 1;
+			auto parent = object_event.value().object->GetParent()->lock();
 			if (!parent) break;
-			auto children_count = parent->GetChildrenCount();
+			auto children_count = *parent->GetChildrenCount();
 			announcement += cSeparator + std::to_string(index) + " of " + std::to_string(children_count);
 			break;
 		}
 		default: break;
 	}
 
-	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());
+	auto state_names = IObject::GetStateNames(object_event.value().object->GetType().value(), object_event.value().object->GetState().value());
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}
@@ -214,7 +214,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
 	*/
 	g_speechEngine.Speak(std::string_view(announcement),(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
-	g_speechEngine.Speak(object_event.value().object->GetDescription(), false);
+	g_speechEngine.Speak(object_event.value().object->GetDescription().value(), false);
 
 	if (event.GetType() != CEvent::PARENT_UPDATED) m_parentAnnounced = false;
 }
@@ -227,7 +227,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	}
 
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
-	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue())), event.GetNow());
+	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue().value())), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -239,7 +239,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 
 	if (g_focusManager.GetFocus() != object_event.value().object) return;
 	std::string announcement = "";
-	auto state_names = IObject::GetStateNames(object_event.value().object->GetType(), object_event.value().object->GetState());
+	auto state_names = IObject::GetStateNames(object_event.value().object->GetType().value(), object_event.value().object->GetState().value());
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}

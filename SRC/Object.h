@@ -7,6 +7,9 @@
 #include "Event.h"
 #include "Text.h"
 #include <map>
+#include <expected>
+template<typename T>
+using ObjectResult = std::expected<T, unsigned char>;
 
 class IObject {
 public:
@@ -59,6 +62,36 @@ public:
 		CHECKABLE = 1 << 22
 	};
 
+	enum EObjectError : unsigned char {
+		SUCCESS = 0,
+		DEFUNCT,
+		NOT_SUPPORTED,
+		ACCESS_DENIED,
+		INVALID_ARGUMENTS,
+		TIMEOUT,
+		FAIL
+	};
+
+	[[nodiscard]] static constexpr auto ObjectErrorToString(const EObjectError& error) -> std::string_view {
+		switch (error) {
+			case SUCCESS:
+				return "No error: The operation completed successfully.";
+			case DEFUNCT:
+				return "Object Defunct: The target accessibility object is no longer valid.";
+			case NOT_SUPPORTED:
+				return "Interface Not Supported: The object does not implement the requested accessibility interface.";
+			case ACCESS_DENIED:
+				return "Access Denied: Permission was refused to access this object.";
+			case INVALID_ARGUMENTS:
+				return "Invalid Arguments: The parameters provided to the method are out of range or malformed for this specific object.";
+			case TIMEOUT:
+				return "Operation Timeout: The application or the accessibility registry failed to respond within the expected timeframe.";
+			case FAIL:
+			default:
+				return "Unknown Error: An unexpected or undocumented failure occurred during the interaction with the accessibility API.";
+		}
+	}
+
 	IObject() = default;
 	virtual ~IObject() = default;
 
@@ -75,36 +108,36 @@ public:
 		return false;
 	}
 
-	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> void* = 0;
+	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> ObjectResult<void*> = 0;
 
 	[[nodiscard]] virtual auto IsValid()const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual auto GetType()const -> EObjectType = 0;
-	[[nodiscard]] virtual auto IsVisible()const -> bool = 0;
-	[[nodiscard]] virtual auto IsEnabled()const -> bool = 0;
+	[[nodiscard]] virtual auto GetType()const -> ObjectResult<EObjectType> = 0;
+	[[nodiscard]] virtual auto IsVisible()const -> ObjectResult<bool> = 0;
+	[[nodiscard]] virtual auto IsEnabled()const -> ObjectResult<bool> = 0;
 
-	[[nodiscard]] virtual auto GetState()const -> unsigned long long = 0;
-	[[nodiscard]] virtual auto HasState(EObjectState state)const -> bool = 0;
+	[[nodiscard]] virtual auto GetState()const -> ObjectResult<unsigned long long> = 0;
+	[[nodiscard]] virtual auto HasState(EObjectState state)const -> ObjectResult<bool> = 0;
 
-	[[nodiscard]] virtual auto GetParent()const -> std::weak_ptr<IObject> = 0;
-	[[nodiscard]] virtual auto GetChildren()const -> const std::vector<std::shared_ptr<IObject>>& = 0;
-	[[nodiscard]] virtual auto GetChildrenCount()const -> int = 0;
+	[[nodiscard]] virtual auto GetParent()const -> ObjectResult<std::weak_ptr<IObject>> = 0;
+	[[nodiscard]] virtual auto GetChildren()const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> = 0;
+	[[nodiscard]] virtual auto GetChildrenCount()const -> ObjectResult<int> = 0;
 
-	[[nodiscard]] virtual auto GetBounds()const -> struct SRect = 0;
+	[[nodiscard]] virtual auto GetBounds()const -> ObjectResult<struct SRect> = 0;
 
-	[[nodiscard]] virtual auto GetIndex()const -> int = 0;
+	[[nodiscard]] virtual auto GetIndex()const -> ObjectResult<int> = 0;
 
-	[[nodiscard]] virtual auto GetApplicationName()const -> std::string = 0;
+	[[nodiscard]] virtual auto GetApplicationName()const -> ObjectResult<std::string> = 0;
 
-	[[nodiscard]] virtual auto GetName()const -> std::string = 0;
-	[[nodiscard]] virtual auto GetDescription()const -> std::string = 0;
+	[[nodiscard]] virtual auto GetName()const -> ObjectResult<std::string> = 0;
+	[[nodiscard]] virtual auto GetDescription()const -> ObjectResult<std::string> = 0;
 
-	[[nodiscard]] virtual auto GetCursor()const -> int = 0;
-	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity)const -> STextRange = 0;
+	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
+	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity)const -> ObjectResult<STextRange> = 0;
 
-	[[nodiscard]] virtual auto GetMinValue()const -> double = 0;
-	[[nodiscard]] virtual auto GetMaxValue()const -> double = 0;
-	[[nodiscard]] virtual auto GetCurrentValue()const -> double = 0;
+	[[nodiscard]] virtual auto GetMinValue()const -> ObjectResult<double> = 0;
+	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
+	[[nodiscard]] virtual auto GetCurrentValue()const -> ObjectResult<double> = 0;
 
 	void UpdateCacheByEvent(const CEvent::EEventType& event);
 

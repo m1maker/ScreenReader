@@ -42,13 +42,13 @@ The force parameter is used to continue searching for the object, regardless of 
 [[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force) -> std::shared_ptr<IObject> {
 	if (!start_from) [[unlikely]] return nullptr;
 
-	if (!force && (start_from->GetState() & IObject::FOCUSED)) {
+	if (!force && (start_from->GetState().value() & IObject::FOCUSED)) {
 		return start_from;
 	}
 
-	auto children = start_from->GetChildren();
+	auto children = start_from->GetChildren().value();
 	for (auto& child : children) {
-		if (child->GetState() & IObject::FOCUSED) {
+		if (child->GetState().value() & IObject::FOCUSED) {
 			return child;
 		}
 	}
@@ -165,7 +165,7 @@ Currently, it is only used in the logger.
 	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0') 
 		<< reinterpret_cast<uintptr_t>(obj.get()) << std::dec << " {\n";
 
-	auto type = obj->GetType();
+	auto type = obj->GetType().value();
 	oss << indent_string << "  Type: " << IObject::GetTypeName(type, true) 
 		<< " (" << static_cast<int>(type) << ")\n";
 
@@ -173,7 +173,7 @@ Currently, it is only used in the logger.
 	oss << indent_string << "  Visible: " << (obj->IsVisible() ? "true" : "false") << "\n";
 	oss << indent_string << "  Enabled: " << (obj->IsEnabled() ? "true" : "false") << "\n";
 
-	unsigned long long states = obj->GetState();
+	unsigned long long states = obj->GetState().value();
 	auto state_names = IObject::GetStateNames(type, states, true);
 	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0') 
 		<< states << std::dec << " [";
@@ -183,34 +183,34 @@ Currently, it is only used in the logger.
 	}
 	oss << "]\n";
 
-	oss << indent_string << "  Name: \"" << obj->GetName() << "\"\n";
-	oss << indent_string << "  Description: \"" << obj->GetDescription() << "\"\n";
+	oss << indent_string << "  Name: \"" << obj->GetName().value() << "\"\n";
+	oss << indent_string << "  Description: \"" << obj->GetDescription().value() << "\"\n";
 	//oss << indent_string << "  Text: \"" << obj->GetText() << "\"\n";
 
-	oss << indent_string << "  App: \"" << obj->GetApplicationName() << "\"\n";
+	oss << indent_string << "  App: \"" << obj->GetApplicationName().value() << "\"\n";
 
-	auto bounds = obj->GetBounds();
+	auto bounds = obj->GetBounds().value();
 	oss << indent_string << "  Bounds: (" << bounds.x << ", " << bounds.y << ") "
 		<< bounds.width << "x" << bounds.height << "\n";
 
-	double min_value = obj->GetMinValue();
-	double max_value = obj->GetMaxValue();
-	double current_value = obj->GetCurrentValue();
+	double min_value = obj->GetMinValue().value();
+	double max_value = obj->GetMaxValue().value();
+	double current_value = obj->GetCurrentValue().value();
 	if (min_value != 0.0 || max_value != 0.0 || current_value != 0.0) {
 		oss << indent_string << "  Value: " << current_value << " [" << min_value << " - " << max_value << "]\n";
 	}
 
-	oss << indent_string << "  Index: " << obj->GetIndex() << "\n";
+	oss << indent_string << "  Index: " << obj->GetIndex().value() << "\n";
 
-	int cursor = obj->GetCursor();
+	int cursor = obj->GetCursor().value();
 	if (cursor >= 0) {
 		oss << indent_string << "  Cursor: " << cursor << "\n";
 	}
 
-	auto parent = obj->GetParent().lock();
+	auto parent = obj->GetParent()->lock();
 	oss << indent_string << "  Parent: ";
 	if (parent) {
-		oss << parent->GetTypeName(parent->GetType(), true) << "@"
+		oss << parent->GetTypeName(parent->GetType().value(), true) << "@"
 			<< std::hex << std::setw(16) << std::setfill('0') 
 			<< reinterpret_cast<uintptr_t>(parent.get()) << std::dec;
 	}
@@ -219,10 +219,10 @@ Currently, it is only used in the logger.
 	}
 	oss << "\n";
 
-	const auto& children = obj->GetChildren();
+	const auto& children = obj->GetChildren().value();
 	oss << indent_string << "  Children: " << children.size() << "\n";
 
-	void* native_handle = obj->GetNativeHandle();
+	void* native_handle = obj->GetNativeHandle().value();
 	if (native_handle) {
 		oss << indent_string << "  NativeHandle: 0x" << std::hex 
 			<< reinterpret_cast<uintptr_t>(native_handle) << std::dec << "\n";
