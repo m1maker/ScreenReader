@@ -15,6 +15,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 */
 [[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) -> std::string {
 	if (!obj) return "";
+	LogCalled();
 
 	auto type = obj->GetType().value_or(IObject::UNKNOWN);
 	if (type == IObject::LIST_ITEM || collect_all_labels) {
@@ -22,6 +23,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 
 		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels = [&](const std::shared_ptr<IObject>& current) {
 			if (!current) return;
+			LogCalled();
 
 			auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
 			if (current_type == IObject::LABEL) {
@@ -136,6 +138,7 @@ void CEventToSpeech::AnnounceWhereAmI() {
 		return;
 	}
 
+	LogCalled();
 	const auto& chain = g_focusManager.GetContext();
 	for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
 		CObjectEvent object_event;
@@ -155,69 +158,46 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
 
-	/*
-	So, the parent updated event is considered focus changed, but it should not be interrupted by subsequent focus gained events.
-	*/
-	if (event.GetType() == CEvent::PARENT_UPDATED) {
-		m_parentAnnounced = true;
-		/*
-		When processing the "parent updated" event, AT-SPI can, for some reason, send an event with "parent updated" but no associated object.
-		Often, these are menu items and the like.
-		Let's try to catch those objects that, in 99% of cases, won't be parents of any other elements.
-		*/
-		if (!IObject::IsValidParent(object_event.value().object->GetType().value())) {
-			//m_parentAnnounced = false;
-			return;
-		}
-	}
+	LogCalled();
 
 	std::string announcement = FindAnnouncementInHierarchy(object_event.value().object);
-	/*
-	I don't know what to do here yet, but I hope I can eventually standardize this behavior.
-	When I'm in Caja Explorer, the file/folder name isn't announced in a tree view.
-	When I look at it with Orca's object navigator, I see that the first child is blank, and to the right is the file name and other data, such as size, etc.
-	Then it says it's the name column header, and then the name again, and so on.
-	Now we'll try to find a nearby object that has a name.
-	*/
-	if (announcement.empty()) {
-		auto children = object_event.value().object->GetChildren().value();
-		for (const auto& child : children) {
-			if (!child->GetName()->empty()) {
-				CObjectEvent object_event_to_announce;
-				object_event_to_announce.object = child;
+	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
+	auto state = object_event.value().object->GetState().value_or(IObject::NO);
 
-				CEvent to_announce(std::move(object_event_to_announce), event.GetType(), event.GetNow());
-				AnnounceFocusChange(to_announce);
-				return;
-			}
-		}
-	}
-
-	auto type = object_event.value().object->GetType().value();
 	announcement += cSeparator + IObject::GetTypeName(type);
 
 	auto& settings = g_applicationInstance.GetSettings();
 	switch (type) {
-		case IObject::SLIDER:
-			announcement += cSeparator + std::to_string(object_event.value().object->GetCurrentValue().value());
-			break;
-		case IObject::TEXT_FIELD:
-			announcement += cSeparator + object_event.value().object->GetText(object_event.value().object->GetCursor().value(), ETextGranularity::LINE)->text;
-			break;
+		case IObject::SLIDER: {
+			CObjectEvent object_event_to_post;
+			object_event_to_post.object = object_event.value().object;
+			CEvent to_post(object_event_to_post, CEvent::VALUE_CHANGED, false);
+			AnnounceValueChange(to_post);
+			return;
+		}
+		case IObject::TEXT_FIELD: {
+			CObjectEvent object_event_to_post;
+			object_event_to_post.object = object_event.value().object;
+			CEvent to_post(object_event_to_post, CEvent::CURSOR_MOVED, false);
+			AnnounceCursorMove(to_post);
+			return;
+		}
 		case IObject::MENU_ITEM:
 		case IObject::LIST_ITEM: {
 			if (!settings.read_list_item_count) break;
-			auto index = *object_event.value().object->GetIndex() + 1;
-			auto parent = object_event.value().object->GetParent()->lock();
+			auto index = object_event.value().object->GetIndex().value_or(0) + 1;
+			auto parent = object_event.value().object->GetParent();
 			if (!parent) break;
-			auto children_count = *parent->GetChildrenCount();
+			auto locked_parent = parent->lock();
+			if (!locked_parent) break;
+			auto children_count = locked_parent->GetChildrenCount().value_or(0);
 			announcement += cSeparator + std::to_string(index) + " of " + std::to_string(children_count);
 			break;
 		}
 		default: break;
 	}
 
-	auto state_names = IObject::GetStateNames(object_event.value().object->GetType().value(), object_event.value().object->GetState().value());
+	auto state_names = IObject::GetStateNames(type, state);
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}
@@ -228,7 +208,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
 	*/
 	g_speechEngine.Speak(std::string_view(announcement),(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
-	g_speechEngine.Speak(object_event.value().object->GetDescription().value(), false);
+	g_speechEngine.Speak(object_event.value().object->GetDescription().value_or(""), false);
 
 	if (event.GetType() != CEvent::PARENT_UPDATED) m_parentAnnounced = false;
 }
@@ -239,9 +219,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
 		return;
 	}
+	LogCalled();
 
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
-	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue().value())), event.GetNow());
+	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue().value_or(0))), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -251,9 +232,13 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 		return;
 	}
 
+	LogCalled();
 	if (g_focusManager.GetFocus() != object_event.value().object) return;
 	std::string announcement = "";
-	auto state_names = IObject::GetStateNames(object_event.value().object->GetType().value(), object_event.value().object->GetState().value());
+	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
+	auto state = object_event.value().object->GetState().value_or(IObject::NO);
+
+	auto state_names = IObject::GetStateNames(type, state);
 	for (std::string& state_name : state_names) {
 		announcement += cSeparator + state_name;
 	}
@@ -272,7 +257,13 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		return;
 	}
 
+	LogCalled();
 	//if (g_focusManager.GetFocus() != object_event.value().object) return;
+	auto cursor = object_event.value().object->GetCursor();
+	if (!cursor) {
+		return; 
+	}
+
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
 	std::string announcement = FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position, granularity);
 	bool enable_spelling{false};

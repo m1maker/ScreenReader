@@ -35,33 +35,6 @@ void IObject::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	}
 }
 
-/*
-Attempt to find the focused object.
-The force parameter is used to continue searching for the object, regardless of the first one found.
-*/
-[[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force) -> std::shared_ptr<IObject> {
-	if (!start_from) [[unlikely]] return nullptr;
-
-	if (!force && (start_from->GetState().value() & IObject::FOCUSED)) {
-		return start_from;
-	}
-
-	auto children = start_from->GetChildren().value();
-	for (auto& child : children) {
-		if (child->GetState().value() & IObject::FOCUSED) {
-			return child;
-		}
-	}
-
-	for (auto& child : children) {
-		if (auto result = FindFocusedObject(child, true)) {
-			return result;
-		}
-	}
-
-	return (force) ? nullptr : start_from;
-}
-
 // I need to make translations in the future, so don't make it constexpr or inline
 /*
 Just convert types and states to strings.
@@ -176,12 +149,8 @@ Currently, it is only used in the logger.
 	oss << indent_string << "  Type: " << IObject::GetTypeName(type.value_or(IObject::UNKNOWN), true) 
 		<< " (" << static_cast<int>(type.value_or(IObject::UNKNOWN)) << ")\n";
 
-	oss << indent_string << "  Valid: " << (obj->IsValid() ? "true" : "false") << "\n";
-	oss << indent_string << "  Visible: " << (obj->IsVisible() ? "true" : "false") << "\n";
-	oss << indent_string << "  Enabled: " << (obj->IsEnabled() ? "true" : "false") << "\n";
-
-	unsigned long long states = obj->GetState().value();
-	auto state_names = IObject::GetStateNames(type.value(), states, true);
+	unsigned long long states = obj->GetState().value_or(IObject::NO);
+	auto state_names = IObject::GetStateNames(type.value_or(IObject::UNKNOWN), states, true);
 	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0') 
 		<< states << std::dec << " [";
 	for (size_t i = 0; std::cmp_less(i, state_names.size()); ++i) {
@@ -190,75 +159,67 @@ Currently, it is only used in the logger.
 	}
 	oss << "]\n";
 
-	oss << indent_string << "  Name: \"" << obj->GetName().value() << "\"\n";
-	oss << indent_string << "  Description: \"" << obj->GetDescription().value() << "\"\n";
+	oss << indent_string << "  Name: \"" << obj->GetName().value_or("") << "\"\n";
+	oss << indent_string << "  Description: \"" << obj->GetDescription().value_or("") << "\"\n";
 	//oss << indent_string << "  Text: \"" << obj->GetText() << "\"\n";
 
-	oss << indent_string << "  App: \"" << obj->GetApplicationName().value() << "\"\n";
+	oss << indent_string << "  App: \"" << obj->GetApplicationName().value_or("") << "\"\n";
 
-	auto bounds = obj->GetBounds().value();
-	oss << indent_string << "  Bounds: (" << bounds.x << ", " << bounds.y << ") "
-		<< bounds.width << "x" << bounds.height << "\n";
+	if (auto bounds = obj->GetBounds()) {
+		oss << indent_string << "  Bounds: (" << bounds->x << ", " << bounds->y << ") "
+				<< bounds->width << "x" << bounds->height << "\n";
+	}
 
-	double min_value = obj->GetMinValue().value();
-	double max_value = obj->GetMaxValue().value();
-	double current_value = obj->GetCurrentValue().value();
+	double min_value = obj->GetMinValue().value_or(0);
+	double max_value = obj->GetMaxValue().value_or(0);
+	double current_value = obj->GetCurrentValue().value_or(0);
 	if (min_value != 0.0 || max_value != 0.0 || current_value != 0.0) {
 		oss << indent_string << "  Value: " << current_value << " [" << min_value << " - " << max_value << "]\n";
 	}
 
-	oss << indent_string << "  Index: " << obj->GetIndex().value() << "\n";
+	oss << indent_string << "  Index: " << obj->GetIndex().value_or(0) << "\n";
 
-	int cursor = obj->GetCursor().value();
+	int cursor = obj->GetCursor().value_or(0);
 	if (cursor >= 0) {
 		oss << indent_string << "  Cursor: " << cursor << "\n";
 	}
 
-	auto parent = obj->GetParent()->lock();
-	oss << indent_string << "  Parent: ";
-	if (parent) {
-		oss << parent->GetTypeName(parent->GetType().value(), true) << "@"
-			<< std::hex << std::setw(16) << std::setfill('0') 
-			<< reinterpret_cast<uintptr_t>(parent.get()) << std::dec;
-	}
-	else {
-		oss << "[none]";
-	}
 	oss << "\n";
 
-	const auto& children = obj->GetChildren().value();
-	oss << indent_string << "  Children: " << children.size() << "\n";
-
-	void* native_handle = obj->GetNativeHandle().value();
+	void* native_handle = obj->GetNativeHandle().value_or(nullptr);
 	if (native_handle) {
 		oss << indent_string << "  NativeHandle: 0x" << std::hex 
 			<< reinterpret_cast<uintptr_t>(native_handle) << std::dec << "\n";
 	}
 
-	oss << indent_string << "}";
+	if (auto children = obj->GetChildren()) {
+		oss << indent_string << "  Children: " << children->size() << "\n";
 
-	if (recursive && !children.empty()) {
-		oss << "\n" << indent_string << "Children details:\n";
-		for (size_t i = 0; std::cmp_less(i, children.size()); ++i) {
-			oss << indent_string << "[" << i << "] ";
-			std::string child_dump = DumpObjectToString(
-				children[i], 
-				indent + 4, 
-				recursive, 
-				max_depth, 
-				current_depth + 1
-			);
+		oss << indent_string << "}";
 
-			size_t first_newline = child_dump.find('\n');
-			if (first_newline != std::string::npos) {
-				oss << child_dump.substr(indent + 4, first_newline - (indent + 4));
-				oss << child_dump.substr(first_newline);
-			}
-			else {
-				oss << child_dump;
-			}
-			if (i < children.size() - 1) {
-				oss << "\n";
+		if (recursive && !children->empty()) {
+			oss << "\n" << indent_string << "Children details:\n";
+			for (size_t i = 0; std::cmp_less(i, children->size()); ++i) {
+				oss << indent_string << "[" << i << "] ";
+				std::string child_dump = DumpObjectToString(
+					children->operator[](i), 
+					indent + 4, 
+					recursive, 
+					max_depth, 
+					current_depth + 1
+				);
+
+				size_t first_newline = child_dump.find('\n');
+				if (first_newline != std::string::npos) {
+					oss << child_dump.substr(indent + 4, first_newline - (indent + 4));
+					oss << child_dump.substr(first_newline);
+				}
+				else {
+					oss << child_dump;
+				}
+				if (i < children->size() - 1) {
+					oss << "\n";
+				}
 			}
 		}
 	}

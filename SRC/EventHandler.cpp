@@ -19,7 +19,7 @@ CEventHandler::CEventHandler() {
 This function is called by a platform-specific event listener when it has been typecast to IEvent::EEventType and dispatched with the desired event type category.
 */
 void CEventHandler::Handle() {
-	[[maybe_unused]] CScopedCategory _("Event handler");
+	LogCalled();
 	if (!m_listener) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "There is no event listener registered for this platform");
 		return;
@@ -87,8 +87,12 @@ void CEventHandler::Handle() {
 		event_queue.clear();
 	}
 
-	catch(const std::exception& standard_exception) {
-		g_logger.Log(CLogger::ERROR, standard_exception.what());
+	catch(const Sral::Exception& speech_exception) {
+		g_logger.Log(CLogger::ERROR, speech_exception.what());
+		event_queue.clear();
+	}
+	catch (const std::bad_expected_access<unsigned char>& error) {
+		g_logger.Log(CLogger::ERROR, "Expected access error: " + std::string(IObject::ErrorToString(error.error())));
 		event_queue.clear();
 	}
 }

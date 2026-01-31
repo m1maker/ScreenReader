@@ -44,7 +44,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		case CEvent::VALUE_CHANGED: {
 			CObjectEvent object_event;
 			object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
-			object_event.previous_cursor_position = *object_event.object->GetCursor();
+			object_event.previous_cursor_position = object_event.object->GetCursor().value_or(0);
 			object_event.object->UpdateCacheByEvent(type);
 			/*
 			Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.

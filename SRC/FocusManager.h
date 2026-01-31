@@ -1,4 +1,5 @@
 #pragma once
+#include "Logger.h"
 #include "Object.h"
 #include "Singleton.h"
 #include <memory>
@@ -11,18 +12,23 @@ class CFocusManager final {
 	std::vector<std::shared_ptr<IObject>> m_contextChain;
 
 	void UpdateContextChain() {
+		LogCalled();
 		m_contextChain.clear();
 		if (!m_objectInFocus) return;
 
-		auto current = m_objectInFocus->GetParent()->lock();
-		while (current) {
-			m_contextChain.push_back(current);
+		auto current = m_objectInFocus->GetParent();
+		if (!current) return;
+		auto current_locked = current->lock();
+		while (current_locked) {
+			m_contextChain.push_back(current_locked);
 
-			auto type = current->GetType();
-			if (IObject::IsValidParent(*type)) {
+			auto type = current_locked->GetType().value_or(IObject::UNKNOWN);
+			if (IObject::IsValidParent(type)) {
 				break;
 			}
-			current = current->GetParent()->lock();
+			auto next_current = current_locked->GetParent();
+			if (!next_current) break;
+			current_locked = next_current->lock();
 		}
 	}
 
