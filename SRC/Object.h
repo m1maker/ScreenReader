@@ -72,7 +72,7 @@ public:
 		FAIL
 	};
 
-	[[nodiscard]] static constexpr auto ObjectErrorToString(const EObjectError& error) -> std::string_view {
+	[[nodiscard]] static constexpr auto ErrorToString(const unsigned char& error) -> std::string_view {
 		switch (error) {
 			case SUCCESS:
 				return "No error: The operation completed successfully.";

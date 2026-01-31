@@ -165,16 +165,23 @@ Currently, it is only used in the logger.
 	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0') 
 		<< reinterpret_cast<uintptr_t>(obj.get()) << std::dec << " {\n";
 
-	auto type = obj->GetType().value();
-	oss << indent_string << "  Type: " << IObject::GetTypeName(type, true) 
-		<< " (" << static_cast<int>(type) << ")\n";
+	auto type = obj->GetType();
+	if (!type) {
+		auto last_error = type.error();
+		oss << indent_string << "  Error: " <<
+				IObject::ErrorToString(last_error) << "\n";
+		return oss.str();
+	}	
+
+	oss << indent_string << "  Type: " << IObject::GetTypeName(type.value_or(IObject::UNKNOWN), true) 
+		<< " (" << static_cast<int>(type.value_or(IObject::UNKNOWN)) << ")\n";
 
 	oss << indent_string << "  Valid: " << (obj->IsValid() ? "true" : "false") << "\n";
 	oss << indent_string << "  Visible: " << (obj->IsVisible() ? "true" : "false") << "\n";
 	oss << indent_string << "  Enabled: " << (obj->IsEnabled() ? "true" : "false") << "\n";
 
 	unsigned long long states = obj->GetState().value();
-	auto state_names = IObject::GetStateNames(type, states, true);
+	auto state_names = IObject::GetStateNames(type.value(), states, true);
 	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0') 
 		<< states << std::dec << " [";
 	for (size_t i = 0; std::cmp_less(i, state_names.size()); ++i) {

@@ -16,22 +16,25 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 [[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) -> std::string {
 	if (!obj) return "";
 
-	if (obj->GetType() == IObject::LIST_ITEM || collect_all_labels) {
+	auto type = obj->GetType().value_or(IObject::UNKNOWN);
+	if (type == IObject::LIST_ITEM || collect_all_labels) {
 		std::vector<std::string> texts;
 
 		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels = [&](const std::shared_ptr<IObject>& current) {
 			if (!current) return;
 
-			if (current->GetType() == IObject::LABEL) {
-				std::string name = *current->GetName();
+			auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
+			if (current_type == IObject::LABEL) {
+				std::string name = current->GetName().value_or("");
 				if (!name.empty()) {
 					texts.push_back(name);
 				}
 			}
 
-			auto children = current->GetChildren().value();
-			for (const auto& child : children) {
-				CollectLabels(child);
+			if (auto children = current->GetChildren()) {
+				for (const auto& child : *children) {
+					CollectLabels(child);
+				}
 			}
 		};
 
@@ -49,22 +52,25 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		}
 	}
 
-	std::string announcement = obj->GetName().value();
+	std::string announcement = obj->GetName().value_or("");
 	if (!announcement.empty()) {
 		return announcement;
 	}
 
-	announcement = obj->GetText(obj->GetCursor().value(), ETextGranularity::LINE)->text;
-	if (!announcement.empty()) {
-		return announcement;
+	if (auto text = obj->GetText(obj->GetCursor().value_or(0), ETextGranularity::LINE)) {
+		announcement = text->text;
+		if (!announcement.empty()) {
+			return announcement;
+		}
 	}
 
 	if (recursive) {
-		auto children = obj->GetChildren().value();
-		for (const auto& child : children) {
-			std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
-			if (!child_announcement.empty()) {
-				return child_announcement;
+		if (auto children = obj->GetChildren()) {
+			for (const auto& child : *children) {
+				std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
+				if (!child_announcement.empty()) {
+					return child_announcement;
+				}
 			}
 		}
 	}
