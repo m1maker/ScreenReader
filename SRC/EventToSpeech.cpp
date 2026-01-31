@@ -168,20 +168,6 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	auto& settings = g_applicationInstance.GetSettings();
 	switch (type) {
-		case IObject::SLIDER: {
-			CObjectEvent object_event_to_post;
-			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(object_event_to_post, CEvent::VALUE_CHANGED, false);
-			AnnounceValueChange(to_post);
-			return;
-		}
-		case IObject::TEXT_FIELD: {
-			CObjectEvent object_event_to_post;
-			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(object_event_to_post, CEvent::CURSOR_MOVED, false);
-			AnnounceCursorMove(to_post);
-			return;
-		}
 		case IObject::MENU_ITEM:
 		case IObject::LIST_ITEM: {
 			if (!settings.read_list_item_count) break;
@@ -210,7 +196,23 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	g_speechEngine.Speak(std::string_view(announcement),(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
 	g_speechEngine.Speak(object_event.value().object->GetDescription().value_or(""), false);
 
-	if (event.GetType() != CEvent::PARENT_UPDATED) m_parentAnnounced = false;
+	switch (type) {
+		case IObject::SLIDER: {
+			CObjectEvent object_event_to_post;
+			object_event_to_post.object = object_event.value().object;
+			CEvent to_post(object_event_to_post, CEvent::VALUE_CHANGED, false);
+			AnnounceValueChange(to_post);
+			break;
+		}
+		case IObject::TEXT_FIELD: {
+			CObjectEvent object_event_to_post;
+			object_event_to_post.object = object_event.value().object;
+			CEvent to_post(object_event_to_post, CEvent::CURSOR_MOVED, false);
+			AnnounceCursorMove(to_post);
+			break;
+		}
+		default: break;
+	}
 }
 
 void CEventToSpeech::AnnounceValueChange(CEvent& event) {
