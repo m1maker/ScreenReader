@@ -85,33 +85,41 @@ Granularity is needed if the cursor has moved one character, in which case spell
 [[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
 	if (!obj) return "";
 
-	int current_cursor = obj->GetCursor().value();
-	int delta = std::abs(current_cursor - previous_cursor_position);
+	LogCalled();
+	auto current_cursor = obj->GetCursor();
+	if (!current_cursor) {
+		g_logger.Log(CLogger::ERROR, std::string(IObject::ErrorToString(current_cursor.error())));
+		return "";
+	}
+
+	int delta = std::abs(current_cursor.value_or(0) - previous_cursor_position);
 
 	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN);
 	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT);
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
 	granularity = ETextGranularity::LINE;
-	STextRange line_range = obj->GetText(current_cursor, granularity).value();
-
-	if (vertical_keys_down || previous_cursor_position < line_range.start || previous_cursor_position >= line_range.end) {
-		return line_range.text;
+	if (auto line_range = obj->GetText(current_cursor.value_or(0), granularity)) {
+		if (vertical_keys_down || previous_cursor_position < line_range->start || previous_cursor_position >= line_range->end) {
+			return line_range->text;
+		}
 	}
 
 	if (horizontal_keys_down || delta == 1) {
 		granularity = ETextGranularity::CHARACTER;
-		STextRange char_range = obj->GetText(current_cursor, granularity).value();
-		return char_range.text;
+		if (auto char_range = obj->GetText(current_cursor.value_or(0), granularity)) {
+			return char_range->text;
+		}
 	}
+
 	granularity = ETextGranularity::WORD;
-	STextRange word_range = obj->GetText(current_cursor, granularity).value();
-	if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range.start || previous_cursor_position >= word_range.end) {
-		return word_range.text;
+	if (auto word_range = obj->GetText(current_cursor.value_or(0), granularity)) {
+		if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range->start || previous_cursor_position >= word_range->end) {
+			return word_range->text;
+		}
 	}
-	granularity = ETextGranularity::CHARACTER;
-	STextRange char_range = obj->GetText(current_cursor, granularity).value();
-	return char_range.text;
+
+	return "";
 }
 
 /*
