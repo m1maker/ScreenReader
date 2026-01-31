@@ -459,8 +459,8 @@ private:
 public:
 
 	~CEvent() = default;
-	CEvent(CObjectEvent&& object_event, EEventType type, bool now = false)
-		: m_variant(std::move(object_event)), m_type(type), m_now(now) {}
+	CEvent(CObjectEvent object_event, EEventType type, bool now = false)
+		: m_variant(object_event), m_type(type), m_now(now) {}
 
 	CEvent(CKeyboardEvent&& keyboard_event, EEventType type, bool now = false)
 		: m_variant(std::move(keyboard_event)), m_type(type), m_now(now) {}

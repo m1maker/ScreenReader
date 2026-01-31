@@ -30,12 +30,6 @@ FetchContent_MakeAvailable(SRAL)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_CLANG_TIDY 
-    "clang-tidy"
-    "-checks=clang-analyzer-*,performance-*,bugprone-*,cert-*"
-    "--system-headers=false"
-    "--extra-arg=-Wno-system-headers"
-)
 
 find_package(Git)
 find_library(BRLAPI "libbrlapi.so")

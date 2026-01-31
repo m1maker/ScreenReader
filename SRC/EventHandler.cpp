@@ -34,14 +34,16 @@ void CEventHandler::Handle() {
 	try {
 		for (auto& event : event_queue) {
 			switch (event.GetType()) {
-				case CEvent::FOCUS_GAINED:
-				case CEvent::PARENT_UPDATED: {
+				case CEvent::FOCUS_GAINED: {
 					auto object_event = event.GetAs<CObjectEvent>();
 					if (!object_event.has_value()) break;
-					g_focusManager.m_objectInFocus = object_event.value().object;
+					g_focusManager.SetFocus(object_event.value().object);
 					g_eventToSpeech.AnnounceFocusChange(event);
 					break;
 				}
+				case CEvent::PARENT_UPDATED:
+					g_eventToSpeech.AnnounceWhereAmI();
+					break;
 				case CEvent::VALUE_CHANGED: {
 					g_eventToSpeech.AnnounceValueChange(event);
 					break;

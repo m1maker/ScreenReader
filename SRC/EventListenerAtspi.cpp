@@ -49,7 +49,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 			/*
 			Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
 			*/
-			CEvent to_post(std::move(object_event), type, true);
+			CEvent to_post(object_event, type, true);
 			listener->Post(to_post);
 			break;
 		}

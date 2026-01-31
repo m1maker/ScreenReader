@@ -67,9 +67,6 @@ public:
 
 	[[nodiscard]] static constexpr inline auto IsValidParent(const EObjectType& type) -> bool {
 		switch (type) {
-			case LIST_BOX:
-			case MENU:
-			case PANEL:
 			case WINDOW:
 			case DIALOG:
 				return true;

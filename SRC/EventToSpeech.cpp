@@ -113,18 +113,22 @@ This is the final step of object event processing. Announce it.
 */
 void CEventToSpeech::AnnounceWhereAmI() {
 	/*
-	There's currently no general way to get a focused window. But we'll try to find one.
-
 	This will be a common practice when we send artificial events.
 	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
 	*/
-	CObjectEvent object_event;
-	object_event.object = FindFocusedObject(GetDesktopObject());
-	auto listener = g_eventHandler.GetListener();
-	if (!listener) [[unlikely]] return;
+	auto object = g_focusManager.GetFocus();
+	if (!object) {
+		g_speechEngine.Speak("Unknown area", true);
+		return;
+	}
 
-	CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
-	listener->Post(to_post);
+	const auto& chain = g_focusManager.GetContext();
+	for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
+		CObjectEvent object_event;
+		object_event.object = *it;
+		CEvent to_post(object_event, CEvent::FOCUS_GAINED, false);
+		AnnounceFocusChange(to_post);
+	}
 }
 
 // Various Announcers
