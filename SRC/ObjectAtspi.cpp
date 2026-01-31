@@ -30,7 +30,7 @@
 
 [[nodiscard]] auto CObjectAtspi::GetType() const -> ObjectResult<IObject::EObjectType> {
 	ReturnCache(m_type);
-	if (!m_accessible) return IObject::UNKNOWN;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_lastError);
@@ -38,30 +38,30 @@
 }
 
 [[nodiscard]] auto CObjectAtspi::IsVisible() const -> ObjectResult<bool> {
-	return GetState().value() & IObject::VISIBLE;
+	return GetState().value_or(false) & IObject::VISIBLE;
 }
 
 [[nodiscard]] auto CObjectAtspi::IsEnabled() const -> ObjectResult<bool> {
-	return GetState().value() & IObject::ENABLED;
+	return GetState().value_or(false) & IObject::ENABLED;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetState() const -> ObjectResult<unsigned long long> {
 	ReturnCache(m_states);
-	if (!m_accessible) return IObject::NO;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	AtspiStateSet* states = atspi_accessible_get_state_set(m_accessible);
-	if (!states) return IObject::NO;
+	if (!states) return std::unexpected(IObject::FAIL);
 	defer(g_object_unref(states));
 	CacheReturn(m_states, GetObjectStateFromAtspiStates(states));
 }
 
 [[nodiscard]] auto CObjectAtspi::HasState(IObject::EObjectState state) const -> ObjectResult<bool> {
-	return GetState().value() & state;
+	return GetState().value_or(0) & state;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<std::weak_ptr<IObject>> {
 	ReturnCache(m_parent);
 
-	if (!m_accessible) return std::weak_ptr<CObjectAtspi>();
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	AtspiAccessible* native_parent = atspi_accessible_get_parent(m_accessible, &m_lastError);
@@ -78,7 +78,7 @@
 [[nodiscard]] auto CObjectAtspi::GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> {
 	ReturnCache(m_children);
 	auto children = std::vector<std::shared_ptr<IObject>>();
-	if (!m_accessible) return m_children.value();
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	gint child_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
@@ -99,7 +99,7 @@
 
 [[nodiscard]] auto CObjectAtspi::GetChildrenCount() const -> ObjectResult<int> {
 	ReturnCache(m_childrenCount);
-	if (!m_accessible) return 0;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	int children_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
@@ -107,12 +107,12 @@
 }
 
 [[nodiscard]] auto CObjectAtspi::GetBounds() const -> ObjectResult<SRect> {
-	return SRect{};
+	return std::unexpected(IObject::NOT_SUPPORTED);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetIndex() const -> ObjectResult<int> {
 	ReturnCache(m_index);
-	if (!m_accessible) return -1;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	int index = atspi_accessible_get_index_in_parent(m_accessible, &m_lastError);
@@ -121,7 +121,7 @@
 
 [[nodiscard]] auto CObjectAtspi::GetApplicationName() const -> ObjectResult<std::string> {
 	ReturnCache(m_applicationName);
-	if (!m_accessible) return "Unknown";
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	CGlibString name(atspi_accessible_get_toolkit_name(m_accessible, &m_lastError));
@@ -130,7 +130,7 @@
 
 [[nodiscard]] auto CObjectAtspi::GetName() const -> ObjectResult<std::string> {
 	ReturnCache(m_name);
-	if (!m_accessible) return "Unknown";
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	CGlibString name(atspi_accessible_get_name(m_accessible, &m_lastError));
@@ -139,7 +139,7 @@
 
 [[nodiscard]] auto CObjectAtspi::GetDescription() const -> ObjectResult<std::string> {
 	ReturnCache(m_description);
-	if (!m_accessible) return "";
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 
@@ -150,10 +150,10 @@
 
 [[nodiscard]] auto CObjectAtspi::GetCursor() const -> ObjectResult<int> {
 	ReturnCache(m_cursor);
-	if (!m_accessible) return 0;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) CacheReturn(m_cursor, 0);
+		if (!m_textInterface) return std::unexpected(IObject::NOT_SUPPORTED);
 	}
 
 	ResetLastError();
@@ -163,16 +163,16 @@
 
 [[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> {
 	STextRange text_range;
-	if (!m_accessible) return text_range;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) return text_range;
+		if (!m_textInterface) return std::unexpected(IObject::DEFUNCT);
 	}
 
 	ResetLastError();
 
 	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(m_textInterface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_lastError);
-	if (!pTextRange) return text_range;
+	if (!pTextRange) return std::unexpected(IObject::FAIL);
 	defer(g_free(pTextRange));
 	CGlibString content(pTextRange->content);
 	text_range.start = pTextRange->start_offset;
@@ -183,10 +183,10 @@
 
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> ObjectResult<double> {
 	ReturnCache(m_minValue);
-	if (!m_accessible) return 0.0;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) CacheReturn(m_minValue, 0.0);
+		if (!m_valueInterface) return std::unexpected(IObject::NOT_SUPPORTED);
 	}
 
 	ResetLastError();
@@ -196,10 +196,10 @@
 
 [[nodiscard]] auto CObjectAtspi::GetMaxValue() const -> ObjectResult<double> {
 	ReturnCache(m_maxValue);
-	if (!m_accessible) return 0.0;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) CacheReturn(m_maxValue, 0.0);
+		if (!m_valueInterface) return std::unexpected(IObject::NOT_SUPPORTED);
 	}
 
 	ResetLastError();
@@ -209,10 +209,10 @@
 
 [[nodiscard]] auto CObjectAtspi::GetCurrentValue() const -> ObjectResult<double> {
 	ReturnCache(m_currentValue);
-	if (!m_accessible) return 0.0;
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_valueInterface) {
 		m_valueInterface = atspi_accessible_get_value_iface(m_accessible);
-		if (!m_valueInterface) CacheReturn(m_currentValue, 0.0);
+		if (!m_valueInterface) return std::unexpected(IObject::NOT_SUPPORTED);
 	}
 
 	ResetLastError();
