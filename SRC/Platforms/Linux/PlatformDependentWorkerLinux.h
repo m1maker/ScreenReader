@@ -4,12 +4,16 @@
 #include <csignal>
 #include <unistd.h>
 #include <Core/AppState.h>
+#include <chrono>
+#include <thread>
 #include <Interfaces/PlatformDependentWorker.h>
 
 /*
 We will also handle signals here to ensure safe exit.
 */
 class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
+	bool m_atspiInitialized{false};
+
 	enum class EDbusError : signed int {
 		FAILED = 0,
 		NO_MEMORY,
@@ -121,16 +125,21 @@ public:
 
 		sigaction(SIGINT, &m_signalAction, nullptr);
 		sigaction(SIGTERM, &m_signalAction, nullptr);
-
-		atspi_init();
+		int result = atspi_init();
+		m_atspiInitialized = result == 0 || result == 1 ? true : false;
 	}
 
 	~CPlatformDependentWorkerLinux() override {
-		atspi_exit();
+		if (m_atspiInitialized) atspi_exit();
 	}
 
 	void Loop() override {
-		atspi_event_main();
+		if (m_atspiInitialized) atspi_event_main();
+		else {
+			while (g_running.load()) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+			}
+		}
 	}
 
 	void Throw(const void* pError) noexcept override {
