@@ -10,6 +10,7 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	struct SActionInfo final {
 		unsigned int id{0};
 		ActionInterface* executable{nullptr};
+		bool hook{false};
 	};
 
 	friend class CEventHandler;
@@ -18,12 +19,16 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
 	unsigned char m_modifiers;
 
+	unsigned char m_hookedModifiers{CKeyboardEvent::MODIFIER_INSERT};
+
 	explicit CKeyboardHandler() = default;
 	~CKeyboardHandler() override = default;
 public:
 
-	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) -> bool override;
+	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action, bool hook = false) -> bool override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
+
+	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool override;
 
 	void Handle(CKeyboardEvent& event);
 

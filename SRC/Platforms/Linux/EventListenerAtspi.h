@@ -2,12 +2,13 @@
 #pragma once
 #include <Interfaces/EventListener.h>
 #include <atspi/atspi.h>
-#include <atspi/atspi-device.h>
-#include <gdk/gdkkeysyms.h>
-#include <gdk/gdk.h>
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <linux/input.h>
+#include <linux/input-event-codes.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <linux/input-event-codes.h>
 #include <array>
 
@@ -37,262 +38,215 @@ inline const std::unordered_map<std::string, CEvent::EEventType> cAtspiObjectEve
 	return CEvent::NONE;
 }
 
-[[nodiscard]] constexpr inline auto GdkKeysymToKeyboardEventKeycode(const uint32_t& gdk_keysym) -> CKeyboardEvent::EKeycode {
-	switch (gdk_keysym) {
-		case GDK_KEY_F1: return CKeyboardEvent::KEYCODE_F1;
-		case GDK_KEY_F2: return CKeyboardEvent::KEYCODE_F2;
-		case GDK_KEY_F3: return CKeyboardEvent::KEYCODE_F3;
-		case GDK_KEY_F4: return CKeyboardEvent::KEYCODE_F4;
-		case GDK_KEY_F5: return CKeyboardEvent::KEYCODE_F5;
-		case GDK_KEY_F6: return CKeyboardEvent::KEYCODE_F6;
-		case GDK_KEY_F7: return CKeyboardEvent::KEYCODE_F7;
-		case GDK_KEY_F8: return CKeyboardEvent::KEYCODE_F8;
-		case GDK_KEY_F9: return CKeyboardEvent::KEYCODE_F9;
-		case GDK_KEY_F10: return CKeyboardEvent::KEYCODE_F10;
-		case GDK_KEY_F11: return CKeyboardEvent::KEYCODE_F11;
-		case GDK_KEY_F12: return CKeyboardEvent::KEYCODE_F12;
-		case GDK_KEY_F13: return CKeyboardEvent::KEYCODE_F13;
-		case GDK_KEY_F14: return CKeyboardEvent::KEYCODE_F14;
-		case GDK_KEY_F15: return CKeyboardEvent::KEYCODE_F15;
-		case GDK_KEY_F16: return CKeyboardEvent::KEYCODE_F16;
-		case GDK_KEY_F17: return CKeyboardEvent::KEYCODE_F17;
-		case GDK_KEY_F18: return CKeyboardEvent::KEYCODE_F18;
-		case GDK_KEY_F19: return CKeyboardEvent::KEYCODE_F19;
-		case GDK_KEY_F20: return CKeyboardEvent::KEYCODE_F20;
-		case GDK_KEY_F21: return CKeyboardEvent::KEYCODE_F21;
-		case GDK_KEY_F22: return CKeyboardEvent::KEYCODE_F22;
-		case GDK_KEY_F23: return CKeyboardEvent::KEYCODE_F23;
-		case GDK_KEY_F24: return CKeyboardEvent::KEYCODE_F24;
+[[nodiscard]] constexpr inline CKeyboardEvent::EKeycode LinuxKeycodeToKeyboardEventKeycode(const uint16_t& linux_keycode) {
+	switch (linux_keycode) {
+		case KEY_A: return CKeyboardEvent::KEYCODE_A;
+		case KEY_B: return CKeyboardEvent::KEYCODE_B;
+		case KEY_C: return CKeyboardEvent::KEYCODE_C;
+		case KEY_D: return CKeyboardEvent::KEYCODE_D;
+		case KEY_E: return CKeyboardEvent::KEYCODE_E;
+		case KEY_F: return CKeyboardEvent::KEYCODE_F;
+		case KEY_G: return CKeyboardEvent::KEYCODE_G;
+		case KEY_H: return CKeyboardEvent::KEYCODE_H;
+		case KEY_I: return CKeyboardEvent::KEYCODE_I;
+		case KEY_J: return CKeyboardEvent::KEYCODE_J;
+		case KEY_K: return CKeyboardEvent::KEYCODE_K;
+		case KEY_L: return CKeyboardEvent::KEYCODE_L;
+		case KEY_M: return CKeyboardEvent::KEYCODE_M;
+		case KEY_N: return CKeyboardEvent::KEYCODE_N;
+		case KEY_O: return CKeyboardEvent::KEYCODE_O;
+		case KEY_P: return CKeyboardEvent::KEYCODE_P;
+		case KEY_Q: return CKeyboardEvent::KEYCODE_Q;
+		case KEY_R: return CKeyboardEvent::KEYCODE_R;
+		case KEY_S: return CKeyboardEvent::KEYCODE_S;
+		case KEY_T: return CKeyboardEvent::KEYCODE_T;
+		case KEY_U: return CKeyboardEvent::KEYCODE_U;
+		case KEY_V: return CKeyboardEvent::KEYCODE_V;
+		case KEY_W: return CKeyboardEvent::KEYCODE_W;
+		case KEY_X: return CKeyboardEvent::KEYCODE_X;
+		case KEY_Y: return CKeyboardEvent::KEYCODE_Y;
+		case KEY_Z: return CKeyboardEvent::KEYCODE_Z;
 
-		case GDK_KEY_Up: return CKeyboardEvent::KEYCODE_UP;
-		case GDK_KEY_Down: return CKeyboardEvent::KEYCODE_DOWN;
-		case GDK_KEY_Left: return CKeyboardEvent::KEYCODE_LEFT;
-		case GDK_KEY_Right: return CKeyboardEvent::KEYCODE_RIGHT;
-		case GDK_KEY_Home: return CKeyboardEvent::KEYCODE_HOME;
-		case GDK_KEY_End: return CKeyboardEvent::KEYCODE_END;
-		case GDK_KEY_Page_Up: return CKeyboardEvent::KEYCODE_PAGE_UP;
-		case GDK_KEY_Page_Down: return CKeyboardEvent::KEYCODE_PAGE_DOWN;
-		case GDK_KEY_Insert: return CKeyboardEvent::KEYCODE_INSERT;
-		case GDK_KEY_Delete: return CKeyboardEvent::KEYCODE_DELETE;
+		case KEY_0: return CKeyboardEvent::KEYCODE_0;
+		case KEY_1: return CKeyboardEvent::KEYCODE_1;
+		case KEY_2: return CKeyboardEvent::KEYCODE_2;
+		case KEY_3: return CKeyboardEvent::KEYCODE_3;
+		case KEY_4: return CKeyboardEvent::KEYCODE_4;
+		case KEY_5: return CKeyboardEvent::KEYCODE_5;
+		case KEY_6: return CKeyboardEvent::KEYCODE_6;
+		case KEY_7: return CKeyboardEvent::KEYCODE_7;
+		case KEY_8: return CKeyboardEvent::KEYCODE_8;
+		case KEY_9: return CKeyboardEvent::KEYCODE_9;
 
-		case GDK_KEY_Escape: return CKeyboardEvent::KEYCODE_ESCAPE;
-		case GDK_KEY_Tab: return CKeyboardEvent::KEYCODE_TAB;
-		case GDK_KEY_Caps_Lock: return CKeyboardEvent::KEYCODE_CAPS_LOCK;
-		case GDK_KEY_Shift_L: return CKeyboardEvent::KEYCODE_LEFT_SHIFT;
-		case GDK_KEY_Shift_R: return CKeyboardEvent::KEYCODE_RIGHT_SHIFT;
-		case GDK_KEY_Control_L: return CKeyboardEvent::KEYCODE_LEFT_CTRL;
-		case GDK_KEY_Control_R: return CKeyboardEvent::KEYCODE_RIGHT_CTRL;
-		case GDK_KEY_Alt_L: return CKeyboardEvent::KEYCODE_LEFT_ALT;
-		case GDK_KEY_Alt_R: return CKeyboardEvent::KEYCODE_RIGHT_ALT;
-		case GDK_KEY_Super_L: return CKeyboardEvent::KEYCODE_LEFT_SUPER;
-		case GDK_KEY_Super_R: return CKeyboardEvent::KEYCODE_RIGHT_SUPER;
-		case GDK_KEY_Menu: return CKeyboardEvent::KEYCODE_MENU;
-		case GDK_KEY_space: return CKeyboardEvent::KEYCODE_SPACE;
-		case GDK_KEY_Return: return CKeyboardEvent::KEYCODE_ENTER;
-		case GDK_KEY_BackSpace: return CKeyboardEvent::KEYCODE_BACKSPACE;
+		case KEY_F1: return CKeyboardEvent::KEYCODE_F1;
+		case KEY_F2: return CKeyboardEvent::KEYCODE_F2;
+		case KEY_F3: return CKeyboardEvent::KEYCODE_F3;
+		case KEY_F4: return CKeyboardEvent::KEYCODE_F4;
+		case KEY_F5: return CKeyboardEvent::KEYCODE_F5;
+		case KEY_F6: return CKeyboardEvent::KEYCODE_F6;
+		case KEY_F7: return CKeyboardEvent::KEYCODE_F7;
+		case KEY_F8: return CKeyboardEvent::KEYCODE_F8;
+		case KEY_F9: return CKeyboardEvent::KEYCODE_F9;
+		case KEY_F10: return CKeyboardEvent::KEYCODE_F10;
+		case KEY_F11: return CKeyboardEvent::KEYCODE_F11;
+		case KEY_F12: return CKeyboardEvent::KEYCODE_F12;
+		case KEY_F13: return CKeyboardEvent::KEYCODE_F13;
+		case KEY_F14: return CKeyboardEvent::KEYCODE_F14;
+		case KEY_F15: return CKeyboardEvent::KEYCODE_F15;
+		case KEY_F16: return CKeyboardEvent::KEYCODE_F16;
+		case KEY_F17: return CKeyboardEvent::KEYCODE_F17;
+		case KEY_F18: return CKeyboardEvent::KEYCODE_F18;
+		case KEY_F19: return CKeyboardEvent::KEYCODE_F19;
+		case KEY_F20: return CKeyboardEvent::KEYCODE_F20;
+		case KEY_F21: return CKeyboardEvent::KEYCODE_F21;
+		case KEY_F22: return CKeyboardEvent::KEYCODE_F22;
+		case KEY_F23: return CKeyboardEvent::KEYCODE_F23;
+		case KEY_F24: return CKeyboardEvent::KEYCODE_F24;
 
-		case GDK_KEY_KP_0: return CKeyboardEvent::KEYCODE_NUMPAD_0;
-		case GDK_KEY_KP_1: return CKeyboardEvent::KEYCODE_NUMPAD_1;
-		case GDK_KEY_KP_2: return CKeyboardEvent::KEYCODE_NUMPAD_2;
-		case GDK_KEY_KP_3: return CKeyboardEvent::KEYCODE_NUMPAD_3;
-		case GDK_KEY_KP_4: return CKeyboardEvent::KEYCODE_NUMPAD_4;
-		case GDK_KEY_KP_5: return CKeyboardEvent::KEYCODE_NUMPAD_5;
-		case GDK_KEY_KP_6: return CKeyboardEvent::KEYCODE_NUMPAD_6;
-		case GDK_KEY_KP_7: return CKeyboardEvent::KEYCODE_NUMPAD_7;
-		case GDK_KEY_KP_8: return CKeyboardEvent::KEYCODE_NUMPAD_8;
-		case GDK_KEY_KP_9: return CKeyboardEvent::KEYCODE_NUMPAD_9;
-		case GDK_KEY_KP_Multiply: return CKeyboardEvent::KEYCODE_NUMPAD_MULTIPLY;
-		case GDK_KEY_KP_Add: return CKeyboardEvent::KEYCODE_NUMPAD_ADD;
-		case GDK_KEY_KP_Separator: return CKeyboardEvent::KEYCODE_NUMPAD_SEPARATOR;
-		case GDK_KEY_KP_Subtract: return CKeyboardEvent::KEYCODE_NUMPAD_SUBTRACT;
-		case GDK_KEY_KP_Decimal: return CKeyboardEvent::KEYCODE_NUMPAD_DECIMAL;
-		case GDK_KEY_KP_Divide: return CKeyboardEvent::KEYCODE_NUMPAD_DIVIDE;
-		case GDK_KEY_KP_Enter: return CKeyboardEvent::KEYCODE_NUMPAD_ENTER;
+		case KEY_UP: return CKeyboardEvent::KEYCODE_UP;
+		case KEY_DOWN: return CKeyboardEvent::KEYCODE_DOWN;
+		case KEY_LEFT: return CKeyboardEvent::KEYCODE_LEFT;
+		case KEY_RIGHT: return CKeyboardEvent::KEYCODE_RIGHT;
+		case KEY_HOME: return CKeyboardEvent::KEYCODE_HOME;
+		case KEY_END: return CKeyboardEvent::KEYCODE_END;
+		case KEY_PAGEUP: return CKeyboardEvent::KEYCODE_PAGE_UP;
+		case KEY_PAGEDOWN: return CKeyboardEvent::KEYCODE_PAGE_DOWN;
+		case KEY_INSERT: return CKeyboardEvent::KEYCODE_INSERT;
+		case KEY_DELETE: return CKeyboardEvent::KEYCODE_DELETE;
 
-		case GDK_KEY_Scroll_Lock: return CKeyboardEvent::KEYCODE_SCROLL_LOCK;
-		case GDK_KEY_Num_Lock: return CKeyboardEvent::KEYCODE_NUM_LOCK;
-		case GDK_KEY_Pause: return CKeyboardEvent::KEYCODE_PAUSE;
+		case KEY_ESC: return CKeyboardEvent::KEYCODE_ESCAPE;
+		case KEY_TAB: return CKeyboardEvent::KEYCODE_TAB;
+		case KEY_CAPSLOCK: return CKeyboardEvent::KEYCODE_CAPS_LOCK;
+		case KEY_SPACE: return CKeyboardEvent::KEYCODE_SPACE;
+		case KEY_ENTER: return CKeyboardEvent::KEYCODE_ENTER;
+		case KEY_BACKSPACE: return CKeyboardEvent::KEYCODE_BACKSPACE;
 
-		case GDK_KEY_grave:
-		case GDK_KEY_asciitilde: return CKeyboardEvent::KEYCODE_GRAVE;
-		case GDK_KEY_minus:
-		case GDK_KEY_underscore: return CKeyboardEvent::KEYCODE_MINUS;
-		case GDK_KEY_equal:
-		case GDK_KEY_plus: return CKeyboardEvent::KEYCODE_EQUALS;
-		case GDK_KEY_bracketleft:
-		case GDK_KEY_braceleft: return CKeyboardEvent::KEYCODE_LEFT_BRACKET;
-		case GDK_KEY_bracketright:
-		case GDK_KEY_braceright: return CKeyboardEvent::KEYCODE_RIGHT_BRACKET;
-		case GDK_KEY_backslash:
-		case GDK_KEY_bar: return CKeyboardEvent::KEYCODE_BACKSLASH;
-		case GDK_KEY_semicolon:
-		case GDK_KEY_colon: return CKeyboardEvent::KEYCODE_SEMICOLON;
-		case GDK_KEY_apostrophe:
-		case GDK_KEY_quotedbl: return CKeyboardEvent::KEYCODE_APOSTROPHE;
-		case GDK_KEY_comma:
-		case GDK_KEY_less: return CKeyboardEvent::KEYCODE_COMMA;
-		case GDK_KEY_period:
-		case GDK_KEY_greater: return CKeyboardEvent::KEYCODE_PERIOD;
-		case GDK_KEY_slash:
-		case GDK_KEY_question: return CKeyboardEvent::KEYCODE_SLASH;
+		case KEY_LEFTSHIFT: return CKeyboardEvent::KEYCODE_LEFT_SHIFT;
+		case KEY_RIGHTSHIFT: return CKeyboardEvent::KEYCODE_RIGHT_SHIFT;
+		case KEY_LEFTCTRL: return CKeyboardEvent::KEYCODE_LEFT_CTRL;
+		case KEY_RIGHTCTRL: return CKeyboardEvent::KEYCODE_RIGHT_CTRL;
+		case KEY_LEFTALT: return CKeyboardEvent::KEYCODE_LEFT_ALT;
+		case KEY_RIGHTALT: return CKeyboardEvent::KEYCODE_RIGHT_ALT;
+		case KEY_LEFTMETA: return CKeyboardEvent::KEYCODE_LEFT_SUPER;
+		case KEY_RIGHTMETA: return CKeyboardEvent::KEYCODE_RIGHT_SUPER;
+		case KEY_COMPOSE: return CKeyboardEvent::KEYCODE_MENU;
 
-		case GDK_KEY_AudioMute: return CKeyboardEvent::KEYCODE_VOLUME_MUTE;
-		case GDK_KEY_AudioLowerVolume: return CKeyboardEvent::KEYCODE_VOLUME_DOWN;
-		case GDK_KEY_AudioRaiseVolume: return CKeyboardEvent::KEYCODE_VOLUME_UP;
-		case GDK_KEY_AudioNext: return CKeyboardEvent::KEYCODE_MEDIA_NEXT;
-		case GDK_KEY_AudioPrev: return CKeyboardEvent::KEYCODE_MEDIA_PREV;
-		case GDK_KEY_AudioStop: return CKeyboardEvent::KEYCODE_MEDIA_STOP;
-		case GDK_KEY_AudioPlay: return CKeyboardEvent::KEYCODE_MEDIA_PLAY_PAUSE;
+		case KEY_KP0: return CKeyboardEvent::KEYCODE_NUMPAD_0;
+		case KEY_KP1: return CKeyboardEvent::KEYCODE_NUMPAD_1;
+		case KEY_KP2: return CKeyboardEvent::KEYCODE_NUMPAD_2;
+		case KEY_KP3: return CKeyboardEvent::KEYCODE_NUMPAD_3;
+		case KEY_KP4: return CKeyboardEvent::KEYCODE_NUMPAD_4;
+		case KEY_KP5: return CKeyboardEvent::KEYCODE_NUMPAD_5;
+		case KEY_KP6: return CKeyboardEvent::KEYCODE_NUMPAD_6;
+		case KEY_KP7: return CKeyboardEvent::KEYCODE_NUMPAD_7;
+		case KEY_KP8: return CKeyboardEvent::KEYCODE_NUMPAD_8;
+		case KEY_KP9: return CKeyboardEvent::KEYCODE_NUMPAD_9;
+		case KEY_KPASTERISK: return CKeyboardEvent::KEYCODE_NUMPAD_MULTIPLY;
+		case KEY_KPPLUS: return CKeyboardEvent::KEYCODE_NUMPAD_ADD;
+		case KEY_KPMINUS: return CKeyboardEvent::KEYCODE_NUMPAD_SUBTRACT;
+		case KEY_KPDOT: return CKeyboardEvent::KEYCODE_NUMPAD_DECIMAL;
+		case KEY_KPSLASH: return CKeyboardEvent::KEYCODE_NUMPAD_DIVIDE;
+		case KEY_KPENTER: return CKeyboardEvent::KEYCODE_NUMPAD_ENTER;
+		case KEY_KPCOMMA: return CKeyboardEvent::KEYCODE_NUMPAD_SEPARATOR;
 
-		case GDK_KEY_Back: return CKeyboardEvent::KEYCODE_BROWSER_BACK;
-		case GDK_KEY_Forward: return CKeyboardEvent::KEYCODE_BROWSER_FORWARD;
-		case GDK_KEY_Refresh: return CKeyboardEvent::KEYCODE_BROWSER_REFRESH;
-		case GDK_KEY_Stop: return CKeyboardEvent::KEYCODE_BROWSER_STOP;
-		case GDK_KEY_Search: return CKeyboardEvent::KEYCODE_BROWSER_SEARCH;
-		case GDK_KEY_Favorites: return CKeyboardEvent::KEYCODE_BROWSER_FAVORITES;
-		case GDK_KEY_HomePage: return CKeyboardEvent::KEYCODE_BROWSER_HOME;
+		case KEY_SCROLLLOCK: return CKeyboardEvent::KEYCODE_SCROLL_LOCK;
+		case KEY_NUMLOCK: return CKeyboardEvent::KEYCODE_NUM_LOCK;
+		case KEY_PAUSE: return CKeyboardEvent::KEYCODE_PAUSE;
 
-		case GDK_KEY_Mail: return CKeyboardEvent::KEYCODE_LAUNCH_MAIL;
-		case GDK_KEY_Launch0: 
-		case GDK_KEY_Launch1: return CKeyboardEvent::KEYCODE_LAUNCH_APP1;
-		case GDK_KEY_Launch2: 
-		case GDK_KEY_Launch3: return CKeyboardEvent::KEYCODE_LAUNCH_APP2;
+		case KEY_GRAVE: return CKeyboardEvent::KEYCODE_GRAVE;
+		case KEY_MINUS: return CKeyboardEvent::KEYCODE_MINUS;
+		case KEY_EQUAL: return CKeyboardEvent::KEYCODE_EQUALS;
+		case KEY_LEFTBRACE: return CKeyboardEvent::KEYCODE_LEFT_BRACKET;
+		case KEY_RIGHTBRACE: return CKeyboardEvent::KEYCODE_RIGHT_BRACKET;
+		case KEY_BACKSLASH: return CKeyboardEvent::KEYCODE_BACKSLASH;
+		case KEY_SEMICOLON: return CKeyboardEvent::KEYCODE_SEMICOLON;
+		case KEY_APOSTROPHE: return CKeyboardEvent::KEYCODE_APOSTROPHE;
+		case KEY_COMMA: return CKeyboardEvent::KEYCODE_COMMA;
+		case KEY_DOT: return CKeyboardEvent::KEYCODE_PERIOD;
+		case KEY_SLASH: return CKeyboardEvent::KEYCODE_SLASH;
 
-		case GDK_KEY_a:
-		case GDK_KEY_A: return CKeyboardEvent::KEYCODE_A;
-		case GDK_KEY_b:
-		case GDK_KEY_B: return CKeyboardEvent::KEYCODE_B;
-		case GDK_KEY_c:
-		case GDK_KEY_C: return CKeyboardEvent::KEYCODE_C;
-		case GDK_KEY_d:
-		case GDK_KEY_D: return CKeyboardEvent::KEYCODE_D;
-		case GDK_KEY_e:
-		case GDK_KEY_E: return CKeyboardEvent::KEYCODE_E;
-		case GDK_KEY_f:
-		case GDK_KEY_F: return CKeyboardEvent::KEYCODE_F;
-		case GDK_KEY_g:
-		case GDK_KEY_G: return CKeyboardEvent::KEYCODE_G;
-		case GDK_KEY_h:
-		case GDK_KEY_H: return CKeyboardEvent::KEYCODE_H;
-		case GDK_KEY_i:
-		case GDK_KEY_I: return CKeyboardEvent::KEYCODE_I;
-		case GDK_KEY_j:
-		case GDK_KEY_J: return CKeyboardEvent::KEYCODE_J;
-		case GDK_KEY_k:
-		case GDK_KEY_K: return CKeyboardEvent::KEYCODE_K;
-		case GDK_KEY_l:
-		case GDK_KEY_L: return CKeyboardEvent::KEYCODE_L;
-		case GDK_KEY_m:
-		case GDK_KEY_M: return CKeyboardEvent::KEYCODE_M;
-		case GDK_KEY_n:
-		case GDK_KEY_N: return CKeyboardEvent::KEYCODE_N;
-		case GDK_KEY_o:
-		case GDK_KEY_O: return CKeyboardEvent::KEYCODE_O;
-		case GDK_KEY_p:
-		case GDK_KEY_P: return CKeyboardEvent::KEYCODE_P;
-		case GDK_KEY_q:
-		case GDK_KEY_Q: return CKeyboardEvent::KEYCODE_Q;
-		case GDK_KEY_r:
-		case GDK_KEY_R: return CKeyboardEvent::KEYCODE_R;
-		case GDK_KEY_s:
-		case GDK_KEY_S: return CKeyboardEvent::KEYCODE_S;
-		case GDK_KEY_t:
-		case GDK_KEY_T: return CKeyboardEvent::KEYCODE_T;
-		case GDK_KEY_u:
-		case GDK_KEY_U: return CKeyboardEvent::KEYCODE_U;
-		case GDK_KEY_v:
-		case GDK_KEY_V: return CKeyboardEvent::KEYCODE_V;
-		case GDK_KEY_w:
-		case GDK_KEY_W: return CKeyboardEvent::KEYCODE_W;
-		case GDK_KEY_x:
-		case GDK_KEY_X: return CKeyboardEvent::KEYCODE_X;
-		case GDK_KEY_y:
-		case GDK_KEY_Y: return CKeyboardEvent::KEYCODE_Y;
-		case GDK_KEY_z:
-		case GDK_KEY_Z: return CKeyboardEvent::KEYCODE_Z;
+		case KEY_MUTE: return CKeyboardEvent::KEYCODE_VOLUME_MUTE;
+		case KEY_VOLUMEDOWN: return CKeyboardEvent::KEYCODE_VOLUME_DOWN;
+		case KEY_VOLUMEUP: return CKeyboardEvent::KEYCODE_VOLUME_UP;
+		case KEY_NEXTSONG: return CKeyboardEvent::KEYCODE_MEDIA_NEXT;
+		case KEY_PREVIOUSSONG: return CKeyboardEvent::KEYCODE_MEDIA_PREV;
+		case KEY_STOPCD: return CKeyboardEvent::KEYCODE_MEDIA_STOP;
+		case KEY_PLAYPAUSE: return CKeyboardEvent::KEYCODE_MEDIA_PLAY_PAUSE;
 
-		case GDK_KEY_0:
-		case GDK_KEY_parenright: return CKeyboardEvent::KEYCODE_0;
-		case GDK_KEY_1:
-		case GDK_KEY_exclam: return CKeyboardEvent::KEYCODE_1;
-		case GDK_KEY_2:
-		case GDK_KEY_at: return CKeyboardEvent::KEYCODE_2;
-		case GDK_KEY_3:
-		case GDK_KEY_numbersign: return CKeyboardEvent::KEYCODE_3;
-		case GDK_KEY_4:
-		case GDK_KEY_dollar: return CKeyboardEvent::KEYCODE_4;
-		case GDK_KEY_5:
-		case GDK_KEY_percent: return CKeyboardEvent::KEYCODE_5;
-		case GDK_KEY_6:
-		case GDK_KEY_asciicircum: return CKeyboardEvent::KEYCODE_6;
-		case GDK_KEY_7:
-		case GDK_KEY_ampersand: return CKeyboardEvent::KEYCODE_7;
-		case GDK_KEY_8:
-		case GDK_KEY_asterisk: return CKeyboardEvent::KEYCODE_8;
-		case GDK_KEY_9:
-		case GDK_KEY_parenleft: return CKeyboardEvent::KEYCODE_9;
+		case KEY_BACK: return CKeyboardEvent::KEYCODE_BROWSER_BACK;
+		case KEY_FORWARD: return CKeyboardEvent::KEYCODE_BROWSER_FORWARD;
+		case KEY_REFRESH: return CKeyboardEvent::KEYCODE_BROWSER_REFRESH;
+		case KEY_STOP: return CKeyboardEvent::KEYCODE_BROWSER_STOP;
+		case KEY_SEARCH: return CKeyboardEvent::KEYCODE_BROWSER_SEARCH;
+		case KEY_BOOKMARKS: return CKeyboardEvent::KEYCODE_BROWSER_FAVORITES;
+		case KEY_HOMEPAGE: return CKeyboardEvent::KEYCODE_BROWSER_HOME;
+
+		case KEY_MAIL: return CKeyboardEvent::KEYCODE_LAUNCH_MAIL;
+		case KEY_CALC: return CKeyboardEvent::KEYCODE_LAUNCH_APP1;
+		case KEY_COMPUTER: return CKeyboardEvent::KEYCODE_LAUNCH_APP2;
+		case KEY_MEDIA: return CKeyboardEvent::KEYCODE_LAUNCH_MEDIA_SELECT;
+
+		case BTN_LEFT: return CKeyboardEvent::KEYCODE_MOUSE_LEFT;
+		case BTN_RIGHT: return CKeyboardEvent::KEYCODE_MOUSE_RIGHT;
+		case BTN_MIDDLE: return CKeyboardEvent::KEYCODE_MOUSE_MIDDLE;
+		case BTN_SIDE: return CKeyboardEvent::KEYCODE_MOUSE_X1;
+		case BTN_EXTRA: return CKeyboardEvent::KEYCODE_MOUSE_X2;
 
 		default: return CKeyboardEvent::KEYCODE_NONE;
 	}
 }
 
-[[nodiscard]] constexpr inline auto GdkModifierToKeyboardEventModifiers(const guint& gdk_modifiers) -> unsigned char {
-	unsigned char modifiers = CKeyboardEvent::MODIFIER_NONE;
+[[nodiscard]] constexpr inline CKeyboardEvent::EModifier LinuxModifierToKeyboardEventModifier(const uint16_t& linux_keycode) {
+	switch (linux_keycode) {
+		case KEY_LEFTSHIFT:
+		case KEY_RIGHTSHIFT:
+			return CKeyboardEvent::MODIFIER_SHIFT;
 
-	if (gdk_modifiers & GDK_SHIFT_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_SHIFT;
-	}
-	if (gdk_modifiers & GDK_CONTROL_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_CTRL;
-	}
-	if (gdk_modifiers & GDK_MOD1_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_ALT;
-	}
-	if (gdk_modifiers & GDK_MOD4_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
-	}
-	if (gdk_modifiers & GDK_SUPER_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
-	}
-	if (gdk_modifiers & GDK_META_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_SUPER;
-	}
+		case KEY_LEFTCTRL:
+		case KEY_RIGHTCTRL:
+			return CKeyboardEvent::MODIFIER_CTRL;
 
-	if (gdk_modifiers & GDK_LOCK_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_CAPS_LOCK;
-	}
-	if (gdk_modifiers & GDK_MOD2_MASK) {
-		modifiers |= CKeyboardEvent::MODIFIER_NUM_LOCK;
-	}
+		case KEY_LEFTALT:
+		case KEY_RIGHTALT:
+			return CKeyboardEvent::MODIFIER_ALT;
 
-	return modifiers;
+		case KEY_LEFTMETA:
+		case KEY_RIGHTMETA:
+			return CKeyboardEvent::MODIFIER_SUPER;
+
+		case KEY_CAPSLOCK:
+			return CKeyboardEvent::MODIFIER_CAPS_LOCK;
+
+		case KEY_NUMLOCK:
+			return CKeyboardEvent::MODIFIER_NUM_LOCK;
+
+		case KEY_INSERT:
+			return CKeyboardEvent::MODIFIER_INSERT;
+
+		default:
+			return CKeyboardEvent::MODIFIER_NONE;
+	}
 }
 
-[[nodiscard]] constexpr inline auto AtspiEventTypeToEventType(const AtspiEventType& type) -> CEvent::EEventType {
-	switch (type) {
-		case ATSPI_KEY_PRESSED_EVENT:
-		case ATSPI_BUTTON_PRESSED_EVENT:
-			return CEvent::KEY_PRESSED;
-		default: return CEvent::KEY_RELEASED;
-	}
-}
 
 class CEventListenerAtspi final : public IEventListener {
+	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
-	AtspiDevice* m_device{nullptr};
+
+	void StartEvdevWatcher();
+	[[nodiscard]] static auto FindKeyboardDevice() -> std::string;
+
+	[[nodiscard]] static auto ElevatePrivileges() -> bool;
 public:
 
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
-	static void OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, [[maybe_unused]] guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data);
 
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() override {
 		if (m_objectEventListener) g_object_unref(m_objectEventListener);
-		if (m_device) g_object_unref(m_device);
 	}
 
 	void Post(const CEvent& event) override;
 
 	[[nodiscard]] auto RequestQueue() -> EventQueue& override;
 };
-

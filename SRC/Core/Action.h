@@ -67,8 +67,10 @@ public:
 		return D;
 	}
 
-	[[nodiscard]] virtual auto RegisterAction(const T& event, const unsigned int& action_type, ActionInterface& action) -> bool = 0;
+	[[nodiscard]] virtual auto RegisterAction(const T& event, const unsigned int& action_type, ActionInterface& action, bool hook = false) -> bool = 0;
 	virtual void UnregisterAction(const T& action) = 0;
+
+	[[nodiscard]] virtual auto IsHooked(const T& action) const -> bool = 0;
 };
 
 template<typename T>

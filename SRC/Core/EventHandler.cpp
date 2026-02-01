@@ -16,7 +16,7 @@ CEventHandler::CEventHandler() {
 #endif
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo));
-	//g_eventToSpeech.AnnounceWhereAmI();
+	g_eventToSpeech.AnnounceWhereAmI();
 }
 
 /*

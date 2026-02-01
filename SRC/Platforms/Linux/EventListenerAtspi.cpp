@@ -1,9 +1,63 @@
 // AT-SPI's event listener implementation.
 #include "EventListenerAtspi.h"
 #include "ObjectAtspi.h"
+#include "UinputDevice.h"
 #include <Core/EventHandler.h>
+#include <Core/KeyboardHandler.h>
+#include <Core/App.h>
+#include <Core/SpeechEngine.h>
 #include <Core/Logger.h>
 #include <Core/AppState.h>
+#include <cstdlib>
+#include <linux/input.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <thread>
+
+#include <fstream>
+#include <sstream>
+
+/*
+We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
+*/
+[[nodiscard]] auto CEventListenerAtspi::FindKeyboardDevice() -> std::string {
+	std::ifstream file("/proc/bus/input/devices");
+	if (!file.is_open()) return "";
+
+	std::string line;
+	std::string current_event{""};
+	bool is_candidate{false};
+
+	while (std::getline(file, line)) {
+		if (line.empty() || line.length() < 2) {
+			is_candidate = false;
+			current_event = "";
+			continue;
+		}
+
+		if (line.find("H: Handlers=") != std::string::npos) {
+			if (line.find("kbd") != std::string::npos) {
+				size_t pos = line.find("event");
+				if (pos != std::string::npos) {
+					std::stringstream ss(line.substr(pos));
+					ss >> current_event;
+					is_candidate = true;
+				}
+			}
+		}
+
+		if (is_candidate && line.find("B: KEY=") != std::string::npos) {
+			std::string mask = line.substr(line.find("=") + 1);
+
+			if (mask.length() > 30) {
+				return "/dev/input/" + current_event;
+			}
+		}
+	}
+
+	return ""; 
+}
 
 /*
 AT-SPI has a listener where you need to register the required events one by one and then process them with a callback.
@@ -57,41 +111,89 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	}
 }
 
-void CEventListenerAtspi::OnDeviceKeyEventCallback([[maybe_unused]] AtspiDevice* device, gboolean pressed, [[maybe_unused]] guint keycode, [[maybe_unused]] guint keysym, guint modifiers, [[maybe_unused]] const gchar* key_string, void* user_data) {
-	/*
-	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
-	*/
-	if (!g_running.load()) {
-		atspi_event_quit();
-		return;
-	}
+void CEventListenerAtspi::StartEvdevWatcher() {
+	std::thread([this]() {
+		LogCalled();
+		struct input_event ev;
 
-	[[maybe_unused]] CScopedCategory _("ATSPI device event callback");
-	if (!user_data) {
-		g_logger.Log(CLogger::DEBUG, "One or more pointers required by event handler was nullptr");
-		return;
-	}
+		while (g_running.load()) {
+			auto dev = FindKeyboardDevice();
+			if (dev.empty()) {
+				g_logger.Log(CLogger::ERROR, "Keyboard device not found. Retrying in 2s...");
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+				continue;
+			}
+			g_logger.Log(CLogger::DEBUG, "Found" + dev);
 
-	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
+			auto fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
 
-	CKeyboardEvent keyboard_event;
-	keyboard_event.hotkey.keycode = GdkKeysymToKeyboardEventKeycode(keysym);
-	keyboard_event.hotkey.modifiers = GdkModifierToKeyboardEventModifiers(modifiers);
-	CEvent to_post(std::move(keyboard_event), static_cast<CEvent::EEventType>(pressed ? CEvent::KEY_PRESSED : CEvent::KEY_RELEASED), false);
-	listener->Post(to_post);
+			if (fd == -1) {
+				if (errno == EACCES) {
+					g_logger.Log(CLogger::INFO, "Access denied to " + dev + ". Requesting privileges...");
+
+					g_speechEngine.Speak("Please authenticate to allow keyboard intercepting.", true);
+
+					if (ElevatePrivileges()) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+						fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
+					}
+				}
+			}
+
+			if (fd == -1) {
+				g_logger.Log(CLogger::ERROR, "Could not open evdev (" + dev + "): " + std::string(strerror(errno)));
+				std::this_thread::sleep_for(std::chrono::seconds(2));
+				continue;
+			}
+
+			g_logger.Log(CLogger::INFO, "Evdev listener started on: " + dev);
+
+			CUinputDevice virtual_device(fd);
+			unsigned char modifiers{0};
+			while (g_running.load()) {
+				ssize_t n = read(fd, &ev, sizeof(ev));
+
+				if (n == -1) {
+					if (errno == EAGAIN || errno == EWOULDBLOCK) {
+						std::this_thread::sleep_for(std::chrono::milliseconds(10));
+						continue;
+					}
+					g_logger.Log(CLogger::ERROR, "Evdev read error or device disconnected.");
+					modifiers = 0;
+					break; 
+				}
+
+				if (n == sizeof(ev) && ev.type == EV_KEY) {
+					if (ev.value == 2) continue;
+
+					CKeyboardEvent keyboard_event;
+					keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
+
+					auto modifier = LinuxModifierToKeyboardEventModifier(ev.code);
+					if (ev.value == 1) modifiers |= modifier;
+					else modifiers &= ~modifier;
+					keyboard_event.hotkey.modifiers = modifiers;
+					if (!g_keyboardHandler.IsHooked(keyboard_event.hotkey)) {
+						virtual_device.Post(ev.type, ev.code, ev.value);
+					}
+					CEvent::EEventType type = (ev.value == 1) ? CEvent::KEY_PRESSED : CEvent::KEY_RELEASED;
+					this->Post(CEvent(std::move(keyboard_event), type, false));
+				}
+				else virtual_device.Post(ev.type, ev.code, ev.value);
+
+			}
+			close(fd);
+			g_logger.Log(CLogger::INFO, "Evdev fd closed.");
+		}
+	}).detach();
 }
 
 CEventListenerAtspi::CEventListenerAtspi() : 
-	m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)), 
-	m_device(atspi_device_new()) {
+	m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)) {
 	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
 	if (!m_objectEventListener) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "Failed to register the object event listener");
-		return;
-	}
-
-	if (!m_device) [[unlikely]] {
-		g_logger.Log(CLogger::ERROR, "Failed to register the device event listener");
 		return;
 	}
 
@@ -108,7 +210,32 @@ CEventListenerAtspi::CEventListenerAtspi() :
 		}
 	}
 
-	atspi_device_add_key_watcher(m_device, &CEventListenerAtspi::OnDeviceKeyEventCallback, this, nullptr);
+	StartEvdevWatcher();
+}
+
+[[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {
+	static unsigned char counter{0};
+	if (counter > 1) return false;
+	++counter;
+
+	const auto display = std::getenv("DISPLAY");
+	const auto wayland_display = std::getenv("WAYLAND_DISPLAY");
+	const bool has_gui = (display != nullptr || wayland_display != nullptr);
+
+	const auto user = std::getenv("USER");
+	std::string username = user ? user : "root";
+
+	std::string rule = "printf '"
+		"KERNEL==%bevent*%b, SUBSYSTEM==%binput%b, TAG+=%buaccess%b\\n"
+						"KERNEL==%buinput%b, SUBSYSTEM==%bmisc%b, MODE==%b0666%b\\n"
+											"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' > /etc/udev/rules.d/10-mmadesr.rules";
+
+	std::string final_cmd = std::string(has_gui ? "pkexec" : "sudo") + 
+				" sh -c \"" + rule + 
+							" && setfacl -m u:" + username + ":rw /dev/input/event* " +
+									" && udevadm control --reload-rules && udevadm trigger && chmod 666 /dev/uinput\"";
+
+	return std::system(final_cmd.c_str()) == 0;
 }
 
 void CEventListenerAtspi::Post(const CEvent& event) {

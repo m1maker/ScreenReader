@@ -1,12 +1,13 @@
 #include "KeyboardHandler.h"
 
-auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action) -> bool {
+auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action, bool hook) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
 
 	m_actions[hotkey].id = action_type;
 	m_actions[hotkey].executable = &action;
+	m_actions[hotkey].hook = hook;
 	return true;
 }
 
@@ -34,4 +35,15 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 
 void CKeyboardHandler::ResetState() {
 	m_keysDown.clear();
+	m_modifiers = 0;
+}
+
+[[nodiscard]] auto CKeyboardHandler::IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool {
+	if (hotkey.modifiers & m_hookedModifiers) return true;
+	auto it = m_actions.find(hotkey);
+	if (it == m_actions.end()) {
+		return false;
+	}
+
+	return it->second.hook;
 }
