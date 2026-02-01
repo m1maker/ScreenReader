@@ -3,10 +3,6 @@
 Some minor details will not be described here. I have outlined the general overview of what I plan to implement.
 Items that have already been completed will be marked as checked.
 
-## AT-SPI Input Implementation
-- [x] Complete AT-SPI input event handling
-- [x] Implement keyboard event capture via AT-SPI
-
 ## Event Handler Keyboard Integration
 - [x] Integrate keyboard handling into main event handler
 - [x] Implement key combination recognition
@@ -15,13 +11,13 @@ Items that have already been completed will be marked as checked.
 ## Advanced Element Vocalization
 - [x] Implement table reading with row/column navigation
 - [x] Add list item counting and navigation
-- [ ] Create cursor position tracking and announcement (read by word or line and other)
+- [x] Create cursor position tracking and announcement (read by word or line and other)
 - [ ] Implement selection change detection and reading
 - [ ] Add webview content extraction and reading
 
 ## AT-SPI Method Implementation
 - [ ] Implement missing AT-SPI methods in object model
-- [ ] Add text interface support (read by word and other)
+- [x] Add text interface support (read by word and other)
 - [ ] Add selection interface for list items
 
 ## Testing
