@@ -1,6 +1,6 @@
 // Event listener interface
 #pragma once
-#include "Event.h"
+#include <Core/Event.h>
 #include <memory>
 #include <vector>
 

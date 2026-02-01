@@ -1,6 +1,6 @@
 // Event to speech.
 #include "EventToSpeech.h"
-#include "Object.h"
+#include <Interfaces/Object.h>
 #include "EventHandler.h"
 #include "Logger.h"
 #include <functional>

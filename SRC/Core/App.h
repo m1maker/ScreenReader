@@ -1,15 +1,18 @@
 // Main application class for screen reader.
 #pragma once
+#include "Environment.h"
 #include "AppState.h"
 #include <memory>
 #include <vector>
 #include <string>
 #include <atomic>
-#include "Object.h"
+#include <Interfaces/Object.h>
 #include "Logger.h"
 #include "Singleton.h"
-#include "PlatformDependentWorker.h"
-#include "PlatformDependentWorkerLinux.h"
+#include <Interfaces/PlatformDependentWorker.h>
+#if SR_LINUX
+#include <Platforms/Linux/PlatformDependentWorkerLinux.h>
+#endif
 #include "SpeechEngine.h"
 #include "EventHandler.h"
 #include <Version.h>
@@ -46,8 +49,12 @@ public:
 		g_speechEngineIndex = m_speechSystem.GetCurrentEngineId();
 		m_speechSystem.GetEngine(g_speechEngineIndex).Speak("Screen reader on");
 		g_eventHandler; // It's the same as CSingleton<CEventHandler>::GetInstance()
-		m_worker = std::make_unique<CPlatformDependentWorkerLinux>(); // In the future, this will of course be platform specific.
-
+#if SR_LINUX
+		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
+#else
+		g_returnCode = CScreenReaderAppReturnCode::ERROR_NOT_SUPPORTED;
+		return;
+#endif
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to terminate the program.
 		Even if the main loop terminates for some strange reason, we'll restart it.
@@ -73,4 +80,3 @@ public:
 };
 
 #define g_applicationInstance CSingleton<CScreenReaderApp>::GetInstance()
-

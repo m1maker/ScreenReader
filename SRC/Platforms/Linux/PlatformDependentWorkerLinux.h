@@ -3,8 +3,8 @@
 #include <atspi/atspi.h>
 #include <csignal>
 #include <unistd.h>
-#include "AppState.h"
-#include "PlatformDependentWorker.h"
+#include <Core/AppState.h>
+#include <Interfaces/PlatformDependentWorker.h>
 
 /*
 We will also handle signals here to ensure safe exit.

@@ -1,9 +1,9 @@
 // Handling events of different types.
 #pragma once
-#include "EventListener.h"
+#include <Interfaces/EventListener.h>
 #include "Singleton.h"
 #include <memory>
-#include "Object.h"
+#include <Interfaces/Object.h>
 
 class CEventHandler final {
 	DeclareSingleton(CEventHandler);

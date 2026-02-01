@@ -1,6 +1,9 @@
 // Handling events of different types.
+#include "Environment.h"
 #include "EventHandler.h"
-#include "EventListenerAtspi.h"
+#if SR_LINUX
+#include <Platforms/Linux/EventListenerAtspi.h>
+#endif
 #include "Logger.h"
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
@@ -8,8 +11,9 @@
 #include "FocusManager.h"
 
 CEventHandler::CEventHandler() {
-	m_listener = std::make_shared<CEventListenerAtspi>(); // In the future, this will of course be platform specific.
-
+#if SR_LINUX
+	m_listener = std::make_shared<CEventListenerAtspi>();
+#endif
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo));
 	//g_eventToSpeech.AnnounceWhereAmI();

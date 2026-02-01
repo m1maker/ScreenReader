@@ -75,28 +75,27 @@ configure_file(
 
 include_directories(${CMAKE_BINARY_DIR}/generated)
 
-find_package(PkgConfig REQUIRED)
+if(LINUX)
+    find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(ATSPI REQUIRED atspi-2)
-pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
+    pkg_check_modules(ATSPI REQUIRED atspi-2)
+    pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
 
-pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
-pkg_check_modules(GLIB REQUIRED glib-2.0)
-pkg_check_modules(GDK REQUIRED gdk-3.0)
+    pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
+    pkg_check_modules(GLIB REQUIRED glib-2.0)
+    pkg_check_modules(GDK REQUIRED gdk-3.0)
+endif()
 
-set(SCREENREADER_SOURCES
-    SRC/main.cpp
-    SRC/ObjectAtspi.cpp
-    SRC/EventListenerAtspi.cpp
-    SRC/EventHandler.cpp
-    SRC/EventToSpeech.cpp
-    SRC/Object.cpp
-    SRC/KeyboardHandler.cpp
-)
+add_executable(ScreenReader)
 
-add_executable(ScreenReader
-    ${SCREENREADER_SOURCES}
-)
+add_subdirectory(SRC/Core)
+add_subdirectory(SRC/Interfaces)
+
+if(WIN32)
+    add_subdirectory(SRC/Platforms/Windows)
+elseif(LINUX)
+    add_subdirectory(SRC/Platforms/Linux)
+endif()
 
 set_target_properties(ScreenReader PROPERTIES
     CXX_EXTENSIONS OFF
@@ -106,20 +105,28 @@ set_target_properties(ScreenReader PROPERTIES
 
 target_include_directories(ScreenReader PRIVATE
     ${CMAKE_SOURCE_DIR}/SRC
-    ${ATSPI_INCLUDE_DIRS}
-    ${SPEECHD_INCLUDE_DIRS}
-    ${GDK_INCLUDE_DIRS}
 )
 
+if(LINUX)
+    target_include_directories(ScreenReader PRIVATE
+        ${ATSPI_INCLUDE_DIRS}
+        ${SPEECHD_INCLUDE_DIRS}
+        ${GDK_INCLUDE_DIRS}
+    )
+endif()
+if(LINUX)
+    target_link_libraries(ScreenReader
+        ${ATSPI_LIBRARIES}
+        ${GOBJECT_LIBRARIES}
+        ${GLIB_LIBRARIES}
+        ${GDK_LIBRARIES}
+        ${SPEECHD_LIBRARIES}
+        ${BRLAPI}
+    )
+endif()
+
 target_link_libraries(ScreenReader
-    ${ATSPI_LIBRARIES}
-    ${GOBJECT_LIBRARIES}
-    ${GLIB_LIBRARIES}
-    ${GDK_LIBRARIES}
-    ${SPEECHD_LIBRARIES}
-    ${BRLAPI}
     SRAL_static
 )
 
 install(TARGETS ScreenReader DESTINATION bin)
-

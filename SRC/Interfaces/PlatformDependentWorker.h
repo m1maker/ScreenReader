@@ -1,6 +1,6 @@
 // Platform dependent worker interface.
 #pragma once
-#include "Logger.h"
+#include <Core/Logger.h>
 #include <string_view>
 
 /*

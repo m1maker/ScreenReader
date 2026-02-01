@@ -1,6 +1,6 @@
 // AT_SPI's event listener.
 #pragma once
-#include "EventListener.h"
+#include <Interfaces/EventListener.h>
 #include <atspi/atspi.h>
 #include <atspi/atspi-device.h>
 #include <gdk/gdkkeysyms.h>

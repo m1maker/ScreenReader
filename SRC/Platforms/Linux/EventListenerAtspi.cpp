@@ -1,9 +1,9 @@
 // AT-SPI's event listener implementation.
 #include "EventListenerAtspi.h"
 #include "ObjectAtspi.h"
-#include "EventHandler.h"
-#include "Logger.h"
-#include "AppState.h"
+#include <Core/EventHandler.h>
+#include <Core/Logger.h>
+#include <Core/AppState.h>
 
 /*
 AT-SPI has a listener where you need to register the required events one by one and then process them with a callback.

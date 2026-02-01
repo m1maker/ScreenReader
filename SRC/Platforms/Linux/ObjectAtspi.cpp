@@ -2,9 +2,9 @@
 #include "ObjectAtspi.h"
 
 #include <utility>
-#include "Event.h"
-#include "Rect.h"
-#include "Defer.h"
+#include <Core/Event.h>
+#include <Core/Rect.h>
+#include <Core/Defer.h>
 
 [[nodiscard]] auto GetDesktopObject() -> std::shared_ptr<IObject> {
 	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));

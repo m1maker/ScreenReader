@@ -1,12 +1,12 @@
 // AT-SPI object implementation and some inlines.
-#include "Object.h"
-#include "RefCountedObject.h"
+#include <Interfaces/Object.h>
+#include <Interfaces/RefCountedObject.h>
 #include <atspi/atspi.h>
 
 #include <map>
 #include <mutex>
 #include <utility>
-#include "Singleton.h"
+#include <Core/Singleton.h>
 
 template<class T>
 class CGlibRefCountedObject : public IRefCountedObject<T> {

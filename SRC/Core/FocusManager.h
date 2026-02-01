@@ -1,6 +1,6 @@
 #pragma once
 #include "Logger.h"
-#include "Object.h"
+#include <Interfaces/Object.h>
 #include "Singleton.h"
 #include <memory>
 #include <vector>

@@ -2,12 +2,13 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "Rect.h"
-#include "Cache.h"
-#include "Event.h"
-#include "Text.h"
+#include <Core/Rect.h>
+#include <Core/Cache.h>
+#include <Core/Event.h>
+#include <Core/Text.h>
 #include <map>
 #include <expected>
+
 template<typename T>
 using ObjectResult = std::expected<T, unsigned char>;
 
