@@ -140,16 +140,31 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 	LogCalled();
 	const auto chain = g_focusManager.GetContext();
-	if (chain == m_contextChain) return false;
-	std::string name{"Unknown"};
 
-	for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
-		auto object = *it;
-		auto current_name = object->GetName().value_or("");
-		if (name == current_name) continue;
-		else name = current_name;
+	size_t diff_index{0};
+	size_t min_size = std::min(chain.size(), m_contextChain.size());
+
+	while (diff_index < min_size && chain[diff_index] == m_contextChain[diff_index]) {
+		++diff_index;
+	}
+
+	if (diff_index == chain.size() && chain.size() == m_contextChain.size()) {
+		return false;
+	}
+
+	std::string last_name{""};
+	for (size_t i = diff_index; i < chain.size(); ++i) {
+		auto current_object = chain[i];
+		auto current_name = current_object->GetName().value_or("");
+
+		if (current_name.empty() || current_name == last_name) {
+			continue;
+		}
+
+		last_name = current_name;
+
 		CObjectEvent object_event;
-		object_event.object = object;
+		object_event.object = current_object;
 		CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
 		AnnounceFocusChange(to_post);
 	}
