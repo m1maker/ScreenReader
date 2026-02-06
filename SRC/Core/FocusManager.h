@@ -3,13 +3,16 @@
 #include <Interfaces/Object.h>
 #include "Singleton.h"
 #include <memory>
+#include <memory_resource>
 #include <vector>
 
 class CFocusManager final {
 	DeclareSingleton(CFocusManager);
 
+	std::pmr::unsynchronized_pool_resource m_pool;
+
 	std::shared_ptr<IObject> m_objectInFocus;
-	std::vector<std::shared_ptr<IObject>> m_contextChain;
+	std::pmr::vector<std::shared_ptr<IObject>> m_contextChain;
 
 	void UpdateContextChain() {
 		LogCalled();
@@ -32,7 +35,7 @@ class CFocusManager final {
 		}
 	}
 
-	explicit CFocusManager() = default;
+	explicit CFocusManager() : m_contextChain(&m_pool) {}
 	~CFocusManager() = default;
 public:
 
@@ -43,7 +46,7 @@ public:
 		UpdateContextChain();
 	}
 
-	[[nodiscard]] auto GetContext() const -> const std::vector<std::shared_ptr<IObject>>& {
+	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<std::shared_ptr<IObject>> {
 		return m_contextChain;
 	}
 

@@ -6,6 +6,8 @@
 #include <string>
 #include "App.h"
 #include "Utils.h"
+#include <memory_resource>
+#include <vector>
 
 /*
 This is the final step of object event processing. Announce it.
@@ -21,6 +23,7 @@ class CEventToSpeech final {
 	static constexpr const uint64_t cSpeechFilterTimeMs = 10;
 	CTimer m_speechFilterTimer;
 
+	std::pmr::vector<std::shared_ptr<IObject>> m_contextChain;
 public:
 
 	static inline std::string cSeparator = "  "; // This is a separator for name, type and state.	
@@ -29,7 +32,7 @@ private:
 	~CEventToSpeech() = default;
 
 public:
-	void AnnounceWhereAmI();
+	/*[[candiscard]]*/ auto AnnounceWhereAmI() -> bool;
 
 	void AnnounceFocusChange(CEvent& event);
 	void AnnounceValueChange(CEvent& event);

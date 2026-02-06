@@ -127,7 +127,7 @@ Granularity is needed if the cursor has moved one character, in which case spell
 /*
 This is the final step of object event processing. Announce it.
 */
-void CEventToSpeech::AnnounceWhereAmI() {
+auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	/*
 	This will be a common practice when we send artificial events.
 	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
@@ -135,22 +135,40 @@ void CEventToSpeech::AnnounceWhereAmI() {
 	auto object = g_focusManager.GetFocus();
 	if (!object) {
 		g_speechEngine.Speak("Unknown area", true);
-		return;
+		return true;
 	}
 
 	LogCalled();
-	const auto& chain = g_focusManager.GetContext();
+	const auto chain = g_focusManager.GetContext();
+	if (chain == m_contextChain) return false;
+	std::string name{"Unknown"};
+
 	for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
+		auto object = *it;
+		auto current_name = object->GetName().value_or("");
+		if (name == current_name) continue;
+		else name = current_name;
 		CObjectEvent object_event;
-		object_event.object = *it;
+		object_event.object = object;
 		CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
 		AnnounceFocusChange(to_post);
 	}
+
+	CObjectEvent object_event;
+	object_event.object = object;
+	CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
+	AnnounceFocusChange(to_post);
+
+	m_contextChain = chain;
+	return true;
 }
 
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
-	if (!event.GetNow() && Filter()) return;
+	if (event.GetNow() && AnnounceWhereAmI()) {
+		return;
+	}
+
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -189,13 +207,12 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		announcement += cSeparator + state_name;
 	}
 
-	/*
-	Now we determine whether to ignore the "now" flag.
-	If focus has been gained after the "parent updated" event, then we never interrupt the speech.
-	Also, all subsequent children up to the final one should not be interrupted, but I can't do this now.
-	*/
-	g_speechEngine.Speak(std::string_view(announcement),(event.GetType() == CEvent::FOCUS_GAINED && m_parentAnnounced) || event.GetType() == CEvent::PARENT_UPDATED ? false : event.GetNow());
-	g_speechEngine.Speak(object_event.value().object->GetDescription().value_or(""), false);
+	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+	if (auto description = object_event.value().object->GetDescription()) {
+		if (!description->empty()) {
+			g_speechEngine.Speak(*description, false);
+		}
+	}
 
 	switch (type) {
 		case IObject::SLIDER: {
