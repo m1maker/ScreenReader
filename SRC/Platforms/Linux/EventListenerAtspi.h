@@ -20,7 +20,6 @@ inline const std::unordered_map<std::string, CEvent::EEventType> cAtspiObjectEve
 	{"object:state-changed:focused", CEvent::FOCUS_GAINED},
 	{"object:state-changed:checked", CEvent::STATE_CHANGED},
 	{"object:state-changed:selected", CEvent::SELECTION_CHANGED},
-	{"object:property-change:accessible-parent", CEvent::PARENT_UPDATED},
 	{"object:property-change:accessible-value", CEvent::VALUE_CHANGED},
 	{"object:text-caret-moved", CEvent::CURSOR_MOVED}
 };

@@ -92,7 +92,6 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		*/
 		case CEvent::FOCUS_GAINED:
 		case CEvent::CURSOR_MOVED:
-		case CEvent::PARENT_UPDATED:
 		case CEvent::STATE_CHANGED:
 		case CEvent::SELECTION_CHANGED:
 		case CEvent::VALUE_CHANGED: {
