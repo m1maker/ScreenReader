@@ -111,7 +111,8 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
-	std::thread([this]() {
+	m_listenKeyboard.store(true);
+	m_keyboardListenerThread = std::thread([this]() {
 		LogCalled();
 		struct input_event ev;
 
@@ -150,7 +151,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 			CUinputDevice virtual_device(fd);
 			unsigned char modifiers{0};
-			while (g_running.load()) {
+			while (this->m_listenKeyboard.load() && g_running.load()) {
 				ssize_t n = read(fd, &ev, sizeof(ev));
 
 				if (n == -1) {
@@ -185,7 +186,25 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			close(fd);
 			g_logger.Log(CLogger::INFO, "Evdev fd closed.");
 		}
-	}).detach();
+	});
+
+	m_keyboardListenerThread.detach();
+}
+
+void CEventListenerAtspi::StopEvdevWatcher() {
+	m_listenKeyboard.store(false);
+	if (m_keyboardListenerThread.joinable()) {
+		m_keyboardListenerThread.join();
+	}
+}
+
+void CEventListenerAtspi::ListenDevice(const EDeviceType& device, bool listen) {
+	switch (device) {
+		case EDeviceType::KEYBOARD:
+			listen ? StartEvdevWatcher() : StopEvdevWatcher();
+			break;
+		default: break;
+	}
 }
 
 CEventListenerAtspi::CEventListenerAtspi() : 
@@ -208,8 +227,6 @@ CEventListenerAtspi::CEventListenerAtspi() :
 			error = nullptr;
 		}
 	}
-
-	StartEvdevWatcher();
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {

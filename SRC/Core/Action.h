@@ -5,23 +5,19 @@
 #include <string_view>
 #include <string>
 #include "Logger.h"
+#include "Device.h"
+#include <Core/EventHandler.h>
 
 enum class EAction {
 	NONE = 0,
 	STOP_SPEECH,
+	STOP_KEYBOARD_HOOKS,
 	USER
 };
 
 enum class EActionHandleResult {
 	NOT_HANDLED = 0,
 	HANDLED,
-};
-
-enum class EDeviceType {
-	NO = 0,
-	KEYBOARD,
-	MOUSE,
-	TOUCHSCREEN
 };
 
 template<typename ResultType, typename... Args>
@@ -84,3 +80,17 @@ public:
 };
 
 #define g_actionStopSpeech(T) CSingleton<CActionStopSpeech<T>>::GetInstance()
+
+template<typename T>
+class CActionStopKeyboardHooks final : public IAction<static_cast<unsigned int>(EAction::STOP_KEYBOARD_HOOKS), EActionHandleResult, const T&> {
+public:
+	auto Execute(const T& event) -> EActionHandleResult override {
+		auto listener = g_eventHandler.GetListener();
+		if (!listener) [[unlikely]] return EActionHandleResult::NOT_HANDLED;
+		listener->ListenDevice(EDeviceType::KEYBOARD, false);
+		g_speechEngine.Speak("Stop listening keyboard");
+		return EActionHandleResult::HANDLED;
+	}
+};
+
+#define g_actionStopKeyboardHooks(T) CSingleton<CActionStopKeyboardHooks<T>>::GetInstance()

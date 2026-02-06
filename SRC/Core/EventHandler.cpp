@@ -14,8 +14,11 @@ CEventHandler::CEventHandler() {
 #if SR_LINUX
 	m_listener = std::make_shared<CEventListenerAtspi>();
 #endif
+	m_listener->ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<unsigned int>(EAction::STOP_SPEECH), g_actionStopSpeech(CKeyboardEvent::SHotkeyInfo));
+	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo(CKeyboardEvent::KEYCODE_K, CKeyboardEvent::MODIFIER_INSERT | CKeyboardEvent::MODIFIER_CTRL), static_cast<unsigned int>(EAction::STOP_KEYBOARD_HOOKS), g_actionStopKeyboardHooks(CKeyboardEvent::SHotkeyInfo));
+
 	g_eventToSpeech.AnnounceWhereAmI();
 }
 

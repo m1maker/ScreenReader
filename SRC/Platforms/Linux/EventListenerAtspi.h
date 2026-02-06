@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <linux/input-event-codes.h>
 #include <array>
+#include <thread>
+#include <atomic>
 
 /*
 AT-SPI has a listener where you need to register the required events one by one.
@@ -232,7 +234,11 @@ class CEventListenerAtspi final : public IEventListener {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
+	std::thread m_keyboardListenerThread;
+	std::atomic<bool> m_listenKeyboard{false};
 	void StartEvdevWatcher();
+	void StopEvdevWatcher();
+
 	[[nodiscard]] static auto FindKeyboardDevice() -> std::string;
 
 	[[nodiscard]] static auto ElevatePrivileges() -> bool;
@@ -243,9 +249,12 @@ public:
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() override {
 		if (m_objectEventListener) g_object_unref(m_objectEventListener);
+		StopEvdevWatcher();
 	}
 
 	void Post(const CEvent& event) override;
 
 	[[nodiscard]] auto RequestQueue() -> EventQueue& override;
+
+	void ListenDevice(const EDeviceType& device, bool listen = true) override;
 };
