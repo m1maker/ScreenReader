@@ -150,6 +150,7 @@ void CEventToSpeech::AnnounceWhereAmI() {
 
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
+	if (!event.GetNow() && Filter()) return;
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
