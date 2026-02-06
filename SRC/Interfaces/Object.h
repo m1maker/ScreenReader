@@ -8,6 +8,7 @@
 #include <Core/Text.h>
 #include <map>
 #include <expected>
+#include <memory_resource>
 
 template<typename T>
 using ObjectResult = std::expected<T, unsigned char>;
@@ -160,11 +161,12 @@ protected:
 
 template<class T, class U>
 class CObjectCache final {
+	std::pmr::unsynchronized_pool_resource m_pool;
 	std::mutex m_mutex;
-	std::map<T*, std::weak_ptr<U>> m_cache;
+	std::pmr::map<T*, std::weak_ptr<U>> m_cache;
 public:
 
-	explicit CObjectCache() = default;
+	explicit CObjectCache() : m_cache(&m_pool) {}
 
 	[[nodiscard]] auto GetOrCreate(T* native_handle) -> std::shared_ptr<U> {
 		if (!native_handle) return nullptr;
@@ -182,7 +184,7 @@ public:
 			}
 		}
 
-		auto new_object = std::make_shared<U>(native_handle);
+		auto new_object = std::allocate_shared<U>(std::pmr::polymorphic_allocator<U>(&m_pool), native_handle);
 
 		m_cache[native_handle] = new_object;
 
