@@ -8,6 +8,7 @@
 #include <Core/SpeechEngine.h>
 #include <Core/Logger.h>
 #include <Core/AppState.h>
+#include <Core/EventQueue.h>
 #include <cstdlib>
 #include <linux/input.h>
 #include <fcntl.h>
@@ -77,8 +78,6 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		return;
 	}
 
-	auto* listener = static_cast<CEventListenerAtspi*>(user_data);
-
 	CEvent::EEventType type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
 
 	/*
@@ -102,8 +101,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 			/*
 			Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
 			*/
-			CEvent to_post(object_event, type, true);
-			listener->Post(to_post);
+			g_eventQueue.Push(std::move(object_event), type, true);
 			break;
 		}
 		default: break;
@@ -178,7 +176,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					CEvent::EEventType type = (ev.value == 1) ? CEvent::KEY_PRESSED : CEvent::KEY_RELEASED;
-					this->Post(CEvent(std::move(keyboard_event), type, false));
+					g_eventQueue.Push(std::move(keyboard_event), type, false);
 				}
 				else virtual_device.Post(ev.type, ev.code, ev.value);
 
@@ -227,6 +225,8 @@ CEventListenerAtspi::CEventListenerAtspi() :
 			error = nullptr;
 		}
 	}
+
+	g_objectCache(AtspiAccessible, CObjectAtspi);
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {
@@ -253,14 +253,3 @@ CEventListenerAtspi::CEventListenerAtspi() :
 
 	return std::system(final_cmd.c_str()) == 0;
 }
-
-void CEventListenerAtspi::Post(const CEvent& event) {
-	// Just push and handle.
-	m_eventQueue.push_back(event);
-	g_eventHandler.Handle();
-}
-
-[[nodiscard]] auto CEventListenerAtspi::RequestQueue() -> EventQueue& { // Required by CEventHandler.
-	return m_eventQueue;
-}
-

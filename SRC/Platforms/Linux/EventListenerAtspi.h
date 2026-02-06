@@ -248,13 +248,10 @@ public:
 
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi() override {
+		//g_objectCache(AtspiAccessible, CObjectAtspi).Clear();
 		if (m_objectEventListener) g_object_unref(m_objectEventListener);
 		StopEvdevWatcher();
 	}
-
-	void Post(const CEvent& event) override;
-
-	[[nodiscard]] auto RequestQueue() -> EventQueue& override;
 
 	void ListenDevice(const EDeviceType& device, bool listen = true) override;
 };

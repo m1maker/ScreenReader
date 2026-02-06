@@ -4,6 +4,7 @@
 #include "Singleton.h"
 #include <memory>
 #include <Interfaces/Object.h>
+#include <thread>
 
 class CEventHandler final {
 	DeclareSingleton(CEventHandler);
@@ -12,11 +13,17 @@ class CEventHandler final {
 	Then this event handler then queries the queue of these events.
 	*/
 	std::shared_ptr<IEventListener> m_listener;
+
+	std::thread m_thread;
 	explicit CEventHandler();
-	~CEventHandler() = default;
+	~CEventHandler() {
+		if (m_thread.joinable()) {
+			m_thread.join();
+		}
+	}
 public:
 
-	void Handle(); // For now, the listener calls it at every new event.
+	void Handle(CEvent&& event);
 
 	inline auto GetListener() -> std::shared_ptr<IEventListener> { return m_listener; }
 };

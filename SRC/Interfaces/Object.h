@@ -161,7 +161,7 @@ protected:
 
 template<class T, class U>
 class CObjectCache final {
-	std::pmr::unsynchronized_pool_resource m_pool;
+	std::pmr::synchronized_pool_resource m_pool;
 	std::mutex m_mutex;
 	std::pmr::map<T*, std::weak_ptr<U>> m_cache;
 public:
@@ -194,6 +194,11 @@ public:
 	void Remove(T* native_handle) {
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_cache.erase(native_handle);
+	}
+
+	void Clear() {
+		std::lock_guard<std::mutex> lock(m_mutex);
+		m_cache.clear();
 	}
 };
 

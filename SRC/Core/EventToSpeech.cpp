@@ -143,7 +143,7 @@ void CEventToSpeech::AnnounceWhereAmI() {
 	for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
 		CObjectEvent object_event;
 		object_event.object = *it;
-		CEvent to_post(object_event, CEvent::FOCUS_GAINED, false);
+		CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
 		AnnounceFocusChange(to_post);
 	}
 }
@@ -201,14 +201,14 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		case IObject::SLIDER: {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(object_event_to_post, CEvent::VALUE_CHANGED, false);
+			CEvent to_post(std::move(object_event_to_post), CEvent::VALUE_CHANGED, false);
 			AnnounceValueChange(to_post);
 			break;
 		}
 		case IObject::TEXT_FIELD: {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(object_event_to_post, CEvent::CURSOR_MOVED, false);
+			CEvent to_post(std::move(object_event_to_post), CEvent::CURSOR_MOVED, false);
 			AnnounceCursorMove(to_post);
 			break;
 		}

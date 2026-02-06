@@ -5,6 +5,7 @@
 #include <string_view>
 #include <string>
 #include <variant>
+#include <memory_resource>
 #include <vector>
 
 class IObject;
@@ -434,6 +435,8 @@ class CEvent final {
 	bool m_now{false}; // A very specific flag. I'll describe it in the handlers.
 public:
 
+	using allocator_type = std::pmr::polymorphic_allocator<>;
+
 	enum EEventType : unsigned char {
 		NONE = 0,
 		FOCUS_GAINED,
@@ -460,11 +463,19 @@ private:
 public:
 
 	~CEvent() = default;
-	CEvent(CObjectEvent object_event, EEventType type, bool now = false)
-		: m_variant(object_event), m_type(type), m_now(now) {}
+	CEvent(CObjectEvent&& object_event, EEventType type, bool now = false, allocator_type alloc = {})
+		: m_variant(std::move(object_event)), m_type(type), m_now(now) {}
 
-	CEvent(CKeyboardEvent&& keyboard_event, EEventType type, bool now = false)
+	CEvent(CKeyboardEvent&& keyboard_event, EEventType type, bool now = false, allocator_type alloc = {})
 		: m_variant(std::move(keyboard_event)), m_type(type), m_now(now) {}
+
+	CEvent(CEvent&& other, allocator_type alloc)
+		: m_variant(std::move(other.m_variant)), 
+			m_now(other.m_now), 
+							m_type(other.m_type) {}
+
+	CEvent(CEvent&&) = default;
+	CEvent& operator=(CEvent&&) = default;
 
 	[[nodiscard]] auto GetType() const -> EEventType { 
 		return m_type;
