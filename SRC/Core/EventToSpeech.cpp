@@ -102,11 +102,13 @@ Granularity is needed if the cursor has moved one character, in which case spell
 	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT);
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
-	granularity = ETextGranularity::LINE;
-	if (auto line_range = obj->GetText(current_cursor.value_or(0), granularity)) {
-		if (vertical_keys_down || previous_cursor_position < line_range->start || previous_cursor_position >= line_range->end) {
-			return line_range->text;
-		}
+	if (vertical_keys_down) granularity = ETextGranularity::LINE;
+	else if (horizontal_keys_down) {
+		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
+	}
+
+	if (auto keys_range = obj->GetText(current_cursor.value_or(0), granularity)) {
+		return keys_range->text;
 	}
 
 	if (horizontal_keys_down || delta == 1) {

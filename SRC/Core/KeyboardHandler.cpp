@@ -28,12 +28,14 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 [[nodiscard]] auto CKeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	auto it = m_keysDown.find(keycode);
 	if (it!= m_keysDown.end()) return it->second;
 	return false;
 }
 
 void CKeyboardHandler::ResetState() {
+	std::lock_guard<std::mutex> lock(m_mutex);
 	m_keysDown.clear();
 	m_modifiers = 0;
 }

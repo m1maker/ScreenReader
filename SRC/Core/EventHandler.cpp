@@ -72,19 +72,21 @@ void CEventHandler::Handle(CEvent&& event) {
 			}
 
 			case CEvent::KEY_PRESSED: {
+				std::lock_guard<std::mutex> lock(g_keyboardHandler.m_mutex);
 				auto keyboard_event = event.GetAs<CKeyboardEvent>();
 				if (!keyboard_event.has_value()) break;
 				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
-				g_keyboardHandler.m_modifiers |= keyboard_event.value().hotkey.modifiers;
+				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
 				g_keyboardHandler.Handle(keyboard_event.value());
 				break;
 			}
 			case CEvent::KEY_RELEASED: {
+				std::lock_guard<std::mutex> lock(g_keyboardHandler.m_mutex);
 				auto keyboard_event = event.GetAs<CKeyboardEvent>();
 				if (!keyboard_event.has_value()) break;
 				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
-				g_keyboardHandler.m_modifiers &= ~keyboard_event.value().hotkey.modifiers;
+				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
 				break;
 			}

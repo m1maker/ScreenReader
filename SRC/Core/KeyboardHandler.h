@@ -3,6 +3,7 @@
 #include "Event.h"
 #include <unordered_map>
 #include <functional>
+#include <mutex>
 #include "Singleton.h"
 
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
@@ -16,6 +17,8 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	friend class CEventHandler;
 
 	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
+
+	mutable std::mutex m_mutex;
 	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
 	unsigned char m_modifiers;
 
