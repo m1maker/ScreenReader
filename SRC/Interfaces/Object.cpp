@@ -43,24 +43,63 @@ require_all parameter is used to determine whether we request names/states simpl
 */
 [[nodiscard]] auto IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) -> std::string {
 	switch (type) {
-		case BUTTON: return "button";
-		case TOGGLE_BUTTON: return "toggle button";
-		case TEXT_FIELD: return "text field";
-		case LABEL: return require_all ? "label" : "";
-		case CHECKBOX: return "checkbox";
-		case RADIO_BUTTON: return "radio button";
-		case COMBO_BOX: return "combo box";
-		case LIST_BOX: return "list box";
-		case LIST_ITEM: return require_all ? "list item" : "";
-		case MENU: return "menu";
-		case MENU_ITEM: return require_all ? "menu item" : "";
-		case SLIDER: return "slider";
-		case PROGRESS_BAR: return "progress bar";
-		case IMAGE: return "image";
-		case PANEL: return "panel";
-		case WINDOW: return "window";
-		case DIALOG: return "dialog";
-		default: return require_all ? "unknown" : "";
+		case ALERT:           return "alert";
+		case ARTICLE:         return "article";
+		case AUDIO:           return "audio";
+		case AUTO_COMPLETE:   return "auto complete";
+		case BANNER:          return "banner";
+		case BLOCKQUOTE:      return "blockquote";
+		case BUTTON:          return "button";
+		case CANVAS:          return "canvas";
+		case CAPTION:         return "caption";
+		case CELL: return require_all ? "cell" : "";
+		case CHECKBOX:        return "checkbox";
+		case CHART:           return "chart";
+		case COLOR_WELL:      return "color well";
+		case COLUMN_HEADER:   return "column header";
+		case COMBO_BOX:       return "combo box";
+		case COMMENT:         return "comment";
+		case DIALOG:          return "dialog";
+		case DOCUMENT:        return "document";
+		case FOOTER:          return "footer";
+		case FORM:            return "form";
+		case GRID:            return "grid";
+		case HEADER:          return "header";
+		case HEADING:         return "heading";
+		case IMAGE:           return "image";
+		case LABEL:           return require_all ? "label" : "";
+		case LINK:            return "link";
+		case LIST:            return "list";
+		case LIST_BOX:        return "list box";
+		case LIST_ITEM:       return require_all ? "list item" : "";
+		case MENU:            return "menu";
+		case MENU_BAR:        return "menu bar";
+		case MENU_ITEM:       return require_all ? "menu item" : "";
+		case PANEL:           return "panel";
+		case PROGRESS_BAR:    return "progress bar";
+		case RADIO_BUTTON:    return "radio button";
+		case ROW:             return "row";
+		case ROW_HEADER:      return "row header";
+		case SCROLL_BAR:      return "scroll bar";
+		case SECTION:         return "section";
+		case SLIDER:          return "slider";
+		case SPIN_BUTTON:     return "spin button";
+		case STATUS:          return "status";
+		case SWITCH:          return "switch";
+		case TAB:             return "tab";
+		case TAB_LIST:        return "tab list";
+		case TABLE:           return "table";
+		case TEXT_FIELD:      return "text field";
+		case TOGGLE_BUTTON:   return "toggle button";
+		case TOOLBAR:         return "toolbar";
+		case TOOLTIP:         return "tooltip";
+		case TREE:            return "tree";
+		case VIDEO:           return "video";
+		case WEB_VIEW:        return "web view";
+		case WINDOW:          return "window";
+
+		case UNKNOWN:
+		default:              return require_all ? "unknown" : "";
 	}
 }
 
@@ -71,50 +110,83 @@ We need to understand what kind of object this is to more accurately determine t
 */
 [[nodiscard]] auto IObject::GetStateNames(const IObject::EObjectType& type, const unsigned long long& states, bool require_all) -> std::vector<std::string> {
 	std::vector<std::string> state_names;
-	if (states & VISIBLE && require_all) state_names.emplace_back("visible");
-	if (states & ENABLED && require_all) state_names.emplace_back("enabled");
-	if (states & FOCUSED && require_all) state_names.emplace_back("focused");
+
+	// Capability / Infrastructure States (Usually only for logging/require_all).
+	if (require_all) {
+		if (states & VISIBLE)          state_names.emplace_back("visible");
+		if (states & ENABLED)          state_names.emplace_back("enabled");
+		if (states & FOCUSABLE)        state_names.emplace_back("focusable");
+		if (states & FOCUSED)              state_names.emplace_back("focused");
+		if (states & SELECTABLE)       state_names.emplace_back("selectable");
+		if (states & CHECKABLE)        state_names.emplace_back("checkable");
+		if (states & EDITABLE)         state_names.emplace_back("editable");
+		if (states & EXPANDABLE)       state_names.emplace_back("expandable");
+		if (states & RESIZABLE)        state_names.emplace_back("resizable");
+	}
+
+	// Interactive / Crucial States (Always announced or contextually forced).
+	if (states & BUSY)                 state_names.emplace_back("busy");
+	if (states & LOADING)              state_names.emplace_back("loading");
+
+	// Selection Logic.
 	if (states & SELECTED) {
 		state_names.emplace_back("selected");
 	}
-	/*
-	A checkbox cannot be without checked, unchecked, or partially checked state.
-	However, for example, AT-SPI does not have an unchecked or partially checked state.
-	Let's try to standardize this.
 
-	With AT-SPI, I also found a toggle button with a checked state.
-	No! It should be either pressed or not pressed.
-	*/
-	if (states & CHECKED && type != TOGGLE_BUTTON) {
-		state_names.emplace_back("checked");
+	// Toggle/Checked Logic (Normalization).
+	// For Toggle Buttons, we prefer "pressed" over "checked".
+	if (type == TOGGLE_BUTTON) {
+		if (states & PRESSED) {
+			state_names.emplace_back("pressed");
+		}
+		else {
+			state_names.emplace_back("not pressed");
+		}
+	} 
+
+	// For Checkboxes (and generic checkables that aren't toggle buttons).
+	else {
+		if (states & CHECKED) {
+			state_names.emplace_back("checked");
+		}
+		else if (states & INDETERMINATE) {
+			state_names.emplace_back("partially checked");
+		}
+		else if (type == CHECKBOX || (states & CHECKABLE && require_all)) {
+			state_names.emplace_back("not checked");
+		}
+
+		// Handle non-toggle-button 'pressed' state (e.g. normal button).
+		if (states & PRESSED) state_names.emplace_back("pressed");
 	}
-	else if (type == CHECKBOX) { // Ignore CHECKABLE state. So it is a checkbox
-		state_names.emplace_back("not checked");
+
+	// Expansion Logic.
+	if (states & EXPANDED) {
+		state_names.emplace_back("expanded");
 	}
-	if (states & EXPANDED) state_names.emplace_back("expanded");
-	if (states & READONLY) state_names.emplace_back("read-only");
-	if (states & MULTI_LINE) state_names.emplace_back("multi-line");
-	if (states & SECURE) state_names.emplace_back("secure");
-	if (states & REQUIRED && type == TEXT_FIELD) state_names.emplace_back("required");
-	if (states & INVALID) state_names.emplace_back("invalid");
-	if (states & HOVERED) state_names.emplace_back("hovered");
-	if (states & PRESSED) {
-		state_names.emplace_back("pressed");
+	else if (states & COLLAPSED) {
+		state_names.emplace_back("collapsed");
 	}
-	else if (type == TOGGLE_BUTTON) { // Same as checkboxes
-		state_names.emplace_back("not pressed");
+
+	// Text / Input specific normalization.
+	if (states & READONLY)             state_names.emplace_back("read-only");
+	if (states & SECURE)               state_names.emplace_back("secure");
+	if (states & INVALID)              state_names.emplace_back("invalid");
+	if (states & REQUIRED) {
+		// Only announce "required" for input types unless logging all.
+		if (type == TEXT_FIELD || type == COMBO_BOX || type == LIST_BOX || require_all) {
+			state_names.emplace_back("required");
+		}
 	}
+
+	if (states & MULTI_LINE)           state_names.emplace_back("multi-line");
+	if (states & MULTI_SELECTABLE)     state_names.emplace_back("multi-selectable");
+
+	// Global attributes.
+	if (states & HOVERED && require_all) state_names.emplace_back("hovered");
 	if (states & DEFAULT) state_names.emplace_back("default");
-	if (states & LOADING) state_names.emplace_back("loading");
-	if (states & COLLAPSED) state_names.emplace_back("collapsed");
-
-	if (states & EDITABLE && require_all) state_names.emplace_back("editable");
-	if (states & EXPANDABLE && require_all) state_names.emplace_back("expandable");
-	if (states & FOCUSABLE && require_all) state_names.emplace_back("focusable");
-	if (states & SELECTABLE && require_all) state_names.emplace_back("selectable");
-	if (states & MULTI_SELECTABLE) state_names.emplace_back("multi-selectable");
-	if (states & RESIZABLE && require_all) state_names.emplace_back("resizable");
-	if (states & CHECKABLE && require_all) state_names.emplace_back("checkable");
+	if (states & MODAL)                  state_names.emplace_back("modal");
+	if (states & VISITED)                state_names.emplace_back("visited");
 
 	return state_names;
 }

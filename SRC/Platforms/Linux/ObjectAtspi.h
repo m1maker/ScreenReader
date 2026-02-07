@@ -37,100 +37,129 @@ public:
 
 [[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(const AtspiRole& role) -> IObject::EObjectType {
 	switch (role) {
-		case ATSPI_ROLE_INVALID:
-			return IObject::UNKNOWN;
-		case ATSPI_ROLE_CHECK_BOX:
-			return IObject::CHECKBOX;
-		case ATSPI_ROLE_COMBO_BOX:
-			return IObject::COMBO_BOX;
-		case ATSPI_ROLE_LABEL:
-			return IObject::LABEL;
-		case ATSPI_ROLE_LIST:
-			return IObject::LIST_BOX;
-		case ATSPI_ROLE_LIST_ITEM:
-			return IObject::LIST_ITEM;
-		case ATSPI_ROLE_MENU:
-			return IObject::MENU;
-		case ATSPI_ROLE_MENU_ITEM:
-		case ATSPI_ROLE_CHECK_MENU_ITEM:
-			return IObject::MENU_ITEM;
-		case ATSPI_ROLE_PANEL:
-			return IObject::PANEL;
-		case ATSPI_ROLE_BUTTON:
-			return IObject::BUTTON;
-		case ATSPI_ROLE_RADIO_BUTTON:
-			return IObject::RADIO_BUTTON;
-		case ATSPI_ROLE_TOGGLE_BUTTON:
-			return IObject::TOGGLE_BUTTON;
-		case ATSPI_ROLE_PROGRESS_BAR:
-			return IObject::PROGRESS_BAR;
-		case ATSPI_ROLE_WINDOW:
-		case ATSPI_ROLE_DESKTOP_FRAME:
-		case ATSPI_ROLE_APPLICATION:
-			return IObject::WINDOW;
-		case ATSPI_ROLE_DIALOG:
-			return IObject::DIALOG;
-		case ATSPI_ROLE_IMAGE:
-			return IObject::IMAGE;
-		case ATSPI_ROLE_SLIDER:
-			return IObject::SLIDER;
-		case ATSPI_ROLE_TEXT:
-		case ATSPI_ROLE_ENTRY:
-		case ATSPI_ROLE_PASSWORD_TEXT:
-			return IObject::TEXT_FIELD;
-		default:
-			return IObject::UNKNOWN;
+		case ATSPI_ROLE_ACCELERATOR_LABEL:      return IObject::LABEL;
+		case ATSPI_ROLE_ALERT:                  return IObject::ALERT;
+		case ATSPI_ROLE_ANIMATION:              return IObject::ANIMATION;
+		case ATSPI_ROLE_APPLICATION:            return IObject::APPLICATION;
+		case ATSPI_ROLE_ARTICLE:                return IObject::ARTICLE;
+		case ATSPI_ROLE_AUDIO:                  return IObject::AUDIO;
+		case ATSPI_ROLE_AUTOCOMPLETE:           return IObject::AUTO_COMPLETE;
+		case ATSPI_ROLE_BLOCK_QUOTE:            return IObject::BLOCKQUOTE;
+		case ATSPI_ROLE_BUTTON:                 return IObject::BUTTON;
+		case ATSPI_ROLE_CANVAS:                 return IObject::CANVAS;
+		case ATSPI_ROLE_CAPTION:                return IObject::CAPTION;
+		case ATSPI_ROLE_CHART:                  return IObject::CHART;
+		case ATSPI_ROLE_CHECK_BOX:              return IObject::CHECKBOX;
+		case ATSPI_ROLE_CHECK_MENU_ITEM:        return IObject::MENU_ITEM_CHECKBOX;
+		case ATSPI_ROLE_COLOR_CHOOSER:          return IObject::COLOR_WELL;
+		case ATSPI_ROLE_COLUMN_HEADER:          return IObject::COLUMN_HEADER;
+		case ATSPI_ROLE_COMBO_BOX:              return IObject::COMBO_BOX;
+		case ATSPI_ROLE_COMMENT:                return IObject::COMMENT;
+		case ATSPI_ROLE_CONTENT_DELETION:       return IObject::CONTENT_DELETION;
+		case ATSPI_ROLE_CONTENT_INSERTION:      return IObject::CONTENT_INSERTION;
+		case ATSPI_ROLE_DEFINITION:             return IObject::DEFINITION;
+		case ATSPI_ROLE_DESCRIPTION_LIST:       return IObject::DESCRIPTION_LIST;
+		case ATSPI_ROLE_DIALOG:                 return IObject::DIALOG;
+		case ATSPI_ROLE_DOCUMENT_FRAME:         return IObject::DOCUMENT;
+		case ATSPI_ROLE_DOCUMENT_WEB:           return IObject::WEB_VIEW;
+		case ATSPI_ROLE_EDITBAR:                return IObject::TOOLBAR;
+		case ATSPI_ROLE_EMBEDDED:               return IObject::EMBEDDED_OBJECT;
+		case ATSPI_ROLE_ENTRY:                  return IObject::TEXT_FIELD;
+		case ATSPI_ROLE_FILE_CHOOSER:           return IObject::FILE_UPLOAD;
+		case ATSPI_ROLE_FOOTER:                 return IObject::FOOTER;
+		case ATSPI_ROLE_FORM:                   return IObject::FORM;
+		case ATSPI_ROLE_GROUPING:               return IObject::GROUP;
+		case ATSPI_ROLE_HEADER:                 return IObject::HEADER;
+		case ATSPI_ROLE_HEADING:                return IObject::HEADING;
+		case ATSPI_ROLE_IMAGE:                  return IObject::IMAGE;
+		case ATSPI_ROLE_IMAGE_MAP:              return IObject::IMAGE_MAP;
+		case ATSPI_ROLE_LABEL:                  return IObject::LABEL;
+		case ATSPI_ROLE_LINK:                   return IObject::LINK;
+		case ATSPI_ROLE_LIST:                   return IObject::LIST;
+		case ATSPI_ROLE_LIST_BOX:               return IObject::LIST_BOX;
+		case ATSPI_ROLE_LIST_ITEM:              return IObject::LIST_ITEM;
+		case ATSPI_ROLE_LOG:                    return IObject::LOG;
+		case ATSPI_ROLE_MARK:                   return IObject::MARK;
+		case ATSPI_ROLE_MARQUEE:                return IObject::MARQUEE;
+		case ATSPI_ROLE_MATH:                   return IObject::MATH;
+		case ATSPI_ROLE_MATH_FRACTION:          return IObject::MATH_FRACTION;
+		case ATSPI_ROLE_MATH_ROOT:              return IObject::MATH_ROOT;
+		case ATSPI_ROLE_MENU:                   return IObject::MENU;
+		case ATSPI_ROLE_MENU_BAR:               return IObject::MENU_BAR;
+		case ATSPI_ROLE_MENU_ITEM:              return IObject::MENU_ITEM;
+		case ATSPI_ROLE_NOTIFICATION:           return IObject::ALERT;
+		case ATSPI_ROLE_PAGE_TAB:               return IObject::TAB;
+		case ATSPI_ROLE_PAGE_TAB_LIST:          return IObject::TAB_LIST;
+		case ATSPI_ROLE_PANEL:                  return IObject::PANEL;
+		case ATSPI_ROLE_PARAGRAPH:              return IObject::PARAGRAPH;
+		case ATSPI_ROLE_PASSWORD_TEXT:          return IObject::PASSWORD_FIELD;
+		case ATSPI_ROLE_PROGRESS_BAR:           return IObject::PROGRESS_BAR;
+		case ATSPI_ROLE_RADIO_BUTTON:           return IObject::RADIO_BUTTON;
+		case ATSPI_ROLE_RADIO_MENU_ITEM:        return IObject::MENU_ITEM_RADIO;
+		case ATSPI_ROLE_RATING:                 return IObject::RATING_INDICATOR;
+		case ATSPI_ROLE_ROW_HEADER:             return IObject::ROW_HEADER;
+		case ATSPI_ROLE_SCROLL_BAR:             return IObject::SCROLL_BAR;
+		case ATSPI_ROLE_SECTION:                return IObject::SECTION;
+		case ATSPI_ROLE_SEPARATOR:              return IObject::SEPARATOR;
+		case ATSPI_ROLE_SLIDER:                 return IObject::SLIDER;
+		case ATSPI_ROLE_SPIN_BUTTON:            return IObject::SPIN_BUTTON;
+		case ATSPI_ROLE_SPLIT_PANE:             return IObject::SPLITTER;
+		case ATSPI_ROLE_STATUS_BAR:             return IObject::STATUS;
+		case ATSPI_ROLE_SUBSCRIPT:              return IObject::SUBSCRIPT;
+		case ATSPI_ROLE_SUPERSCRIPT:            return IObject::SUPERSCRIPT;
+		case ATSPI_ROLE_SWITCH:                 return IObject::SWITCH;
+		case ATSPI_ROLE_TABLE:                  return IObject::TABLE;
+		case ATSPI_ROLE_TABLE_CELL:             return IObject::CELL;
+		case ATSPI_ROLE_TABLE_ROW:              return IObject::ROW;
+		case ATSPI_ROLE_TERMINAL:               return IObject::TERMINAL;
+		case ATSPI_ROLE_TEXT:                   return IObject::TEXT_FIELD;
+		case ATSPI_ROLE_TIMER:                  return IObject::TIMER;
+		case ATSPI_ROLE_TITLE_BAR:              return IObject::TITLE_BAR;
+		case ATSPI_ROLE_TOGGLE_BUTTON:          return IObject::TOGGLE_BUTTON;
+		case ATSPI_ROLE_TOOL_BAR:               return IObject::TOOLBAR;
+		case ATSPI_ROLE_TOOL_TIP:               return IObject::TOOLTIP;
+		case ATSPI_ROLE_TREE:                   return IObject::TREE;
+		case ATSPI_ROLE_TREE_ITEM:              return IObject::TREE_ITEM;
+		case ATSPI_ROLE_VIEWPORT:               return IObject::VIEWPORT;
+		case ATSPI_ROLE_WINDOW:                 return IObject::WINDOW;
+		default:                                return IObject::UNKNOWN;
 	}
 }
 
 [[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(const AtspiStateType& state) -> IObject::EObjectState {
 	switch (state) {
-		case ATSPI_STATE_VISIBLE:
-			return IObject::VISIBLE;
-		case ATSPI_STATE_ENABLED:
-			return IObject::ENABLED;
-		case ATSPI_STATE_FOCUSED:
-			return IObject::FOCUSED;
-		case ATSPI_STATE_SELECTED:
-			return IObject::SELECTED;
-		case ATSPI_STATE_CHECKED:
-			return IObject::CHECKED;
-		case ATSPI_STATE_EXPANDED:
-			return IObject::EXPANDED;
-		case ATSPI_STATE_READ_ONLY:
-			return IObject::READONLY;
-		case ATSPI_STATE_MULTI_LINE:
-			return IObject::MULTI_LINE;
-		case ATSPI_STATE_REQUIRED:
-			return IObject::REQUIRED;
-		case ATSPI_STATE_INVALID_ENTRY:
-			return IObject::INVALID;
-		case ATSPI_STATE_ARMED:
-			case ATSPI_STATE_PRESSED:
-			return IObject::PRESSED;
-		case ATSPI_STATE_BUSY:
-			return IObject::LOADING;
-		case ATSPI_STATE_COLLAPSED:
-			return IObject::COLLAPSED;
-		case ATSPI_STATE_IS_DEFAULT:
-			return IObject::DEFAULT;
-
-		case ATSPI_STATE_EDITABLE:
-			return IObject::EDITABLE;
-		case ATSPI_STATE_EXPANDABLE:
-			return IObject::EXPANDABLE;
-		case ATSPI_STATE_FOCUSABLE:
-			return IObject::FOCUSABLE;
-		case ATSPI_STATE_SELECTABLE:
-			return IObject::SELECTABLE;
-		case ATSPI_STATE_MULTISELECTABLE:
-			return IObject::MULTI_SELECTABLE;
-		case ATSPI_STATE_RESIZABLE:
-			return IObject::RESIZABLE;
-		case ATSPI_STATE_CHECKABLE:
-			return IObject::CHECKABLE;
-		default:
-			return IObject::NO;
+		case ATSPI_STATE_ACTIVE:                return IObject::ACTIVE;
+		case ATSPI_STATE_ANIMATED:              return IObject::ANIMATED;
+		case ATSPI_STATE_BUSY:                  return IObject::BUSY;
+		case ATSPI_STATE_CHECKABLE:             return IObject::CHECKABLE;
+		case ATSPI_STATE_CHECKED:               return IObject::CHECKED;
+		case ATSPI_STATE_COLLAPSED:             return IObject::COLLAPSED;
+		case ATSPI_STATE_EDITABLE:              return IObject::EDITABLE;
+		case ATSPI_STATE_ENABLED:               return IObject::ENABLED;
+		case ATSPI_STATE_EXPANDABLE:            return IObject::EXPANDABLE;
+		case ATSPI_STATE_EXPANDED:              return IObject::EXPANDED;
+		case ATSPI_STATE_FOCUSABLE:             return IObject::FOCUSABLE;
+		case ATSPI_STATE_FOCUSED:               return IObject::FOCUSED;
+		case ATSPI_STATE_HAS_POPUP:             return IObject::HAS_POPUP;
+		case ATSPI_STATE_HAS_TOOLTIP:           return IObject::HAS_TOOLTIP;
+		case ATSPI_STATE_HORIZONTAL:            return IObject::HORIZONTAL;
+		case ATSPI_STATE_INDETERMINATE:         return IObject::INDETERMINATE;
+		case ATSPI_STATE_INVALID_ENTRY:         return IObject::INVALID;
+		case ATSPI_STATE_IS_DEFAULT:            return IObject::DEFAULT;
+		case ATSPI_STATE_MODAL:                 return IObject::MODAL;
+		case ATSPI_STATE_MULTI_LINE:            return IObject::MULTI_LINE;
+		case ATSPI_STATE_MULTISELECTABLE:       return IObject::MULTI_SELECTABLE;
+		case ATSPI_STATE_PRESSED:               return IObject::PRESSED;
+		case ATSPI_STATE_READ_ONLY:             return IObject::READONLY;
+		case ATSPI_STATE_REQUIRED:              return IObject::REQUIRED;
+		case ATSPI_STATE_RESIZABLE:             return IObject::RESIZABLE;
+		case ATSPI_STATE_SELECTABLE:            return IObject::SELECTABLE;
+		case ATSPI_STATE_SELECTED:              return IObject::SELECTED;
+		case ATSPI_STATE_SENSITIVE:             return IObject::SENSITIVE;
+		case ATSPI_STATE_VERTICAL:              return IObject::VERTICAL;
+		case ATSPI_STATE_VISIBLE:               return IObject::VISIBLE;
+		case ATSPI_STATE_VISITED:               return IObject::VISITED;
+		default:                                return IObject::NO;
 	}
 }
 
