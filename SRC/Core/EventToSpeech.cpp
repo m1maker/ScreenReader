@@ -200,7 +200,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		return;
 	}
 
-	g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
+	// g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
 
 	LogCalled();
 
