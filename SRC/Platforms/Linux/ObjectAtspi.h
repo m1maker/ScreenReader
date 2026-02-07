@@ -249,6 +249,19 @@ public:
 	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
 };
 
+template<class T>
+[[nodiscard]] static inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange {
+	STextRange text_range;
+	if constexpr (std::is_same_v<T, AtspiTextRange>) {
+		CGlibString content(range.content);
+		text_range.text = content;
+	}
+
+	text_range.start = range.start_offset;
+	text_range.end = range.end_offset;
+	return text_range;
+}
+
 class CObjectAtspi final : public IObject {
 	friend class CObjectCache<AtspiAccessible, CObjectAtspi>;	
 	mutable std::shared_ptr<IObject> m_strongParentCache;
@@ -324,6 +337,8 @@ public:
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;
+	[[nodiscard]] auto GetTextSelectionCount() const -> ObjectResult<int> override;
+	[[nodiscard]] auto GetTextSelections() const -> ObjectResult<std::vector<STextRange>> override;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double> override;

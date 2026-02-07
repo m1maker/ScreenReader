@@ -162,11 +162,10 @@
 }
 
 [[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> {
-	STextRange text_range;
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) return std::unexpected(IObject::DEFUNCT);
+		if (!m_textInterface) return std::unexpected(IObject::NOT_SUPPORTED);
 	}
 
 	ResetLastError();
@@ -174,11 +173,44 @@
 	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(m_textInterface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_lastError);
 	if (!pTextRange) return std::unexpected(IObject::FAIL);
 	defer(g_free(pTextRange));
-	CGlibString content(pTextRange->content);
-	text_range.start = pTextRange->start_offset;
-	text_range.end = pTextRange->end_offset;
-	text_range.text = content;
-	return text_range;
+	return GetTextRangeFromAtspiRange(*pTextRange);
+}
+
+[[nodiscard]] auto CObjectAtspi::GetTextSelectionCount() const -> ObjectResult<int> {
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
+	if (!m_textInterface) {
+		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
+		if (!m_textInterface) return std::unexpected(IObject::NOT_SUPPORTED);
+	}
+
+	ResetLastError();
+
+	gint selection_count = atspi_text_get_n_selections(m_textInterface, &m_lastError);
+	return selection_count;
+}
+
+[[nodiscard]] auto CObjectAtspi::GetTextSelections() const -> ObjectResult<std::vector<STextRange>> {
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
+	if (!m_textInterface) {
+		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
+		if (!m_textInterface) return std::unexpected(IObject::NOT_SUPPORTED);
+	}
+
+	ResetLastError();
+
+	std::vector<STextRange> text_ranges;
+	gint selection_count = atspi_text_get_n_selections(m_textInterface, &m_lastError);
+	for (gint i = 0; i < selection_count; ++i) {
+		ResetLastError();
+
+		AtspiRange* pRange = atspi_text_get_selection(m_textInterface, i, &m_lastError);
+		if (!pRange) continue;
+
+		text_ranges.emplace_back(GetTextRangeFromAtspiRange(*pRange));
+		g_free(pRange);
+	}
+
+	return text_ranges;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> ObjectResult<double> {

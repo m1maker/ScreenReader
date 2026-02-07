@@ -287,7 +287,9 @@ public:
 	[[nodiscard]] virtual auto GetDescription()const -> ObjectResult<std::string> = 0;
 
 	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
-	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity)const -> ObjectResult<STextRange> = 0;
+	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> = 0;
+	[[nodiscard]] virtual auto GetTextSelectionCount() const -> ObjectResult<int> = 0;
+	[[nodiscard]] virtual auto GetTextSelections() const -> ObjectResult<std::vector<STextRange>> = 0;
 
 	[[nodiscard]] virtual auto GetMinValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
