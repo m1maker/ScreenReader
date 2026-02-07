@@ -9,6 +9,7 @@
 #include "FocusManager.h"
 #include "KeyboardHandler.h"
 #include <algorithm>
+#include <sstream>
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
@@ -266,7 +267,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	LogCalled();
 
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
-	g_speechEngine.Speak(std::string_view(std::to_string(object_event.value().object->GetCurrentValue().value_or(0))), event.GetNow());
+
+	std::ostringstream oss;
+	oss << object_event.value().object->GetCurrentValue().value_or(0);
+	g_speechEngine.Speak(std::string_view(oss.str()), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
