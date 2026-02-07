@@ -46,6 +46,7 @@ void CEventHandler::Handle(CEvent&& event) {
 				auto object_event = event.GetAs<CObjectEvent>();
 				if (!object_event.has_value()) break;
 				g_focusManager.SetFocus(object_event.value().object);
+				g_speechEngine.Stop();
 				g_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			}
