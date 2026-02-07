@@ -96,10 +96,10 @@ Granularity is needed if the cursor has moved one character, in which case spell
 		return "";
 	}
 
-	int delta = std::abs(current_cursor.value_or(0) - previous_cursor_position);
-
-	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN);
-	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT);
+	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) || 
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
+	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) || 
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
 	if (vertical_keys_down) granularity = ETextGranularity::LINE;
@@ -107,22 +107,10 @@ Granularity is needed if the cursor has moved one character, in which case spell
 		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
 	}
 
+	else  granularity = ETextGranularity::LINE;
+
 	if (auto keys_range = obj->GetText(current_cursor.value_or(0), granularity)) {
 		return keys_range->text;
-	}
-
-	if (horizontal_keys_down || delta == 1) {
-		granularity = ETextGranularity::CHARACTER;
-		if (auto char_range = obj->GetText(current_cursor.value_or(0), granularity)) {
-			return char_range->text;
-		}
-	}
-
-	granularity = ETextGranularity::WORD;
-	if (auto word_range = obj->GetText(current_cursor.value_or(0), granularity)) {
-		if ((control_down && horizontal_keys_down) || previous_cursor_position < word_range->start || previous_cursor_position >= word_range->end) {
-			return word_range->text;
-		}
 	}
 
 	return "";
