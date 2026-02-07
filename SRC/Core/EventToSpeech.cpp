@@ -312,6 +312,6 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	std::string announcement = FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position, granularity);
 	bool enable_spelling{false};
 	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
-	g_speechEngine.Speak(std::string_view(announcement), true);
+	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
 	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
 }
