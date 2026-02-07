@@ -8,6 +8,7 @@
 #include "App.h"
 #include "FocusManager.h"
 #include "KeyboardHandler.h"
+#include <algorithm>
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
@@ -127,6 +128,9 @@ Granularity is needed if the cursor has moved one character, in which case spell
 /*
 This is the final step of object event processing. Announce it.
 */
+/*
+This function tries to find parents who have not been announced or have changed, and pushes the events without the "now" flag in reverse order, including the last object.
+*/
 auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	/*
 	This will be a common practice when we send artificial events.
@@ -155,6 +159,10 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	std::string last_name{""};
 	for (size_t i = diff_index; i < chain.size(); ++i) {
 		auto current_object = chain[i];
+
+		auto it = std::find(m_contextChain.begin(), m_contextChain.end(), current_object);
+		if (it != m_contextChain.end()) continue;
+
 		auto current_name = current_object->GetName().value_or("");
 
 		if (current_name.empty() || current_name == last_name) {
@@ -181,6 +189,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	if (event.GetNow() && AnnounceWhereAmI()) {
+		// We are canceling this event, since AnnounceWhereAmI is announcing the last object, but without the "now" flag.
 		return;
 	}
 
