@@ -206,7 +206,11 @@
 		AtspiRange* pRange = atspi_text_get_selection(m_textInterface, i, &m_lastError);
 		if (!pRange) continue;
 
-		text_ranges.emplace_back(GetTextRangeFromAtspiRange(*pRange));
+		ResetLastError();
+		CGlibString text(atspi_text_get_text(m_textInterface, pRange->start_offset, pRange->end_offset, &m_lastError));
+		auto text_range = GetTextRangeFromAtspiRange(*pRange);
+		text_range.text = text;
+		text_ranges.emplace_back(text_range);
 		g_free(pRange);
 	}
 
