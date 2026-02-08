@@ -252,3 +252,22 @@ CEventListenerAtspi::CEventListenerAtspi() :
 
 	return std::system(final_cmd.c_str()) == 0;
 }
+
+struct SInvocationContext final {
+	IEventListener::ThreadFunction function;
+	void* pUserData;
+};
+
+void CEventListenerAtspi::PushToMainThread(ThreadFunction function, void* pUserData) {
+	if (!function) return;
+
+	auto context = new SInvocationContext();
+	context->function = function;
+	context->pUserData = pUserData;
+	g_main_context_invoke(nullptr, [](gpointer data) -> gboolean {
+		auto casted = static_cast<SInvocationContext*>(data);
+		if (!casted) return G_SOURCE_REMOVE;
+		casted->function(casted->pUserData);
+		return G_SOURCE_REMOVE;
+	}, context);
+}

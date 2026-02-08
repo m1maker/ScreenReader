@@ -21,17 +21,24 @@ CEventHandler::CEventHandler() {
 	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo(CKeyboardEvent::KEYCODE_K, CKeyboardEvent::MODIFIER_INSERT | CKeyboardEvent::MODIFIER_CTRL), static_cast<unsigned int>(EAction::STOP_KEYBOARD_HOOKS), g_actionStopKeyboardHooks(CKeyboardEvent::SHotkeyInfo));
 
 	g_eventToSpeech.AnnounceWhereAmI();
+}
 
-	m_thread = std::thread([this]() {
+void CEventHandler::Start() {
+	m_thread = std::jthread([this]() {
 		while (g_running.load()) {
 			auto event = g_eventQueue.Pop();
 			if (event) {
-				this->Handle(std::move(event.value()));
+				if (!m_listener) [[unlikely]] continue;
+				auto raw_event = new CEvent(std::move(event.value()));
+				m_listener->PushToMainThread([](void* pData) {
+					if (!pData) return;
+					auto event_casted = static_cast<CEvent*>(pData);
+					g_eventHandler.Handle(std::move(*event_casted));
+					delete event_casted;
+				}, raw_event);
 			}
 		}
 	});
-
-	m_thread.detach();
 }
 
 /*

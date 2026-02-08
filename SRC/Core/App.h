@@ -48,7 +48,7 @@ public:
 		g_running.store(true);
 		g_speechEngineIndex = m_speechSystem.GetCurrentEngineId();
 		m_speechSystem.GetEngine(g_speechEngineIndex).Speak("Screen reader on");
-		g_eventHandler; // It's the same as CSingleton<CEventHandler>::GetInstance()
+		g_eventHandler.Start(); // It's the same as CSingleton<CEventHandler>::GetInstance()
 #if SR_LINUX
 		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
 #else

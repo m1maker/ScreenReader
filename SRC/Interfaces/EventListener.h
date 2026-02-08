@@ -12,9 +12,11 @@ A event listener is a platform-specific interface that processes events and conv
 class IEventListener {
 public:
 
+	using ThreadFunction = void(*)(void*);
 	IEventListener() = default;
 	virtual ~IEventListener() = default;
 
 	virtual void ListenDevice(const EDeviceType& device, bool listen = true) = 0;
-};
 
+	virtual void PushToMainThread(ThreadFunction function, void* pUserData) = 0;
+};

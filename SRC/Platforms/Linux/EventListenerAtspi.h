@@ -255,4 +255,6 @@ public:
 	}
 
 	void ListenDevice(const EDeviceType& device, bool listen = true) override;
+
+	void PushToMainThread(ThreadFunction function, void* pUserData) override;
 };

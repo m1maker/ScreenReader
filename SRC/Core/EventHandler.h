@@ -14,17 +14,14 @@ class CEventHandler final {
 	*/
 	std::shared_ptr<IEventListener> m_listener;
 
-	std::thread m_thread;
+	std::jthread m_thread;
 	explicit CEventHandler();
-	~CEventHandler() {
-		if (m_thread.joinable()) {
-			m_thread.join();
-		}
-	}
+	~CEventHandler() = default;
 public:
 
 	void Handle(CEvent&& event);
 
+	void Start();
 	inline auto GetListener() -> std::shared_ptr<IEventListener> { return m_listener; }
 };
 
