@@ -10,6 +10,36 @@
 	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));
 }
 
+void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
+	switch (event) {
+		case CEvent::VALUE_CHANGED:
+			Cache(m_minValue, std::nullopt);
+			Cache(m_maxValue, std::nullopt);
+			Cache(m_currentValue, std::nullopt);
+			break;
+		//case CEvent::SELECTION_CHANGED:
+		case CEvent::STATE_CHANGED:
+		case CEvent::VISIBILITY_CHANGED:
+		case CEvent::ENABLED_CHANGED:
+			Cache(m_states, std::nullopt);
+			break;
+		//case CEvent::TEXT_CHANGED:
+			//Cache(m_text, std::nullopt);
+			//break;
+		case CEvent::CURSOR_MOVED:
+			Cache(m_cursor, std::nullopt);
+			break;
+		case CEvent::CHILD_ADDED:
+		case CEvent::CHILD_REMOVED:
+			Cache(m_children, std::nullopt);
+			break;
+		case CEvent::PARENT_UPDATED:
+			Cache(m_parent, std::nullopt);
+			break;
+		default: break;
+	}
+}
+
 [[nodiscard]] auto CObjectAtspi::GetRelations() const -> std::vector<AtspiRelation> {
 	if (m_relations) g_array_free(m_relations, TRUE);
 	if (!m_accessible) return{};

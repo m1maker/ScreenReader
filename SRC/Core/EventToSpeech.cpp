@@ -61,10 +61,12 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		return announcement;
 	}
 
-	if (auto text = obj->GetText(obj->GetCursor().value_or(0), ETextGranularity::LINE)) {
-		announcement = text->text;
-		if (!announcement.empty()) {
-			return announcement;
+	if (auto text_provider = obj->GetAs<ITextProvider>()) {
+		if (auto text = text_provider->GetText(text_provider->GetCursor().value_or(0), ETextGranularity::LINE)) {
+			announcement = text->text;
+			if (!announcement.empty()) {
+				return announcement;
+			}
 		}
 	}
 
@@ -86,7 +88,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<IObject>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
+[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<ITextProvider>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
 	if (!obj) return "";
 
 	LogCalled();
@@ -258,9 +260,11 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
 
-	std::ostringstream oss;
-	oss << object_event.value().object->GetCurrentValue().value_or(0);
-	g_speechEngine.Speak(std::string_view(oss.str()), event.GetNow());
+	if (auto value_provider = object_event.value().object->GetAs<IValueProvider>()) {
+		std::ostringstream oss;
+		oss << value_provider->GetCurrentValue().value_or(0);
+		g_speechEngine.Speak(std::string_view(oss.str()), event.GetNow());
+	}
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -293,12 +297,14 @@ void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
 
 	LogCalled();
 
-	if (auto text_selections = object_event.value().object->GetTextSelections()) {
-		for (const auto& text_selection : *text_selections) {
-			g_speechEngine.Speak(text_selection.text, false);
-		}
+	if (auto text_provider = object_event.value().object->GetAs<ITextProvider>()) {
+		if (auto text_selections = text_provider->GetTextSelections()) {
+			for (const auto& text_selection : *text_selections) {
+				g_speechEngine.Speak(text_selection.text, false);
+			}
 
-		if (!text_selections->empty()) g_speechEngine.Speak("selected", false);
+			if (!text_selections->empty()) g_speechEngine.Speak("selected", false);
+		}
 	}
 }
 
@@ -312,15 +318,17 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	LogCalled();
 	//if (g_focusManager.GetFocus() != object_event.value().object) return;
 
-	auto cursor = object_event.value().object->GetCursor();
-	if (!cursor) {
-		return; 
-	}
+	if (auto text_provider = object_event.value().object->GetAs<ITextProvider>()) {
+		auto cursor = text_provider->GetCursor();
+		if (!cursor) {
+			return; 
+		}
 
-	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	std::string announcement = FindAnnouncementOfCursorPosition(object_event.value().object, object_event.value().previous_cursor_position, granularity);
-	bool enable_spelling{false};
-	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
-	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
-	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
+		ETextGranularity granularity{ETextGranularity::CHARACTER};
+		std::string announcement = FindAnnouncementOfCursorPosition(text_provider, 0, granularity);
+		bool enable_spelling{false};
+		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
+		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
+	}
 }

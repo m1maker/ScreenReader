@@ -5,36 +5,6 @@
 #include <utility>
 #include <type_traits>
 
-void IObject::UpdateCacheByEvent(const CEvent::EEventType& event) {
-	switch (event) {
-		case CEvent::VALUE_CHANGED:
-			Cache(m_minValue, std::nullopt);
-			Cache(m_maxValue, std::nullopt);
-			Cache(m_currentValue, std::nullopt);
-			break;
-		//case CEvent::SELECTION_CHANGED:
-		case CEvent::STATE_CHANGED:
-		case CEvent::VISIBILITY_CHANGED:
-		case CEvent::ENABLED_CHANGED:
-			Cache(m_states, std::nullopt);
-			break;
-		//case CEvent::TEXT_CHANGED:
-			//Cache(m_text, std::nullopt);
-			//break;
-		case CEvent::CURSOR_MOVED:
-			Cache(m_cursor, std::nullopt);
-			break;
-		case CEvent::CHILD_ADDED:
-		case CEvent::CHILD_REMOVED:
-			Cache(m_children, std::nullopt);
-			break;
-		case CEvent::PARENT_UPDATED:
-			Cache(m_parent, std::nullopt);
-			break;
-		default: break;
-	}
-}
-
 // I need to make translations in the future, so don't make it constexpr or inline
 /*
 Just convert types and states to strings.
@@ -206,7 +176,7 @@ Currently, it is only used in the logger.
 
 	std::ostringstream oss;
 	std::string indent_string(indent, ' ');
-
+	/*TODO
 	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0') 
 		<< reinterpret_cast<uintptr_t>(obj.get()) << std::dec << " {\n";
 
@@ -296,6 +266,7 @@ Currently, it is only used in the logger.
 		}
 	}
 
+	DOTO*/
 	return oss.str();
 }
 

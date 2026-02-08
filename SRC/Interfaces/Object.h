@@ -13,7 +13,7 @@
 template<typename T>
 using ObjectResult = std::expected<T, unsigned char>;
 
-class IObject {
+class IObject : public std::enable_shared_from_this<IObject> {
 public:
 	enum EObjectType : unsigned char {
 		UNKNOWN = 0,
@@ -262,6 +262,11 @@ public:
 		return false;
 	}
 
+	template<typename Interface>
+	[[nodiscard]] auto GetAs() -> std::shared_ptr<Interface> {
+		return std::dynamic_pointer_cast<Interface>(shared_from_this());
+	}
+
 	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> ObjectResult<void*> = 0;
 
 	[[nodiscard]] virtual auto IsValid()const noexcept -> bool = 0;
@@ -286,31 +291,26 @@ public:
 	[[nodiscard]] virtual auto GetName()const -> ObjectResult<std::string> = 0;
 	[[nodiscard]] virtual auto GetDescription()const -> ObjectResult<std::string> = 0;
 
+	virtual void UpdateCacheByEvent(const CEvent::EEventType& type) = 0;
+};
+
+class ITextProvider {
+public:
+
+	virtual ~ITextProvider() = default;
+
 	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
 	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> = 0;
 	[[nodiscard]] virtual auto GetTextSelectionCount() const -> ObjectResult<int> = 0;
 	[[nodiscard]] virtual auto GetTextSelections() const -> ObjectResult<std::vector<STextRange>> = 0;
+};
+
+class IValueProvider {
+public:
 
 	[[nodiscard]] virtual auto GetMinValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetCurrentValue()const -> ObjectResult<double> = 0;
-
-	void UpdateCacheByEvent(const CEvent::EEventType& event);
-
-protected:
-	DeclareCache(EObjectType, m_type);
-	DeclareCache(unsigned long long, m_states);
-	DeclareCache(std::weak_ptr<IObject>, m_parent);
-	DeclareCache(std::vector<std::shared_ptr<IObject>>, m_children);
-	DeclareCache(int, m_childrenCount);
-	DeclareCache(int, m_index);
-	DeclareCache(std::string, m_name);
-	DeclareCache(std::string, m_applicationName);
-	DeclareCache(std::string, m_description);
-	DeclareCache(int, m_cursor);
-	DeclareCache(double, m_minValue);
-	DeclareCache(double, m_maxValue);
-	DeclareCache(double, m_currentValue);
 };
 
 template<class T, class U>

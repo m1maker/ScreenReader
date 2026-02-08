@@ -262,8 +262,12 @@ template<class T>
 	return text_range;
 }
 
-class CObjectAtspi final : public IObject {
+class CObjectAtspi final : 
+	public IObject,
+	public ITextProvider,
+	public IValueProvider {
 	friend class CObjectCache<AtspiAccessible, CObjectAtspi>;	
+	friend class CEventListenerAtspi;
 	mutable std::shared_ptr<IObject> m_strongParentCache;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
@@ -279,6 +283,20 @@ class CObjectAtspi final : public IObject {
 	mutable AtspiTable* m_tableInterface{nullptr};
 	mutable AtspiText* m_textInterface{nullptr};
 	mutable AtspiValue* m_valueInterface{nullptr};
+
+	DeclareCache(EObjectType, m_type);
+	DeclareCache(unsigned long long, m_states);
+	DeclareCache(std::weak_ptr<IObject>, m_parent);
+	DeclareCache(std::vector<std::shared_ptr<IObject>>, m_children);
+	DeclareCache(int, m_childrenCount);
+	DeclareCache(int, m_index);
+	DeclareCache(std::string, m_name);
+	DeclareCache(std::string, m_applicationName);
+	DeclareCache(std::string, m_description);
+	DeclareCache(int, m_cursor);
+	DeclareCache(double, m_minValue);
+	DeclareCache(double, m_maxValue);
+	DeclareCache(double, m_currentValue);
 
 	mutable GArray* m_relations{nullptr};
 
@@ -334,6 +352,8 @@ public:
 
 	[[nodiscard]] auto GetName() const -> ObjectResult<std::string> override;
 	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string> override;
+
+	void UpdateCacheByEvent(const CEvent::EEventType& event) override;
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;

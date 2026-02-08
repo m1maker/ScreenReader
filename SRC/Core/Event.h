@@ -17,7 +17,6 @@ Events such as changes to an object's focus, state, name, description, value, et
 class CObjectEvent final {
 public:
 	std::shared_ptr<IObject> object;
-	int previous_cursor_position{0};
 };
 
 /*
