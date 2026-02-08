@@ -206,20 +206,7 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	return GetTextRangeFromAtspiRange(*pTextRange);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetTextSelectionCount() const -> ObjectResult<int> {
-	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
-	if (!m_textInterface) {
-		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
-		if (!m_textInterface) return std::unexpected(IObject::NOT_SUPPORTED);
-	}
-
-	ResetLastError();
-
-	gint selection_count = atspi_text_get_n_selections(m_textInterface, &m_lastError);
-	return selection_count;
-}
-
-[[nodiscard]] auto CObjectAtspi::GetTextSelections() const -> ObjectResult<std::vector<STextRange>> {
+[[nodiscard]] auto CObjectAtspi::GetSelections() const -> ObjectResult<std::vector<STextRange>> {
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);

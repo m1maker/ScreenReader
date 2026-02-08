@@ -294,20 +294,28 @@ public:
 	virtual void UpdateCacheByEvent(const CEvent::EEventType& type) = 0;
 };
 
-class ITextProvider {
+template<class T>
+class ISelectable {
+public:
+
+	virtual ~ISelectable() = default;
+
+	[[nodiscard]] virtual auto GetSelections() const -> ObjectResult<std::vector<T>> = 0;
+};
+
+class ITextProvider : public virtual ISelectable<STextRange> {
 public:
 
 	virtual ~ITextProvider() = default;
 
 	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
 	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> = 0;
-	[[nodiscard]] virtual auto GetTextSelectionCount() const -> ObjectResult<int> = 0;
-	[[nodiscard]] virtual auto GetTextSelections() const -> ObjectResult<std::vector<STextRange>> = 0;
 };
 
 class IValueProvider {
 public:
 
+	virtual ~IValueProvider() = default;
 	[[nodiscard]] virtual auto GetMinValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetCurrentValue()const -> ObjectResult<double> = 0;

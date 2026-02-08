@@ -356,8 +356,7 @@ public:
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;
-	[[nodiscard]] auto GetTextSelectionCount() const -> ObjectResult<int> override;
-	[[nodiscard]] auto GetTextSelections() const -> ObjectResult<std::vector<STextRange>> override;
+	[[nodiscard]] auto GetSelections() const -> ObjectResult<std::vector<STextRange>> override;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double> override;
