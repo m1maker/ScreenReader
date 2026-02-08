@@ -27,14 +27,21 @@ void CEventHandler::Start() {
 	m_thread = std::jthread([this]() {
 		while (g_running.load()) {
 			auto event = g_eventQueue.Pop();
-			if (event) {
-				if (!m_listener) [[unlikely]] continue;
-				auto raw_event = new CEvent(std::move(event.value()));
+			if (event && m_listener) {
+				auto pool = g_eventQueue.GetPool();
+				if (!pool) [[unlikely]] continue;
+
+				auto raw = pool->allocate(sizeof(CEvent));
+				auto raw_event = new(raw) CEvent(std::move(event.value()));
 				m_listener->PushToMainThread([](void* pData) {
 					if (!pData) return;
 					auto event_casted = static_cast<CEvent*>(pData);
 					g_eventHandler.Handle(std::move(*event_casted));
-					delete event_casted;
+					auto pool = g_eventQueue.GetPool();
+					if (!pool) [[unlikely]] return;
+
+					event_casted->~CEvent();
+					pool->deallocate(pData, sizeof(CEvent));
 				}, raw_event);
 			}
 		}

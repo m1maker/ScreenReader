@@ -8,7 +8,7 @@
 #include "EventHandler.h"
 
 class CEventQueue final {
-	std::pmr::unsynchronized_pool_resource m_pool;
+	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<CEvent> m_events;
 
 	std::mutex m_mutex;
@@ -45,6 +45,10 @@ public:
 			m_stopping = true;
 		}
 		m_cv.notify_all();
+	}
+
+	[[nodiscard]] auto GetPool() -> std::pmr::synchronized_pool_resource* {
+		return &m_pool;
 	}
 };
 

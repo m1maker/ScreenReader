@@ -261,13 +261,19 @@ struct SInvocationContext final {
 void CEventListenerAtspi::PushToMainThread(ThreadFunction function, void* pUserData) {
 	if (!function) return;
 
-	auto context = new SInvocationContext();
-	context->function = function;
-	context->pUserData = pUserData;
+	auto pool = g_eventQueue.GetPool();
+	if (!pool) return;
+	auto raw = pool->allocate(sizeof(SInvocationContext));
+	auto context = new(raw) SInvocationContext{function, pUserData};
 	g_main_context_invoke(nullptr, [](gpointer data) -> gboolean {
 		auto casted = static_cast<SInvocationContext*>(data);
 		if (!casted) return G_SOURCE_REMOVE;
 		casted->function(casted->pUserData);
+
+		auto pool = g_eventQueue.GetPool();
+		if (!pool) return G_SOURCE_REMOVE;
+		casted->~SInvocationContext();
+		pool->deallocate(data, sizeof(SInvocationContext));
 		return G_SOURCE_REMOVE;
 	}, context);
 }
