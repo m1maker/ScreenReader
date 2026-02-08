@@ -234,6 +234,31 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	return text_ranges;
 }
 
+[[nodiscard]] auto CObjectAtspi::GetSelectedItems() const -> ObjectResult<std::vector<std::shared_ptr<IObject>>> {
+	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
+	if (!m_selectionInterface) {
+		m_selectionInterface = atspi_accessible_get_selection_iface(m_accessible);
+		if (!m_selectionInterface) return std::unexpected(IObject::NOT_SUPPORTED);
+	}
+
+	auto children = std::vector<std::shared_ptr<IObject>>();
+
+	ResetLastError();
+
+	gint selection_count = atspi_selection_get_n_selected_children(m_selectionInterface, &m_lastError);
+	for (gint i = 0; i < selection_count; ++i) {
+		ResetLastError();
+		AtspiAccessible* child_native = atspi_selection_get_selected_child(m_selectionInterface, i, &m_lastError);
+		if (!child_native) continue;
+
+		auto child_object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(child_native);
+
+		children.push_back(child_object);
+	}
+
+	return children;
+}
+
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> ObjectResult<double> {
 	ReturnCache(m_minValue);
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
