@@ -264,9 +264,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
 
 	if (auto value_provider = object_event.value().object->GetAs<IValueProvider>()) {
-		std::ostringstream oss;
-		oss << value_provider->GetCurrentValue().value_or(0);
-		g_speechEngine.Speak(std::string_view(oss.str()), event.GetNow());
+		ScopedPool(pool, 256);
+		std::pmr::string announcement(&pool);
+		std::format_to(std::back_inserter(announcement), "{}", value_provider->GetCurrentValue().value_or(0));
+		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
 	}
 }
 
