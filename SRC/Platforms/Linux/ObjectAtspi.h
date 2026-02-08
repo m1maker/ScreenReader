@@ -265,6 +265,7 @@ template<class T>
 class CObjectAtspi final : 
 	public IObject,
 	public ITextProvider,
+	// public ISelectionProvider,
 	public IValueProvider {
 	friend class CObjectCache<AtspiAccessible, CObjectAtspi>;	
 	friend class CEventListenerAtspi;
@@ -356,7 +357,7 @@ public:
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;
-	[[nodiscard]] auto GetSelections() const -> ObjectResult<std::vector<STextRange>> override;
+	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>> override;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double> override;

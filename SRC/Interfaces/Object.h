@@ -294,22 +294,22 @@ public:
 	virtual void UpdateCacheByEvent(const CEvent::EEventType& type) = 0;
 };
 
-template<class T>
-class ISelectable {
-public:
-
-	virtual ~ISelectable() = default;
-
-	[[nodiscard]] virtual auto GetSelections() const -> ObjectResult<std::vector<T>> = 0;
-};
-
-class ITextProvider : public virtual ISelectable<STextRange> {
+class ITextProvider {
 public:
 
 	virtual ~ITextProvider() = default;
 
 	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
 	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> = 0;
+	[[nodiscard]] virtual auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>> = 0;
+};
+
+class ISelectionProvider {
+public:
+
+	virtual ~ISelectionProvider() = default;
+
+	[[nodiscard]] virtual auto GetSelectedItems() const -> ObjectResult<std::vector<std::shared_ptr<IObject>>> = 0;
 };
 
 class IValueProvider {
