@@ -113,7 +113,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 		LogCalled();
 		struct input_event ev;
 
-		while (g_running.load()) {
+		while (this->m_listenKeyboard.load() && g_running.load()) {
 			auto dev = FindKeyboardDevice();
 			if (dev.empty()) {
 				g_logger.Log(CLogger::ERROR, "Keyboard device not found. Retrying in 2s...");
