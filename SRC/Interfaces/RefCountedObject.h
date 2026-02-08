@@ -9,9 +9,12 @@ public:
 	IRefCountedObject(T* instance) : m_instance(instance) {}
 	virtual ~IRefCountedObject() = default;
 
-	virtual void AddRef() const = 0;
-	virtual void Release() const = 0;
+	virtual void AddRef() noexcept = 0;
+	virtual void Release() noexcept = 0;
 
-	[[nodiscard]] operator T*() { return m_instance; }
+	[[nodiscard]] operator T*() noexcept { return m_instance; }
+	[[nodiscard]] explicit operator bool() const noexcept {
+		return m_instance;
+	}
 };
 

@@ -22,13 +22,13 @@ public:
 		Release();
 	}
 
-	void AddRef() const override {
+	void AddRef() noexcept override {
 		if (this->operator T*()) {
 			g_object_ref(this->operator T*());
 		}
 	}
 
-	void Release() const override {
+	void Release() noexcept override {
 		if (this->operator T*()) {
 			g_object_unref(this->operator T*());
 		}
@@ -270,7 +270,7 @@ class CObjectAtspi final :
 	friend class CEventListenerAtspi;
 	mutable std::shared_ptr<IObject> m_strongParentCache;
 
-	mutable AtspiAccessible* m_accessible{nullptr};
+	mutable CGlibRefCountedObject<AtspiAccessible> m_accessible;
 
 	mutable AtspiAction* m_actionInterface{nullptr};
 	mutable AtspiCollection* m_collectionInterface{nullptr};
@@ -312,7 +312,6 @@ public:
 	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
 	~CObjectAtspi() override {
 		if (m_relations) g_array_free(m_relations, TRUE);
-		if (m_accessible) g_object_unref(m_accessible);
 		if (m_actionInterface) g_object_unref(m_actionInterface);
 		if (m_collectionInterface) g_object_unref(m_collectionInterface);
 		if (m_componentInterface) g_object_unref(m_componentInterface);
@@ -328,7 +327,7 @@ public:
 		ResetLastError();
 	}
 
-	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> override { return reinterpret_cast<void*>(m_accessible); }
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> override { return reinterpret_cast<void*>(m_accessible.operator AtspiAccessible*()); }
 
 	[[nodiscard]] inline auto IsValid() const noexcept -> bool override { return m_accessible != nullptr; }
 
