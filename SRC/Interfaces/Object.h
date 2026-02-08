@@ -15,6 +15,16 @@ using ObjectResult = std::expected<T, unsigned char>;
 
 class IObject : public std::enable_shared_from_this<IObject> {
 public:
+
+	enum EInterfaceMask : uint32_t {
+		SUPPORTS_NOTHING = 0,
+		SUPPORTS_TEXT = 1 << 0,
+		SUPPORTS_SELECTION = 1 << 1,
+		SUPPORTS_VALUE = 1 << 2
+	};
+
+	[[nodiscard]] virtual auto GetSupportedInterfaces() const noexcept -> uint32_t = 0;
+
 	enum EObjectType : unsigned char {
 		UNKNOWN = 0,
 		ABBREVIATION,
@@ -263,9 +273,7 @@ public:
 	}
 
 	template<typename Interface>
-	[[nodiscard]] auto GetAs() -> std::shared_ptr<Interface> {
-		return std::dynamic_pointer_cast<Interface>(shared_from_this());
-	}
+	[[nodiscard]] auto GetAs() -> std::shared_ptr<Interface>;
 
 	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> ObjectResult<void*> = 0;
 
@@ -320,6 +328,24 @@ public:
 	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
 	[[nodiscard]] virtual auto GetCurrentValue()const -> ObjectResult<double> = 0;
 };
+
+template<typename T>
+struct SInterfaceTrait final {
+	static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_NOTHING;
+};
+
+template<> struct SInterfaceTrait<ITextProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_TEXT; };
+template<> struct SInterfaceTrait<ISelectionProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_SELECTION; };
+template<> struct SInterfaceTrait<IValueProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_VALUE; };
+
+template<typename Interface>
+[[nodiscard]] auto IObject::GetAs() -> std::shared_ptr<Interface> {
+	constexpr auto required = SInterfaceTrait<Interface>::value;
+	if constexpr (required == SUPPORTS_NOTHING) return nullptr;
+
+	uint32_t mask = GetSupportedInterfaces();
+	return mask & required ? std::dynamic_pointer_cast<Interface>(shared_from_this()) : nullptr;
+}
 
 template<class T, class U>
 class CObjectCache final {

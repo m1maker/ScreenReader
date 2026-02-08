@@ -301,6 +301,8 @@ class CObjectAtspi final :
 
 	mutable GArray* m_relations{nullptr};
 
+	uint32_t m_interfacesMask{SUPPORTS_NOTHING};
+
 	inline void ResetLastError() const noexcept {
 		if (m_lastError) {
 			g_error_free(m_lastError);
@@ -310,7 +312,12 @@ class CObjectAtspi final :
 
 	[[nodiscard]] auto GetRelations() const -> std::vector<AtspiRelation>;
 public:
-	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {}
+	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {
+		if (atspi_accessible_is_text(m_accessible)) m_interfacesMask |= SUPPORTS_TEXT;
+		if (atspi_accessible_is_selection(m_accessible)) m_interfacesMask |= SUPPORTS_SELECTION;
+		if (atspi_accessible_is_value(m_accessible)) m_interfacesMask |= SUPPORTS_VALUE;
+	}
+
 	~CObjectAtspi() override {
 		if (m_relations) g_array_free(m_relations, TRUE);
 		if (m_actionInterface) g_object_unref(m_actionInterface);
@@ -326,6 +333,10 @@ public:
 		if (m_valueInterface) g_object_unref(m_valueInterface);
 
 		ResetLastError();
+	}
+
+	[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t override {
+		return m_interfacesMask;
 	}
 
 	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> override { return reinterpret_cast<void*>(m_accessible.operator AtspiAccessible*()); }
