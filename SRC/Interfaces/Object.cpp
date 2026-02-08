@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <utility>
 #include <type_traits>
+#include <Core/ScopedPool.h>
 
 // I need to make translations in the future, so don't make it constexpr or inline
 /*
@@ -11,7 +12,7 @@ Just convert types and states to strings.
 
 require_all parameter is used to determine whether we request names/states simply to announce focus changes, or whether we log all states and names, or force the screen reader to request this.
 */
-[[nodiscard]] auto IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) -> std::string {
+[[nodiscard]] auto IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) -> std::string_view {
 	switch (type) {
 		case ALERT:           return "alert";
 		case ARTICLE:         return "article";
@@ -78,8 +79,9 @@ The object type query also applies to state names.
 For example, there's no such state as EObjectState::UNCHECKED, but there is CHECKABLE.
 We need to understand what kind of object this is to more accurately determine the states for announcements when we don't request `require_all`.
 */
-[[nodiscard]] auto IObject::GetStateNames(const IObject::EObjectType& type, const unsigned long long& states, bool require_all) -> std::vector<std::string> {
-	std::vector<std::string> state_names;
+[[nodiscard]] auto IObject::GetStateNames(const IObject::EObjectType& type, const unsigned long long& states, bool require_all) -> std::vector<std::string_view> {
+	ScopedPool(pool, 8192);
+	std::pmr::vector<std::string_view> state_names(&pool);
 
 	// Capability / Infrastructure States (Usually only for logging/require_all).
 	if (require_all) {
@@ -158,7 +160,7 @@ We need to understand what kind of object this is to more accurately determine t
 	if (states & MODAL)                  state_names.emplace_back("modal");
 	if (states & VISITED)                state_names.emplace_back("visited");
 
-	return state_names;
+	return std::vector<std::string_view>(state_names.begin(), state_names.end());
 }
 
 /*

@@ -288,7 +288,7 @@ class CObjectAtspi final :
 	DeclareCache(EObjectType, m_type);
 	DeclareCache(unsigned long long, m_states);
 	DeclareCache(std::weak_ptr<IObject>, m_parent);
-	DeclareCache(std::vector<std::shared_ptr<IObject>>, m_children);
+	DeclareCache(std::pmr::vector<std::shared_ptr<IObject>>, m_children);
 	DeclareCache(int, m_childrenCount);
 	DeclareCache(int, m_index);
 	DeclareCache(std::string, m_name);
@@ -310,9 +310,10 @@ class CObjectAtspi final :
 		}
 	}
 
-	[[nodiscard]] auto GetRelations() const -> std::vector<AtspiRelation>;
+	[[nodiscard]] auto GetRelations() const -> std::pmr::vector<AtspiRelation>;
 public:
-	explicit CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {
+
+	explicit CObjectAtspi(AtspiAccessible* accessible, std::pmr::memory_resource* pool) : m_accessible(accessible), IObject(pool) {
 		if (atspi_accessible_is_text(m_accessible)) m_interfacesMask |= SUPPORTS_TEXT;
 		if (atspi_accessible_is_selection(m_accessible)) m_interfacesMask |= SUPPORTS_SELECTION;
 		if (atspi_accessible_is_value(m_accessible)) m_interfacesMask |= SUPPORTS_VALUE;

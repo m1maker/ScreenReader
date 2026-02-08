@@ -10,18 +10,20 @@
 #include "KeyboardHandler.h"
 #include <algorithm>
 #include <sstream>
+#include <Core/ScopedPool.h>
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
 For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere in there are information labels.
 */
-[[nodiscard]] static auto FindAnnouncementInHierarchy(const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) -> std::string {
-	if (!obj) return "";
+static void FindAnnouncementInHierarchy(std::pmr::string& out, const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) {
+	if (!obj) return;
 	LogCalled();
 
+	DefaultPool(pool);
 	auto type = obj->GetType().value_or(IObject::UNKNOWN);
 	if (type == IObject::LIST_ITEM || collect_all_labels) {
-		std::vector<std::string> texts;
+		std::pmr::vector<std::pmr::string> texts(&pool);
 
 		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels = [&](const std::shared_ptr<IObject>& current) {
 			if (!current) return;
@@ -31,7 +33,7 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 			if (current_type == IObject::LABEL) {
 				std::string name = current->GetName().value_or("");
 				if (!name.empty()) {
-					texts.push_back(name);
+					texts.emplace_back(name);
 				}
 			}
 
@@ -45,27 +47,29 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 		CollectLabels(obj);
 
 		if (!texts.empty()) {
-			std::string result;
+			std::pmr::string result(&pool);
 			for (size_t i = 0; i < texts.size(); ++i) {
 				if (i > 0) {
 					result += CEventToSpeech::cSeparator;
 				}
 				result += texts[i];
 			}
-			return result;
+			out += result;
+			return;
 		}
 	}
 
 	std::string announcement = obj->GetName().value_or("");
 	if (!announcement.empty()) {
-		return announcement;
+		out += announcement;
+		return;
 	}
 
 	if (auto text_provider = obj->GetAs<ITextProvider>()) {
 		if (auto text = text_provider->GetText(text_provider->GetCursor().value_or(0), ETextGranularity::LINE)) {
 			announcement = text->text;
 			if (!announcement.empty()) {
-				return announcement;
+				out += announcement;
 			}
 		}
 	}
@@ -73,29 +77,25 @@ For example, Mate system info has list items, which also contain a bunch of obsc
 	if (recursive) {
 		if (auto children = obj->GetChildren()) {
 			for (const auto& child : *children) {
-				std::string child_announcement = FindAnnouncementInHierarchy(child, true, collect_all_labels);
-				if (!child_announcement.empty()) {
-					return child_announcement;
-				}
+				FindAnnouncementInHierarchy(out, child, true, collect_all_labels);
 			}
 		}
 	}
-
-	return "";
 }
 
 /*
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-[[nodiscard]] static auto FindAnnouncementOfCursorPosition(const std::shared_ptr<ITextProvider>& obj, int previous_cursor_position, ETextGranularity& granularity) -> std::string {
-	if (!obj) return "";
+static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, int previous_cursor_position, ETextGranularity& granularity) {
+	if (!obj) return;
 
 	LogCalled();
+
 	auto current_cursor = obj->GetCursor();
 	if (!current_cursor) {
 		g_logger.Log(CLogger::ERROR, std::string(IObject::ErrorToString(current_cursor.error())));
-		return "";
+		return;
 	}
 
 	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) || 
@@ -112,10 +112,8 @@ Granularity is needed if the cursor has moved one character, in which case spell
 	else  granularity = ETextGranularity::LINE;
 
 	if (auto keys_range = obj->GetText(current_cursor.value_or(0), granularity)) {
-		return keys_range->text;
+		out += keys_range->text;
 	}
-
-	return "";
 }
 
 /*
@@ -194,13 +192,17 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	// g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
 
+	DefaultPool(pool);
 	LogCalled();
 
-	std::string announcement = FindAnnouncementInHierarchy(object_event.value().object);
+	std::pmr::string announcement(&pool);
+	FindAnnouncementInHierarchy(announcement, object_event.value().object);
+
 	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
 	auto state = object_event.value().object->GetState().value_or(IObject::NO);
 
-	announcement += cSeparator + IObject::GetTypeName(type);
+	announcement += cSeparator;
+	announcement +=  IObject::GetTypeName(type);
 
 	auto& settings = g_applicationInstance.GetSettings();
 	switch (type) {
@@ -213,18 +215,19 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 			auto locked_parent = parent->lock();
 			if (!locked_parent) break;
 			auto children_count = locked_parent->GetChildrenCount().value_or(0);
-			announcement += cSeparator + std::to_string(index) + " of " + std::to_string(children_count);
+			std::format_to(std::back_inserter(announcement), "{}{} of {}", 
+				cSeparator, index, children_count);
 			break;
 		}
 		default: break;
 	}
 
 	auto state_names = IObject::GetStateNames(type, state);
-	for (std::string& state_name : state_names) {
-		announcement += cSeparator + state_name;
+	for (std::string_view state_name : state_names) {
+		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
 
-	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+	g_speechEngine.Speak(announcement, event.GetNow());
 	if (auto description = object_event.value().object->GetDescription()) {
 		if (!description->empty()) {
 			g_speechEngine.Speak(*description, false);
@@ -276,16 +279,19 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 
 	LogCalled();
 	if (g_focusManager.GetFocus() != object_event.value().object) return;
-	std::string announcement = "";
+
+	DefaultPool(pool);
+
+	std::pmr::string announcement(&pool);
 	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
 	auto state = object_event.value().object->GetState().value_or(IObject::NO);
 
 	auto state_names = IObject::GetStateNames(type, state);
-	for (std::string& state_name : state_names) {
-		announcement += cSeparator + state_name;
+	for (auto state_name : state_names) {
+		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
 
-	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+	g_speechEngine.Speak(announcement, event.GetNow());
 }
 
 void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
@@ -324,8 +330,10 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 			return; 
 		}
 
+		DefaultPool(pool);
 		ETextGranularity granularity{ETextGranularity::CHARACTER};
-		std::string announcement = FindAnnouncementOfCursorPosition(text_provider, 0, granularity);
+		std::pmr::string announcement(&pool);
+		FindAnnouncementOfCursorPosition(announcement, text_provider, 0, granularity);
 		bool enable_spelling{false};
 		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
 		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());

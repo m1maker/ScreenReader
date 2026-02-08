@@ -9,6 +9,7 @@
 #include <map>
 #include <expected>
 #include <memory_resource>
+#include <string_view>
 
 template<typename T>
 using ObjectResult = std::expected<T, unsigned char>;
@@ -256,11 +257,15 @@ public:
 		}
 	}
 
-	IObject() = default;
+protected:
+	std::pmr::memory_resource* m_pool{nullptr};
+public:
+
+	explicit IObject(std::pmr::memory_resource* pool) : m_pool(pool) {}
 	virtual ~IObject() = default;
 
-	[[nodiscard]] static auto GetTypeName(const EObjectType& type, bool require_all = false) -> std::string;
-	[[nodiscard]] static auto GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false) -> std::vector<std::string>;
+	[[nodiscard]] static auto GetTypeName(const EObjectType& type, bool require_all = false) -> std::string_view;
+	[[nodiscard]] static auto GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false) -> std::vector<std::string_view>;
 
 	[[nodiscard]] static constexpr inline auto IsValidParent(const EObjectType& type) -> bool {
 		switch (type) {
@@ -372,7 +377,7 @@ public:
 			}
 		}
 
-		auto new_object = std::allocate_shared<U>(std::pmr::polymorphic_allocator<U>(&m_pool), native_handle);
+		auto new_object = std::allocate_shared<U>(std::pmr::polymorphic_allocator<U>(&m_pool), native_handle, &m_pool);
 
 		m_cache[native_handle] = new_object;
 

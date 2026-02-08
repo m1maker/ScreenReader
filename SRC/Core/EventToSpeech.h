@@ -26,7 +26,7 @@ class CEventToSpeech final {
 	std::pmr::vector<std::shared_ptr<IObject>> m_contextChain;
 public:
 
-	static inline std::string cSeparator = "  "; // This is a separator for name, type and state.	
+	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.	
 private:
 	explicit CEventToSpeech() {}
 	~CEventToSpeech() = default;

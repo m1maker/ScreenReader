@@ -6,41 +6,37 @@
 #include <Core/Rect.h>
 #include <Core/Defer.h>
 
-[[nodiscard]] auto GetDesktopObject() -> std::shared_ptr<IObject> {
-	return std::make_shared<CObjectAtspi>(atspi_get_desktop(0));
-}
-
 void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	switch (event) {
 		case CEvent::VALUE_CHANGED:
-			Cache(m_minValue, std::nullopt);
-			Cache(m_maxValue, std::nullopt);
-			Cache(m_currentValue, std::nullopt);
+			InvalidateCache(m_minValue);
+			InvalidateCache(m_maxValue);
+			InvalidateCache(m_currentValue);
 			break;
 		//case CEvent::SELECTION_CHANGED:
 		case CEvent::STATE_CHANGED:
 		case CEvent::VISIBILITY_CHANGED:
 		case CEvent::ENABLED_CHANGED:
-			Cache(m_states, std::nullopt);
+			InvalidateCache(m_states);
 			break;
 		//case CEvent::TEXT_CHANGED:
 			//Cache(m_text, std::nullopt);
 			//break;
 		case CEvent::CURSOR_MOVED:
-			Cache(m_cursor, std::nullopt);
+			InvalidateCache(m_cursor);
 			break;
 		case CEvent::CHILD_ADDED:
 		case CEvent::CHILD_REMOVED:
-			Cache(m_children, std::nullopt);
+			InvalidateCache(m_children);
 			break;
 		case CEvent::PARENT_UPDATED:
-			Cache(m_parent, std::nullopt);
+			InvalidateCache(m_parent);
 			break;
 		default: break;
 	}
 }
 
-[[nodiscard]] auto CObjectAtspi::GetRelations() const -> std::vector<AtspiRelation> {
+[[nodiscard]] auto CObjectAtspi::GetRelations() const -> std::pmr::vector<AtspiRelation> {
 	if (m_relations) g_array_free(m_relations, TRUE);
 	if (!m_accessible) return{};
 	ResetLastError();
@@ -48,7 +44,7 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	m_relations = atspi_accessible_get_relation_set(m_accessible, &m_lastError);
 	if (!m_relations) return {};
 
-	std::vector<AtspiRelation> relations;
+	std::pmr::vector<AtspiRelation> relations(m_pool);
 	relations.reserve(m_relations->len);
 	for (gint i = 0; std::cmp_less(i , m_relations->len); ++i) {
 		AtspiRelation* relation = g_array_index(m_relations, AtspiRelation*, i);
@@ -106,13 +102,15 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> {
-	ReturnCache(m_children);
-	auto children = std::vector<std::shared_ptr<IObject>>();
+	ReturnCacheTransformed(m_children, [](const auto& vec) {
+		return std::vector<std::shared_ptr<IObject>>(vec.begin(), vec.end());
+	});
+
+	auto children = std::pmr::vector<std::shared_ptr<IObject>>(m_pool);
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 
 	ResetLastError();
 	gint child_count = atspi_accessible_get_child_count(m_accessible, &m_lastError);
-	if (child_count == 0) CacheReturn(m_children, children);
 
 	for (gint i = 0; i < child_count; ++i) {
 		ResetLastError();
@@ -124,7 +122,9 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 		children.push_back(child_object);
 	}
 
-	CacheReturn(m_children, children);
+	CacheReturnTransformed(m_children, children, [](const auto& vec) {
+		return std::vector<std::shared_ptr<IObject>>(vec.begin(), vec.end());
+	});
 }
 
 [[nodiscard]] auto CObjectAtspi::GetChildrenCount() const -> ObjectResult<int> {
