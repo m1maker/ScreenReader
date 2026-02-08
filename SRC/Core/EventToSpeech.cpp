@@ -285,7 +285,21 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 }
 
 void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
-	return;
+	auto object_event = event.GetAs<CObjectEvent>();
+	if (!object_event.has_value()) {
+		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+		return;
+	}
+
+	LogCalled();
+
+	if (auto text_selections = object_event.value().object->GetTextSelections()) {
+		for (const auto& text_selection : *text_selections) {
+			g_speechEngine.Speak(text_selection.text, false);
+		}
+
+		if (!text_selections->empty()) g_speechEngine.Speak("selected", false);
+	}
 }
 
 void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
@@ -297,6 +311,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 
 	LogCalled();
 	//if (g_focusManager.GetFocus() != object_event.value().object) return;
+
 	auto cursor = object_event.value().object->GetCursor();
 	if (!cursor) {
 		return; 

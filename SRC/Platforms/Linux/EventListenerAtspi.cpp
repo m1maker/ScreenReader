@@ -84,7 +84,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't need to be dispatched when !detail1 is.
 	This list of types will likely expand once I fully understand what they are.
 	*/
-	if ((type == CEvent::FOCUS_GAINED || type == CEvent::SELECTION_CHANGED) && !event->detail1) return;
+	if ((type == CEvent::FOCUS_GAINED) && !event->detail1) return;
 	switch (type) { // Then send it to the handler
 		/*
 		It looks like in the future this will all be CObjectEvent, but just in case, we'll use switch-case for now.
