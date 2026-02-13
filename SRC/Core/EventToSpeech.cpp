@@ -304,15 +304,6 @@ void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
 
 	LogCalled();
 
-	if (auto text_provider = object_event.value().object->GetAs<ITextProvider>()) {
-		if (auto text_selections = text_provider->GetSelectedRanges()) {
-			for (const auto& text_selection : *text_selections) {
-				g_speechEngine.Speak(text_selection.text, false);
-			}
-
-			if (!text_selections->empty()) g_speechEngine.Speak("selected", false);
-		}
-	}
 }
 
 void CEventToSpeech::AnnounceCursorMove(CEvent& event) {

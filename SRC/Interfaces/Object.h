@@ -313,8 +313,8 @@ public:
 	virtual ~ITextProvider() = default;
 
 	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
-	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> = 0;
-	[[nodiscard]] virtual auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>> = 0;
+	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange<std::string>> = 0;
+	[[nodiscard]] virtual auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> = 0;
 };
 
 class ISelectionProvider {

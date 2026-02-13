@@ -191,7 +191,7 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	CacheReturn(m_cursor, atspi_text_get_caret_offset(m_textInterface, &m_lastError));
 }
 
-[[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> {
+[[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange<std::string>> {
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
@@ -203,10 +203,10 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(m_textInterface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_lastError);
 	if (!pTextRange) return std::unexpected(IObject::FAIL);
 	defer(g_free(pTextRange));
-	return GetTextRangeFromAtspiRange(*pTextRange);
+	return GetTextRangeFromAtspiRange<AtspiTextRange, std::string>(*pTextRange);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>> {
+[[nodiscard]] auto CObjectAtspi::GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> {
 	if (!m_accessible) return std::unexpected(IObject::DEFUNCT);
 	if (!m_textInterface) {
 		m_textInterface = atspi_accessible_get_text_iface(m_accessible);
@@ -215,7 +215,7 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 
 	ResetLastError();
 
-	std::vector<STextRange> text_ranges;
+	std::vector<STextRange<void>> text_ranges;
 	gint selection_count = atspi_text_get_n_selections(m_textInterface, &m_lastError);
 	for (gint i = 0; i < selection_count; ++i) {
 		ResetLastError();
@@ -223,10 +223,7 @@ void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
 		AtspiRange* pRange = atspi_text_get_selection(m_textInterface, i, &m_lastError);
 		if (!pRange) continue;
 
-		ResetLastError();
-		CGlibString text(atspi_text_get_text(m_textInterface, pRange->start_offset, pRange->end_offset, &m_lastError));
-		auto text_range = GetTextRangeFromAtspiRange(*pRange);
-		text_range.text = text;
+		auto text_range = GetTextRangeFromAtspiRange<AtspiRange, void>(*pRange);
 		text_ranges.emplace_back(text_range);
 		g_free(pRange);
 	}

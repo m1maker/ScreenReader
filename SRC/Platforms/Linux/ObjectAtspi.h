@@ -249,10 +249,10 @@ public:
 	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
 };
 
-template<class T>
-[[nodiscard]] static inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange {
-	STextRange text_range;
-	if constexpr (std::is_same_v<T, AtspiTextRange>) {
+template<class T, class U>
+[[nodiscard]] static inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange<U> {
+	STextRange<U> text_range;
+	if constexpr (std::is_same_v<T, AtspiTextRange> && std::is_same_v<U, std::string>) {
 		CGlibString content(range.content);
 		text_range.text = content;
 	}
@@ -368,8 +368,8 @@ public:
 	void UpdateCacheByEvent(const CEvent::EEventType& event) override;
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
-	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange> override;
-	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>> override;
+	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange<std::string>> override;
+	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> override;
 	[[nodiscard]] auto GetSelectedItems() const -> ObjectResult<std::vector<std::shared_ptr<IObject>>> override;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
