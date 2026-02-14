@@ -9,8 +9,8 @@
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
 	DeclareSingleton(CKeyboardHandler);
 	struct SActionInfo final {
-		unsigned int id{0};
-		ActionInterface* executable{nullptr};
+		uint32_t id{0};
+		ActionCallback<CKeyboardEvent::SHotkeyInfo> executable{nullptr};
 		bool hook{false};
 	};
 
@@ -28,7 +28,7 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	~CKeyboardHandler() override = default;
 public:
 
-	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action, bool hook = false) -> bool override;
+	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false) -> bool override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
 
 	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool override;

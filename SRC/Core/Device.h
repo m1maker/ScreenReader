@@ -6,3 +6,12 @@ enum class EDeviceType : unsigned char {
 	MOUSE,
 	TOUCHSCREEN
 };
+
+[[nodiscard]] constexpr std::string_view GetDeviceName(EDeviceType d) noexcept {
+	switch (d) {
+		case EDeviceType::KEYBOARD:    return "Keyboard";
+		case EDeviceType::MOUSE:       return "Mouse";
+		case EDeviceType::TOUCHSCREEN: return "Touchscreen";
+		default:                       return "Unknown";
+	}
+}

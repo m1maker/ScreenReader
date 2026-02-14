@@ -1,12 +1,12 @@
 #include "KeyboardHandler.h"
 
-auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, const unsigned int& action_type, ActionInterface& action, bool hook) -> bool {
+auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
 
-	m_actions[hotkey].id = action_type;
-	m_actions[hotkey].executable = &action;
+	m_actions[hotkey].id = type;
+	m_actions[hotkey].executable = SActions<CKeyboardEvent::SHotkeyInfo>::GetStaticExecutable(type);
 	m_actions[hotkey].hook = hook;
 	return true;
 }
@@ -23,7 +23,7 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 	}
 
 	if (it->second.executable) {
-		it->second.executable->Execute(event.hotkey);
+		it->second.executable(event.hotkey);
 	}
 }
 
