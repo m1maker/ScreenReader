@@ -3,6 +3,7 @@
 #include <Interfaces/Object.h>
 #include "EventHandler.h"
 #include "Logger.h"
+#include "Utf8.h"
 #include <functional>
 #include <cmath>
 #include "App.h"
