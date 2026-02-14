@@ -485,16 +485,8 @@ public:
 	}
 
 	template<typename T>
-	auto GetAs() -> std::optional<T> {
-		if (auto* ptr = std::get_if<T>(&m_variant)) {
-			return *ptr;
-		}
-		return std::nullopt;
-	}
-
-	template<typename T>
-	auto GetAs() const -> std::optional<const T> {
-		if (const auto* ptr = std::get_if<T>(&m_variant)) {
+	auto GetAs(this auto&& self) -> std::optional<std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(self)>>, const T, T>> {
+		if (auto* ptr = std::get_if<T>(&self.m_variant)) {
 			return *ptr;
 		}
 		return std::nullopt;
