@@ -364,16 +364,17 @@ public:
 	[[nodiscard]] auto GetOrCreate(T* native_handle) -> std::shared_ptr<U> {
 		if (!native_handle) return nullptr;
 
-		std::lock_guard<std::mutex> lock(m_mutex);
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
 
-		auto it = m_cache.find(native_handle);
-		if (it != m_cache.end()) {
-			if (auto existing = it->second.lock()) {
-				//g_object_unref(accessible); 
-				return existing;
-			}
-			else {
-				m_cache.erase(it);
+			auto it = m_cache.find(native_handle);
+			if (it != m_cache.end()) {
+				if (auto existing = it->second.lock()) {
+					return existing;
+				}
+				else {
+					m_cache.erase(it);
+				}
 			}
 		}
 
