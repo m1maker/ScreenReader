@@ -18,7 +18,7 @@ CEventHandler::CEventHandler() {
 	m_listener->ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
-	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo(CKeyboardEvent::KEYCODE_K, CKeyboardEvent::MODIFIER_INSERT | CKeyboardEvent::MODIFIER_CTRL), static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS));
+	success = g_keyboardHandler.RegisterAction(CKeyboardEvent::SHotkeyInfo(CKeyboardEvent::KEYCODE_K, CKeyboardEvent::MODIFIER_SCREEN_READER | CKeyboardEvent::MODIFIER_CTRL), static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS));
 
 	g_eventToSpeech.AnnounceWhereAmI();
 }

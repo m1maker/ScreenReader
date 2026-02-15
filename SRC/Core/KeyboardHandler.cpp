@@ -16,7 +16,13 @@ void CKeyboardHandler::UnregisterAction(const CKeyboardEvent::SHotkeyInfo& actio
 }
 
 void CKeyboardHandler::Handle(CKeyboardEvent& event) {
-	auto it = m_actions.find(event.hotkey);
+	auto hotkey = event.hotkey;
+	if (hotkey.modifiers & m_hookedModifiers) {
+		hotkey.modifiers &= ~m_hookedModifiers;
+		hotkey.modifiers |= CKeyboardEvent::MODIFIER_SCREEN_READER;
+	}
+
+	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
 		it = m_actions.find(CKeyboardEvent::SHotkeyInfo::GetAny());
 		if (it == m_actions.end()) return;
