@@ -88,7 +88,7 @@ static void FindAnnouncementInHierarchy(std::pmr::string& out, const std::shared
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, int previous_cursor_position, ETextGranularity& granularity) {
+static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, ETextGranularity& granularity) {
 	if (!obj) return;
 
 	LogCalled();
@@ -330,7 +330,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		DefaultPool(pool);
 		ETextGranularity granularity{ETextGranularity::CHARACTER};
 		std::pmr::string announcement(&pool);
-		FindAnnouncementOfCursorPosition(announcement, text_provider, 0, granularity);
+		FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 		bool enable_spelling{false};
 		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
 		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
