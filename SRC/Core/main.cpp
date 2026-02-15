@@ -8,6 +8,7 @@ auto main(signed int argc, char** argv) -> signed int {
 
 	We'll simply log anything we don't handle in other parts of the application.
 	*/
+	g_logger; // Invoke the logger instance to avoid uninitialization before the application instance.
 	try {
 		g_applicationInstance.Run();
 	}
