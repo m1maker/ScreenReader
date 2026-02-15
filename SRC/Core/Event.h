@@ -194,7 +194,8 @@ public:
 		MODIFIER_SUPER = 1 << 3,
 		MODIFIER_CAPS_LOCK = 1 << 4,
 		MODIFIER_NUM_LOCK = 1 << 5,
-		MODIFIER_INSERT = 1 << 6
+		MODIFIER_INSERT = 1 << 6,
+		MODIFIER_SCREEN_READER = 1 << 7
 	};
 
 	struct SHotkeyInfo final {
