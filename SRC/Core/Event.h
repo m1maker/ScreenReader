@@ -422,6 +422,25 @@ public:
 	}
 };
 
+// Allow operator+ to generate key bindings.
+[[nodiscard]] constexpr auto operator+(CKeyboardEvent::EModifier a, CKeyboardEvent::EModifier b) -> unsigned char {
+	return static_cast<unsigned char>(a) | static_cast<unsigned char>(b);
+}
+
+[[nodiscard]] constexpr auto operator+(unsigned char a, CKeyboardEvent::EModifier b) -> unsigned char {
+	return a | static_cast<unsigned char>(b);
+}
+
+[[nodiscard]] constexpr auto operator+(unsigned char mods, CKeyboardEvent::EKeycode key) -> CKeyboardEvent::SHotkeyInfo {
+	return CKeyboardEvent::SHotkeyInfo(key, mods);
+}
+
+[[nodiscard]] constexpr auto operator+(CKeyboardEvent::EKeycode key, unsigned char mods) -> CKeyboardEvent::SHotkeyInfo {
+	return CKeyboardEvent::SHotkeyInfo(key, mods);
+}
+
+using SHotkeyInfo = CKeyboardEvent::SHotkeyInfo;
+
 namespace std {
 	template<>
 	struct hash<CKeyboardEvent::SHotkeyInfo> {
