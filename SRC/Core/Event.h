@@ -208,8 +208,12 @@ public:
 			return SHotkeyInfo(KEYCODE_ANY, MODIFIER_NONE);
 		}
 
+		[[nodiscard]] constexpr auto Pack() const noexcept -> uint32_t {
+			return (static_cast<uint32_t>(keycode) << 8) | modifiers;
+		}
+
 		constexpr auto operator==(const SHotkeyInfo& info) const -> bool {
-			return this->keycode == info.keycode && this->modifiers == info.modifiers;
+			return Pack() == info.Pack();
 		}
 	} hotkey;
 
@@ -422,8 +426,7 @@ namespace std {
 	template<>
 	struct hash<CKeyboardEvent::SHotkeyInfo> {
 		auto operator()(const CKeyboardEvent::SHotkeyInfo& k) const noexcept -> std::size_t {
-			return std::hash<CKeyboardEvent::EKeycode>{}(k.keycode) ^ 
-				(std::hash<unsigned char>{}(k.modifiers) << 1);
+			return std::hash<uint32_t>{}(k.Pack());
 		}
 	};
 }
