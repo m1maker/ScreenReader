@@ -47,7 +47,15 @@ void CKeyboardHandler::ResetState() {
 }
 
 [[nodiscard]] auto CKeyboardHandler::IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool {
-	if (hotkey.modifiers & m_hookedModifiers) return true;
+	if (hotkey.modifiers & m_hookedModifiers) {
+		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
+			m_hookedModifiersTimer.Restart();
+			return true;
+		}
+
+		return false;
+	}
+
 	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
 		return false;

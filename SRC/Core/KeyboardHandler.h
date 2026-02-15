@@ -5,6 +5,7 @@
 #include <functional>
 #include <mutex>
 #include "Singleton.h"
+#include "Utils.h"
 
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
 	DeclareSingleton(CKeyboardHandler);
@@ -21,8 +22,15 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	mutable std::mutex m_mutex;
 	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
 	unsigned char m_modifiers;
+	/*
+	These are the modifier keys that screen reader uses for its ke bindings.
+	As a result of handling, one of these modifiers turns into a generic CKeyboardEvent::MODIFIER_SCREEN_READER.
 
-	unsigned char m_hookedModifiers{CKeyboardEvent::MODIFIER_INSERT};
+	Let's set a timer that, when user quickly press one of these modifiers, should let it pass to the OS.
+	*/
+	unsigned char m_hookedModifiers{CKeyboardEvent::MODIFIER_INSERT | CKeyboardEvent::MODIFIER_CAPS_LOCK};
+	mutable CTimer m_hookedModifiersTimer;
+	static inline constexpr const uint64_t cHookedModifierPressTimeMs = 300;
 
 	explicit CKeyboardHandler() = default;
 	~CKeyboardHandler() override = default;
