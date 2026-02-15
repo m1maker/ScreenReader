@@ -93,7 +93,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
 	*/
-	g_eventQueue.Push(std::move(object_event), CEvent::OBJECT, true);
+	g_eventQueue.Push(std::move(object_event), true);
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
@@ -164,7 +164,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
-					g_eventQueue.Push(std::move(keyboard_event), CEvent::KEYBOARD, false);
+					g_eventQueue.Push(std::move(keyboard_event), false);
 				}
 				else virtual_device.Post(ev.type, ev.code, ev.value);
 

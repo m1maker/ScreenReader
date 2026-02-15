@@ -166,14 +166,14 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		CObjectEvent object_event;
 		object_event.object = current_object;
 		object_event.type = CObjectEvent::FOCUS_GAINED;
-		CEvent to_post(std::move(object_event), CEvent::OBJECT, false);
+		CEvent to_post(std::move(object_event), false);
 		AnnounceFocusChange(to_post);
 	}
 
 	CObjectEvent object_event;
 	object_event.object = object;
 	object_event.type = CObjectEvent::FOCUS_GAINED;
-	CEvent to_post(std::move(object_event), CEvent::OBJECT, false);
+	CEvent to_post(std::move(object_event), false);
 	AnnounceFocusChange(to_post);
 
 	m_contextChain = chain;
@@ -242,7 +242,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
 			object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
-			CEvent to_post(std::move(object_event_to_post), CEvent::OBJECT, false);
+			CEvent to_post(std::move(object_event_to_post), false);
 			AnnounceValueChange(to_post);
 			break;
 		}
@@ -250,7 +250,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
 			object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
-			CEvent to_post(std::move(object_event_to_post), CEvent::OBJECT, false);
+			CEvent to_post(std::move(object_event_to_post), false);
 			AnnounceCursorMove(to_post);
 			break;
 		}
