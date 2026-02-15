@@ -27,22 +27,32 @@ void CEventHandler::Start() {
 	m_thread = std::jthread([this]() {
 		while (g_running.load()) {
 			auto event = g_eventQueue.Pop();
-			if (event && m_listener) {
-				auto pool = g_eventQueue.GetPool();
-				if (!pool) [[unlikely]] continue;
+			if (event && m_listener) [[likely]] {
+				switch (event.value().GetType()) {
+					case CEvent::OBJECT: {
+						auto pool = g_eventQueue.GetPool();
+						if (!pool) [[unlikely]] break;
 
-				auto raw = pool->allocate(sizeof(CEvent));
-				auto raw_event = new(raw) CEvent(std::move(event.value()));
-				m_listener->PushToMainThread([](void* pData) {
-					if (!pData) return;
-					auto event_casted = static_cast<CEvent*>(pData);
-					g_eventHandler.Handle(std::move(*event_casted));
-					auto pool = g_eventQueue.GetPool();
-					if (!pool) [[unlikely]] return;
+						auto raw = pool->allocate(sizeof(CEvent));
+						auto raw_event = new(raw) CEvent(std::move(event.value()));
+						m_listener->PushToMainThread([](void* pData) {
+							if (!pData) return;
+							auto event_casted = static_cast<CEvent*>(pData);
+							g_eventHandler.Handle(std::move(*event_casted));
+							auto pool = g_eventQueue.GetPool();
+							if (!pool) [[unlikely]] return;
 
-					event_casted->~CEvent();
-					pool->deallocate(pData, sizeof(CEvent));
-				}, raw_event);
+							event_casted->~CEvent();
+							pool->deallocate(pData, sizeof(CEvent));
+						}, raw_event);
+						break;
+					}
+
+					case CEvent::KEYBOARD:
+						g_eventHandler.Handle(std::move(event.value()));
+						break;
+					default: break;
+				}
 			}
 		}
 	});
@@ -56,56 +66,56 @@ void CEventHandler::Handle(CEvent&& event) {
 
 	try {
 		switch (event.GetType()) {
-			case CEvent::FOCUS_GAINED: {
+			case CEvent::OBJECT: {
 				auto object_event = event.GetAs<CObjectEvent>();
 				if (!object_event.has_value()) break;
-				g_focusManager.SetFocus(object_event.value().object);
-				g_speechEngine.Stop();
-				g_eventToSpeech.AnnounceFocusChange(event);
-				break;
-			}
-			case CEvent::PARENT_UPDATED:
-				g_eventToSpeech.AnnounceWhereAmI();
-				break;
-			case CEvent::VALUE_CHANGED: {
-				g_eventToSpeech.AnnounceValueChange(event);
-				break;
-			}
-			case CEvent::STATE_CHANGED: {
-				g_eventToSpeech.AnnounceStateChange(event);
-				break;
-			}
-				case CEvent::SELECTION_CHANGED: {
-				g_eventToSpeech.AnnounceSelectionChange(event);
-				break;
+
+				switch (object_event.value().type) {
+					case CObjectEvent::FOCUS_GAINED:
+						g_focusManager.SetFocus(object_event.value().object);
+						g_speechEngine.Stop();
+						g_eventToSpeech.AnnounceFocusChange(event);
+						break;
+					case CObjectEvent::PARENT_UPDATED:
+						g_eventToSpeech.AnnounceWhereAmI();
+						break;
+					case CObjectEvent::VALUE_CHANGED:
+						g_eventToSpeech.AnnounceValueChange(event);
+						break;
+					case CObjectEvent::STATE_CHANGED:
+						g_eventToSpeech.AnnounceStateChange(event);
+						break;
+					case CObjectEvent::SELECTION_CHANGED:
+						g_eventToSpeech.AnnounceSelectionChange(event);
+						break;
+					case CObjectEvent::CURSOR_MOVED:
+						g_eventToSpeech.AnnounceCursorMove(event);
+						break;
+					default: break;
+				}
 			}
 
-			case CEvent::CURSOR_MOVED: {
-				g_eventToSpeech.AnnounceCursorMove(event);
-				break;
-			}
-
-			case CEvent::KEY_PRESSED: {
+			case CEvent::KEYBOARD: {
 				std::lock_guard<std::mutex> lock(g_keyboardHandler.m_mutex);
 				auto keyboard_event = event.GetAs<CKeyboardEvent>();
 				if (!keyboard_event.has_value()) break;
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
-				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
-				g_keyboardHandler.Handle(keyboard_event.value());
-				break;
-			}
-			case CEvent::KEY_RELEASED: {
-				std::lock_guard<std::mutex> lock(g_keyboardHandler.m_mutex);
-				auto keyboard_event = event.GetAs<CKeyboardEvent>();
-				if (!keyboard_event.has_value()) break;
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
-				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
+				switch (keyboard_event.value().type) {
+					case CKeyboardEvent::KEY_PRESSED:
+						g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
+						g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
-				break;
+						g_keyboardHandler.Handle(keyboard_event.value());
+						break;
+					case CKeyboardEvent::KEY_RELEASED:
+						g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
+						g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
+
+						break;
+					default: break;
+				}
 			}
-			default:
-				break;
+			default: break;
 		}
 	}
 

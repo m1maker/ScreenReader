@@ -304,7 +304,7 @@ public:
 	[[nodiscard]] virtual auto GetName()const -> ObjectResult<std::string> = 0;
 	[[nodiscard]] virtual auto GetDescription()const -> ObjectResult<std::string> = 0;
 
-	virtual void UpdateCacheByEvent(const CEvent::EEventType& type) = 0;
+	virtual void UpdateCacheByEvent(CObjectEvent::EObjectEventType type) = 0;
 };
 
 class ITextProvider {

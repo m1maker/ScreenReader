@@ -78,33 +78,22 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		return;
 	}
 
-	CEvent::EEventType type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
+	auto type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
+	if (type == CObjectEvent::NONE) return;
 
 	/*
 	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't need to be dispatched when !detail1 is.
 	This list of types will likely expand once I fully understand what they are.
 	*/
-	if ((type == CEvent::FOCUS_GAINED) && !event->detail1) return;
-	switch (type) { // Then send it to the handler
-		/*
-		It looks like in the future this will all be CObjectEvent, but just in case, we'll use switch-case for now.
-		*/
-		case CEvent::FOCUS_GAINED:
-		case CEvent::CURSOR_MOVED:
-		case CEvent::STATE_CHANGED:
-		case CEvent::SELECTION_CHANGED:
-		case CEvent::VALUE_CHANGED: {
-			CObjectEvent object_event;
-			object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
-			object_event.object->UpdateCacheByEvent(type);
-			/*
-			Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
-			*/
-			g_eventQueue.Push(std::move(object_event), type, true);
-			break;
-		}
-		default: break;
-	}
+	if ((type == CObjectEvent::FOCUS_GAINED) && !event->detail1) return;
+	CObjectEvent object_event;
+	object_event.type = type;
+	object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
+	object_event.object->UpdateCacheByEvent(type);
+	/*
+	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
+	*/
+	g_eventQueue.Push(std::move(object_event), CEvent::OBJECT, true);
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
@@ -174,8 +163,8 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					if (!g_keyboardHandler.IsHooked(keyboard_event.hotkey)) {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
-					CEvent::EEventType type = (ev.value == 1) ? CEvent::KEY_PRESSED : CEvent::KEY_RELEASED;
-					g_eventQueue.Push(std::move(keyboard_event), type, false);
+					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
+					g_eventQueue.Push(std::move(keyboard_event), CEvent::KEYBOARD, false);
 				}
 				else virtual_device.Post(ev.type, ev.code, ev.value);
 
@@ -217,9 +206,9 @@ CEventListenerAtspi::CEventListenerAtspi() :
 	*/
 	GError* error = nullptr;
 	for (const auto& [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
-		atspi_event_listener_register(m_objectEventListener, atspi_event_type.c_str(), &error);
+		atspi_event_listener_register(m_objectEventListener, atspi_event_type.data(), &error);
 		if (error) {
-			g_logger.Log(CLogger::ERROR, "Failed to register event: " + atspi_event_type + std::string(error->message));
+			g_logger.Log(CLogger::ERROR, "Failed to register event: ", atspi_event_type, error->message);
 			g_error_free(error);
 			error = nullptr;
 		}

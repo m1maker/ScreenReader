@@ -365,7 +365,7 @@ public:
 	[[nodiscard]] auto GetName() const -> ObjectResult<std::string> override;
 	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string> override;
 
-	void UpdateCacheByEvent(const CEvent::EEventType& event) override;
+	void UpdateCacheByEvent(CObjectEvent::EObjectEventType event) override;
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange<std::string>> override;

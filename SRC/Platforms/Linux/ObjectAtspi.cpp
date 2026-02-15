@@ -6,30 +6,28 @@
 #include <Core/Rect.h>
 #include <Core/Defer.h>
 
-void CObjectAtspi::UpdateCacheByEvent(const CEvent::EEventType& event) {
+void CObjectAtspi::UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 	switch (event) {
-		case CEvent::VALUE_CHANGED:
+		case CObjectEvent::VALUE_CHANGED:
 			InvalidateCache(m_minValue);
 			InvalidateCache(m_maxValue);
 			InvalidateCache(m_currentValue);
 			break;
 		//case CEvent::SELECTION_CHANGED:
-		case CEvent::STATE_CHANGED:
-		case CEvent::VISIBILITY_CHANGED:
-		case CEvent::ENABLED_CHANGED:
+		case CObjectEvent::STATE_CHANGED:
 			InvalidateCache(m_states);
 			break;
 		//case CEvent::TEXT_CHANGED:
 			//Cache(m_text, std::nullopt);
 			//break;
-		case CEvent::CURSOR_MOVED:
+		case CObjectEvent::CURSOR_MOVED:
 			InvalidateCache(m_cursor);
 			break;
-		case CEvent::CHILD_ADDED:
-		case CEvent::CHILD_REMOVED:
+		case CObjectEvent::CHILD_ADDED:
+		case CObjectEvent::CHILD_REMOVED:
 			InvalidateCache(m_children);
 			break;
-		case CEvent::PARENT_UPDATED:
+		case CObjectEvent::PARENT_UPDATED:
 			InvalidateCache(m_parent);
 			break;
 		default: break;

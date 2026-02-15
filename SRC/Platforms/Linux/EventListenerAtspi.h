@@ -18,26 +18,26 @@
 AT-SPI has a listener where you need to register the required events one by one.
 But there's one very strange thing: all of these types are strings. Look at this code.
 */
-inline const std::unordered_map<std::string, CEvent::EEventType> cAtspiObjectEventTypeMap = {
-	{"object:state-changed:focused", CEvent::FOCUS_GAINED},
-	{"object:state-changed", CEvent::STATE_CHANGED},
-	{"object:selection-changed", CEvent::SELECTION_CHANGED},
-	{"object:text-selection-changed", CEvent::SELECTION_CHANGED},
-	{"object:property-change:accessible-value", CEvent::VALUE_CHANGED},
-	{"object:text-caret-moved", CEvent::CURSOR_MOVED}
+inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType> cAtspiObjectEventTypeMap = {
+	{"object:state-changed:focused", CObjectEvent::FOCUS_GAINED},
+	{"object:state-changed", CObjectEvent::STATE_CHANGED},
+	{"object:selection-changed", CObjectEvent::SELECTION_CHANGED},
+	{"object:text-selection-changed", CObjectEvent::SELECTION_CHANGED},
+	{"object:property-change:accessible-value", CObjectEvent::VALUE_CHANGED},
+	{"object:text-caret-moved", CObjectEvent::CURSOR_MOVED}
 };
 
-[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> CEvent::EEventType {
-	if (!type) [[unlikely]] return CEvent::NONE;
+[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> CObjectEvent::EObjectEventType {
+	if (!type) [[unlikely]] return CObjectEvent::NONE;
 
-	std::string type_str(type);
+	std::string_view type_str(type);
 
 	auto it = cAtspiObjectEventTypeMap.find(type_str);
-	if (it != cAtspiObjectEventTypeMap.end()) {
+	if (it != cAtspiObjectEventTypeMap.end()) [[likely]] {
 		return it->second;
 	}
 
-	return CEvent::NONE;
+	return CObjectEvent::NONE;
 }
 
 [[nodiscard]] constexpr inline CKeyboardEvent::EKeycode LinuxKeycodeToKeyboardEventKeycode(const uint16_t& linux_keycode) {

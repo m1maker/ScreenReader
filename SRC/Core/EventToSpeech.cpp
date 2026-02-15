@@ -165,13 +165,15 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 		CObjectEvent object_event;
 		object_event.object = current_object;
-		CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
+		object_event.type = CObjectEvent::FOCUS_GAINED;
+		CEvent to_post(std::move(object_event), CEvent::OBJECT, false);
 		AnnounceFocusChange(to_post);
 	}
 
 	CObjectEvent object_event;
 	object_event.object = object;
-	CEvent to_post(std::move(object_event), CEvent::FOCUS_GAINED, false);
+	object_event.type = CObjectEvent::FOCUS_GAINED;
+	CEvent to_post(std::move(object_event), CEvent::OBJECT, false);
 	AnnounceFocusChange(to_post);
 
 	m_contextChain = chain;
@@ -239,14 +241,16 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		case IObject::SLIDER: {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(std::move(object_event_to_post), CEvent::VALUE_CHANGED, false);
+			object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
+			CEvent to_post(std::move(object_event_to_post), CEvent::OBJECT, false);
 			AnnounceValueChange(to_post);
 			break;
 		}
 		case IObject::TEXT_FIELD: {
 			CObjectEvent object_event_to_post;
 			object_event_to_post.object = object_event.value().object;
-			CEvent to_post(std::move(object_event_to_post), CEvent::CURSOR_MOVED, false);
+			object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
+			CEvent to_post(std::move(object_event_to_post), CEvent::OBJECT, false);
 			AnnounceCursorMove(to_post);
 			break;
 		}
