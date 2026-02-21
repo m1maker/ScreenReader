@@ -1,12 +1,12 @@
 // Platform dependent worker implementation for Linux.
 #pragma once
-#include <atspi/atspi.h>
-#include <csignal>
-#include <unistd.h>
 #include <Core/AppState.h>
-#include <chrono>
-#include <thread>
 #include <Interfaces/PlatformDependentWorker.h>
+#include <atspi/atspi.h>
+#include <chrono>
+#include <csignal>
+#include <thread>
+#include <unistd.h>
 
 /*
 We will also handle signals here to ensure safe exit.
@@ -63,41 +63,42 @@ class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
 	};
 
 	static auto GerrorToPlatformError(const GError* error) noexcept -> EPlatformError {
-		if (!error) return SUCCESS;
+		if (!error)
+			return SUCCESS;
 
 		EPlatformError plat_err{FAIL};
 
 		if (error->domain > 0) {
 			auto error_code = static_cast<EDbusError>(error->code);
 			switch (error_code) {
-				case EDbusError::ACCESS_DENIED:
-				case EDbusError::AUTH_FAILED:
-					plat_err = ACCESS_DENIED;
-					break;
-				case EDbusError::SERVICE_UNKNOWN:
-				case EDbusError::NAME_HAS_NO_OWNER:
-				case EDbusError::NO_SERVER:
-				case EDbusError::DISCONNECTED:
-					plat_err = SERVICE_NOT_FOUND;
-					break;
-				case EDbusError::NO_REPLY:
-				case EDbusError::TIMEOUT:
-				case EDbusError::TIMED_OUT:
-					plat_err = TIMED_OUT;
-					break;
-				case EDbusError::NO_MEMORY:
-				case EDbusError::SPAWN_NO_MEMORY:
-				case EDbusError::LIMITS_EXCEEDED:
-					plat_err = RESOURCE_EXHAUSTED;
-					break;
-				case EDbusError::NOT_SUPPORTED:
-				case EDbusError::UNKNOWN_METHOD:
-				case EDbusError::UNKNOWN_INTERFACE:
-					plat_err = NOT_IMPLEMENTED;
-					break;
-				default:
-					plat_err = FAIL;
-					break;
+			case EDbusError::ACCESS_DENIED:
+			case EDbusError::AUTH_FAILED:
+				plat_err = ACCESS_DENIED;
+				break;
+			case EDbusError::SERVICE_UNKNOWN:
+			case EDbusError::NAME_HAS_NO_OWNER:
+			case EDbusError::NO_SERVER:
+			case EDbusError::DISCONNECTED:
+				plat_err = SERVICE_NOT_FOUND;
+				break;
+			case EDbusError::NO_REPLY:
+			case EDbusError::TIMEOUT:
+			case EDbusError::TIMED_OUT:
+				plat_err = TIMED_OUT;
+				break;
+			case EDbusError::NO_MEMORY:
+			case EDbusError::SPAWN_NO_MEMORY:
+			case EDbusError::LIMITS_EXCEEDED:
+				plat_err = RESOURCE_EXHAUSTED;
+				break;
+			case EDbusError::NOT_SUPPORTED:
+			case EDbusError::UNKNOWN_METHOD:
+			case EDbusError::UNKNOWN_INTERFACE:
+				plat_err = NOT_IMPLEMENTED;
+				break;
+			default:
+				plat_err = FAIL;
+				break;
 			}
 		}
 
@@ -105,15 +106,16 @@ class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
 	}
 
 	struct sigaction m_signalAction{};
-public:
 
+public:
 	static void HandleSignal(int signal) {
 		switch (signal) {
-			case SIGINT:
-			case SIGTERM:
-				g_running.store(false);
-				break;
-			default: break;
+		case SIGINT:
+		case SIGTERM:
+			g_running.store(false);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -130,11 +132,13 @@ public:
 	}
 
 	~CPlatformDependentWorkerLinux() override {
-		if (m_atspiInitialized) atspi_exit();
+		if (m_atspiInitialized)
+			atspi_exit();
 	}
 
 	void Loop() override {
-		if (m_atspiInitialized) atspi_event_main();
+		if (m_atspiInitialized)
+			atspi_event_main();
 		else {
 			while (g_running.load()) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -143,9 +147,9 @@ public:
 	}
 
 	void Throw(const void* pError) noexcept override {
-		if (!pError) return;
+		if (!pError)
+			return;
 		auto result = GerrorToPlatformError(static_cast<const GError*>(pError));
 		PushError(result);
 	}
 };
-

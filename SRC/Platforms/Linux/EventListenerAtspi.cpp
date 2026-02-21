@@ -1,30 +1,31 @@
 // AT-SPI's event listener implementation.
 #include "EventListenerAtspi.h"
+
 #include "ObjectAtspi.h"
 #include "UinputDevice.h"
-#include <Core/EventHandler.h>
-#include <Core/KeyboardHandler.h>
+
 #include <Core/App.h>
-#include <Core/SpeechEngine.h>
-#include <Core/Logger.h>
 #include <Core/AppState.h>
+#include <Core/EventHandler.h>
 #include <Core/EventQueue.h>
+#include <Core/KeyboardHandler.h>
+#include <Core/Logger.h>
+#include <Core/SpeechEngine.h>
 #include <cstdlib>
-#include <linux/input.h>
 #include <fcntl.h>
-#include <unistd.h>
-
-#include <thread>
-
 #include <fstream>
+#include <linux/input.h>
 #include <sstream>
+#include <thread>
+#include <unistd.h>
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
 */
 [[nodiscard]] auto CEventListenerAtspi::FindKeyboardDevice() -> std::string {
 	std::ifstream file("/proc/bus/input/devices");
-	if (!file.is_open()) return "";
+	if (!file.is_open())
+		return "";
 
 	std::string line;
 	std::string current_event{""};
@@ -57,7 +58,7 @@ We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will 
 		}
 	}
 
-	return ""; 
+	return "";
 }
 
 /*
@@ -65,7 +66,8 @@ AT-SPI has a listener where you need to register the required events one by one 
 */
 void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_data) {
 	/*
-	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the event if g_running is false, then we do `atspi_event_quit()`;.
+	Since `atspi_event_main` is the main function of `CPlatformDependentWorkerLinux::Loop();`, we must check in the
+	event if g_running is false, then we do `atspi_event_quit()`;.
 	*/
 	if (!g_running.load()) {
 		atspi_event_quit();
@@ -79,19 +81,22 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	}
 
 	auto type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
-	if (type == CObjectEvent::NONE) return;
+	if (type == CObjectEvent::NONE)
+		return;
 
 	/*
-	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't need to be dispatched when !detail1 is.
-	This list of types will likely expand once I fully understand what they are.
+	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't
+	need to be dispatched when !detail1 is. This list of types will likely expand once I fully understand what they are.
 	*/
-	if ((type == CObjectEvent::FOCUS_GAINED) && !event->detail1) return;
+	if ((type == CObjectEvent::FOCUS_GAINED) && !event->detail1)
+		return;
 	CObjectEvent object_event;
 	object_event.type = type;
 	object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
 	object_event.object->UpdateCacheByEvent(type);
 	/*
-	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their turn.
+	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
+	turn.
 	*/
 	g_eventQueue.Push(std::move(object_event), true);
 }
@@ -147,18 +152,21 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					}
 					g_logger.Log(CLogger::ERROR, "Evdev read error or device disconnected.");
 					modifiers = 0;
-					break; 
+					break;
 				}
 
 				if (n == sizeof(ev) && ev.type == EV_KEY) {
-					if (ev.value == 2) continue;
+					if (ev.value == 2)
+						continue;
 
 					CKeyboardEvent keyboard_event;
 					keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
 
 					auto modifier = LinuxModifierToKeyboardEventModifier(ev.code);
-					if (ev.value == 1) modifiers |= modifier;
-					else modifiers &= ~modifier;
+					if (ev.value == 1)
+						modifiers |= modifier;
+					else
+						modifiers &= ~modifier;
 					keyboard_event.hotkey.modifiers = modifiers;
 					if (!g_keyboardHandler.IsHooked(keyboard_event.hotkey)) {
 						virtual_device.Post(ev.type, ev.code, ev.value);
@@ -166,8 +174,8 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
 					g_eventQueue.Push(std::move(keyboard_event), false);
 				}
-				else virtual_device.Post(ev.type, ev.code, ev.value);
-
+				else
+					virtual_device.Post(ev.type, ev.code, ev.value);
 			}
 			close(fd);
 			g_logger.Log(CLogger::INFO, "Evdev fd closed.");
@@ -186,15 +194,16 @@ void CEventListenerAtspi::StopEvdevWatcher() {
 
 void CEventListenerAtspi::ListenDevice(const EDeviceType& device, bool listen) {
 	switch (device) {
-		case EDeviceType::KEYBOARD:
-			listen ? StartEvdevWatcher() : StopEvdevWatcher();
-			break;
-		default: break;
+	case EDeviceType::KEYBOARD:
+		listen ? StartEvdevWatcher() : StopEvdevWatcher();
+		break;
+	default:
+		break;
 	}
 }
 
-CEventListenerAtspi::CEventListenerAtspi() : 
-	m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)) {
+CEventListenerAtspi::CEventListenerAtspi()
+	: m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)) {
 	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
 	if (!m_objectEventListener) [[unlikely]] {
 		g_logger.Log(CLogger::ERROR, "Failed to register the object event listener");
@@ -219,7 +228,8 @@ CEventListenerAtspi::CEventListenerAtspi() :
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {
 	static unsigned char counter{0};
-	if (counter > 1) return false;
+	if (counter > 1)
+		return false;
 	++counter;
 
 	const auto display = std::getenv("DISPLAY");
@@ -229,15 +239,15 @@ CEventListenerAtspi::CEventListenerAtspi() :
 	const auto user = std::getenv("USER");
 	std::string username = user ? user : "root";
 
-	std::string rule = "printf '"
+	std::string rule =
+		"printf '"
 		"KERNEL==%bevent*%b, SUBSYSTEM==%binput%b, TAG+=%buaccess%b\\n"
-						"KERNEL==%buinput%b, SUBSYSTEM==%bmisc%b, MODE==%b0666%b\\n"
-											"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' > /etc/udev/rules.d/10-mmadesr.rules";
+		"KERNEL==%buinput%b, SUBSYSTEM==%bmisc%b, MODE==%b0666%b\\n"
+		"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' > /etc/udev/rules.d/10-mmadesr.rules";
 
-	std::string final_cmd = std::string(has_gui ? "pkexec" : "sudo") + 
-				" sh -c \"" + rule + 
-							" && setfacl -m u:" + username + ":rw /dev/input/event* " +
-									" && udevadm control --reload-rules && udevadm trigger && chmod 666 /dev/uinput\"";
+	std::string final_cmd = std::string(has_gui ? "pkexec" : "sudo") + " sh -c \"" + rule +
+		" && setfacl -m u:" + username + ":rw /dev/input/event* " +
+		" && udevadm control --reload-rules && udevadm trigger && chmod 666 /dev/uinput\"";
 
 	return std::system(final_cmd.c_str()) == 0;
 }
@@ -248,21 +258,28 @@ struct SInvocationContext final {
 };
 
 void CEventListenerAtspi::PushToMainThread(ThreadFunction function, void* pUserData) {
-	if (!function) return;
+	if (!function)
+		return;
 
 	auto pool = g_eventQueue.GetPool();
-	if (!pool) return;
+	if (!pool)
+		return;
 	auto raw = pool->allocate(sizeof(SInvocationContext));
-	auto context = new(raw) SInvocationContext{function, pUserData};
-	g_main_context_invoke(nullptr, [](gpointer data) -> gboolean {
-		auto casted = static_cast<SInvocationContext*>(data);
-		if (!casted) return G_SOURCE_REMOVE;
-		casted->function(casted->pUserData);
+	auto context = new (raw) SInvocationContext{function, pUserData};
+	g_main_context_invoke(
+		nullptr,
+		[](gpointer data) -> gboolean {
+			auto casted = static_cast<SInvocationContext*>(data);
+			if (!casted)
+				return G_SOURCE_REMOVE;
+			casted->function(casted->pUserData);
 
-		auto pool = g_eventQueue.GetPool();
-		if (!pool) return G_SOURCE_REMOVE;
-		casted->~SInvocationContext();
-		pool->deallocate(data, sizeof(SInvocationContext));
-		return G_SOURCE_REMOVE;
-	}, context);
+			auto pool = g_eventQueue.GetPool();
+			if (!pool)
+				return G_SOURCE_REMOVE;
+			casted->~SInvocationContext();
+			pool->deallocate(data, sizeof(SInvocationContext));
+			return G_SOURCE_REMOVE;
+		},
+		context);
 }

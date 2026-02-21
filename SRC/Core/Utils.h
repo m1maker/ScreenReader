@@ -4,18 +4,14 @@
 
 class CTimer final {
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime;
-public:
 
-	explicit CTimer() {
-		Restart();
-	}
+public:
+	explicit CTimer() { Restart(); }
 
 	[[nodiscard]] inline uint64_t Elapsed() {
 		auto now = std::chrono::high_resolution_clock::now();
 		return std::chrono::duration_cast<std::chrono::milliseconds>(now - m_startTime).count();
 	}
 
-	inline void Restart() {
-		m_startTime = std::chrono::high_resolution_clock::now();
-	}
+	inline void Restart() { m_startTime = std::chrono::high_resolution_clock::now(); }
 };

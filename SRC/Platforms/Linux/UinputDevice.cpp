@@ -1,7 +1,9 @@
 #include "UinputDevice.h"
+
+#include "EventListenerAtspi.h"
+
 #include <chrono>
 #include <thread>
-#include "EventListenerAtspi.h"
 
 void CUinputDevice::SetupVirtualDevice() {
 	m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
@@ -11,7 +13,8 @@ void CUinputDevice::SetupVirtualDevice() {
 			for (int i = 0; i < 10; ++i) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-				if (m_uinputFd >= 0) break;
+				if (m_uinputFd >= 0)
+					break;
 			}
 
 			if (m_uinputFd < 0) {
@@ -33,12 +36,14 @@ void CUinputDevice::SetupVirtualDevice() {
 	struct uinput_setup usetup;
 	memset(&usetup, 0, sizeof(usetup));
 	usetup.id.bustype = BUS_USB;
-	usetup.id.vendor  = 0x1323;
+	usetup.id.vendor = 0x1323;
 	usetup.id.product = 0x1523;
 	strcpy(usetup.name, "MMADESR-Virtual-Keyboard");
 
-	if (ioctl(m_uinputFd, UI_DEV_SETUP, &usetup) < 0) throw std::runtime_error("UI_DEV_SETUP failed");
-	if (ioctl(m_uinputFd, UI_DEV_CREATE) < 0) throw std::runtime_error("UI_DEV_CREATE failed");
+	if (ioctl(m_uinputFd, UI_DEV_SETUP, &usetup) < 0)
+		throw std::runtime_error("UI_DEV_SETUP failed");
+	if (ioctl(m_uinputFd, UI_DEV_CREATE) < 0)
+		throw std::runtime_error("UI_DEV_CREATE failed");
 }
 
 CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab), m_uinputFd(-1) {
@@ -48,7 +53,7 @@ CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab), m_ui
 
 void CUinputDevice::Grab(int device_to_grab) {
 	if (m_devFd >= 0) {
-		ioctl(m_devFd, EVIOCGRAB, 0); 
+		ioctl(m_devFd, EVIOCGRAB, 0);
 	}
 
 	if (device_to_grab == -1) {
@@ -71,7 +76,8 @@ CUinputDevice::~CUinputDevice() {
 }
 
 void CUinputDevice::Post(uint16_t type, uint16_t code, int32_t value) {
-	if (m_uinputFd < 0) return;
+	if (m_uinputFd < 0)
+		return;
 
 	struct input_event ev;
 	memset(&ev, 0, sizeof(ev));

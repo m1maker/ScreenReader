@@ -1,19 +1,19 @@
 #include <cstdint>
+#include <cstring>
+#include <fcntl.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string>
-#include <cstring>
 #include <stdexcept>
+#include <string>
+#include <unistd.h>
 
 class CUinputDevice final {
 	int m_devFd{-1};
 	int m_uinputFd{-1};
 
 	void SetupVirtualDevice();
-public:
 
+public:
 	explicit CUinputDevice(int device_to_grab);
 
 	~CUinputDevice();
@@ -22,5 +22,4 @@ public:
 	void Post(uint16_t type, uint16_t code, int32_t value);
 
 	[[nodiscard]] inline auto GetFd() const -> int { return m_devFd; }
-
 };

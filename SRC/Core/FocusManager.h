@@ -1,7 +1,8 @@
 #pragma once
 #include "Logger.h"
-#include <Interfaces/Object.h>
 #include "Singleton.h"
+
+#include <Interfaces/Object.h>
 #include <memory>
 #include <memory_resource>
 #include <vector>
@@ -17,10 +18,12 @@ class CFocusManager final {
 	void UpdateContextChain() {
 		LogCalled();
 		m_contextChain.clear();
-		if (!m_objectInFocus) return;
+		if (!m_objectInFocus)
+			return;
 
 		auto current = m_objectInFocus->GetParent();
-		if (!current) return;
+		if (!current)
+			return;
 		auto current_locked = current->lock();
 		while (current_locked) {
 			m_contextChain.push_back(current_locked);
@@ -30,29 +33,27 @@ class CFocusManager final {
 				break;
 			}
 			auto next_current = current_locked->GetParent();
-			if (!next_current) break;
+			if (!next_current)
+				break;
 			current_locked = next_current->lock();
 		}
 	}
 
 	explicit CFocusManager() : m_contextChain(&m_pool) {}
 	~CFocusManager() = default;
-public:
 
+public:
 	void SetFocus(std::shared_ptr<IObject> obj) {
-		if (!obj || m_objectInFocus == obj) return;
+		if (!obj || m_objectInFocus == obj)
+			return;
 
 		m_objectInFocus = obj;
 		UpdateContextChain();
 	}
 
-	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<std::shared_ptr<IObject>> {
-		return m_contextChain;
-	}
+	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<std::shared_ptr<IObject>> { return m_contextChain; }
 
-	[[nodiscard]] auto GetFocus() const -> std::shared_ptr<IObject> {
-		return m_objectInFocus;
-	}
+	[[nodiscard]] auto GetFocus() const -> std::shared_ptr<IObject> { return m_objectInFocus; }
 };
 
 #define g_focusManager CSingleton<CFocusManager>::GetInstance()

@@ -25,7 +25,8 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
 		it = m_actions.find(CKeyboardEvent::SHotkeyInfo::GetAny());
-		if (it == m_actions.end()) return;
+		if (it == m_actions.end())
+			return;
 	}
 
 	if (it->second.executable) {
@@ -36,7 +37,8 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 [[nodiscard]] auto CKeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	auto it = m_keysDown.find(keycode);
-	if (it!= m_keysDown.end()) return it->second;
+	if (it != m_keysDown.end())
+		return it->second;
 	return false;
 }
 

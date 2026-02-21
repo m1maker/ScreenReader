@@ -1,11 +1,12 @@
 #pragma once
 #include "Action.h"
 #include "Event.h"
-#include <unordered_map>
-#include <functional>
-#include <mutex>
 #include "Singleton.h"
 #include "Utils.h"
+
+#include <functional>
+#include <mutex>
+#include <unordered_map>
 
 class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
 	DeclareSingleton(CKeyboardHandler);
@@ -34,9 +35,10 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 
 	explicit CKeyboardHandler() = default;
 	~CKeyboardHandler() override = default;
-public:
 
-	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false) -> bool override;
+public:
+	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false)
+		-> bool override;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
 
 	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool override;

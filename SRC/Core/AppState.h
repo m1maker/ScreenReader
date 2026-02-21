@@ -17,7 +17,7 @@ public:
 		ERROR_OUT_OF_MEMORY = 104,
 		ERROR_NOT_SUPPORTED = 105,
 		ERROR_TIMEOUT = 106,
-	ERROR_ACCESS_DENIED = 107,
+		ERROR_ACCESS_DENIED = 107,
 
 		ERROR_PLATFORM_WINDOWS = 200,
 		ERROR_PLATFORM_LINUX = 201,
@@ -26,7 +26,7 @@ public:
 		ERROR_ACCESSIBILITY_API_UNAVAILABLE = 300,
 
 		ERROR_CONFIGURATION_INVALID = 700,
-	ERROR_SETTINGS_LOAD_FAILED = 701,
+		ERROR_SETTINGS_LOAD_FAILED = 701,
 
 		ERROR_VERSION_INCOMPATIBLE = 800
 	};
@@ -35,7 +35,6 @@ private:
 	EReturnCode m_returnCode{SUCCESS};
 
 public:
-
 	constexpr CScreenReaderAppReturnCode(const EReturnCode& return_code) : m_returnCode(return_code) {}
 	auto operator=(const EReturnCode& return_code) -> CScreenReaderAppReturnCode& {
 		m_returnCode = return_code;
@@ -47,44 +46,44 @@ public:
 
 	[[nodiscard]] constexpr inline auto ToString() const -> std::string_view {
 		switch (m_returnCode) {
-			case SUCCESS:
-				return "Operation completed successfully";
-			case SUCCESS_ALREADY_INITIALIZED:
-				return "Operation completed, already initialized";
+		case SUCCESS:
+			return "Operation completed successfully";
+		case SUCCESS_ALREADY_INITIALIZED:
+			return "Operation completed, already initialized";
 
-			case ERROR_UNKNOWN:
-				return "An unknown error occurred";
-			case ERROR_INVALID_PARAMETER:
-				return "Invalid parameter provided";
-			case ERROR_OUT_OF_MEMORY:
-				return "Insufficient memory available";
-			case ERROR_NOT_SUPPORTED:
-				return "Operation not supported on this platform";
-			case ERROR_TIMEOUT:
-				return "Operation timed out";
-			case ERROR_ACCESS_DENIED:
-				return "Access denied due to insufficient permissions";
+		case ERROR_UNKNOWN:
+			return "An unknown error occurred";
+		case ERROR_INVALID_PARAMETER:
+			return "Invalid parameter provided";
+		case ERROR_OUT_OF_MEMORY:
+			return "Insufficient memory available";
+		case ERROR_NOT_SUPPORTED:
+			return "Operation not supported on this platform";
+		case ERROR_TIMEOUT:
+			return "Operation timed out";
+		case ERROR_ACCESS_DENIED:
+			return "Access denied due to insufficient permissions";
 
-			case ERROR_PLATFORM_WINDOWS:
-				return "Windows-specific error";
-			case ERROR_PLATFORM_LINUX:
-				return "Linux-specific error";
-			case ERROR_PLATFORM_ANDROID:
-				return "Android-specific error";
+		case ERROR_PLATFORM_WINDOWS:
+			return "Windows-specific error";
+		case ERROR_PLATFORM_LINUX:
+			return "Linux-specific error";
+		case ERROR_PLATFORM_ANDROID:
+			return "Android-specific error";
 
-			case ERROR_ACCESSIBILITY_API_UNAVAILABLE:
-				return "Accessibility API not available";
+		case ERROR_ACCESSIBILITY_API_UNAVAILABLE:
+			return "Accessibility API not available";
 
-			case ERROR_CONFIGURATION_INVALID:
-				return "Invalid configuration detected";
-			case ERROR_SETTINGS_LOAD_FAILED:
-				return "Failed to load settings";
+		case ERROR_CONFIGURATION_INVALID:
+			return "Invalid configuration detected";
+		case ERROR_SETTINGS_LOAD_FAILED:
+			return "Failed to load settings";
 
-			case ERROR_VERSION_INCOMPATIBLE:
-				return "Version incompatible";
+		case ERROR_VERSION_INCOMPATIBLE:
+			return "Version incompatible";
 
-			default:
-				return "Unknown return code";
+		default:
+			return "Unknown return code";
 		}
 	}
 };

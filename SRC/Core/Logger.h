@@ -1,24 +1,19 @@
 // Logger
 #pragma once
-#include <fstream>
-#include <string>
-#include "Singleton.h"
-#include <string_view>
-#include <mutex>
 #include "AppState.h"
+#include "Singleton.h"
+
+#include <fstream>
+#include <mutex>
+#include <string>
+#include <string_view>
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {
 	DeclareSingleton(CLogger);
-public:
 
-	enum ELogLevel : unsigned char {
-		DEBUG = 0,
-		INFO,
-		WARNING,
-		ERROR,
-		NOTHING
-	};
+public:
+	enum ELogLevel : unsigned char { DEBUG = 0, INFO, WARNING, ERROR, NOTHING };
 
 private:
 	std::ofstream m_file;
@@ -26,7 +21,7 @@ private:
 	std::string_view m_currentCategory{"Unknown"};
 	std::mutex m_mutex;
 
-	explicit CLogger()  {
+	explicit CLogger() {
 		m_file.open("ScreenReader.log", std::ios::app);
 		if (!m_file.is_open()) {
 			g_returnCode = CScreenReaderAppReturnCode::ERROR_LOGGER;
@@ -43,32 +38,37 @@ private:
 			m_file.close();
 		}
 	}
-public:
 
+public:
 	[[nodiscard]] static constexpr inline auto LogLevelToString(ELogLevel level) -> std::string_view {
 		switch (level) {
-			case INFO: return "Info";
-			case DEBUG: return "Debug";
-			case WARNING: return "Warning";
-			case ERROR: return "Error";
-			default: return "Nothing";
+		case INFO:
+			return "Info";
+		case DEBUG:
+			return "Debug";
+		case WARNING:
+			return "Warning";
+		case ERROR:
+			return "Error";
+		default:
+			return "Nothing";
 		}
 	}
 
-	template<typename... Args>
-	inline void Log(ELogLevel level, std::string_view category, Args&&... args) noexcept {
-		if (m_level > level) return;
+	template <typename... Args> inline void Log(ELogLevel level, std::string_view category, Args&&... args) noexcept {
+		if (m_level > level)
+			return;
 
 		[[maybe_unused]] std::scoped_lock _(m_mutex);
 		m_file << LogLevelToString(level) << ": [" << category << "] ";
-		( (m_file << std::forward<Args>(args)), ... );
+		((m_file << std::forward<Args>(args)), ...);
 		m_file << '\n';
 	}
 
-	template<typename... Args>
-	requires (sizeof...(Args) > 0)
+	template <typename... Args>
+		requires(sizeof...(Args) > 0)
 	inline void Log(ELogLevel level, Args&&... args) noexcept
-	requires (!std::is_convertible_v<std::tuple_element_t<0, std::tuple<Args...>>, std::string_view>)
+		requires(!std::is_convertible_v<std::tuple_element_t<0, std::tuple<Args...>>, std::string_view>)
 	{
 		Log(level, m_currentCategory, std::forward<Args>(args)...);
 	}
@@ -91,20 +91,19 @@ A scoped category is an object that keeps one category active in the logger duri
 When we call the overloaded CLogger::Log without a category, it uses m_currentCategory.
 This is useful if we use the logger many times in a single function. Then we set the category.
 
-If a function that uses CScopedCategory calls a function that also uses the logger, we need to make sure that it also forces its category or also uses CScopedCategory.
+If a function that uses CScopedCategory calls a function that also uses the logger, we need to make sure that it also
+forces its category or also uses CScopedCategory.
 */
 class CScopedCategory final {
 	std::string_view m_currentCategory;
-public:
 
+public:
 	CScopedCategory(std::string_view category) : m_currentCategory(g_logger.GetCurrentCategory()) {
-		
+
 		g_logger.SetCurrentCategory(category);
 	}
 
-	~CScopedCategory() {
-		g_logger.SetCurrentCategory(m_currentCategory);
-	}
+	~CScopedCategory() { g_logger.SetCurrentCategory(m_currentCategory); }
 };
 
 #if defined(__GNUC__) || defined(__clang__)

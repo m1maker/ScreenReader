@@ -1,11 +1,12 @@
 #pragma once
 
-#include <memory_resource>
-#include <deque>
-#include <mutex>
-#include <condition_variable>
-#include "Singleton.h"
 #include "EventHandler.h"
+#include "Singleton.h"
+
+#include <condition_variable>
+#include <deque>
+#include <memory_resource>
+#include <mutex>
 
 class CEventQueue final {
 	std::pmr::synchronized_pool_resource m_pool;
@@ -18,10 +19,9 @@ class CEventQueue final {
 	explicit CEventQueue() : m_events(&m_pool) {}
 
 	~CEventQueue() { Stop(); }
-public:
 
-	template<typename... Args>
-	void Push(Args&&... args) {
+public:
+	template <typename... Args> void Push(Args&&... args) {
 		std::lock_guard lock(m_mutex);
 		m_events.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();
@@ -31,7 +31,8 @@ public:
 		std::unique_lock lock(m_mutex);
 		m_cv.wait(lock, [this] { return !m_events.empty() || m_stopping; });
 
-		if (m_stopping && m_events.empty()) return std::nullopt;
+		if (m_stopping && m_events.empty())
+			return std::nullopt;
 
 		CEvent event = std::move(m_events.front());
 		m_events.pop_front();
@@ -47,9 +48,7 @@ public:
 		m_cv.notify_all();
 	}
 
-	[[nodiscard]] auto GetPool() -> std::pmr::synchronized_pool_resource* {
-		return &m_pool;
-	}
+	[[nodiscard]] auto GetPool() -> std::pmr::synchronized_pool_resource* { return &m_pool; }
 };
 
 #define g_eventQueue CSingleton<CEventQueue>::GetInstance()

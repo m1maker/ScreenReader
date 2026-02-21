@@ -7,4 +7,3 @@ struct SRect {
 		return px >= x && px <= x + width && py >= y && py <= y + height;
 	}
 };
-

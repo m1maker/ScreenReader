@@ -1,22 +1,20 @@
 // Object interface.
 #pragma once
-#include <vector>
-#include <memory>
-#include <Core/Rect.h>
 #include <Core/Cache.h>
 #include <Core/Event.h>
+#include <Core/Rect.h>
 #include <Core/Text.h>
-#include <map>
 #include <expected>
+#include <map>
+#include <memory>
 #include <memory_resource>
 #include <string_view>
+#include <vector>
 
-template<typename T>
-using ObjectResult = std::expected<T, unsigned char>;
+template <typename T> using ObjectResult = std::expected<T, unsigned char>;
 
 class IObject : public std::enable_shared_from_this<IObject> {
 public:
-
 	enum EInterfaceMask : uint32_t {
 		SUPPORTS_NOTHING = 0,
 		SUPPORTS_TEXT = 1 << 0,
@@ -172,59 +170,59 @@ public:
 	};
 
 	enum EObjectState : unsigned long long {
-		NO                = 0,
+		NO = 0,
 
-		ACTIVE              = 1ULL << 0,
-		BUSY                = 1ULL << 1,
-		CHECKED             = 1ULL << 2,
-		COLLAPSED           = 1ULL << 3,
-		DEFAULT             = 1ULL << 4,
-		DRAGGING            = 1ULL << 5,
-		ENABLED             = 1ULL << 6,
-		EXPANDED            = 1ULL << 7,
-		FOCUSED             = 1ULL << 8,
-		HOVERED             = 1ULL << 9,
-		INDETERMINATE       = 1ULL << 10, // For partial checkboxes
-		INVALID             = 1ULL << 11,
-		LINKED              = 1ULL << 12,
-		LOADING             = 1ULL << 13,
-		MODAL               = 1ULL << 14,
-		OFFSCREEN           = 1ULL << 15,
-		PRESSED             = 1ULL << 16,
-		READONLY            = 1ULL << 17,
-		REQUIRED            = 1ULL << 18,
-		SELECTED            = 1ULL << 19,
-		VISITED             = 1ULL << 20,
-		VISIBLE             = 1ULL << 21,
+		ACTIVE = 1ULL << 0,
+		BUSY = 1ULL << 1,
+		CHECKED = 1ULL << 2,
+		COLLAPSED = 1ULL << 3,
+		DEFAULT = 1ULL << 4,
+		DRAGGING = 1ULL << 5,
+		ENABLED = 1ULL << 6,
+		EXPANDED = 1ULL << 7,
+		FOCUSED = 1ULL << 8,
+		HOVERED = 1ULL << 9,
+		INDETERMINATE = 1ULL << 10, // For partial checkboxes
+		INVALID = 1ULL << 11,
+		LINKED = 1ULL << 12,
+		LOADING = 1ULL << 13,
+		MODAL = 1ULL << 14,
+		OFFSCREEN = 1ULL << 15,
+		PRESSED = 1ULL << 16,
+		READONLY = 1ULL << 17,
+		REQUIRED = 1ULL << 18,
+		SELECTED = 1ULL << 19,
+		VISITED = 1ULL << 20,
+		VISIBLE = 1ULL << 21,
 
-		ANIMATED            = 1ULL << 22,
+		ANIMATED = 1ULL << 22,
 		AUTO_FILL_AVAILABLE = 1ULL << 23,
-		CHECKABLE           = 1ULL << 24,
-		CLICKABLE           = 1ULL << 25,
-		DRAGGABLE           = 1ULL << 26,
-		EDITABLE            = 1ULL << 27,
-		EXPANDABLE          = 1ULL << 28,
-		FOCUSABLE           = 1ULL << 29,
-		HAS_POPUP           = 1ULL << 30,
-		HORIZONTAL          = 1ULL << 31,
-		MAPPABLE            = 1ULL << 32,
-		MULTI_LINE          = 1ULL << 33,
-		MULTI_SELECTABLE    = 1ULL << 34,
-		MOVEABLE            = 1ULL << 35,
-		PINNED              = 1ULL << 36,
-		RESIZABLE           = 1ULL << 37,
-		SELECTABLE          = 1ULL << 38,
-		SECURE              = 1ULL << 39, // For passwords
-		SORTABLE            = 1ULL << 40,
-		TOUCH_OPTIMIZED     = 1ULL << 41,
-		VERTICAL            = 1ULL << 42,
+		CHECKABLE = 1ULL << 24,
+		CLICKABLE = 1ULL << 25,
+		DRAGGABLE = 1ULL << 26,
+		EDITABLE = 1ULL << 27,
+		EXPANDABLE = 1ULL << 28,
+		FOCUSABLE = 1ULL << 29,
+		HAS_POPUP = 1ULL << 30,
+		HORIZONTAL = 1ULL << 31,
+		MAPPABLE = 1ULL << 32,
+		MULTI_LINE = 1ULL << 33,
+		MULTI_SELECTABLE = 1ULL << 34,
+		MOVEABLE = 1ULL << 35,
+		PINNED = 1ULL << 36,
+		RESIZABLE = 1ULL << 37,
+		SELECTABLE = 1ULL << 38,
+		SECURE = 1ULL << 39, // For passwords
+		SORTABLE = 1ULL << 40,
+		TOUCH_OPTIMIZED = 1ULL << 41,
+		VERTICAL = 1ULL << 42,
 
-		CLIPPED             = 1ULL << 43,
-		HAS_TOOLTIP         = 1ULL << 44,
-		HIDDEN              = 1ULL << 45,
-		LIVE_REGION         = 1ULL << 46, // For dynamic content updates
-		PROTECTED           = 1ULL << 47,
-		SENSITIVE           = 1ULL << 48,
+		CLIPPED = 1ULL << 43,
+		HAS_TOOLTIP = 1ULL << 44,
+		HIDDEN = 1ULL << 45,
+		LIVE_REGION = 1ULL << 46, // For dynamic content updates
+		PROTECTED = 1ULL << 47,
+		SENSITIVE = 1ULL << 48,
 	};
 
 	enum EObjectError : unsigned char {
@@ -239,87 +237,90 @@ public:
 
 	[[nodiscard]] static constexpr auto ErrorToString(const unsigned char& error) -> std::string_view {
 		switch (error) {
-			case SUCCESS:
-				return "No error: The operation completed successfully.";
-			case DEFUNCT:
-				return "Object Defunct: The target accessibility object is no longer valid.";
-			case NOT_SUPPORTED:
-				return "Interface Not Supported: The object does not implement the requested accessibility interface.";
-			case ACCESS_DENIED:
-				return "Access Denied: Permission was refused to access this object.";
-			case INVALID_ARGUMENTS:
-				return "Invalid Arguments: The parameters provided to the method are out of range or malformed for this specific object.";
-			case TIMEOUT:
-				return "Operation Timeout: The application or the accessibility registry failed to respond within the expected timeframe.";
-			case FAIL:
-			default:
-				return "Unknown Error: An unexpected or undocumented failure occurred during the interaction with the accessibility API.";
+		case SUCCESS:
+			return "No error: The operation completed successfully.";
+		case DEFUNCT:
+			return "Object Defunct: The target accessibility object is no longer valid.";
+		case NOT_SUPPORTED:
+			return "Interface Not Supported: The object does not implement the requested accessibility interface.";
+		case ACCESS_DENIED:
+			return "Access Denied: Permission was refused to access this object.";
+		case INVALID_ARGUMENTS:
+			return "Invalid Arguments: The parameters provided to the method are out of range or malformed for this "
+				   "specific object.";
+		case TIMEOUT:
+			return "Operation Timeout: The application or the accessibility registry failed to respond within the "
+				   "expected timeframe.";
+		case FAIL:
+		default:
+			return "Unknown Error: An unexpected or undocumented failure occurred during the interaction with the "
+				   "accessibility API.";
 		}
 	}
 
 protected:
 	std::pmr::memory_resource* m_pool{nullptr};
-public:
 
+public:
 	explicit IObject(std::pmr::memory_resource* pool) : m_pool(pool) {}
 	virtual ~IObject() = default;
 
 	[[nodiscard]] static auto GetTypeName(const EObjectType& type, bool require_all = false) -> std::string_view;
-	[[nodiscard]] static auto GetStateNames(const EObjectType& type, const unsigned long long& states, bool require_all = false) -> std::vector<std::string_view>;
+	[[nodiscard]] static auto GetStateNames(
+		const EObjectType& type, const unsigned long long& states, bool require_all = false)
+		-> std::vector<std::string_view>;
 
 	[[nodiscard]] static constexpr inline auto IsValidParent(const EObjectType& type) -> bool {
 		switch (type) {
-			case WINDOW:
-			case DIALOG:
-				return true;
+		case WINDOW:
+		case DIALOG:
+			return true;
 		}
 
 		return false;
 	}
 
-	template<typename Interface>
-	[[nodiscard]] auto GetAs() -> std::shared_ptr<Interface>;
+	template <typename Interface> [[nodiscard]] auto GetAs() -> std::shared_ptr<Interface>;
 
-	[[nodiscard]] virtual auto GetNativeHandle()const noexcept -> ObjectResult<void*> = 0;
+	[[nodiscard]] virtual auto GetNativeHandle() const noexcept -> ObjectResult<void*> = 0;
 
-	[[nodiscard]] virtual auto IsValid()const noexcept -> bool = 0;
+	[[nodiscard]] virtual auto IsValid() const noexcept -> bool = 0;
 
-	[[nodiscard]] virtual auto GetType()const -> ObjectResult<EObjectType> = 0;
-	[[nodiscard]] virtual auto IsVisible()const -> ObjectResult<bool> = 0;
-	[[nodiscard]] virtual auto IsEnabled()const -> ObjectResult<bool> = 0;
+	[[nodiscard]] virtual auto GetType() const -> ObjectResult<EObjectType> = 0;
+	[[nodiscard]] virtual auto IsVisible() const -> ObjectResult<bool> = 0;
+	[[nodiscard]] virtual auto IsEnabled() const -> ObjectResult<bool> = 0;
 
-	[[nodiscard]] virtual auto GetState()const -> ObjectResult<unsigned long long> = 0;
-	[[nodiscard]] virtual auto HasState(EObjectState state)const -> ObjectResult<bool> = 0;
+	[[nodiscard]] virtual auto GetState() const -> ObjectResult<unsigned long long> = 0;
+	[[nodiscard]] virtual auto HasState(EObjectState state) const -> ObjectResult<bool> = 0;
 
-	[[nodiscard]] virtual auto GetParent()const -> ObjectResult<std::weak_ptr<IObject>> = 0;
-	[[nodiscard]] virtual auto GetChildren()const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> = 0;
-	[[nodiscard]] virtual auto GetChildrenCount()const -> ObjectResult<int> = 0;
+	[[nodiscard]] virtual auto GetParent() const -> ObjectResult<std::weak_ptr<IObject>> = 0;
+	[[nodiscard]] virtual auto GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> = 0;
+	[[nodiscard]] virtual auto GetChildrenCount() const -> ObjectResult<int> = 0;
 
-	[[nodiscard]] virtual auto GetBounds()const -> ObjectResult<struct SRect> = 0;
+	[[nodiscard]] virtual auto GetBounds() const -> ObjectResult<struct SRect> = 0;
 
-	[[nodiscard]] virtual auto GetIndex()const -> ObjectResult<int> = 0;
+	[[nodiscard]] virtual auto GetIndex() const -> ObjectResult<int> = 0;
 
-	[[nodiscard]] virtual auto GetApplicationName()const -> ObjectResult<std::string> = 0;
+	[[nodiscard]] virtual auto GetApplicationName() const -> ObjectResult<std::string> = 0;
 
-	[[nodiscard]] virtual auto GetName()const -> ObjectResult<std::string> = 0;
-	[[nodiscard]] virtual auto GetDescription()const -> ObjectResult<std::string> = 0;
+	[[nodiscard]] virtual auto GetName() const -> ObjectResult<std::string> = 0;
+	[[nodiscard]] virtual auto GetDescription() const -> ObjectResult<std::string> = 0;
 
 	virtual void UpdateCacheByEvent(CObjectEvent::EObjectEventType type) = 0;
 };
 
 class ITextProvider {
 public:
-
 	virtual ~ITextProvider() = default;
 
-	[[nodiscard]] virtual auto GetCursor()const -> ObjectResult<int> = 0;
-	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange<std::string>> = 0;
+	[[nodiscard]] virtual auto GetCursor() const -> ObjectResult<int> = 0;
+	[[nodiscard]] virtual auto GetText(int cursor, const ETextGranularity& granularity) const
+		-> ObjectResult<STextRange<std::string>> = 0;
 	[[nodiscard]] virtual auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> = 0;
 };
 
 class ISelectionProvider {
 public:
-
 	virtual ~ISelectionProvider() = default;
 
 	[[nodiscard]] virtual auto GetSelectedItems() const -> ObjectResult<std::vector<std::shared_ptr<IObject>>> = 0;
@@ -327,42 +328,46 @@ public:
 
 class IValueProvider {
 public:
-
 	virtual ~IValueProvider() = default;
-	[[nodiscard]] virtual auto GetMinValue()const -> ObjectResult<double> = 0;
-	[[nodiscard]] virtual auto GetMaxValue()const -> ObjectResult<double> = 0;
-	[[nodiscard]] virtual auto GetCurrentValue()const -> ObjectResult<double> = 0;
+	[[nodiscard]] virtual auto GetMinValue() const -> ObjectResult<double> = 0;
+	[[nodiscard]] virtual auto GetMaxValue() const -> ObjectResult<double> = 0;
+	[[nodiscard]] virtual auto GetCurrentValue() const -> ObjectResult<double> = 0;
 };
 
-template<typename T>
-struct SInterfaceTrait final {
+template <typename T> struct SInterfaceTrait final {
 	static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_NOTHING;
 };
 
-template<> struct SInterfaceTrait<ITextProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_TEXT; };
-template<> struct SInterfaceTrait<ISelectionProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_SELECTION; };
-template<> struct SInterfaceTrait<IValueProvider>      { static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_VALUE; };
+template <> struct SInterfaceTrait<ITextProvider> {
+	static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_TEXT;
+};
+template <> struct SInterfaceTrait<ISelectionProvider> {
+	static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_SELECTION;
+};
+template <> struct SInterfaceTrait<IValueProvider> {
+	static constexpr IObject::EInterfaceMask value = IObject::SUPPORTS_VALUE;
+};
 
-template<typename Interface>
-[[nodiscard]] auto IObject::GetAs() -> std::shared_ptr<Interface> {
+template <typename Interface> [[nodiscard]] auto IObject::GetAs() -> std::shared_ptr<Interface> {
 	constexpr auto required = SInterfaceTrait<Interface>::value;
-	if constexpr (required == SUPPORTS_NOTHING) return nullptr;
+	if constexpr (required == SUPPORTS_NOTHING)
+		return nullptr;
 
 	uint32_t mask = GetSupportedInterfaces();
 	return mask & required ? std::dynamic_pointer_cast<Interface>(shared_from_this()) : nullptr;
 }
 
-template<class T, class U>
-class CObjectCache final {
+template <class T, class U> class CObjectCache final {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::mutex m_mutex;
 	std::pmr::map<T*, std::weak_ptr<U>> m_cache;
-public:
 
+public:
 	explicit CObjectCache() : m_cache(&m_pool) {}
 
 	[[nodiscard]] auto GetOrCreate(T* native_handle) -> std::shared_ptr<U> {
-		if (!native_handle) return nullptr;
+		if (!native_handle)
+			return nullptr;
 
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
@@ -401,7 +406,8 @@ public:
 /*
 Compare two objects.
 */
-[[nodiscard]] inline auto ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2) -> bool {
+[[nodiscard]] inline auto ObjectIsSame(const std::shared_ptr<IObject>& obj1, const std::shared_ptr<IObject>& obj2)
+	-> bool {
 	if (!obj1 || !obj2) {
 		return !obj1 && !obj2;
 	}
@@ -435,7 +441,11 @@ Attention! GetDesktopObject is not implemented in
 This should be done by the platform implementation of IObject.
 */
 [[nodiscard]] auto GetDesktopObject() -> std::shared_ptr<IObject>; // Root object.
-[[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false) -> std::shared_ptr<IObject>;
+[[nodiscard]] auto FindFocusedObject(std::shared_ptr<IObject> start_from, bool force = false)
+	-> std::shared_ptr<IObject>;
 
-[[nodiscard]] auto DumpObjectToString(const std::shared_ptr<IObject>& obj, int indent = 0, bool recursive = false, int max_depth = 3, int current_depth = 0) -> std::string;
-
+[[nodiscard]] auto DumpObjectToString(const std::shared_ptr<IObject>& obj,
+	int indent = 0,
+	bool recursive = false,
+	int max_depth = 3,
+	int current_depth = 0) -> std::string;

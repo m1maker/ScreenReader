@@ -1,5 +1,6 @@
 // Program entry point.
 #include "App.h"
+
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
@@ -18,4 +19,3 @@ auto main(signed int argc, char** argv) -> signed int {
 
 	return g_returnCode.ToInt();
 }
-

@@ -31,6 +31,20 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+file(GLOB_RECURSE ALL_CXX_FILES 
+    "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.h"
+)
+
+find_program(CLANG_FORMAT_EXE NAMES clang-format)
+
+if(CLANG_FORMAT_EXE)
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_CXX_FILES}
+        COMMENT "Formatting all files in SRC/ recursively"
+    )
+endif()
+
 find_package(Git)
 find_library(BRLAPI "libbrlapi.so")
 

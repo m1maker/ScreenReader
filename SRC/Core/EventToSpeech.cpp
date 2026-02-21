@@ -1,24 +1,29 @@
 // Event to speech.
 #include "EventToSpeech.h"
-#include <Interfaces/Object.h>
-#include "EventHandler.h"
-#include "Logger.h"
-#include "Utf8.h"
-#include <functional>
-#include <cmath>
+
 #include "App.h"
+#include "EventHandler.h"
 #include "FocusManager.h"
 #include "KeyboardHandler.h"
-#include <algorithm>
-#include <sstream>
+#include "Logger.h"
+#include "Utf8.h"
+
 #include <Core/ScopedPool.h>
+#include <Interfaces/Object.h>
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <sstream>
 
 /*
-This static function attempts to find a named object if the object that received the focus gain event doesn't have a name.
-For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere in there are information labels.
+This static function attempts to find a named object if the object that received the focus gain event doesn't have a
+name. For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere
+in there are information labels.
 */
-static void FindAnnouncementInHierarchy(std::pmr::string& out, const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) {
-	if (!obj) return;
+static void FindAnnouncementInHierarchy(
+	std::pmr::string& out, const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) {
+	if (!obj)
+		return;
 	LogCalled();
 
 	DefaultPool(pool);
@@ -26,24 +31,26 @@ static void FindAnnouncementInHierarchy(std::pmr::string& out, const std::shared
 	if (type == IObject::LIST_ITEM || collect_all_labels) {
 		std::pmr::vector<std::pmr::string> texts(&pool);
 
-		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels = [&](const std::shared_ptr<IObject>& current) {
-			if (!current) return;
-			LogCalled();
+		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels =
+			[&](const std::shared_ptr<IObject>& current) {
+				if (!current)
+					return;
+				LogCalled();
 
-			auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
-			if (current_type == IObject::LABEL) {
-				std::string name = current->GetName().value_or("");
-				if (!name.empty()) {
-					texts.emplace_back(name);
+				auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
+				if (current_type == IObject::LABEL) {
+					std::string name = current->GetName().value_or("");
+					if (!name.empty()) {
+						texts.emplace_back(name);
+					}
 				}
-			}
 
-			if (auto children = current->GetChildren()) {
-				for (const auto& child : *children) {
-					CollectLabels(child);
+				if (auto children = current->GetChildren()) {
+					for (const auto& child : *children) {
+						CollectLabels(child);
+					}
 				}
-			}
-		};
+			};
 
 		CollectLabels(obj);
 
@@ -88,8 +95,10 @@ static void FindAnnouncementInHierarchy(std::pmr::string& out, const std::shared
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, ETextGranularity& granularity) {
-	if (!obj) return;
+static void FindAnnouncementOfCursorPosition(
+	std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, ETextGranularity& granularity) {
+	if (!obj)
+		return;
 
 	LogCalled();
 
@@ -99,18 +108,24 @@ static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::s
 		return;
 	}
 
-	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) || 
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
-	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) || 
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) || g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
+	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
+	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) ||
+		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
 	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
-	if (vertical_keys_down) granularity = ETextGranularity::LINE;
+	if (vertical_keys_down)
+		granularity = ETextGranularity::LINE;
 	else if (horizontal_keys_down) {
 		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
 	}
 
-	else  granularity = ETextGranularity::LINE;
+	else
+		granularity = ETextGranularity::LINE;
 
 	if (auto keys_range = obj->GetText(current_cursor.value_or(0), granularity)) {
 		out += keys_range->text;
@@ -121,7 +136,8 @@ static void FindAnnouncementOfCursorPosition(std::pmr::string& out, const std::s
 This is the final step of object event processing. Announce it.
 */
 /*
-This function tries to find parents who have not been announced or have changed, and pushes the events without the "now" flag in reverse order, including the last object.
+This function tries to find parents who have not been announced or have changed, and pushes the events without the "now"
+flag in reverse order, including the last object.
 */
 auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	/*
@@ -153,7 +169,8 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		auto current_object = chain[i];
 
 		auto it = std::find(m_contextChain.begin(), m_contextChain.end(), current_object);
-		if (it != m_contextChain.end()) continue;
+		if (it != m_contextChain.end())
+			continue;
 
 		auto current_name = current_object->GetName().value_or("");
 
@@ -183,7 +200,8 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	if (event.GetNow() && AnnounceWhereAmI()) {
-		// We are canceling this event, since AnnounceWhereAmI is announcing the last object, but without the "now" flag.
+		// We are canceling this event, since AnnounceWhereAmI is announcing the last object, but without the "now"
+		// flag.
 		return;
 	}
 
@@ -205,24 +223,27 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	auto state = object_event.value().object->GetState().value_or(IObject::NO);
 
 	announcement += cSeparator;
-	announcement +=  IObject::GetTypeName(type);
+	announcement += IObject::GetTypeName(type);
 
 	auto& settings = g_applicationInstance.GetSettings();
 	switch (type) {
-		case IObject::MENU_ITEM:
-		case IObject::LIST_ITEM: {
-			if (!settings.read_list_item_count) break;
-			auto index = object_event.value().object->GetIndex().value_or(0) + 1;
-			auto parent = object_event.value().object->GetParent();
-			if (!parent) break;
-			auto locked_parent = parent->lock();
-			if (!locked_parent) break;
-			auto children_count = locked_parent->GetChildrenCount().value_or(0);
-			std::format_to(std::back_inserter(announcement), "{}{} of {}", 
-				cSeparator, index, children_count);
+	case IObject::MENU_ITEM:
+	case IObject::LIST_ITEM: {
+		if (!settings.read_list_item_count)
 			break;
-		}
-		default: break;
+		auto index = object_event.value().object->GetIndex().value_or(0) + 1;
+		auto parent = object_event.value().object->GetParent();
+		if (!parent)
+			break;
+		auto locked_parent = parent->lock();
+		if (!locked_parent)
+			break;
+		auto children_count = locked_parent->GetChildrenCount().value_or(0);
+		std::format_to(std::back_inserter(announcement), "{}{} of {}", cSeparator, index, children_count);
+		break;
+	}
+	default:
+		break;
 	}
 
 	auto state_names = IObject::GetStateNames(type, state);
@@ -238,23 +259,24 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	}
 
 	switch (type) {
-		case IObject::SLIDER: {
-			CObjectEvent object_event_to_post;
-			object_event_to_post.object = object_event.value().object;
-			object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
-			CEvent to_post(std::move(object_event_to_post), false);
-			AnnounceValueChange(to_post);
-			break;
-		}
-		case IObject::TEXT_FIELD: {
-			CObjectEvent object_event_to_post;
-			object_event_to_post.object = object_event.value().object;
-			object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
-			CEvent to_post(std::move(object_event_to_post), false);
-			AnnounceCursorMove(to_post);
-			break;
-		}
-		default: break;
+	case IObject::SLIDER: {
+		CObjectEvent object_event_to_post;
+		object_event_to_post.object = object_event.value().object;
+		object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
+		CEvent to_post(std::move(object_event_to_post), false);
+		AnnounceValueChange(to_post);
+		break;
+	}
+	case IObject::TEXT_FIELD: {
+		CObjectEvent object_event_to_post;
+		object_event_to_post.object = object_event.value().object;
+		object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
+		CEvent to_post(std::move(object_event_to_post), false);
+		AnnounceCursorMove(to_post);
+		break;
+	}
+	default:
+		break;
 	}
 }
 
@@ -266,7 +288,9 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	}
 	LogCalled();
 
-	if (object_event.value().object->GetType () != IObject::SLIDER || g_focusManager.GetFocus() != object_event.value().object) return;
+	if (object_event.value().object->GetType() != IObject::SLIDER ||
+		g_focusManager.GetFocus() != object_event.value().object)
+		return;
 
 	if (auto value_provider = object_event.value().object->GetAs<IValueProvider>()) {
 		ScopedPool(pool, 256);
@@ -284,7 +308,8 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	}
 
 	LogCalled();
-	if (g_focusManager.GetFocus() != object_event.value().object) return;
+	if (g_focusManager.GetFocus() != object_event.value().object)
+		return;
 
 	DefaultPool(pool);
 
@@ -308,7 +333,6 @@ void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
 	}
 
 	LogCalled();
-
 }
 
 void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
@@ -319,12 +343,12 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	}
 
 	LogCalled();
-	//if (g_focusManager.GetFocus() != object_event.value().object) return;
+	// if (g_focusManager.GetFocus() != object_event.value().object) return;
 
 	if (auto text_provider = object_event.value().object->GetAs<ITextProvider>()) {
 		auto cursor = text_provider->GetCursor();
 		if (!cursor) {
-			return; 
+			return;
 		}
 
 		DefaultPool(pool);
@@ -332,7 +356,8 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		std::pmr::string announcement(&pool);
 		FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 		bool enable_spelling{false};
-		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
+		g_speechSystem.SetParameter(
+			g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
 		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
 		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
 	}

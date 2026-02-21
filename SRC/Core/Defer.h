@@ -5,25 +5,25 @@
 #include <functional>
 
 template <std::invocable Func> class ScopeGuard {
-  public:
-    explicit ScopeGuard(Func func) noexcept : m_function(std::move(func)) {}
+public:
+	explicit ScopeGuard(Func func) noexcept : m_function(std::move(func)) {}
 
-    ~ScopeGuard() {
-        if (m_isActive) {
-            m_function();
-        }
-    }
+	~ScopeGuard() {
+		if (m_isActive) {
+			m_function();
+		}
+	}
 
-    void dismiss() noexcept { m_isActive = false; }
+	void dismiss() noexcept { m_isActive = false; }
 
-    ScopeGuard(const ScopeGuard&) = delete;
-    auto operator=(const ScopeGuard&) -> ScopeGuard& = delete;
-    ScopeGuard(ScopeGuard&&) = delete;
-    auto operator=(ScopeGuard&&) -> ScopeGuard& = delete;
+	ScopeGuard(const ScopeGuard&) = delete;
+	auto operator=(const ScopeGuard&) -> ScopeGuard& = delete;
+	ScopeGuard(ScopeGuard&&) = delete;
+	auto operator=(ScopeGuard&&) -> ScopeGuard& = delete;
 
-  private:
-    Func m_function;
-    bool m_isActive{true};
+private:
+	Func m_function;
+	bool m_isActive{true};
 };
 
 #define DEFER_CONCAT_IMPL_(x, y) x##y

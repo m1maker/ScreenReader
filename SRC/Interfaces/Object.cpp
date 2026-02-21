@@ -1,104 +1,175 @@
 // Some implementations of common object methods.
 #include "Object.h"
-#include <sstream>
-#include <iomanip>
-#include <utility>
-#include <type_traits>
+
 #include <Core/ScopedPool.h>
+#include <iomanip>
+#include <sstream>
+#include <type_traits>
+#include <utility>
 
 // I need to make translations in the future, so don't make it constexpr or inline
 /*
 Just convert types and states to strings.
 
-require_all parameter is used to determine whether we request names/states simply to announce focus changes, or whether we log all states and names, or force the screen reader to request this.
+require_all parameter is used to determine whether we request names/states simply to announce focus changes, or whether
+we log all states and names, or force the screen reader to request this.
 */
 [[nodiscard]] auto IObject::GetTypeName(const IObject::EObjectType& type, bool require_all) -> std::string_view {
 	switch (type) {
-		case ALERT:           return "alert";
-		case ARTICLE:         return "article";
-		case AUDIO:           return "audio";
-		case AUTO_COMPLETE:   return "auto complete";
-		case BANNER:          return "banner";
-		case BLOCKQUOTE:      return "blockquote";
-		case BUTTON:          return "button";
-		case CANVAS:          return "canvas";
-		case CAPTION:         return "caption";
-		case CELL: return require_all ? "cell" : "";
-		case CHECKBOX:        return "checkbox";
-		case CHART:           return "chart";
-		case COLOR_WELL:      return "color well";
-		case COLUMN_HEADER:   return "column header";
-		case COMBO_BOX:       return "combo box";
-		case COMMENT:         return "comment";
-		case DIALOG:          return "dialog";
-		case DOCUMENT:        return "document";
-		case FOOTER:          return "footer";
-		case FORM:            return "form";
-		case GRID:            return "grid";
-		case HEADER:          return "header";
-		case HEADING:         return "heading";
-		case IMAGE:           return "image";
-		case LABEL:           return require_all ? "label" : "";
-		case LINK:            return "link";
-		case LIST:            return "list";
-		case LIST_BOX:        return "list box";
-		case LIST_ITEM:       return require_all ? "list item" : "";
-		case MENU:            return "menu";
-		case MENU_BAR:        return "menu bar";
-		case MENU_ITEM:       return require_all ? "menu item" : "";
-		case PANEL:           return "panel";
-		case PROGRESS_BAR:    return "progress bar";
-		case RADIO_BUTTON:    return "radio button";
-		case ROW:             return "row";
-		case ROW_HEADER:      return "row header";
-		case SCROLL_BAR:      return "scroll bar";
-		case SECTION:         return "section";
-		case SLIDER:          return "slider";
-		case SPIN_BUTTON:     return "spin button";
-		case STATUS:          return "status";
-		case SWITCH:          return "switch";
-		case TAB:             return "tab";
-		case TAB_LIST:        return "tab list";
-		case TABLE:           return "table";
-		case TEXT_FIELD:      return "text field";
-		case TOGGLE_BUTTON:   return "toggle button";
-		case TOOLBAR:         return "toolbar";
-		case TOOLTIP:         return "tooltip";
-		case TREE:            return "tree";
-		case VIDEO:           return "video";
-		case WEB_VIEW:        return "web view";
-		case WINDOW:          return "window";
+	case ALERT:
+		return "alert";
+	case ARTICLE:
+		return "article";
+	case AUDIO:
+		return "audio";
+	case AUTO_COMPLETE:
+		return "auto complete";
+	case BANNER:
+		return "banner";
+	case BLOCKQUOTE:
+		return "blockquote";
+	case BUTTON:
+		return "button";
+	case CANVAS:
+		return "canvas";
+	case CAPTION:
+		return "caption";
+	case CELL:
+		return require_all ? "cell" : "";
+	case CHECKBOX:
+		return "checkbox";
+	case CHART:
+		return "chart";
+	case COLOR_WELL:
+		return "color well";
+	case COLUMN_HEADER:
+		return "column header";
+	case COMBO_BOX:
+		return "combo box";
+	case COMMENT:
+		return "comment";
+	case DIALOG:
+		return "dialog";
+	case DOCUMENT:
+		return "document";
+	case FOOTER:
+		return "footer";
+	case FORM:
+		return "form";
+	case GRID:
+		return "grid";
+	case HEADER:
+		return "header";
+	case HEADING:
+		return "heading";
+	case IMAGE:
+		return "image";
+	case LABEL:
+		return require_all ? "label" : "";
+	case LINK:
+		return "link";
+	case LIST:
+		return "list";
+	case LIST_BOX:
+		return "list box";
+	case LIST_ITEM:
+		return require_all ? "list item" : "";
+	case MENU:
+		return "menu";
+	case MENU_BAR:
+		return "menu bar";
+	case MENU_ITEM:
+		return require_all ? "menu item" : "";
+	case PANEL:
+		return "panel";
+	case PROGRESS_BAR:
+		return "progress bar";
+	case RADIO_BUTTON:
+		return "radio button";
+	case ROW:
+		return "row";
+	case ROW_HEADER:
+		return "row header";
+	case SCROLL_BAR:
+		return "scroll bar";
+	case SECTION:
+		return "section";
+	case SLIDER:
+		return "slider";
+	case SPIN_BUTTON:
+		return "spin button";
+	case STATUS:
+		return "status";
+	case SWITCH:
+		return "switch";
+	case TAB:
+		return "tab";
+	case TAB_LIST:
+		return "tab list";
+	case TABLE:
+		return "table";
+	case TEXT_FIELD:
+		return "text field";
+	case TOGGLE_BUTTON:
+		return "toggle button";
+	case TOOLBAR:
+		return "toolbar";
+	case TOOLTIP:
+		return "tooltip";
+	case TREE:
+		return "tree";
+	case VIDEO:
+		return "video";
+	case WEB_VIEW:
+		return "web view";
+	case WINDOW:
+		return "window";
 
-		case UNKNOWN:
-		default:              return require_all ? "unknown" : "";
+	case UNKNOWN:
+	default:
+		return require_all ? "unknown" : "";
 	}
 }
 
 /*
 The object type query also applies to state names.
 For example, there's no such state as EObjectState::UNCHECKED, but there is CHECKABLE.
-We need to understand what kind of object this is to more accurately determine the states for announcements when we don't request `require_all`.
+We need to understand what kind of object this is to more accurately determine the states for announcements when we
+don't request `require_all`.
 */
-[[nodiscard]] auto IObject::GetStateNames(const IObject::EObjectType& type, const unsigned long long& states, bool require_all) -> std::vector<std::string_view> {
+[[nodiscard]] auto IObject::GetStateNames(
+	const IObject::EObjectType& type, const unsigned long long& states, bool require_all)
+	-> std::vector<std::string_view> {
 	ScopedPool(pool, 8192);
 	std::pmr::vector<std::string_view> state_names(&pool);
 
 	// Capability / Infrastructure States (Usually only for logging/require_all).
 	if (require_all) {
-		if (states & VISIBLE)          state_names.emplace_back("visible");
-		if (states & ENABLED)          state_names.emplace_back("enabled");
-		if (states & FOCUSABLE)        state_names.emplace_back("focusable");
-		if (states & FOCUSED)              state_names.emplace_back("focused");
-		if (states & SELECTABLE)       state_names.emplace_back("selectable");
-		if (states & CHECKABLE)        state_names.emplace_back("checkable");
-		if (states & EDITABLE)         state_names.emplace_back("editable");
-		if (states & EXPANDABLE)       state_names.emplace_back("expandable");
-		if (states & RESIZABLE)        state_names.emplace_back("resizable");
+		if (states & VISIBLE)
+			state_names.emplace_back("visible");
+		if (states & ENABLED)
+			state_names.emplace_back("enabled");
+		if (states & FOCUSABLE)
+			state_names.emplace_back("focusable");
+		if (states & FOCUSED)
+			state_names.emplace_back("focused");
+		if (states & SELECTABLE)
+			state_names.emplace_back("selectable");
+		if (states & CHECKABLE)
+			state_names.emplace_back("checkable");
+		if (states & EDITABLE)
+			state_names.emplace_back("editable");
+		if (states & EXPANDABLE)
+			state_names.emplace_back("expandable");
+		if (states & RESIZABLE)
+			state_names.emplace_back("resizable");
 	}
 
 	// Interactive / Crucial States (Always announced or contextually forced).
-	if (states & BUSY)                 state_names.emplace_back("busy");
-	if (states & LOADING)              state_names.emplace_back("loading");
+	if (states & BUSY)
+		state_names.emplace_back("busy");
+	if (states & LOADING)
+		state_names.emplace_back("loading");
 
 	// Selection Logic.
 	if (states & SELECTED) {
@@ -114,7 +185,7 @@ We need to understand what kind of object this is to more accurately determine t
 		else {
 			state_names.emplace_back("not pressed");
 		}
-	} 
+	}
 
 	// For Checkboxes (and generic checkables that aren't toggle buttons).
 	else {
@@ -129,7 +200,8 @@ We need to understand what kind of object this is to more accurately determine t
 		}
 
 		// Handle non-toggle-button 'pressed' state (e.g. normal button).
-		if (states & PRESSED) state_names.emplace_back("pressed");
+		if (states & PRESSED)
+			state_names.emplace_back("pressed");
 	}
 
 	// Expansion Logic.
@@ -141,9 +213,12 @@ We need to understand what kind of object this is to more accurately determine t
 	}
 
 	// Text / Input specific normalization.
-	if (states & READONLY)             state_names.emplace_back("read-only");
-	if (states & SECURE)               state_names.emplace_back("secure");
-	if (states & INVALID)              state_names.emplace_back("invalid");
+	if (states & READONLY)
+		state_names.emplace_back("read-only");
+	if (states & SECURE)
+		state_names.emplace_back("secure");
+	if (states & INVALID)
+		state_names.emplace_back("invalid");
 	if (states & REQUIRED) {
 		// Only announce "required" for input types unless logging all.
 		if (type == TEXT_FIELD || type == COMBO_BOX || type == LIST_BOX || require_all) {
@@ -151,14 +226,20 @@ We need to understand what kind of object this is to more accurately determine t
 		}
 	}
 
-	if (states & MULTI_LINE)           state_names.emplace_back("multi-line");
-	if (states & MULTI_SELECTABLE)     state_names.emplace_back("multi-selectable");
+	if (states & MULTI_LINE)
+		state_names.emplace_back("multi-line");
+	if (states & MULTI_SELECTABLE)
+		state_names.emplace_back("multi-selectable");
 
 	// Global attributes.
-	if (states & HOVERED && require_all) state_names.emplace_back("hovered");
-	if (states & DEFAULT) state_names.emplace_back("default");
-	if (states & MODAL)                  state_names.emplace_back("modal");
-	if (states & VISITED)                state_names.emplace_back("visited");
+	if (states & HOVERED && require_all)
+		state_names.emplace_back("hovered");
+	if (states & DEFAULT)
+		state_names.emplace_back("default");
+	if (states & MODAL)
+		state_names.emplace_back("modal");
+	if (states & VISITED)
+		state_names.emplace_back("visited");
 
 	return std::vector<std::string_view>(state_names.begin(), state_names.end());
 }
@@ -167,7 +248,8 @@ We need to understand what kind of object this is to more accurately determine t
 This function is used to represent an IObject as an std::string.
 Currently, it is only used in the logger.
 */
-[[nodiscard]] auto DumpObjectToString(const std::shared_ptr<IObject>& obj, int indent, bool recursive, int max_depth, int current_depth) -> std::string {
+[[nodiscard]] auto DumpObjectToString(
+	const std::shared_ptr<IObject>& obj, int indent, bool recursive, int max_depth, int current_depth) -> std::string {
 	if (!obj) {
 		return std::string(indent, ' ') + "[NULL OBJECT]\n";
 	}
@@ -179,7 +261,7 @@ Currently, it is only used in the logger.
 	std::ostringstream oss;
 	std::string indent_string(indent, ' ');
 	/*TODO
-	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0') 
+	oss << indent_string << "IObject@" << std::hex << std::setw(16) << std::setfill('0')
 		<< reinterpret_cast<uintptr_t>(obj.get()) << std::dec << " {\n";
 
 	auto type = obj->GetType();
@@ -188,14 +270,14 @@ Currently, it is only used in the logger.
 		oss << indent_string << "  Error: " <<
 				IObject::ErrorToString(last_error) << "\n";
 		return oss.str();
-	}	
+	}
 
-	oss << indent_string << "  Type: " << IObject::GetTypeName(type.value_or(IObject::UNKNOWN), true) 
+	oss << indent_string << "  Type: " << IObject::GetTypeName(type.value_or(IObject::UNKNOWN), true)
 		<< " (" << static_cast<int>(type.value_or(IObject::UNKNOWN)) << ")\n";
 
 	unsigned long long states = obj->GetState().value_or(IObject::NO);
 	auto state_names = IObject::GetStateNames(type.value_or(IObject::UNKNOWN), states, true);
-	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0') 
+	oss << indent_string << "  States: 0x" << std::hex << std::setw(16) << std::setfill('0')
 		<< states << std::dec << " [";
 	for (size_t i = 0; std::cmp_less(i, state_names.size()); ++i) {
 		if (i > 0) oss << ", ";
@@ -232,7 +314,7 @@ Currently, it is only used in the logger.
 
 	void* native_handle = obj->GetNativeHandle().value_or(nullptr);
 	if (native_handle) {
-		oss << indent_string << "  NativeHandle: 0x" << std::hex 
+		oss << indent_string << "  NativeHandle: 0x" << std::hex
 			<< reinterpret_cast<uintptr_t>(native_handle) << std::dec << "\n";
 	}
 
@@ -246,10 +328,10 @@ Currently, it is only used in the logger.
 			for (size_t i = 0; std::cmp_less(i, children->size()); ++i) {
 				oss << indent_string << "[" << i << "] ";
 				std::string child_dump = DumpObjectToString(
-					children->operator[](i), 
-					indent + 4, 
-					recursive, 
-					max_depth, 
+					children->operator[](i),
+					indent + 4,
+					recursive,
+					max_depth,
 					current_depth + 1
 				);
 
@@ -271,4 +353,3 @@ Currently, it is only used in the logger.
 	DOTO*/
 	return oss.str();
 }
-
