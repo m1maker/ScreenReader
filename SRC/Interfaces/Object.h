@@ -1,5 +1,7 @@
 // Object interface.
 #pragma once
+#include "RefCountedObject.h"
+
 #include <Core/Cache.h>
 #include <Core/Event.h>
 #include <Core/Rect.h>
@@ -294,7 +296,7 @@ public:
 	[[nodiscard]] virtual auto GetState() const -> ObjectResult<unsigned long long> = 0;
 	[[nodiscard]] virtual auto HasState(EObjectState state) const -> ObjectResult<bool> = 0;
 
-	[[nodiscard]] virtual auto GetParent() const -> ObjectResult<std::weak_ptr<IObject>> = 0;
+	[[nodiscard]] virtual auto GetParent() const -> ObjectResult<std::shared_ptr<IObject>> = 0;
 	[[nodiscard]] virtual auto GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> = 0;
 	[[nodiscard]] virtual auto GetChildrenCount() const -> ObjectResult<int> = 0;
 
@@ -370,18 +372,15 @@ public:
 		if (!native_handle)
 			return nullptr;
 
-		{
-			std::scoped_lock lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
 
-			auto it = m_cache.find(native_handle);
-			if (it != m_cache.end()) {
-				if (auto existing = it->second.lock()) {
-					return existing;
-				}
-				else {
-					m_cache.erase(it);
-				}
+		auto it = m_cache.find(native_handle);
+		if (it != m_cache.end()) {
+			if (auto existing = it->second.lock()) {
+				SLifecycleTrait<T>::Release(native_handle);
+				return existing;
 			}
+			m_cache.erase(it);
 		}
 
 		auto new_object = std::allocate_shared<U>(std::pmr::polymorphic_allocator<U>(&m_pool), native_handle, &m_pool);

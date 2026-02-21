@@ -1,0 +1,5 @@
+leak:libatspi
+leak:libglib-2.0
+leak:libgobject-2.0
+leak:libdbus-1
+leak:libspeechd

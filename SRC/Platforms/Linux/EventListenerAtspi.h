@@ -1,6 +1,9 @@
 // AT_SPI's event listener.
 #pragma once
+#include "ObjectAtspi.h"
+
 #include <Interfaces/EventListener.h>
+#include <Interfaces/RefCountedObject.h>
 #include <array>
 #include <atomic>
 #include <atspi/atspi.h>
@@ -375,7 +378,7 @@ class CEventListenerAtspi final : public IEventListener {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
-	std::thread m_keyboardListenerThread;
+	std::jthread m_keyboardListenerThread;
 	std::atomic<bool> m_listenKeyboard{false};
 	void StartEvdevWatcher();
 	void StopEvdevWatcher();
@@ -388,13 +391,7 @@ public:
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
 
 	explicit CEventListenerAtspi();
-	~CEventListenerAtspi() override {
-		// g_objectCache(AtspiAccessible, CObjectAtspi).Clear();
-		if (m_objectEventListener)
-			g_object_unref(m_objectEventListener);
-		StopEvdevWatcher();
-	}
-
+	~CEventListenerAtspi() override;
 	void ListenDevice(const EDeviceType& device, bool listen = true) override;
 
 	void PushToMainThread(ThreadFunction function, void* pUserData) override;

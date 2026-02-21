@@ -21,21 +21,15 @@ class CFocusManager final {
 		if (!m_objectInFocus)
 			return;
 
-		auto current = m_objectInFocus->GetParent();
-		if (!current)
-			return;
-		auto current_locked = current->lock();
-		while (current_locked) {
-			m_contextChain.push_back(current_locked);
+		auto current = m_objectInFocus->GetParent().value_or(nullptr);
+		while (current) {
+			m_contextChain.push_back(current);
 
-			auto type = current_locked->GetType().value_or(IObject::UNKNOWN);
+			auto type = current->GetType().value_or(IObject::UNKNOWN);
 			if (IObject::IsValidParent(type)) {
 				break;
 			}
-			auto next_current = current_locked->GetParent();
-			if (!next_current)
-				break;
-			current_locked = next_current->lock();
+			current = current->GetParent().value_or(nullptr);
 		}
 	}
 

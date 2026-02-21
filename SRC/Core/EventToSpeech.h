@@ -15,8 +15,11 @@ This is the final step of object event processing. Announce it.
 */
 class CEventToSpeech final {
 	DeclareSingleton(CEventToSpeech);
+
+	void SpeakObject(const std::shared_ptr<IObject>& obj);
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 
+	bool m_isWhereAmIOperation{false};
 	/*
 	Sometimes speech events can arrive too quickly.
 	We'll try to filter out events that arrive too frequently to avoid overloading the speech engine and to try to

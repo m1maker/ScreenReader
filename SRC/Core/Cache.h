@@ -28,6 +28,17 @@ void SmartEmplace(std::optional<T>& opt, std::pmr::memory_resource* pool, Value&
 	CacheDetails::SmartEmplace(m_cache_##name, m_pool, value_to_cache);                                                \
 	return m_cache_##name.value()
 
+#define ReturnWeakCache(name)                                                                                          \
+	if (m_cache_##name.has_value()) {                                                                                  \
+		if (auto locked = m_cache_##name.value().lock()) {                                                             \
+			return locked;                                                                                             \
+		}                                                                                                              \
+	}
+
+#define CacheWeakReturn(name, shared_value)                                                                            \
+	m_cache_##name.emplace(shared_value);                                                                              \
+	return shared_value
+
 #define ReturnCacheTransformed(name, transform_func)                                                                   \
 	if (m_cache_##name.has_value()) {                                                                                  \
 		return transform_func(m_cache_##name.value());                                                                 \

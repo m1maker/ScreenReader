@@ -137,8 +137,13 @@ public:
 	}
 
 	void Loop() override {
-		if (m_atspiInitialized)
+		if (m_atspiInitialized) {
 			atspi_event_main();
+			auto* context = g_main_context_default();
+			while (g_main_context_pending(context)) {
+				g_main_context_iteration(context, FALSE);
+			}
+		}
 		else {
 			while (g_running.load()) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));

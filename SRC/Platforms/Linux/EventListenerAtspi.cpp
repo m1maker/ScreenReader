@@ -1,7 +1,6 @@
 // AT-SPI's event listener implementation.
 #include "EventListenerAtspi.h"
 
-#include "ObjectAtspi.h"
 #include "UinputDevice.h"
 
 #include <Core/App.h>
@@ -92,6 +91,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		return;
 	CObjectEvent object_event;
 	object_event.type = type;
+	g_object_ref(event->source);
 	object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
 	object_event.object->UpdateCacheByEvent(type);
 	/*
@@ -103,11 +103,11 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 
 void CEventListenerAtspi::StartEvdevWatcher() {
 	m_listenKeyboard.store(true);
-	m_keyboardListenerThread = std::thread([this]() -> void {
+	m_keyboardListenerThread = std::jthread([this](const std::stop_token& stop_token) -> void {
 		LogCalled();
 		struct input_event ev{};
 
-		while (this->m_listenKeyboard.load() && g_running.load()) {
+		while (!stop_token.stop_requested()) {
 			auto dev = FindKeyboardDevice();
 			if (dev.empty()) {
 				g_logger.Log(CLogger::ERROR, "Keyboard device not found. Retrying in 2s...");
@@ -142,7 +142,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 			CUinputDevice virtual_device(fd);
 			unsigned char modifiers{0};
-			while (this->m_listenKeyboard.load() && g_running.load()) {
+			while (!stop_token.stop_requested()) {
 				ssize_t n = read(fd, &ev, sizeof(ev));
 
 				if (n == -1) {
@@ -187,9 +187,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 void CEventListenerAtspi::StopEvdevWatcher() {
 	m_listenKeyboard.store(false);
-	if (m_keyboardListenerThread.joinable()) {
-		m_keyboardListenerThread.join();
-	}
+	m_keyboardListenerThread.request_stop();
 }
 
 void CEventListenerAtspi::ListenDevice(const EDeviceType& device, bool listen) {
@@ -224,6 +222,24 @@ CEventListenerAtspi::CEventListenerAtspi()
 	}
 
 	g_objectCache(AtspiAccessible, CObjectAtspi);
+}
+
+CEventListenerAtspi::~CEventListenerAtspi() {
+	if (m_objectEventListener) {
+		GError* error = nullptr;
+		for (const auto& [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
+			atspi_event_listener_deregister(m_objectEventListener, atspi_event_type.data(), &error);
+			if (error) {
+				g_error_free(error);
+				error = nullptr;
+			}
+		}
+
+		g_object_unref(m_objectEventListener);
+	}
+	StopEvdevWatcher();
+
+	g_objectCache(AtspiAccessible, CObjectAtspi).Clear();
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {

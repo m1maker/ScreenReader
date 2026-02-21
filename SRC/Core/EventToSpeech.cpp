@@ -24,47 +24,36 @@ static void FindAnnouncementInHierarchy(
 	std::pmr::string& out, const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) {
 	if (!obj)
 		return;
-	LogCalled();
 
 	DefaultPool(pool);
-	auto type = obj->GetType().value_or(IObject::UNKNOWN);
-	if (type == IObject::LIST_ITEM || collect_all_labels) {
-		std::pmr::vector<std::pmr::string> texts(&pool);
 
-		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels =
-			[&](const std::shared_ptr<IObject>& current) -> void {
-			if (!current)
-				return;
-			LogCalled();
-
-			auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
-			if (current_type == IObject::LABEL) {
-				std::string name = current->GetName().value_or("");
-				if (!name.empty()) {
-					texts.emplace_back(name);
-				}
-			}
-
-			if (auto children = current->GetChildren()) {
-				for (const auto& child : *children) {
-					CollectLabels(child);
-				}
-			}
-		};
-
-		CollectLabels(obj);
-
-		if (!texts.empty()) {
-			std::pmr::string result(&pool);
-			for (size_t i = 0; i < texts.size(); ++i) {
-				if (i > 0) {
-					result += CEventToSpeech::cSeparator;
-				}
-				result += texts[i];
-			}
-			out += result;
+	auto collect_labels_recursive = [&](auto& self, const std::shared_ptr<IObject>& current) -> void {
+		if (!current)
 			return;
+
+		auto current_type = current->GetType().value_or(IObject::UNKNOWN);
+		if (current_type == IObject::LABEL) {
+			auto name = current->GetName().value_or("");
+			if (!name.empty()) {
+				if (!out.empty())
+					out += CEventToSpeech::cSeparator;
+				out += name;
+			}
 		}
+
+		if (auto children_res = current->GetChildren()) {
+			for (const auto& child : *children_res) {
+				self(self, child);
+			}
+		}
+	};
+
+	auto type = obj->GetType().value_or(IObject::UNKNOWN);
+
+	if ((type == IObject::LIST_ITEM || type == IObject::MENU_ITEM) && collect_all_labels) {
+		collect_labels_recursive(collect_labels_recursive, obj);
+		if (!out.empty())
+			return;
 	}
 
 	std::string announcement = obj->GetName().value_or("");
@@ -165,6 +154,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	}
 
 	std::string last_name{""};
+	m_isWhereAmIOperation = true;
 	for (size_t i = diff_index; i < chain.size(); ++i) {
 		const auto& current_object = chain[i];
 
@@ -186,7 +176,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		CEvent to_post(std::move(object_event), false);
 		AnnounceFocusChange(to_post);
 	}
-
+	m_isWhereAmIOperation = false;
 	CObjectEvent object_event;
 	object_event.object = object;
 	object_event.type = CObjectEvent::FOCUS_GAINED;
@@ -217,8 +207,8 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	LogCalled();
 
 	std::pmr::string announcement(&pool);
-	FindAnnouncementInHierarchy(announcement, object_event.value().object);
-
+	FindAnnouncementInHierarchy(
+		announcement, object_event.value().object, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
 	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
 	auto state = object_event.value().object->GetState().value_or(IObject::NO);
 
@@ -232,13 +222,10 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		if (!settings.read_list_item_count)
 			break;
 		auto index = object_event.value().object->GetIndex().value_or(0) + 1;
-		auto parent = object_event.value().object->GetParent();
+		auto parent = object_event.value().object->GetParent().value_or(nullptr);
 		if (!parent)
 			break;
-		auto locked_parent = parent->lock();
-		if (!locked_parent)
-			break;
-		auto children_count = locked_parent->GetChildrenCount().value_or(0);
+		auto children_count = parent->GetChildrenCount().value_or(0);
 		std::format_to(std::back_inserter(announcement), "{}{} of {}", cSeparator, index, children_count);
 		break;
 	}
