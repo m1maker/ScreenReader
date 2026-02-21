@@ -2,6 +2,7 @@
 
 #include "App.h"
 #include "Device.h"
+#include "EventHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 
@@ -39,11 +40,13 @@ template <typename T> struct SActions final {
 	}
 
 	static auto StopKeyboardHooks(const T&) -> EActionHandleResult {
-		if (auto listener = g_eventHandler.GetListener(); listener) [[likely]] {
-			listener->ListenDevice(EDeviceType::KEYBOARD, false);
+		auto listener = g_eventHandler.GetListener();
+		if (listener) [[likely]] {
+			EventListenerTrait<CEventListener>::ListenDevice(*listener, EDeviceType::KEYBOARD, false);
 			g_speechEngine.Speak("Stop listening keyboard");
 			return EActionHandleResult::HANDLED;
 		}
+
 		return EActionHandleResult::NOT_HANDLED;
 	}
 

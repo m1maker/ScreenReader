@@ -1,11 +1,10 @@
 // Object interface.
 #pragma once
-#include "RefCountedObject.h"
-
 #include <Core/Cache.h>
 #include <Core/Event.h>
 #include <Core/Rect.h>
 #include <Core/Text.h>
+#include <Traits/RefCountedObject.h>
 #include <expected>
 #include <map>
 #include <memory>
@@ -377,7 +376,7 @@ public:
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
 			if (auto existing = it->second.lock()) {
-				SLifecycleTrait<T>::Release(native_handle);
+				LifecycleTrait<T>::Release(native_handle);
 				return existing;
 			}
 			m_cache.erase(it);

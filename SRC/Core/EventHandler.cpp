@@ -1,10 +1,6 @@
 // Handling events of different types.
 #include "EventHandler.h"
 
-#include "Environment.h"
-#if SR_LINUX
-#include <Platforms/Linux/EventListenerAtspi.h>
-#endif
 #include "Action.h"
 #include "EventQueue.h"
 #include "EventToSpeech.h"
@@ -13,10 +9,7 @@
 #include "Logger.h"
 
 CEventHandler::CEventHandler() {
-#if SR_LINUX
-	m_listener = std::make_shared<CEventListenerAtspi>();
-#endif
-	m_listener->ListenDevice(EDeviceType::KEYBOARD);
+	EventListenerTrait<CEventListener>::ListenDevice(m_listener, EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = g_keyboardHandler.RegisterAction(
@@ -30,7 +23,7 @@ void CEventHandler::Start() {
 	m_thread = std::jthread([this]() -> void {
 		while (g_running.load()) {
 			auto event = g_eventQueue.Pop();
-			if (event && m_listener) [[likely]] {
+			if (event) [[likely]] {
 				switch (event.value().GetType()) {
 				case CEvent::OBJECT: {
 					auto pool = g_eventQueue.GetPool();
@@ -39,7 +32,8 @@ void CEventHandler::Start() {
 
 					auto raw = pool->allocate(sizeof(CEvent));
 					auto raw_event = new (raw) CEvent(std::move(event.value()));
-					m_listener->PushToMainThread(
+					EventListenerTrait<CEventListener>::PushToMainThread(
+						m_listener,
 						[](void* pData) -> void {
 							if (!pData)
 								return;

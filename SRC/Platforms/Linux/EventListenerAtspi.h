@@ -2,8 +2,9 @@
 #pragma once
 #include "ObjectAtspi.h"
 
-#include <Interfaces/EventListener.h>
-#include <Interfaces/RefCountedObject.h>
+#include <Core/Device.h>
+#include <Traits/EventListener.h>
+#include <Traits/RefCountedObject.h>
 #include <array>
 #include <atomic>
 #include <atspi/atspi.h>
@@ -374,7 +375,7 @@ inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType
 	}
 }
 
-class CEventListenerAtspi final : public IEventListener {
+class CEventListenerAtspi final {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
@@ -391,8 +392,20 @@ public:
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
 
 	explicit CEventListenerAtspi();
-	~CEventListenerAtspi() override;
-	void ListenDevice(const EDeviceType& device, bool listen = true) override;
+	~CEventListenerAtspi();
+	void ListenDevice(EDeviceType device, bool listen = true);
 
-	void PushToMainThread(ThreadFunction function, void* pUserData) override;
+	void PushToMainThread(ThreadFunction function, void* pUserData);
 };
+
+template <> struct EventListenerTrait<CEventListenerAtspi> final {
+	static void ListenDevice(CEventListenerAtspi& listener, EDeviceType device, bool listen = true) {
+		listener.ListenDevice(device, listen);
+	}
+
+	static void PushToMainThread(CEventListenerAtspi& listener, ThreadFunction function, void* pUserData) {
+		listener.PushToMainThread(function, pUserData);
+	}
+};
+
+using CEventListener = CEventListenerAtspi;

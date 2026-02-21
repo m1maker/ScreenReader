@@ -190,7 +190,7 @@ void CEventListenerAtspi::StopEvdevWatcher() {
 	m_keyboardListenerThread.request_stop();
 }
 
-void CEventListenerAtspi::ListenDevice(const EDeviceType& device, bool listen) {
+void CEventListenerAtspi::ListenDevice(EDeviceType device, bool listen) {
 	switch (device) {
 	case EDeviceType::KEYBOARD:
 		listen ? StartEvdevWatcher() : StopEvdevWatcher();
@@ -269,7 +269,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 }
 
 struct SInvocationContext final {
-	IEventListener::ThreadFunction function;
+	ThreadFunction function;
 	void* pUserData;
 };
 
