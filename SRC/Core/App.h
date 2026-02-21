@@ -27,7 +27,7 @@ struct SScreenReaderAppOptions final {
 
 class CScreenReaderApp final {
 	DeclareSingleton(CScreenReaderApp);
-	explicit CScreenReaderApp() {}
+	explicit CScreenReaderApp() = default;
 
 	SScreenReaderAppOptions m_options;
 

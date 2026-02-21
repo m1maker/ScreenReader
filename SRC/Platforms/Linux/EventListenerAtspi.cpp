@@ -50,7 +50,7 @@ We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will 
 		}
 
 		if (is_candidate && line.find("B: KEY=") != std::string::npos) {
-			std::string mask = line.substr(line.find("=") + 1);
+			std::string mask = line.substr(line.find('=') + 1);
 
 			if (mask.length() > 30) {
 				return "/dev/input/" + current_event;
@@ -103,9 +103,9 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 
 void CEventListenerAtspi::StartEvdevWatcher() {
 	m_listenKeyboard.store(true);
-	m_keyboardListenerThread = std::thread([this]() {
+	m_keyboardListenerThread = std::thread([this]() -> void {
 		LogCalled();
-		struct input_event ev;
+		struct input_event ev{};
 
 		while (this->m_listenKeyboard.load() && g_running.load()) {
 			auto dev = FindKeyboardDevice();
@@ -265,7 +265,7 @@ void CEventListenerAtspi::PushToMainThread(ThreadFunction function, void* pUserD
 	if (!pool)
 		return;
 	auto raw = pool->allocate(sizeof(SInvocationContext));
-	auto context = new (raw) SInvocationContext{function, pUserData};
+	auto context = new (raw) SInvocationContext{.function = function, .pUserData = pUserData};
 	g_main_context_invoke(
 		nullptr,
 		[](gpointer data) -> gboolean {

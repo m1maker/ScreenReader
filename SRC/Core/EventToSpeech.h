@@ -30,7 +30,7 @@ class CEventToSpeech final {
 public:
 	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
-	explicit CEventToSpeech() {}
+	explicit CEventToSpeech() = default;
 	~CEventToSpeech() = default;
 
 public:
@@ -45,7 +45,7 @@ public:
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 
-	[[nodiscard]] inline bool Filter() {
+	[[nodiscard]] inline auto Filter() -> bool {
 		if (m_speechFilterTimer.Elapsed() > cSpeechFilterTimeMs) {
 			m_speechFilterTimer.Restart();
 			return false;

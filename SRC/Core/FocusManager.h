@@ -43,7 +43,7 @@ class CFocusManager final {
 	~CFocusManager() = default;
 
 public:
-	void SetFocus(std::shared_ptr<IObject> obj) {
+	void SetFocus(const std::shared_ptr<IObject>& obj) {
 		if (!obj || m_objectInFocus == obj)
 			return;
 

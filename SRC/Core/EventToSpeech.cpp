@@ -32,25 +32,25 @@ static void FindAnnouncementInHierarchy(
 		std::pmr::vector<std::pmr::string> texts(&pool);
 
 		std::function<void(const std::shared_ptr<IObject>&)> CollectLabels =
-			[&](const std::shared_ptr<IObject>& current) {
-				if (!current)
-					return;
-				LogCalled();
+			[&](const std::shared_ptr<IObject>& current) -> void {
+			if (!current)
+				return;
+			LogCalled();
 
-				auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
-				if (current_type == IObject::LABEL) {
-					std::string name = current->GetName().value_or("");
-					if (!name.empty()) {
-						texts.emplace_back(name);
-					}
+			auto current_type = obj->GetType().value_or(IObject::UNKNOWN);
+			if (current_type == IObject::LABEL) {
+				std::string name = current->GetName().value_or("");
+				if (!name.empty()) {
+					texts.emplace_back(name);
 				}
+			}
 
-				if (auto children = current->GetChildren()) {
-					for (const auto& child : *children) {
-						CollectLabels(child);
-					}
+			if (auto children = current->GetChildren()) {
+				for (const auto& child : *children) {
+					CollectLabels(child);
 				}
-			};
+			}
+		};
 
 		CollectLabels(obj);
 
@@ -166,9 +166,9 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 	std::string last_name{""};
 	for (size_t i = diff_index; i < chain.size(); ++i) {
-		auto current_object = chain[i];
+		const auto& current_object = chain[i];
 
-		auto it = std::find(m_contextChain.begin(), m_contextChain.end(), current_object);
+		auto it = std::ranges::find(m_contextChain, current_object);
 		if (it != m_contextChain.end())
 			continue;
 

@@ -645,7 +645,7 @@ public:
 		: m_variant(std::move(other.m_variant)), m_now(other.m_now), m_type(other.m_type) {}
 
 	CEvent(CEvent&&) = default;
-	CEvent& operator=(CEvent&&) = default;
+	auto operator=(CEvent&&) -> CEvent& = default;
 
 	[[nodiscard]] auto GetType() const -> EEventType { return m_type; }
 

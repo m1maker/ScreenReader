@@ -109,8 +109,8 @@ void CObjectAtspi::UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> {
-	ReturnCacheTransformed(
-		m_children, [](const auto& vec) { return std::vector<std::shared_ptr<IObject>>(vec.begin(), vec.end()); });
+	ReturnCacheTransformed(m_children,
+		[](const auto& vec) -> auto { return std::vector<std::shared_ptr<IObject>>(vec.begin(), vec.end()); });
 
 	auto children = std::pmr::vector<std::shared_ptr<IObject>>(m_pool);
 	if (!m_accessible)
@@ -130,7 +130,7 @@ void CObjectAtspi::UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 		children.push_back(child_object);
 	}
 
-	CacheReturnTransformed(m_children, children, [](const auto& vec) {
+	CacheReturnTransformed(m_children, children, [](const auto& vec) -> auto {
 		return std::vector<std::shared_ptr<IObject>>(vec.begin(), vec.end());
 	});
 }

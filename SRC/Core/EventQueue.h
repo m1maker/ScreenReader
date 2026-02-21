@@ -22,14 +22,14 @@ class CEventQueue final {
 
 public:
 	template <typename... Args> void Push(Args&&... args) {
-		std::lock_guard lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
 		m_events.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();
 	}
 
 	auto Pop() -> std::optional<CEvent> {
 		std::unique_lock lock(m_mutex);
-		m_cv.wait(lock, [this] { return !m_events.empty() || m_stopping; });
+		m_cv.wait(lock, [this] -> bool { return !m_events.empty() || m_stopping; });
 
 		if (m_stopping && m_events.empty())
 			return std::nullopt;
@@ -42,7 +42,7 @@ public:
 
 	void Stop() {
 		{
-			std::lock_guard lock(m_mutex);
+			std::scoped_lock lock(m_mutex);
 			m_stopping = true;
 		}
 		m_cv.notify_all();

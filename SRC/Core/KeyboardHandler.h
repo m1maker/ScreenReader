@@ -22,7 +22,7 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 
 	mutable std::mutex m_mutex;
 	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
-	unsigned char m_modifiers;
+	unsigned char m_modifiers{};
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.
 	As a result of handling, one of these modifiers turns into a generic CKeyboardEvent::MODIFIER_SCREEN_READER.

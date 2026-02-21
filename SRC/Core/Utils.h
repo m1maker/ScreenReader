@@ -8,7 +8,7 @@ class CTimer final {
 public:
 	explicit CTimer() { Restart(); }
 
-	[[nodiscard]] inline uint64_t Elapsed() {
+	[[nodiscard]] inline auto Elapsed() -> uint64_t {
 		auto now = std::chrono::high_resolution_clock::now();
 		return std::chrono::duration_cast<std::chrono::milliseconds>(now - m_startTime).count();
 	}

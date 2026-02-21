@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <memory_resource>
+#include <mutex>
 #include <string_view>
 #include <vector>
 
@@ -370,7 +371,7 @@ public:
 			return nullptr;
 
 		{
-			std::lock_guard<std::mutex> lock(m_mutex);
+			std::scoped_lock lock(m_mutex);
 
 			auto it = m_cache.find(native_handle);
 			if (it != m_cache.end()) {
@@ -391,12 +392,12 @@ public:
 	}
 
 	void Remove(T* native_handle) {
-		std::lock_guard<std::mutex> lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
 		m_cache.erase(native_handle);
 	}
 
 	void Clear() {
-		std::lock_guard<std::mutex> lock(m_mutex);
+		std::scoped_lock lock(m_mutex);
 		m_cache.clear();
 	}
 };

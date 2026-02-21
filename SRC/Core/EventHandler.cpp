@@ -27,7 +27,7 @@ CEventHandler::CEventHandler() {
 }
 
 void CEventHandler::Start() {
-	m_thread = std::jthread([this]() {
+	m_thread = std::jthread([this]() -> void {
 		while (g_running.load()) {
 			auto event = g_eventQueue.Pop();
 			if (event && m_listener) [[likely]] {
@@ -40,7 +40,7 @@ void CEventHandler::Start() {
 					auto raw = pool->allocate(sizeof(CEvent));
 					auto raw_event = new (raw) CEvent(std::move(event.value()));
 					m_listener->PushToMainThread(
-						[](void* pData) {
+						[](void* pData) -> void {
 							if (!pData)
 								return;
 							auto event_casted = static_cast<CEvent*>(pData);
@@ -108,7 +108,7 @@ void CEventHandler::Handle(CEvent&& event) {
 		}
 
 		case CEvent::KEYBOARD: {
-			std::lock_guard<std::mutex> lock(g_keyboardHandler.m_mutex);
+			std::scoped_lock lock(g_keyboardHandler.m_mutex);
 			auto keyboard_event = event.GetAs<CKeyboardEvent>();
 			if (!keyboard_event.has_value())
 				break;

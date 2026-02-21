@@ -39,8 +39,8 @@ inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType
 	return CObjectEvent::NONE;
 }
 
-[[nodiscard]] constexpr inline CKeyboardEvent::EKeycode LinuxKeycodeToKeyboardEventKeycode(
-	const uint16_t& linux_keycode) {
+[[nodiscard]] constexpr inline auto LinuxKeycodeToKeyboardEventKeycode(const uint16_t& linux_keycode)
+	-> CKeyboardEvent::EKeycode {
 	switch (linux_keycode) {
 	case KEY_A:
 		return CKeyboardEvent::KEYCODE_A;
@@ -338,8 +338,8 @@ inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType
 	}
 }
 
-[[nodiscard]] constexpr inline CKeyboardEvent::EModifier LinuxModifierToKeyboardEventModifier(
-	const uint16_t& linux_keycode) {
+[[nodiscard]] constexpr inline auto LinuxModifierToKeyboardEventModifier(const uint16_t& linux_keycode)
+	-> CKeyboardEvent::EModifier {
 	switch (linux_keycode) {
 	case KEY_LEFTSHIFT:
 	case KEY_RIGHTSHIFT:

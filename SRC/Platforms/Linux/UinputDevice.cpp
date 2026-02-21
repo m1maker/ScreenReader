@@ -33,7 +33,7 @@ void CUinputDevice::SetupVirtualDevice() {
 		ioctl(m_uinputFd, UI_SET_KEYBIT, i);
 	}
 
-	struct uinput_setup usetup;
+	struct uinput_setup usetup{};
 	memset(&usetup, 0, sizeof(usetup));
 	usetup.id.bustype = BUS_USB;
 	usetup.id.vendor = 0x1323;
@@ -46,7 +46,7 @@ void CUinputDevice::SetupVirtualDevice() {
 		throw std::runtime_error("UI_DEV_CREATE failed");
 }
 
-CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab), m_uinputFd(-1) {
+CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab) {
 	SetupVirtualDevice();
 	Grab(m_devFd);
 }
@@ -79,7 +79,7 @@ void CUinputDevice::Post(uint16_t type, uint16_t code, int32_t value) {
 	if (m_uinputFd < 0)
 		return;
 
-	struct input_event ev;
+	struct input_event ev{};
 	memset(&ev, 0, sizeof(ev));
 	ev.type = type;
 	ev.code = code;

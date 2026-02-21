@@ -54,7 +54,7 @@ public:
 	template <Reflectable T> void Write(const T& obj) {
 		auto fields = obj.Reflect();
 
-		std::apply([this](auto&&... args) { ((this->WriteField(args.first, args.second)), ...); }, fields);
+		std::apply([this](auto&&... args) -> auto { ((this->WriteField(args.first, args.second)), ...); }, fields);
 
 		m_backend.Save();
 	}
@@ -64,7 +64,7 @@ public:
 
 		auto fields = obj.Reflect();
 
-		std::apply([this](auto&&... args) { ((this->ReadField(args.first, args.second)), ...); }, fields);
+		std::apply([this](auto&&... args) -> auto { ((this->ReadField(args.first, args.second)), ...); }, fields);
 	}
 
 private:

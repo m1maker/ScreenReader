@@ -34,7 +34,7 @@ private:
 
 	~CLogger() {
 		if (m_file.is_open()) {
-			m_file << std::endl;
+			m_file << '\n';
 			m_file.close();
 		}
 	}
