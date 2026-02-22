@@ -81,7 +81,7 @@ static void FindAnnouncementInHierarchy(
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj, ETextGranularity granularity) {
+static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj, ETextGranularity& granularity) {
 	if (!obj.IsValid())
 		return;
 
