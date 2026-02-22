@@ -6,7 +6,6 @@
 #include "Singleton.h"
 
 #include <Interfaces/Object.h>
-#include <Interfaces/PlatformDependentWorker.h>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -37,7 +36,7 @@ class CScreenReaderApp final {
 	On Linux, it's an AT-SPI event loop; on Windows, I think it's some kind of GetMessage/DispatchMessage (windows-like
 	loops).
 	*/
-	std::unique_ptr<IPlatformDependentWorker> m_worker;
+	CPlatformDependentWorker m_worker;
 	unsigned int m_loopRestartAttempts{0};
 
 	~CScreenReaderApp() {
@@ -57,12 +56,6 @@ public:
 		g_speechEngineIndex = m_speechSystem.GetCurrentEngineId();
 		m_speechSystem.GetEngine(g_speechEngineIndex).Speak("Screen reader on");
 		g_eventHandler.Start(); // It's the same as CSingleton<CEventHandler>::GetInstance()
-#if SR_LINUX
-		m_worker = std::make_unique<CPlatformDependentWorkerLinux>();
-#else
-		g_returnCode = CScreenReaderAppReturnCode::ERROR_NOT_SUPPORTED;
-		return;
-#endif
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.
@@ -71,7 +64,7 @@ public:
 			g_logger.Log(CLogger::DEBUG,
 				"Application",
 				"Entering worker loop. Attempt: " + std::to_string(m_loopRestartAttempts + 1));
-			m_worker->Loop();
+			m_worker.Loop();
 			++m_loopRestartAttempts;
 			if (g_running)
 				g_logger.Log(CLogger::WARNING, "Application", "Worker loop exited. Restarting");

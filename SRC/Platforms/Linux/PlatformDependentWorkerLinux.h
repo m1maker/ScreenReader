@@ -1,7 +1,7 @@
 // Platform dependent worker implementation for Linux.
 #pragma once
 #include <Core/AppState.h>
-#include <Interfaces/PlatformDependentWorker.h>
+#include <Traits/PlatformDependentWorker.h>
 #include <atspi/atspi.h>
 #include <chrono>
 #include <csignal>
@@ -11,7 +11,7 @@
 /*
 We will also handle signals here to ensure safe exit.
 */
-class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
+class CPlatformDependentWorkerLinux final : public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {
@@ -63,6 +63,7 @@ class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
 	};
 
 	static auto GerrorToPlatformError(const GError* error) noexcept -> EPlatformError {
+		using enum EPlatformError;
 		if (!error)
 			return SUCCESS;
 
@@ -107,7 +108,6 @@ class CPlatformDependentWorkerLinux final : public IPlatformDependentWorker {
 
 	struct sigaction m_signalAction{};
 
-public:
 	static void HandleSignal(int signal) {
 		switch (signal) {
 		case SIGINT:
@@ -119,6 +119,7 @@ public:
 		}
 	}
 
+public:
 	explicit CPlatformDependentWorkerLinux() {
 		memset(&m_signalAction, 0, sizeof(m_signalAction));
 		m_signalAction.sa_handler = &HandleSignal;
@@ -131,12 +132,12 @@ public:
 		m_atspiInitialized = result == 0 || result == 1 ? true : false;
 	}
 
-	~CPlatformDependentWorkerLinux() override {
+	~CPlatformDependentWorkerLinux() {
 		if (m_atspiInitialized)
 			atspi_exit();
 	}
 
-	void Loop() override {
+	void do_Loop() {
 		if (m_atspiInitialized) {
 			atspi_event_main();
 			auto* context = g_main_context_default();
@@ -151,10 +152,12 @@ public:
 		}
 	}
 
-	void Throw(const void* pError) noexcept override {
+	void do_Throw(const GError* pError) noexcept {
 		if (!pError)
 			return;
-		auto result = GerrorToPlatformError(static_cast<const GError*>(pError));
+		auto result = GerrorToPlatformError(pError);
 		PushError(result);
 	}
 };
+
+using CPlatformDependentWorker = CPlatformDependentWorkerLinux;
