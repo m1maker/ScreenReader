@@ -80,20 +80,20 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	}
 
 	auto type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
-	if (type == CObjectEvent::NONE)
+	if (type == EObjectEventType::NONE)
 		return;
 
 	/*
 	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't
 	need to be dispatched when !detail1 is. This list of types will likely expand once I fully understand what they are.
 	*/
-	if ((type == CObjectEvent::FOCUS_GAINED) && !event->detail1)
+	if ((type == EObjectEventType::FOCUS_GAINED) && !event->detail1)
 		return;
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
-	object_event.object->UpdateCacheByEvent(type);
+	object_event.object = g_objectCache(AtspiAccessible, SObjectAtspiData).GetOrCreate<CObjectAtspi>(event->source);
+	object_event.object.UpdateCacheByEvent(type);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
 	turn.
@@ -221,7 +221,7 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	g_objectCache(AtspiAccessible, CObjectAtspi);
+	g_objectCache(AtspiAccessible, SObjectAtspiData);
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -239,7 +239,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 	}
 	StopEvdevWatcher();
 
-	g_objectCache(AtspiAccessible, CObjectAtspi).Clear();
+	g_objectCache(AtspiAccessible, SObjectAtspiData).Clear();
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {

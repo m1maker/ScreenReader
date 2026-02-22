@@ -9,7 +9,6 @@
 #include "Utf8.h"
 
 #include <Core/ScopedPool.h>
-#include <Interfaces/Object.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -21,19 +20,19 @@ name. For example, Mate system info has list items, which also contain a bunch o
 in there are information labels.
 */
 static void FindAnnouncementInHierarchy(
-	std::pmr::string& out, const std::shared_ptr<IObject>& obj, bool recursive = true, bool collect_all_labels = true) {
-	if (!obj)
+	std::pmr::string& out, CObject obj, bool recursive = true, bool collect_all_labels = true) {
+	if (!obj.IsValid())
 		return;
 
 	DefaultPool(pool);
 
-	auto collect_labels_recursive = [&](auto& self, const std::shared_ptr<IObject>& current) -> void {
-		if (!current)
+	auto collect_labels_recursive = [&](auto& self, CObject current) -> void {
+		if (!current.IsValid())
 			return;
 
-		auto current_type = current->GetType().value_or(IObject::UNKNOWN);
-		if (current_type == IObject::LABEL) {
-			auto name = current->GetName().value_or("");
+		auto current_type = current.GetType().value_or(EObjectType::UNKNOWN);
+		if (current_type == EObjectType::LABEL) {
+			auto name = current.GetName().value_or("");
 			if (!name.empty()) {
 				if (!out.empty())
 					out += CEventToSpeech::cSeparator;
@@ -41,39 +40,37 @@ static void FindAnnouncementInHierarchy(
 			}
 		}
 
-		if (auto children_res = current->GetChildren()) {
-			for (const auto& child : *children_res) {
+		if (auto children_res = current.GetChildren()) {
+			for (const auto child : *children_res) {
 				self(self, child);
 			}
 		}
 	};
 
-	auto type = obj->GetType().value_or(IObject::UNKNOWN);
+	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 
-	if ((type == IObject::LIST_ITEM || type == IObject::MENU_ITEM) && collect_all_labels) {
+	if ((type == EObjectType::LIST_ITEM || type == EObjectType::MENU_ITEM) && collect_all_labels) {
 		collect_labels_recursive(collect_labels_recursive, obj);
 		if (!out.empty())
 			return;
 	}
 
-	std::string announcement = obj->GetName().value_or("");
+	std::string announcement = obj.GetName().value_or("");
 	if (!announcement.empty()) {
 		out += announcement;
 		return;
 	}
 
-	if (auto text_provider = obj->GetAs<ITextProvider>()) {
-		if (auto text = text_provider->GetText(text_provider->GetCursor().value_or(0), ETextGranularity::LINE)) {
-			announcement = text->text;
-			if (!announcement.empty()) {
-				out += announcement;
-			}
+	if (auto text = obj.GetText(obj.GetCursor().value_or(0), ETextGranularity::LINE)) {
+		announcement = text->text;
+		if (!announcement.empty()) {
+			out += announcement;
 		}
 	}
 
 	if (recursive) {
-		if (auto children = obj->GetChildren()) {
-			for (const auto& child : *children) {
+		if (auto children = obj.GetChildren()) {
+			for (const auto child : *children) {
 				FindAnnouncementInHierarchy(out, child, true, collect_all_labels);
 			}
 		}
@@ -84,16 +81,15 @@ static void FindAnnouncementInHierarchy(
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(
-	std::pmr::string& out, const std::shared_ptr<ITextProvider>& obj, ETextGranularity& granularity) {
-	if (!obj)
+static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj, ETextGranularity& granularity) {
+	if (!obj.IsValid())
 		return;
 
 	LogCalled();
 
-	auto current_cursor = obj->GetCursor();
+	auto current_cursor = obj.GetCursor();
 	if (!current_cursor) {
-		g_logger.Log(CLogger::ERROR, std::string(IObject::ErrorToString(current_cursor.error())));
+		g_logger.Log(CLogger::ERROR, std::string(ObjectErrorToString(current_cursor.error())));
 		return;
 	}
 
@@ -116,7 +112,7 @@ static void FindAnnouncementOfCursorPosition(
 	else
 		granularity = ETextGranularity::LINE;
 
-	if (auto keys_range = obj->GetText(current_cursor.value_or(0), granularity)) {
+	if (auto keys_range = obj.GetText(current_cursor.value_or(0), granularity)) {
 		out += keys_range->text;
 	}
 }
@@ -134,7 +130,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
 	*/
 	auto object = g_focusManager.GetFocus();
-	if (!object) {
+	if (!object.IsValid()) {
 		g_speechEngine.Speak("Unknown area", true);
 		return true;
 	}
@@ -162,7 +158,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		if (it != m_contextChain.end())
 			continue;
 
-		auto current_name = current_object->GetName().value_or("");
+		auto current_name = current_object.GetName().value_or("");
 
 		if (current_name.empty() || current_name == last_name) {
 			continue;
@@ -172,14 +168,14 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 		CObjectEvent object_event;
 		object_event.object = current_object;
-		object_event.type = CObjectEvent::FOCUS_GAINED;
+		object_event.type = EObjectEventType::FOCUS_GAINED;
 		CEvent to_post(std::move(object_event), false);
 		AnnounceFocusChange(to_post);
 	}
 	m_isWhereAmIOperation = false;
 	CObjectEvent object_event;
 	object_event.object = object;
-	object_event.type = CObjectEvent::FOCUS_GAINED;
+	object_event.type = EObjectEventType::FOCUS_GAINED;
 	CEvent to_post(std::move(object_event), false);
 	AnnounceFocusChange(to_post);
 
@@ -209,23 +205,23 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	std::pmr::string announcement(&pool);
 	FindAnnouncementInHierarchy(
 		announcement, object_event.value().object, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
-	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
-	auto state = object_event.value().object->GetState().value_or(IObject::NO);
+	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
+	auto state = object_event.value().object.GetState().value_or(0);
 
 	announcement += cSeparator;
-	announcement += IObject::GetTypeName(type);
+	announcement += GetObjectTypeName(type);
 
 	auto& settings = g_applicationInstance.GetSettings();
 	switch (type) {
-	case IObject::MENU_ITEM:
-	case IObject::LIST_ITEM: {
+	case EObjectType::MENU_ITEM:
+	case EObjectType::LIST_ITEM: {
 		if (!settings.read_list_item_count)
 			break;
-		auto index = object_event.value().object->GetIndex().value_or(0) + 1;
-		auto parent = object_event.value().object->GetParent().value_or(nullptr);
-		if (!parent)
+		auto index = object_event.value().object.GetIndex().value_or(0) + 1;
+		auto parent = object_event.value().object.GetParent().value_or(CObject());
+		if (!parent.IsValid())
 			break;
-		auto children_count = parent->GetChildrenCount().value_or(0);
+		auto children_count = parent.GetChildrenCount().value_or(0);
 		std::format_to(std::back_inserter(announcement), "{}{} of {}", cSeparator, index, children_count);
 		break;
 	}
@@ -233,31 +229,31 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		break;
 	}
 
-	auto state_names = IObject::GetStateNames(type, state);
+	auto state_names = GetObjectStateNames(type, state);
 	for (std::string_view state_name : state_names) {
 		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
 
 	g_speechEngine.Speak(announcement, event.GetNow());
-	if (auto description = object_event.value().object->GetDescription()) {
+	if (auto description = object_event.value().object.GetDescription()) {
 		if (!description->empty()) {
 			g_speechEngine.Speak(*description, false);
 		}
 	}
 
 	switch (type) {
-	case IObject::SLIDER: {
+	case EObjectType::SLIDER: {
 		CObjectEvent object_event_to_post;
 		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
+		object_event_to_post.type = EObjectEventType::VALUE_CHANGED;
 		CEvent to_post(std::move(object_event_to_post), false);
 		AnnounceValueChange(to_post);
 		break;
 	}
-	case IObject::TEXT_FIELD: {
+	case EObjectType::TEXT_FIELD: {
 		CObjectEvent object_event_to_post;
 		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
+		object_event_to_post.type = EObjectEventType::CURSOR_MOVED;
 		CEvent to_post(std::move(object_event_to_post), false);
 		AnnounceCursorMove(to_post);
 		break;
@@ -275,16 +271,14 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	}
 	LogCalled();
 
-	if (object_event.value().object->GetType() != IObject::SLIDER ||
+	if (object_event.value().object.GetType() != EObjectType::SLIDER ||
 		g_focusManager.GetFocus() != object_event.value().object)
 		return;
 
-	if (auto value_provider = object_event.value().object->GetAs<IValueProvider>()) {
-		ScopedPool(pool, 256);
-		std::pmr::string announcement(&pool);
-		std::format_to(std::back_inserter(announcement), "{}", value_provider->GetCurrentValue().value_or(0));
-		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
-	}
+	ScopedPool(pool, 256);
+	std::pmr::string announcement(&pool);
+	std::format_to(std::back_inserter(announcement), "{}", object_event.value().object.GetCurrentValue().value_or(0));
+	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -301,10 +295,10 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	DefaultPool(pool);
 
 	std::pmr::string announcement(&pool);
-	auto type = object_event.value().object->GetType().value_or(IObject::UNKNOWN);
-	auto state = object_event.value().object->GetState().value_or(IObject::NO);
+	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
+	auto state = object_event.value().object.GetState().value_or(0);
 
-	auto state_names = IObject::GetStateNames(type, state);
+	auto state_names = GetObjectStateNames(type, state);
 	for (auto state_name : state_names) {
 		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
@@ -332,20 +326,18 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	LogCalled();
 	// if (g_focusManager.GetFocus() != object_event.value().object) return;
 
-	if (auto text_provider = object_event.value().object->GetAs<ITextProvider>()) {
-		auto cursor = text_provider->GetCursor();
-		if (!cursor) {
-			return;
-		}
-
-		DefaultPool(pool);
-		ETextGranularity granularity{ETextGranularity::CHARACTER};
-		std::pmr::string announcement(&pool);
-		FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
-		bool enable_spelling{false};
-		g_speechSystem.SetParameter(
-			g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
-		g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
-		g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
+	auto cursor = object_event.value().object.GetCursor();
+	if (!cursor) {
+		return;
 	}
+
+	DefaultPool(pool);
+	ETextGranularity granularity{ETextGranularity::CHARACTER};
+	std::pmr::string announcement(&pool);
+	FindAnnouncementOfCursorPosition(announcement, object_event.value().object, granularity);
+	bool enable_spelling{false};
+	g_speechSystem.SetParameter(
+		g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
+	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
 }

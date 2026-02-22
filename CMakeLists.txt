@@ -103,7 +103,7 @@ endif()
 add_executable(ScreenReader)
 
 add_subdirectory(SRC/Core)
-add_subdirectory(SRC/Interfaces)
+add_subdirectory(SRC/Traits)
 
 if(WIN32)
     add_subdirectory(SRC/Platforms/Windows)
