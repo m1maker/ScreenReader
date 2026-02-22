@@ -18,21 +18,6 @@ enum class EActionHandleResult : unsigned char {
 
 template <typename EventType> using ActionCallback = EActionHandleResult (*)(const EventType&);
 
-template <EDeviceType D, typename T> class IActionHandler {
-public:
-	virtual ~IActionHandler() = default;
-
-	auto LogRegistration(this auto&& self) {
-		g_logger.Log(
-			CLogger::INFO, "Action handler", std::string("Registered handler for ") + std::string(GetDeviceName(D)));
-	}
-
-	virtual auto RegisterAction(const T& event, uint32_t type, bool hook = false) -> bool = 0;
-	virtual void UnregisterAction(const T& event) = 0;
-
-	[[nodiscard]] virtual auto IsHooked(const T& event) const -> bool = 0;
-};
-
 template <typename T> struct SActions final {
 	static auto StopSpeech(const T&) -> EActionHandleResult {
 		g_speechEngine.Stop();
@@ -42,7 +27,7 @@ template <typename T> struct SActions final {
 	static auto StopKeyboardHooks(const T&) -> EActionHandleResult {
 		auto listener = g_eventHandler.GetListener();
 		if (listener) [[likely]] {
-			EventListenerTrait<CEventListener>::ListenDevice(*listener, EDeviceType::KEYBOARD, false);
+			listener->ListenDevice(EDeviceType::KEYBOARD, false);
 			g_speechEngine.Speak("Stop listening keyboard");
 			return EActionHandleResult::HANDLED;
 		}

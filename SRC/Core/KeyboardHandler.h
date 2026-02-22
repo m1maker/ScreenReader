@@ -4,11 +4,12 @@
 #include "Singleton.h"
 #include "Utils.h"
 
+#include <Traits/ActionHandler.h>
 #include <functional>
 #include <mutex>
 #include <unordered_map>
 
-class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKeyboardEvent::SHotkeyInfo> {
+class CKeyboardHandler final {
 	DeclareSingleton(CKeyboardHandler);
 	struct SActionInfo final {
 		uint32_t id{0};
@@ -34,14 +35,14 @@ class CKeyboardHandler final : public IActionHandler<EDeviceType::KEYBOARD, CKey
 	static inline constexpr const uint64_t cHookedModifierPressTimeMs = 300;
 
 	explicit CKeyboardHandler() = default;
-	~CKeyboardHandler() override = default;
+	~CKeyboardHandler() = default;
 
 public:
 	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false)
-		-> bool override;
-	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) override;
+		-> bool;
+	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action);
 
-	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool override;
+	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool;
 
 	void Handle(CKeyboardEvent& event);
 

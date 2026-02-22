@@ -9,7 +9,7 @@
 #include "Logger.h"
 
 CEventHandler::CEventHandler() {
-	EventListenerTrait<CEventListener>::ListenDevice(m_listener, EDeviceType::KEYBOARD);
+	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = g_keyboardHandler.RegisterAction(
@@ -32,8 +32,7 @@ void CEventHandler::Start() {
 
 					auto raw = pool->allocate(sizeof(CEvent));
 					auto raw_event = new (raw) CEvent(std::move(event.value()));
-					EventListenerTrait<CEventListener>::PushToMainThread(
-						m_listener,
+					m_listener.PushToMainThread(
 						[](void* pData) -> void {
 							if (!pData)
 								return;

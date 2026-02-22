@@ -375,7 +375,7 @@ inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType
 	}
 }
 
-class CEventListenerAtspi final {
+class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi> {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
@@ -387,25 +387,14 @@ class CEventListenerAtspi final {
 	[[nodiscard]] static auto FindKeyboardDevice() -> std::string;
 
 	[[nodiscard]] static auto ElevatePrivileges() -> bool;
-
-public:
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
 
+public:
 	explicit CEventListenerAtspi();
 	~CEventListenerAtspi();
-	void ListenDevice(EDeviceType device, bool listen = true);
+	void do_ListenDevice(EDeviceType device, bool listen = true);
 
-	void PushToMainThread(ThreadFunction function, void* pUserData);
-};
-
-template <> struct EventListenerTrait<CEventListenerAtspi> final {
-	static void ListenDevice(CEventListenerAtspi& listener, EDeviceType device, bool listen = true) {
-		listener.ListenDevice(device, listen);
-	}
-
-	static void PushToMainThread(CEventListenerAtspi& listener, ThreadFunction function, void* pUserData) {
-		listener.PushToMainThread(function, pUserData);
-	}
+	void do_PushToMainThread(ThreadFunction function, void* pUserData);
 };
 
 using CEventListener = CEventListenerAtspi;
