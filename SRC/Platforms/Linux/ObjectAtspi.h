@@ -22,253 +22,254 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	using enum EObjectType;
 	switch (role) {
 	case ATSPI_ROLE_ACCELERATOR_LABEL:
-		return IObject::LABEL;
+		return LABEL;
 	case ATSPI_ROLE_ALERT:
-		return IObject::ALERT;
+		return ALERT;
 	case ATSPI_ROLE_ANIMATION:
-		return IObject::ANIMATION;
+		return ANIMATION;
 	case ATSPI_ROLE_APPLICATION:
-		return IObject::APPLICATION;
+		return APPLICATION;
 	case ATSPI_ROLE_ARTICLE:
-		return IObject::ARTICLE;
+		return ARTICLE;
 	case ATSPI_ROLE_AUDIO:
-		return IObject::AUDIO;
+		return AUDIO;
 	case ATSPI_ROLE_AUTOCOMPLETE:
-		return IObject::AUTO_COMPLETE;
+		return AUTO_COMPLETE;
 	case ATSPI_ROLE_BLOCK_QUOTE:
-		return IObject::BLOCKQUOTE;
+		return BLOCKQUOTE;
 	case ATSPI_ROLE_BUTTON:
-		return IObject::BUTTON;
+		return BUTTON;
 	case ATSPI_ROLE_CANVAS:
-		return IObject::CANVAS;
+		return CANVAS;
 	case ATSPI_ROLE_CAPTION:
-		return IObject::CAPTION;
+		return CAPTION;
 	case ATSPI_ROLE_CHART:
-		return IObject::CHART;
+		return CHART;
 	case ATSPI_ROLE_CHECK_BOX:
-		return IObject::CHECKBOX;
+		return CHECKBOX;
 	case ATSPI_ROLE_CHECK_MENU_ITEM:
-		return IObject::MENU_ITEM_CHECKBOX;
+		return MENU_ITEM_CHECKBOX;
 	case ATSPI_ROLE_COLOR_CHOOSER:
-		return IObject::COLOR_WELL;
+		return COLOR_WELL;
 	case ATSPI_ROLE_COLUMN_HEADER:
-		return IObject::COLUMN_HEADER;
+		return COLUMN_HEADER;
 	case ATSPI_ROLE_COMBO_BOX:
-		return IObject::COMBO_BOX;
+		return COMBO_BOX;
 	case ATSPI_ROLE_COMMENT:
-		return IObject::COMMENT;
+		return COMMENT;
 	case ATSPI_ROLE_CONTENT_DELETION:
-		return IObject::CONTENT_DELETION;
+		return CONTENT_DELETION;
 	case ATSPI_ROLE_CONTENT_INSERTION:
-		return IObject::CONTENT_INSERTION;
+		return CONTENT_INSERTION;
 	case ATSPI_ROLE_DEFINITION:
-		return IObject::DEFINITION;
+		return DEFINITION;
 	case ATSPI_ROLE_DESCRIPTION_LIST:
-		return IObject::DESCRIPTION_LIST;
+		return DESCRIPTION_LIST;
 	case ATSPI_ROLE_DIALOG:
-		return IObject::DIALOG;
+		return DIALOG;
 	case ATSPI_ROLE_DOCUMENT_FRAME:
-		return IObject::DOCUMENT;
+		return DOCUMENT;
 	case ATSPI_ROLE_DOCUMENT_WEB:
-		return IObject::WEB_VIEW;
+		return WEB_VIEW;
 	case ATSPI_ROLE_EDITBAR:
-		return IObject::TOOLBAR;
+		return TOOLBAR;
 	case ATSPI_ROLE_EMBEDDED:
-		return IObject::EMBEDDED_OBJECT;
+		return EMBEDDED_OBJECT;
 	case ATSPI_ROLE_ENTRY:
-		return IObject::TEXT_FIELD;
+		return TEXT_FIELD;
 	case ATSPI_ROLE_FILE_CHOOSER:
-		return IObject::FILE_UPLOAD;
+		return FILE_UPLOAD;
 	case ATSPI_ROLE_FOOTER:
-		return IObject::FOOTER;
+		return FOOTER;
 	case ATSPI_ROLE_FORM:
-		return IObject::FORM;
+		return FORM;
 	case ATSPI_ROLE_GROUPING:
-		return IObject::GROUP;
+		return GROUP;
 	case ATSPI_ROLE_HEADER:
-		return IObject::HEADER;
+		return HEADER;
 	case ATSPI_ROLE_HEADING:
-		return IObject::HEADING;
+		return HEADING;
 	case ATSPI_ROLE_IMAGE:
-		return IObject::IMAGE;
+		return IMAGE;
 	case ATSPI_ROLE_IMAGE_MAP:
-		return IObject::IMAGE_MAP;
+		return IMAGE_MAP;
 	case ATSPI_ROLE_LABEL:
-		return IObject::LABEL;
+		return LABEL;
 	case ATSPI_ROLE_LINK:
-		return IObject::LINK;
+		return LINK;
 	case ATSPI_ROLE_LIST:
-		return IObject::LIST;
+		return LIST;
 	case ATSPI_ROLE_LIST_BOX:
-		return IObject::LIST_BOX;
+		return LIST_BOX;
 	case ATSPI_ROLE_LIST_ITEM:
-		return IObject::LIST_ITEM;
+		return LIST_ITEM;
 	case ATSPI_ROLE_LOG:
-		return IObject::LOG;
+		return LOG;
 	case ATSPI_ROLE_MARK:
-		return IObject::MARK;
+		return MARK;
 	case ATSPI_ROLE_MARQUEE:
-		return IObject::MARQUEE;
+		return MARQUEE;
 	case ATSPI_ROLE_MATH:
-		return IObject::MATH;
+		return MATH;
 	case ATSPI_ROLE_MATH_FRACTION:
-		return IObject::MATH_FRACTION;
+		return MATH_FRACTION;
 	case ATSPI_ROLE_MATH_ROOT:
-		return IObject::MATH_ROOT;
+		return MATH_ROOT;
 	case ATSPI_ROLE_MENU:
-		return IObject::MENU;
+		return MENU;
 	case ATSPI_ROLE_MENU_BAR:
-		return IObject::MENU_BAR;
+		return MENU_BAR;
 	case ATSPI_ROLE_MENU_ITEM:
-		return IObject::MENU_ITEM;
+		return MENU_ITEM;
 	case ATSPI_ROLE_NOTIFICATION:
-		return IObject::ALERT;
+		return ALERT;
 	case ATSPI_ROLE_PAGE_TAB:
-		return IObject::TAB;
+		return TAB;
 	case ATSPI_ROLE_PAGE_TAB_LIST:
-		return IObject::TAB_LIST;
+		return TAB_LIST;
 	case ATSPI_ROLE_PANEL:
-		return IObject::PANEL;
+		return PANEL;
 	case ATSPI_ROLE_PARAGRAPH:
-		return IObject::PARAGRAPH;
+		return PARAGRAPH;
 	case ATSPI_ROLE_PASSWORD_TEXT:
-		return IObject::PASSWORD_FIELD;
+		return PASSWORD_FIELD;
 	case ATSPI_ROLE_PROGRESS_BAR:
-		return IObject::PROGRESS_BAR;
+		return PROGRESS_BAR;
 	case ATSPI_ROLE_RADIO_BUTTON:
-		return IObject::RADIO_BUTTON;
+		return RADIO_BUTTON;
 	case ATSPI_ROLE_RADIO_MENU_ITEM:
-		return IObject::MENU_ITEM_RADIO;
+		return MENU_ITEM_RADIO;
 	case ATSPI_ROLE_RATING:
-		return IObject::RATING_INDICATOR;
+		return RATING_INDICATOR;
 	case ATSPI_ROLE_ROW_HEADER:
-		return IObject::ROW_HEADER;
+		return ROW_HEADER;
 	case ATSPI_ROLE_SCROLL_BAR:
-		return IObject::SCROLL_BAR;
+		return SCROLL_BAR;
 	case ATSPI_ROLE_SECTION:
-		return IObject::SECTION;
+		return SECTION;
 	case ATSPI_ROLE_SEPARATOR:
-		return IObject::SEPARATOR;
+		return SEPARATOR;
 	case ATSPI_ROLE_SLIDER:
-		return IObject::SLIDER;
+		return SLIDER;
 	case ATSPI_ROLE_SPIN_BUTTON:
-		return IObject::SPIN_BUTTON;
+		return SPIN_BUTTON;
 	case ATSPI_ROLE_SPLIT_PANE:
-		return IObject::SPLITTER;
+		return SPLITTER;
 	case ATSPI_ROLE_STATUS_BAR:
-		return IObject::STATUS;
+		return STATUS;
 	case ATSPI_ROLE_SUBSCRIPT:
-		return IObject::SUBSCRIPT;
+		return SUBSCRIPT;
 	case ATSPI_ROLE_SUPERSCRIPT:
-		return IObject::SUPERSCRIPT;
+		return SUPERSCRIPT;
 	case ATSPI_ROLE_SWITCH:
-		return IObject::SWITCH;
+		return SWITCH;
 	case ATSPI_ROLE_TABLE:
-		return IObject::TABLE;
+		return TABLE;
 	case ATSPI_ROLE_TABLE_CELL:
-		return IObject::CELL;
+		return CELL;
 	case ATSPI_ROLE_TABLE_ROW:
-		return IObject::ROW;
+		return ROW;
 	case ATSPI_ROLE_TERMINAL:
-		return IObject::TERMINAL;
+		return TERMINAL;
 	case ATSPI_ROLE_TEXT:
-		return IObject::TEXT_FIELD;
+		return TEXT_FIELD;
 	case ATSPI_ROLE_TIMER:
-		return IObject::TIMER;
+		return TIMER;
 	case ATSPI_ROLE_TITLE_BAR:
-		return IObject::TITLE_BAR;
+		return TITLE_BAR;
 	case ATSPI_ROLE_TOGGLE_BUTTON:
-		return IObject::TOGGLE_BUTTON;
+		return TOGGLE_BUTTON;
 	case ATSPI_ROLE_TOOL_BAR:
-		return IObject::TOOLBAR;
+		return TOOLBAR;
 	case ATSPI_ROLE_TOOL_TIP:
-		return IObject::TOOLTIP;
+		return TOOLTIP;
 	case ATSPI_ROLE_TREE:
-		return IObject::TREE;
+		return TREE;
 	case ATSPI_ROLE_TREE_ITEM:
-		return IObject::TREE_ITEM;
+		return TREE_ITEM;
 	case ATSPI_ROLE_VIEWPORT:
-		return IObject::VIEWPORT;
+		return VIEWPORT;
 	case ATSPI_ROLE_WINDOW:
-		return IObject::WINDOW;
+		return WINDOW;
 	default:
-		return IObject::UNKNOWN;
+		return UNKNOWN;
 	}
 }
 
-[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(const AtspiStateType& state)
-	-> IObject::EObjectState {
+[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state)
+	-> EObjectState {
+	using enum EObjectState;
 	switch (state) {
 	case ATSPI_STATE_ACTIVE:
-		return IObject::ACTIVE;
+		return ACTIVE;
 	case ATSPI_STATE_ANIMATED:
-		return IObject::ANIMATED;
+		return ANIMATED;
 	case ATSPI_STATE_BUSY:
-		return IObject::BUSY;
+		return BUSY;
 	case ATSPI_STATE_CHECKABLE:
-		return IObject::CHECKABLE;
+		return CHECKABLE;
 	case ATSPI_STATE_CHECKED:
-		return IObject::CHECKED;
+		return CHECKED;
 	case ATSPI_STATE_COLLAPSED:
-		return IObject::COLLAPSED;
+		return COLLAPSED;
 	case ATSPI_STATE_EDITABLE:
-		return IObject::EDITABLE;
+		return EDITABLE;
 	case ATSPI_STATE_ENABLED:
-		return IObject::ENABLED;
+		return ENABLED;
 	case ATSPI_STATE_EXPANDABLE:
-		return IObject::EXPANDABLE;
+		return EXPANDABLE;
 	case ATSPI_STATE_EXPANDED:
-		return IObject::EXPANDED;
+		return EXPANDED;
 	case ATSPI_STATE_FOCUSABLE:
-		return IObject::FOCUSABLE;
+		return FOCUSABLE;
 	case ATSPI_STATE_FOCUSED:
-		return IObject::FOCUSED;
+		return FOCUSED;
 	case ATSPI_STATE_HAS_POPUP:
-		return IObject::HAS_POPUP;
+		return HAS_POPUP;
 	case ATSPI_STATE_HAS_TOOLTIP:
-		return IObject::HAS_TOOLTIP;
+		return HAS_TOOLTIP;
 	case ATSPI_STATE_HORIZONTAL:
-		return IObject::HORIZONTAL;
+		return HORIZONTAL;
 	case ATSPI_STATE_INDETERMINATE:
-		return IObject::INDETERMINATE;
+		return INDETERMINATE;
 	case ATSPI_STATE_INVALID_ENTRY:
-		return IObject::INVALID;
+		return INVALID;
 	case ATSPI_STATE_IS_DEFAULT:
-		return IObject::DEFAULT;
+		return DEFAULT;
 	case ATSPI_STATE_MODAL:
-		return IObject::MODAL;
+		return MODAL;
 	case ATSPI_STATE_MULTI_LINE:
-		return IObject::MULTI_LINE;
+		return MULTI_LINE;
 	case ATSPI_STATE_MULTISELECTABLE:
-		return IObject::MULTI_SELECTABLE;
+		return MULTI_SELECTABLE;
 	case ATSPI_STATE_PRESSED:
-		return IObject::PRESSED;
+		return PRESSED;
 	case ATSPI_STATE_READ_ONLY:
-		return IObject::READONLY;
+		return READONLY;
 	case ATSPI_STATE_REQUIRED:
-		return IObject::REQUIRED;
+		return REQUIRED;
 	case ATSPI_STATE_RESIZABLE:
-		return IObject::RESIZABLE;
+		return RESIZABLE;
 	case ATSPI_STATE_SELECTABLE:
-		return IObject::SELECTABLE;
+		return SELECTABLE;
 	case ATSPI_STATE_SELECTED:
-		return IObject::SELECTED;
+		return SELECTED;
 	case ATSPI_STATE_SENSITIVE:
-		return IObject::SENSITIVE;
+		return SENSITIVE;
 	case ATSPI_STATE_VERTICAL:
-		return IObject::VERTICAL;
+		return VERTICAL;
 	case ATSPI_STATE_VISIBLE:
-		return IObject::VISIBLE;
+		return VISIBLE;
 	case ATSPI_STATE_VISITED:
-		return IObject::VISITED;
+		return VISITED;
 	default:
-		return IObject::NO;
+		return NO;
 	}
 }
 
 [[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
 	-> unsigned long long {
-	unsigned long long result = IObject::NO;
+	unsigned long long result = EObjectState::NO;
 	for (const auto& state : states) {
 		result |= GetObjectStateFromAtspiState(state);
 	}
@@ -278,7 +279,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 [[nodiscard]] static inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
-		return IObject::NO;
+		return EObjectState::NO;
 	}
 
 	std::vector<AtspiStateType> state_types;
@@ -292,7 +293,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 }
 
 [[nodiscard]] static constexpr inline auto GetAtspiTextGranularityFromTextGranularity(
-	const ETextGranularity& granularity) -> AtspiTextGranularity {
+	ETextGranularity granularity) -> AtspiTextGranularity {
 	switch (granularity) {
 	case ETextGranularity::CHARACTER:
 		return ATSPI_TEXT_GRANULARITY_CHAR;
