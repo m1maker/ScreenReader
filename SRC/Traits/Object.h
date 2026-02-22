@@ -348,7 +348,7 @@ public:
 	[[nodiscard]] auto GetName() const { return Impl().do_GetName(); }
 	[[nodiscard]] auto GetDescription() const { return Impl().do_GetDescription(); }
 
-	void UpdateCacheByEvent(EObjectEventType type) { return Impl().UpdateCacheByEvent(type); }
+	void UpdateCacheByEvent(EObjectEventType type) { return Impl().do_UpdateCacheByEvent(type); }
 };
 
 template <class NativeHandle, typename ObjectData> class CObjectCache final {
