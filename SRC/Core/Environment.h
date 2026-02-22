@@ -29,6 +29,8 @@
 #else
 #define SR_ANDROID 0
 #define SR_LINUX 1
+#include <Platforms/Linux/Object.h>
+using CObject = CObjectAtspi;
 #endif
 #else
 #define SR_LINUX 0

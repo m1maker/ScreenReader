@@ -7,8 +7,8 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+#include "Environment.h"
 
-class IObject;
 
 /*
 The object event category.
@@ -34,7 +34,7 @@ public:
 		LAYOUT_UPDATED
 	} type;
 
-	std::shared_ptr<IObject> object;
+	CObject object;
 };
 
 /*

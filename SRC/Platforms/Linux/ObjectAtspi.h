@@ -423,13 +423,7 @@ public:
 			m_interfacesMask |= SUPPORTS_VALUE;
 	}
 
-	~CObjectAtspi() {
-		if (m_accessible) {
-			g_object_unref(m_accessible);
-			m_accessible = nullptr;
-		}
-		if (m_data) m_data = nullptr;
-	}
+	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
 	[[nodiscard]] auto do_GetSupportedInterfaces() const noexcept -> uint32_t { return m_interfacesMask; }
 

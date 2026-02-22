@@ -1,6 +1,7 @@
 // Object trait.
 #pragma once
 #include <Core/Cache.h>
+#include <Core/EnumUtils.h>
 #include <Core/Event.h>
 #include <Core/Rect.h>
 #include <Core/StaticInterface.h>
@@ -22,7 +23,7 @@ enum class EObjectInterfaceMask : uint32_t {
 	SUPPORTS_TEXT = 1 << 0,
 	SUPPORTS_SELECTION = 1 << 1,
 	SUPPORTS_VALUE = 1 << 2
-};
+}; EnableBitwiseEnum(EObjectInterfaceMask)
 
 	enum class EObjectType : unsigned char {
 		UNKNOWN = 0,
@@ -223,7 +224,7 @@ enum class EObjectInterfaceMask : uint32_t {
 		LIVE_REGION = 1ULL << 46, // For dynamic content updates
 		PROTECTED = 1ULL << 47,
 		SENSITIVE = 1ULL << 48,
-	};
+	}; EnableBitwiseEnum(EObjectInterfaceMask)
 
 	enum class EObjectError : unsigned char {
 		SUCCESS = 0,
@@ -301,6 +302,7 @@ public:
 
 template<typename Derived>
 class TObject {
+	static_assert(std::is_trivially_copyable_v<Derived>, "Object handles must be trivial!");
     BindStaticInterface(Derived)
 
 protected:
