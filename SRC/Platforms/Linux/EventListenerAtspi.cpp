@@ -92,8 +92,8 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	object_event.object = g_objectCache(AtspiAccessible, CObjectAtspi).GetOrCreate(event->source);
-	object_event.object->UpdateCacheByEvent(type);
+	object_event.object = g_objectCache(AtspiAccessible, SObjectAtspiData).GetOrCreate<CObjectAtspi>(event->source);
+	object_event.object.UpdateCacheByEvent(type);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
 	turn.
@@ -221,7 +221,7 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	g_objectCache(AtspiAccessible, CObjectAtspi);
+	g_objectCache(AtspiAccessible, SObjectAtspiData);
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -239,7 +239,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 	}
 	StopEvdevWatcher();
 
-	g_objectCache(AtspiAccessible, CObjectAtspi).Clear();
+	g_objectCache(AtspiAccessible, SObjectAtspiData).Clear();
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {
