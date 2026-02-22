@@ -16,7 +16,7 @@ This is the final step of object event processing. Announce it.
 class CEventToSpeech final {
 	DeclareSingleton(CEventToSpeech);
 
-	void SpeakObject(const std::shared_ptr<IObject>& obj);
+	void SpeakObject(CObject object);
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 
 	bool m_isWhereAmIOperation{false};
@@ -28,7 +28,7 @@ class CEventToSpeech final {
 	static constexpr const uint64_t cSpeechFilterTimeMs = 10;
 	CTimer m_speechFilterTimer;
 
-	std::pmr::vector<std::shared_ptr<IObject>> m_contextChain;
+	std::pmr::vector<CObject> m_contextChain;
 
 public:
 	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.
