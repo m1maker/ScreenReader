@@ -375,42 +375,46 @@ template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-class CObjectAtspi final : public IObject, public ITextProvider, public ISelectionProvider, public IValueProvider {
-	friend class CObjectCache<AtspiAccessible, CObjectAtspi>;
-	friend class CEventListenerAtspi;
+struct SObjectAtspiData final {
+	DeclareCache(EObjectType, type);
+	DeclareCache(unsigned long long, states);
+	DeclareCache(class CObjectAtspi, parent);
+	DeclareCache(std::pmr::vector<class CObjectAtspi>, children);
+	DeclareCache(int, children_count);
+	DeclareCache(int, index);
+	DeclareCache(std::string, name);
+	DeclareCache(std::string, application_name);
+	DeclareCache(std::string, description);
+	DeclareCache(int, cursor);
+	DeclareCache(double, min_value);
+	DeclareCache(double, max_value);
+	DeclareCache(double, current_value);
 
-	mutable AtspiAccessible* m_accessible;
-
-	DeclareCache(EObjectType, m_type);
-	DeclareCache(unsigned long long, m_states);
-	DeclareCache(std::weak_ptr<IObject>, m_parent);
-	DeclareCache(std::pmr::vector<std::shared_ptr<IObject>>, m_children);
-	DeclareCache(int, m_childrenCount);
-	DeclareCache(int, m_index);
-	DeclareCache(std::string, m_name);
-	DeclareCache(std::string, m_applicationName);
-	DeclareCache(std::string, m_description);
-	DeclareCache(int, m_cursor);
-	DeclareCache(double, m_minValue);
-	DeclareCache(double, m_maxValue);
-	DeclareCache(double, m_currentValue);
-
-	mutable GArray* m_relations{nullptr};
-
-	uint32_t m_interfacesMask{SUPPORTS_NOTHING};
+	mutable GError* last_error{nullptr};
+	uint32_t interfaces_mask{EObjectInterfaceMask::SUPPORTS_NOTHING};
 
 	inline void ResetLastError() const noexcept {
-		if (m_lastError) {
-			g_error_free(m_lastError);
-			m_lastError = nullptr;
+		if (last_error) {
+			g_error_free(last_error);
+			last_error = nullptr;
 		}
 	}
 
-	[[nodiscard]] auto GetRelations() const -> std::pmr::vector<AtspiRelation>;
+	~SObjectAtspiData() { ResetLastError(); }
+};
 
+class CObjectAtspi final : public TObject<CObjectAtspi>, public TTextProvider<CObjectAtspi>, public TSelectionProvider<CObjectAtspi>, public TValueProvider<CObjectAtspi> {
+	friend class CObjectCache<AtspiAccessible, SObjectAtspiData>;
+	friend class CEventListenerAtspi;
+
+	mutable AtspiAccessible* m_accessible{nullptr};
+
+	mutable SObjectAtspiData* m_data{nullptr};
 public:
-	explicit CObjectAtspi(AtspiAccessible* accessible, std::pmr::memory_resource* pool)
-		: m_accessible(accessible), IObject(pool) {
+
+	CObjectAtspi() : TObject(nullptr) {}
+	explicit CObjectAtspi(AtspiAccessible* accessible, SAtspiObjectData* data, std::pmr::memory_resource* pool)
+		: m_accessible(accessible), m_data(data), TObject(pool) {
 		if (atspi_accessible_is_text(m_accessible))
 			m_interfacesMask |= SUPPORTS_TEXT;
 		if (atspi_accessible_is_selection(m_accessible))
@@ -419,57 +423,48 @@ public:
 			m_interfacesMask |= SUPPORTS_VALUE;
 	}
 
-	~CObjectAtspi() override {
-		if (m_relations)
-			g_array_free(m_relations, TRUE);
-
+	~CObjectAtspi() {
 		if (m_accessible) {
 			g_object_unref(m_accessible);
 			m_accessible = nullptr;
 		}
-		ResetLastError();
+		if (m_data) m_data = nullptr;
 	}
 
-	[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t override { return m_interfacesMask; }
+	[[nodiscard]] auto do_GetSupportedInterfaces() const noexcept -> uint32_t { return m_interfacesMask; }
 
-	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> override {
+	[[nodiscard]] auto do_GetNativeHandle() const noexcept -> ObjectResult<void*> {
 		return reinterpret_cast<void*>(m_accessible);
 	}
 
-	[[nodiscard]] inline auto IsValid() const noexcept -> bool override { return m_accessible != nullptr; }
+	[[nodiscard]] inline auto do_IsValid() const noexcept -> bool { return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr; }
 
-	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType> override;
-	[[nodiscard]] auto IsVisible() const -> ObjectResult<bool> override;
-	[[nodiscard]] auto IsEnabled() const -> ObjectResult<bool> override;
+	[[nodiscard]] auto do_GetType() const -> ObjectResult<EObjectType>;
 
-	[[nodiscard]] auto GetState() const -> ObjectResult<unsigned long long> override;
-	[[nodiscard]] auto HasState(EObjectState state) const -> ObjectResult<bool> override;
+	[[nodiscard]] auto do_GetState() const -> ObjectResult<unsigned long long>;
 
-	[[nodiscard]] auto GetParent() const -> ObjectResult<std::shared_ptr<IObject>> override;
-	[[nodiscard]] auto GetChildren() const -> ObjectResult<const std::vector<std::shared_ptr<IObject>>> override;
-	[[nodiscard]] auto GetChildrenCount() const -> ObjectResult<int> override;
+	[[nodiscard]] auto do_GetParent() const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto do_GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
+	[[nodiscard]] auto do_GetChildrenCount() const -> ObjectResult<int>;
 
-	[[nodiscard]] auto GetBounds() const -> ObjectResult<SRect> override;
+	[[nodiscard]] auto do_GetBounds() const -> ObjectResult<SRect>;
 
-	[[nodiscard]] auto GetIndex() const -> ObjectResult<int> override;
+	[[nodiscard]] auto do_GetIndex() const -> ObjectResult<int>;
 
-	[[nodiscard]] auto GetApplicationName() const -> ObjectResult<std::string> override;
+	[[nodiscard]] auto do_GetApplicationName() const -> ObjectResult<std::string>;
 
-	[[nodiscard]] auto GetName() const -> ObjectResult<std::string> override;
-	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string> override;
+	[[nodiscard]] auto do_GetName() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto do_GetDescription() const -> ObjectResult<std::string>;
 
-	void UpdateCacheByEvent(CObjectEvent::EObjectEventType event) override;
+	void do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) ;
 
-	[[nodiscard]] auto GetCursor() const -> ObjectResult<int> override;
-	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const
-		-> ObjectResult<STextRange<std::string>> override;
-	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> override;
-	[[nodiscard]] auto GetSelectedItems() const -> ObjectResult<std::vector<std::shared_ptr<IObject>>> override;
+	[[nodiscard]] auto do_GetCursor() const -> ObjectResult<int>;
+	[[nodiscard]] auto do_GetText(int cursor, const ETextGranularity& granularity) const
+		-> ObjectResult<STextRange<std::string>>;
+	[[nodiscard]] auto do_GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
+	[[nodiscard]] auto do_GetSelectedItems() const -> ObjectResult<std::vector<CObjectAtspi>>;
 
-	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double> override;
-	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double> override;
-	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double> override;
-
-private:
-	mutable GError* m_lastError{nullptr};
+	[[nodiscard]] auto do_GetMinValue() const -> ObjectResult<double>;
+	[[nodiscard]] auto do_GetMaxValue() const -> ObjectResult<double>;
+	[[nodiscard]] auto do_GetCurrentValue() const -> ObjectResult<double>;
 };
