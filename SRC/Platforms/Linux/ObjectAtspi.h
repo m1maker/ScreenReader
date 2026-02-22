@@ -1,6 +1,6 @@
 // AT-SPI object implementation and some inlines.
 #include <Core/Singleton.h>
-#include <Interfaces/Object.h>
+#include <Traits/Object.h>
 #include <Traits/RefCountedObject.h>
 #include <atspi/atspi.h>
 #include <map>
@@ -18,7 +18,8 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	}
 };
 
-[[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(const AtspiRole& role) -> IObject::EObjectType {
+[[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
+	using enum EObjectType;
 	switch (role) {
 	case ATSPI_ROLE_ACCELERATOR_LABEL:
 		return IObject::LABEL;
