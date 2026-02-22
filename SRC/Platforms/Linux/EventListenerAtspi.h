@@ -1,8 +1,8 @@
 // AT_SPI's event listener.
 #pragma once
-#include "ObjectAtspi.h"
 
 #include <Core/Device.h>
+#include <Core/Event.h>
 #include <Traits/EventListener.h>
 #include <Traits/RefCountedObject.h>
 #include <array>
@@ -21,17 +21,17 @@
 AT-SPI has a listener where you need to register the required events one by one.
 But there's one very strange thing: all of these types are strings. Look at this code.
 */
-inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType> cAtspiObjectEventTypeMap = {
-	{"object:state-changed:focused", CObjectEvent::FOCUS_GAINED},
-	{"object:state-changed", CObjectEvent::STATE_CHANGED},
-	{"object:selection-changed", CObjectEvent::SELECTION_CHANGED},
-	{"object:text-selection-changed", CObjectEvent::SELECTION_CHANGED},
-	{"object:property-change:accessible-value", CObjectEvent::VALUE_CHANGED},
-	{"object:text-caret-moved", CObjectEvent::CURSOR_MOVED}};
+inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObjectEventTypeMap = {
+	{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
+	{"object:state-changed", EObjectEventType::STATE_CHANGED},
+	{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
+	{"object:text-selection-changed", EObjectEventType::SELECTION_CHANGED},
+	{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
+	{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
 
-[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> CObjectEvent::EObjectEventType {
+[[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> EObjectEventType {
 	if (!type) [[unlikely]]
-		return CObjectEvent::NONE;
+		return EObjectEventType::NONE;
 
 	std::string_view type_str(type);
 
@@ -40,7 +40,7 @@ inline const std::unordered_map<std::string_view, CObjectEvent::EObjectEventType
 		return it->second;
 	}
 
-	return CObjectEvent::NONE;
+	return EObjectEventType::NONE;
 }
 
 [[nodiscard]] constexpr inline auto LinuxKeycodeToKeyboardEventKeycode(const uint16_t& linux_keycode)

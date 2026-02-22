@@ -9,7 +9,6 @@
 #include "Utf8.h"
 
 #include <Core/ScopedPool.h>
-
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -82,8 +81,7 @@ static void FindAnnouncementInHierarchy(
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(
-	std::pmr::string& out, CObject obj, ETextGranularity granularity) {
+static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj, ETextGranularity granularity) {
 	if (!obj.IsValid())
 		return;
 
@@ -170,14 +168,14 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 		CObjectEvent object_event;
 		object_event.object = current_object;
-		object_event.type = CObjectEvent::FOCUS_GAINED;
+		object_event.type = EObjectEventType::FOCUS_GAINED;
 		CEvent to_post(std::move(object_event), false);
 		AnnounceFocusChange(to_post);
 	}
 	m_isWhereAmIOperation = false;
 	CObjectEvent object_event;
 	object_event.object = object;
-	object_event.type = CObjectEvent::FOCUS_GAINED;
+	object_event.type = EObjectEventType::FOCUS_GAINED;
 	CEvent to_post(std::move(object_event), false);
 	AnnounceFocusChange(to_post);
 
@@ -207,8 +205,8 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	std::pmr::string announcement(&pool);
 	FindAnnouncementInHierarchy(
 		announcement, object_event.value().object, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
-	auto type = object_event.value().object.GetType().value_or(IObject::UNKNOWN);
-	auto state = object_event.value().object.GetState().value_or(IObject::NO);
+	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
+	auto state = object_event.value().object.GetState().value_or(0);
 
 	announcement += cSeparator;
 	announcement += GetObjectTypeName(type);
@@ -247,7 +245,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	case EObjectType::SLIDER: {
 		CObjectEvent object_event_to_post;
 		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = CObjectEvent::VALUE_CHANGED;
+		object_event_to_post.type = EObjectEventType::VALUE_CHANGED;
 		CEvent to_post(std::move(object_event_to_post), false);
 		AnnounceValueChange(to_post);
 		break;
@@ -255,7 +253,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	case EObjectType::TEXT_FIELD: {
 		CObjectEvent object_event_to_post;
 		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = CObjectEvent::CURSOR_MOVED;
+		object_event_to_post.type = EObjectEventType::CURSOR_MOVED;
 		CEvent to_post(std::move(object_event_to_post), false);
 		AnnounceCursorMove(to_post);
 		break;
@@ -297,8 +295,8 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	DefaultPool(pool);
 
 	std::pmr::string announcement(&pool);
-	auto type = object_event.value().object.GetType().value_or(IObject::UNKNOWN);
-	auto state = object_event.value().object.GetState().value_or(IObject::NO);
+	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
+	auto state = object_event.value().object.GetState().value_or(0);
 
 	auto state_names = GetObjectStateNames(type, state);
 	for (auto state_name : state_names) {

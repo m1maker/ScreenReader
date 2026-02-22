@@ -5,7 +5,6 @@
 #include "Logger.h"
 #include "Singleton.h"
 
-#include <Interfaces/Object.h>
 #include <atomic>
 #include <memory>
 #include <string>

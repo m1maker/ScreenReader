@@ -137,51 +137,51 @@ For example, there's no such state as EObjectState::UNCHECKED, but there is CHEC
 We need to understand what kind of object this is to more accurately determine the states for announcements when we
 don't request `require_all`.
 */
-[[nodiscard]] auto GetObjectStateNames(
-	EObjectType type, unsigned long long states, bool require_all)
+[[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long state, bool require_all)
 	-> std::vector<std::string_view> {
 	ScopedPool(pool, 8192);
 	using enum EObjectType;
 	using enum EObjectState;
 	std::pmr::vector<std::string_view> state_names(&pool);
 
+	auto states = static_cast<EObjectState>(state);
 	// Capability / Infrastructure States (Usually only for logging/require_all).
 	if (require_all) {
-		if (states & VISIBLE)
+		if (!!(states & VISIBLE))
 			state_names.emplace_back("visible");
-		if (states & ENABLED)
+		if (!!(states & ENABLED))
 			state_names.emplace_back("enabled");
-		if (states & FOCUSABLE)
+		if (!!(states & FOCUSABLE))
 			state_names.emplace_back("focusable");
-		if (states & FOCUSED)
+		if (!!(states & FOCUSED))
 			state_names.emplace_back("focused");
-		if (states & SELECTABLE)
+		if (!!(states & SELECTABLE))
 			state_names.emplace_back("selectable");
-		if (states & CHECKABLE)
+		if (!!(states & CHECKABLE))
 			state_names.emplace_back("checkable");
-		if (states & EDITABLE)
+		if (!!(states & EDITABLE))
 			state_names.emplace_back("editable");
-		if (states & EXPANDABLE)
+		if (!!(states & EXPANDABLE))
 			state_names.emplace_back("expandable");
-		if (states & RESIZABLE)
+		if (!!(states & RESIZABLE))
 			state_names.emplace_back("resizable");
 	}
 
 	// Interactive / Crucial States (Always announced or contextually forced).
-	if (states & BUSY)
+	if (!!(states & BUSY))
 		state_names.emplace_back("busy");
-	if (states & LOADING)
+	if (!!(states & LOADING))
 		state_names.emplace_back("loading");
 
 	// Selection Logic.
-	if (states & SELECTED) {
+	if (!!(states & SELECTED)) {
 		state_names.emplace_back("selected");
 	}
 
 	// Toggle/Checked Logic (Normalization).
 	// For Toggle Buttons, we prefer "pressed" over "checked".
 	if (type == TOGGLE_BUTTON) {
-		if (states & PRESSED) {
+		if (!!(states & PRESSED)) {
 			state_names.emplace_back("pressed");
 		}
 		else {
@@ -191,56 +191,56 @@ don't request `require_all`.
 
 	// For Checkboxes (and generic checkables that aren't toggle buttons).
 	else {
-		if (states & CHECKED) {
+		if (!!(states & CHECKED)) {
 			state_names.emplace_back("checked");
 		}
-		else if (states & INDETERMINATE) {
+		else if (!!(states & INDETERMINATE)) {
 			state_names.emplace_back("partially checked");
 		}
-		else if (type == CHECKBOX || (states & CHECKABLE && require_all)) {
+		else if (type == CHECKBOX || (!!(states & CHECKABLE) && require_all)) {
 			state_names.emplace_back("not checked");
 		}
 
 		// Handle non-toggle-button 'pressed' state (e.g. normal button).
-		if (states & PRESSED)
+		if (!!(states & PRESSED))
 			state_names.emplace_back("pressed");
 	}
 
 	// Expansion Logic.
-	if (states & EXPANDED) {
+	if (!!(states & EXPANDED)) {
 		state_names.emplace_back("expanded");
 	}
-	else if (states & COLLAPSED) {
+	else if (!!(states & COLLAPSED)) {
 		state_names.emplace_back("collapsed");
 	}
 
 	// Text / Input specific normalization.
-	if (states & READONLY)
+	if (!!(states & READONLY))
 		state_names.emplace_back("read-only");
-	if (states & SECURE)
+	if (!!(states & SECURE))
 		state_names.emplace_back("secure");
-	if (states & INVALID)
+	if (!!(states & INVALID))
 		state_names.emplace_back("invalid");
-	if (states & REQUIRED) {
+	if (!!(states & REQUIRED)) {
 		// Only announce "required" for input types unless logging all.
 		if (type == TEXT_FIELD || type == COMBO_BOX || type == LIST_BOX || require_all) {
 			state_names.emplace_back("required");
 		}
 	}
 
-	if (states & MULTI_LINE)
+	if (!!(states & MULTI_LINE))
 		state_names.emplace_back("multi-line");
-	if (states & MULTI_SELECTABLE)
+	if (!!(states & MULTI_SELECTABLE))
 		state_names.emplace_back("multi-selectable");
 
 	// Global attributes.
-	if (states & HOVERED && require_all)
+	if (!!(states & HOVERED) && require_all)
 		state_names.emplace_back("hovered");
-	if (states & DEFAULT)
+	if (!!(states & DEFAULT))
 		state_names.emplace_back("default");
-	if (states & MODAL)
+	if (!!(states & MODAL))
 		state_names.emplace_back("modal");
-	if (states & VISITED)
+	if (!!(states & VISITED))
 		state_names.emplace_back("visited");
 
 	return std::vector<std::string_view>(state_names.begin(), state_names.end());

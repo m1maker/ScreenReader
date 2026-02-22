@@ -1,5 +1,7 @@
 // An interface for abstracting event types. Categories are implemented here.
 #pragma once
+#include "Environment.h"
+
 #include <memory>
 #include <memory_resource>
 #include <optional>
@@ -7,8 +9,6 @@
 #include <string_view>
 #include <variant>
 #include <vector>
-#include "Environment.h"
-
 
 /*
 The object event category.
@@ -16,24 +16,7 @@ Events such as changes to an object's focus, state, name, description, value, et
 */
 class CObjectEvent final {
 public:
-	enum EObjectEventType : unsigned char {
-		NONE = 0,
-		FOCUS_GAINED,
-		FOCUS_LOST,
-		CLICKED,
-		VALUE_CHANGED,
-		SELECTION_CHANGED,
-		STATE_CHANGED,
-		VISIBILITY_CHANGED,
-		ENABLED_CHANGED,
-		TEXT_CHANGED,
-		CURSOR_MOVED,
-		CHILD_ADDED,
-		CHILD_REMOVED,
-		PARENT_UPDATED,
-		LAYOUT_UPDATED
-	} type;
-
+	EObjectEventType type;
 	CObject object;
 };
 

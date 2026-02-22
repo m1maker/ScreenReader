@@ -80,14 +80,14 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	}
 
 	auto type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
-	if (type == CObjectEvent::NONE)
+	if (type == EObjectEventType::NONE)
 		return;
 
 	/*
 	I haven't figured out exactly how these detail 1/detail 2 members work yet, but I've figured out which events don't
 	need to be dispatched when !detail1 is. This list of types will likely expand once I fully understand what they are.
 	*/
-	if ((type == CObjectEvent::FOCUS_GAINED) && !event->detail1)
+	if ((type == EObjectEventType::FOCUS_GAINED) && !event->detail1)
 		return;
 	CObjectEvent object_event;
 	object_event.type = type;

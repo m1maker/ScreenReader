@@ -20,21 +20,21 @@ void SmartEmplace(std::optional<T>& opt, std::pmr::memory_resource* pool, Value&
 #define DeclareCache(T, name) mutable std::optional<T> m_cache_##name
 
 #define ReturnCache(name)                                                                                              \
-	if (m_data->m_cache_##name.has_value()) {                                                                                  \
-		return m_data->m_cache_##name.value();                                                                                 \
+	if (m_data->m_cache_##name.has_value()) {                                                                          \
+		return m_data->m_cache_##name.value();                                                                         \
 	}
 
 #define CacheReturn(name, value_to_cache)                                                                              \
-	CacheDetails::SmartEmplace(m_data->m_cache_##name, m_pool, value_to_cache);                                                \
+	CacheDetails::SmartEmplace(m_data->m_cache_##name, m_pool, value_to_cache);                                        \
 	return m_data->m_cache_##name.value()
 
 #define ReturnCacheTransformed(name, transform_func)                                                                   \
-	if (m_data->m_cache_##name.has_value()) {                                                                                  \
-		return transform_func(m_data->m_cache_##name.value());                                                                 \
+	if (m_data->m_cache_##name.has_value()) {                                                                          \
+		return transform_func(m_data->m_cache_##name.value());                                                         \
 	}
 
 #define CacheReturnTransformed(name, value_to_cache, transform_func)                                                   \
-	CacheDetails::SmartEmplace(m_data->m_cache_##name, m_pool, value_to_cache);                                                \
+	CacheDetails::SmartEmplace(m_data->m_cache_##name, m_pool, value_to_cache);                                        \
 	return transform_func(m_data->m_cache_##name.value())
 
 #define Cache(name, value) CacheDetails::SmartEmplace(m_data->m_cache_##name, m_pool, value)

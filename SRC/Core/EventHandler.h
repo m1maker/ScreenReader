@@ -6,7 +6,7 @@
 #include <Platforms/Linux/EventListenerAtspi.h>
 #endif
 
-#include <Interfaces/Object.h>
+#include <Traits/Object.h>
 #include <memory>
 #include <thread>
 

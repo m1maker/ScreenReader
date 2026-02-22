@@ -2,29 +2,42 @@
 #include "ObjectAtspi.h"
 
 #include <Core/Defer.h>
-#include <Core/Event.h>
 #include <Core/Rect.h>
 #include <utility>
 
-void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
-	if (!IsValid()) [[unlikely]] return;
+CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, std::pmr::memory_resource* pool)
+	: m_accessible(accessible), m_data(data), TObject(pool) {
+	/*
+		if (atspi_accessible_is_text(m_accessible))
+			m_data->interfaces_mask |= EObjectInterfaceMaskSUPPORTS_TEXT;
+		if (atspi_accessible_is_selection(m_accessible))
+			m_data->interfaces_mask |= SUPPORTS_SELECTION;
+		if (atspi_accessible_is_value(m_accessible))
+			m_data->interfaces_mask |= SUPPORTS_VALUE;
+	*/
+}
+
+void CObjectAtspi::do_UpdateCacheByEvent(EObjectEventType event) {
+	if (!IsValid()) [[unlikely]]
+		return;
+	using enum EObjectEventType;
 	switch (event) {
-	case CObjectEvent::VALUE_CHANGED:
+	case VALUE_CHANGED:
 		InvalidateCache(min_value);
 		InvalidateCache(max_value);
 		InvalidateCache(current_value);
 		break;
-	case CObjectEvent::STATE_CHANGED:
+	case STATE_CHANGED:
 		InvalidateCache(states);
 		break;
-	case CObjectEvent::CURSOR_MOVED:
+	case CURSOR_MOVED:
 		InvalidateCache(cursor);
 		break;
-	case CObjectEvent::CHILD_ADDED:
-	case CObjectEvent::CHILD_REMOVED:
+	case CHILD_ADDED:
+	case CHILD_REMOVED:
 		InvalidateCache(children);
 		break;
-	case CObjectEvent::PARENT_UPDATED:
+	case PARENT_UPDATED:
 		InvalidateCache(parent);
 		break;
 	default:
@@ -32,8 +45,9 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 	}
 }
 
-[[nodiscard]] auto CObjectAtspi::do_GetType() const -> ObjectResult<IObject::EObjectType> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+[[nodiscard]] auto CObjectAtspi::do_GetType() const -> ObjectResult<EObjectType> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(type);
 
 	m_data->ResetLastError();
@@ -42,7 +56,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetState() const -> ObjectResult<unsigned long long> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(states);
 
 	AtspiStateSet* state_set = atspi_accessible_get_state_set(m_accessible);
@@ -53,7 +68,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetParent() const -> ObjectResult<CObjectAtspi> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(parent);
 
 	m_data->ResetLastError();
@@ -67,9 +83,10 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
-	ReturnCacheTransformed(children,
-		[](const auto& vec) -> auto { return std::vector<CObjectAtspi>(vec.begin(), vec.end()); });
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+	ReturnCacheTransformed(
+		children, [](const auto& vec) -> auto { return std::vector<CObjectAtspi>(vec.begin(), vec.end()); });
 
 	auto children_to_return = std::pmr::vector<CObjectAtspi>(m_pool);
 
@@ -93,7 +110,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetChildrenCount() const -> ObjectResult<int> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(children_count);
 
 	m_data->ResetLastError();
@@ -102,12 +120,14 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetBounds() const -> ObjectResult<SRect> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
-	return std::unexpected(IObject::NOT_SUPPORTED);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+	return std::unexpected(EObjectError::NOT_SUPPORTED);
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetIndex() const -> ObjectResult<int> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(index);
 
 	m_data->ResetLastError();
@@ -116,7 +136,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetApplicationName() const -> ObjectResult<std::string> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(application_name);
 
 	m_data->ResetLastError();
@@ -125,7 +146,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetName() const -> ObjectResult<std::string> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 
 	ReturnCache(name);
 
@@ -135,7 +157,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetDescription() const -> ObjectResult<std::string> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(description);
 
 	m_data->ResetLastError();
@@ -146,7 +169,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetCursor() const -> ObjectResult<int> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(cursor);
 
 	SAtspiIface<AtspiText> text_interface(atspi_accessible_get_text_iface(m_accessible));
@@ -159,7 +183,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 
 [[nodiscard]] auto CObjectAtspi::do_GetText(int cursor, const ETextGranularity& granularity) const
 	-> ObjectResult<STextRange<std::string>> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 
 	SAtspiIface<AtspiText> text_interface(atspi_accessible_get_text_iface(m_accessible));
 	if (!text_interface.pointer)
@@ -176,7 +201,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	SAtspiIface<AtspiText> text_interface(atspi_accessible_get_text_iface(m_accessible));
 	if (!text_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
@@ -200,7 +226,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetSelectedItems() const -> ObjectResult<std::vector<CObjectAtspi>> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	SAtspiIface<AtspiSelection> selection_interface(atspi_accessible_get_selection_iface(m_accessible));
 	if (!selection_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
@@ -215,7 +242,7 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 		if (!child_native)
 			continue;
 
-		auto child_object = g_objectCache(AtspiAccessible, SObjectAtspiData).GetOrCreate(child_native);
+		auto child_object = g_objectCache(AtspiAccessible, SObjectAtspiData).GetOrCreate<CObjectAtspi>(child_native);
 
 		children.push_back(child_object);
 	}
@@ -224,7 +251,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetMinValue() const -> ObjectResult<double> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(min_value);
 
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));
@@ -236,7 +264,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetMaxValue() const -> ObjectResult<double> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(max_value);
 
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));
@@ -248,7 +277,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetCurrentValue() const -> ObjectResult<double> {
-	if (!IsValid()) [[unlikely]] return std::unexpected(EObjectError::DEFUNCT);
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
 	ReturnCache(current_value);
 
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));

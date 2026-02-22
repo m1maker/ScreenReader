@@ -75,24 +75,24 @@ void CEventHandler::Handle(CEvent&& event) {
 				break;
 
 			switch (object_event.value().type) {
-			case CObjectEvent::FOCUS_GAINED:
+			case EObjectEventType::FOCUS_GAINED:
 				g_focusManager.SetFocus(object_event.value().object);
 				g_speechEngine.Stop();
 				g_eventToSpeech.AnnounceFocusChange(event);
 				break;
-			case CObjectEvent::PARENT_UPDATED:
+			case EObjectEventType::PARENT_UPDATED:
 				g_eventToSpeech.AnnounceWhereAmI();
 				break;
-			case CObjectEvent::VALUE_CHANGED:
+			case EObjectEventType::VALUE_CHANGED:
 				g_eventToSpeech.AnnounceValueChange(event);
 				break;
-			case CObjectEvent::STATE_CHANGED:
+			case EObjectEventType::STATE_CHANGED:
 				g_eventToSpeech.AnnounceStateChange(event);
 				break;
-			case CObjectEvent::SELECTION_CHANGED:
+			case EObjectEventType::SELECTION_CHANGED:
 				g_eventToSpeech.AnnounceSelectionChange(event);
 				break;
-			case CObjectEvent::CURSOR_MOVED:
+			case EObjectEventType::CURSOR_MOVED:
 				g_eventToSpeech.AnnounceCursorMove(event);
 				break;
 			default:
@@ -130,7 +130,7 @@ void CEventHandler::Handle(CEvent&& event) {
 	catch (const Sral::Exception& speech_exception) {
 		g_logger.Log(CLogger::ERROR, speech_exception.what());
 	}
-	catch (const std::bad_expected_access<unsigned char>& error) {
-		g_logger.Log(CLogger::ERROR, "Expected access error: " + std::string(IObject::ErrorToString(error.error())));
+	catch (const std::bad_expected_access<EObjectError>& error) {
+		g_logger.Log(CLogger::ERROR, "Expected access error: " + std::string(ObjectErrorToString(error.error())));
 	}
 }

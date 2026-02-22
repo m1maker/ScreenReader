@@ -1,7 +1,7 @@
 #pragma once
+#include "Environment.h"
 #include "Logger.h"
 #include "Singleton.h"
-#include "Environment.h"
 
 #include <memory>
 #include <memory_resource>
@@ -45,7 +45,7 @@ public:
 		UpdateContextChain();
 	}
 
-	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<std::shared_ptr<IObject>> { return m_contextChain; }
+	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<CObject> { return m_contextChain; }
 
 	[[nodiscard]] auto GetFocus() const -> CObject { return m_objectInFocus; }
 };

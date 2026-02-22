@@ -196,8 +196,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	}
 }
 
-[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state)
-	-> EObjectState {
+[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
 	using enum EObjectState;
 	switch (state) {
 	case ATSPI_STATE_ACTIVE:
@@ -269,9 +268,9 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 
 [[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
 	-> unsigned long long {
-	unsigned long long result = EObjectState::NO;
+	unsigned long long result = 0;
 	for (const auto& state : states) {
-		result |= GetObjectStateFromAtspiState(state);
+		result |= static_cast<unsigned long long>(GetObjectStateFromAtspiState(state));
 	}
 	return result;
 }
@@ -279,7 +278,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 [[nodiscard]] static inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
-		return EObjectState::NO;
+		return 0;
 	}
 
 	std::vector<AtspiStateType> state_types;
@@ -292,8 +291,8 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
-[[nodiscard]] static constexpr inline auto GetAtspiTextGranularityFromTextGranularity(
-	ETextGranularity granularity) -> AtspiTextGranularity {
+[[nodiscard]] static constexpr inline auto GetAtspiTextGranularityFromTextGranularity(ETextGranularity granularity)
+	-> AtspiTextGranularity {
 	switch (granularity) {
 	case ETextGranularity::CHARACTER:
 		return ATSPI_TEXT_GRANULARITY_CHAR;
@@ -375,63 +374,32 @@ template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-struct SObjectAtspiData final {
-	DeclareCache(EObjectType, type);
-	DeclareCache(unsigned long long, states);
-	DeclareCache(class CObjectAtspi, parent);
-	DeclareCache(std::pmr::vector<class CObjectAtspi>, children);
-	DeclareCache(int, children_count);
-	DeclareCache(int, index);
-	DeclareCache(std::string, name);
-	DeclareCache(std::string, application_name);
-	DeclareCache(std::string, description);
-	DeclareCache(int, cursor);
-	DeclareCache(double, min_value);
-	DeclareCache(double, max_value);
-	DeclareCache(double, current_value);
-
-	mutable GError* last_error{nullptr};
-	uint32_t interfaces_mask{EObjectInterfaceMask::SUPPORTS_NOTHING};
-
-	inline void ResetLastError() const noexcept {
-		if (last_error) {
-			g_error_free(last_error);
-			last_error = nullptr;
-		}
-	}
-
-	~SObjectAtspiData() { ResetLastError(); }
-};
-
-class CObjectAtspi final : public TObject<CObjectAtspi>, public TTextProvider<CObjectAtspi>, public TSelectionProvider<CObjectAtspi>, public TValueProvider<CObjectAtspi> {
-	friend class CObjectCache<AtspiAccessible, SObjectAtspiData>;
+class CObjectAtspi final : public TObject<CObjectAtspi>,
+						   public TTextProvider<CObjectAtspi>,
+						   public TSelectionProvider<CObjectAtspi>,
+						   public TValueProvider<CObjectAtspi> {
+	friend class CObjectCache<AtspiAccessible, struct SObjectAtspiData>;
 	friend class CEventListenerAtspi;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
 
-	mutable SObjectAtspiData* m_data{nullptr};
-public:
+	mutable struct SObjectAtspiData* m_data{nullptr};
 
+public:
 	CObjectAtspi() : TObject(nullptr) {}
-	explicit CObjectAtspi(AtspiAccessible* accessible, SAtspiObjectData* data, std::pmr::memory_resource* pool)
-		: m_accessible(accessible), m_data(data), TObject(pool) {
-		if (atspi_accessible_is_text(m_accessible))
-			m_interfacesMask |= SUPPORTS_TEXT;
-		if (atspi_accessible_is_selection(m_accessible))
-			m_interfacesMask |= SUPPORTS_SELECTION;
-		if (atspi_accessible_is_value(m_accessible))
-			m_interfacesMask |= SUPPORTS_VALUE;
-	}
+	explicit CObjectAtspi(AtspiAccessible* accessible, struct SObjectAtspiData* data, std::pmr::memory_resource* pool);
 
 	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
-	[[nodiscard]] auto do_GetSupportedInterfaces() const noexcept -> uint32_t { return m_interfacesMask; }
+	//[[nodiscard]] auto do_GetSupportedInterfaces() const noexcept -> uint32_t ;
 
 	[[nodiscard]] auto do_GetNativeHandle() const noexcept -> ObjectResult<void*> {
 		return reinterpret_cast<void*>(m_accessible);
 	}
 
-	[[nodiscard]] inline auto do_IsValid() const noexcept -> bool { return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr; }
+	[[nodiscard]] inline auto do_IsValid() const noexcept -> bool {
+		return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr;
+	}
 
 	[[nodiscard]] auto do_GetType() const -> ObjectResult<EObjectType>;
 
@@ -450,7 +418,7 @@ public:
 	[[nodiscard]] auto do_GetName() const -> ObjectResult<std::string>;
 	[[nodiscard]] auto do_GetDescription() const -> ObjectResult<std::string>;
 
-	void do_UpdateCacheByEvent(CObjectEvent::EObjectEventType event) ;
+	void do_UpdateCacheByEvent(EObjectEventType event);
 
 	[[nodiscard]] auto do_GetCursor() const -> ObjectResult<int>;
 	[[nodiscard]] auto do_GetText(int cursor, const ETextGranularity& granularity) const
@@ -461,4 +429,32 @@ public:
 	[[nodiscard]] auto do_GetMinValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto do_GetMaxValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto do_GetCurrentValue() const -> ObjectResult<double>;
+};
+
+struct SObjectAtspiData final {
+	DeclareCache(EObjectType, type);
+	DeclareCache(unsigned long long, states);
+	DeclareCache(class CObjectAtspi, parent);
+	DeclareCache(std::pmr::vector<class CObjectAtspi>, children);
+	DeclareCache(int, children_count);
+	DeclareCache(int, index);
+	DeclareCache(std::string, name);
+	DeclareCache(std::string, application_name);
+	DeclareCache(std::string, description);
+	DeclareCache(int, cursor);
+	DeclareCache(double, min_value);
+	DeclareCache(double, max_value);
+	DeclareCache(double, current_value);
+
+	mutable GError* last_error{nullptr};
+	uint32_t interfaces_mask{0};
+
+	inline void ResetLastError() const noexcept {
+		if (last_error) {
+			g_error_free(last_error);
+			last_error = nullptr;
+		}
+	}
+
+	~SObjectAtspiData() { ResetLastError(); }
 };
