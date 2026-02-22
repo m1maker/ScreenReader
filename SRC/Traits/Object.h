@@ -352,8 +352,7 @@ public:
 };
 
 template <class NativeHandle, typename ObjectData> class CObjectCache final {
-	std::pmr::synchronized_pool_resource m_pool;
-	std::mutex m_mutex;
+	std::pmr::unsynchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle*, ObjectData*> m_cache;
 
 public:
@@ -363,17 +362,13 @@ public:
 		if (!native_handle)
 			return PlatformObject();
 
-		std::scoped_lock lock(m_mutex);
-
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
 			if (auto existing = it->second) {
 				LifecycleTrait<NativeHandle>::Release(native_handle);
 				return PlatformObject(native_handle, existing, &m_pool);
 			}
-			it->second->~ObjectData();
-			m_pool.deallocate(it->second, sizeof(ObjectData));
-			m_cache.erase(it);
+			Remove(native_handle);
 		}
 
 		auto raw = m_pool.allocate(sizeof(ObjectData));
@@ -386,18 +381,17 @@ public:
 	}
 
 	void Remove(NativeHandle* native_handle) {
-		std::scoped_lock lock(m_mutex);
 		auto it = m_cache.find(native_handle);
 		if (it == m_cache.end()) [[unlikely]]
 			return;
+
+		LifecycleTrait<NativeHandle>::Release(native_handle);
 		it->second->~ObjectData();
 		m_pool.deallocate(it->second, sizeof(ObjectData));
 		m_cache.erase(it);
 	}
 
 	void Clear() {
-		std::scoped_lock lock(m_mutex);
-
 		for (auto [handle, data] : m_cache) {
 			Remove(handle);
 		}
