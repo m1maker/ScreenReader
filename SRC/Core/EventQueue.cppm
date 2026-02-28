@@ -1,15 +1,14 @@
-#pragma once
-
-#include "EventHandler.h"
+module;
+#include "Event.h"
 #include "Logger.h"
-#include "Singleton.h"
 
 #include <condition_variable>
 #include <deque>
 #include <memory_resource>
 #include <mutex>
+export module Core.Event.Queue;
 
-class CEventQueue final {
+export class CEventQueue final {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<CEvent> m_events;
 
@@ -22,6 +21,11 @@ class CEventQueue final {
 	~CEventQueue() { Stop(); }
 
 public:
+	static auto& GetInstance() {
+		static CEventQueue instance;
+		return instance;
+	}
+
 	template <typename... Args> void Push(Args&&... args) {
 		std::scoped_lock lock(m_mutex);
 		if (m_events.size() > 100) {
@@ -54,5 +58,3 @@ public:
 
 	[[nodiscard]] auto GetPool() -> std::pmr::synchronized_pool_resource* { return &m_pool; }
 };
-
-#define g_eventQueue CSingleton<CEventQueue>::GetInstance()

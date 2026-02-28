@@ -9,6 +9,7 @@
 #include <Traits/Object.h>
 #include <memory>
 #include <thread>
+import Core.Event.Queue;
 import Core.FocusManager;
 
 class CEventHandler final {
@@ -19,6 +20,7 @@ class CEventHandler final {
 	*/
 	CEventListener m_listener;
 	CFocusManager& m_focusManager;
+	CEventQueue& m_eventQueue;
 
 	std::jthread m_thread;
 	explicit CEventHandler();

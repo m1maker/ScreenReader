@@ -1,7 +1,7 @@
 // Handling events of different types.
 #include "EventHandler.h"
 
-#include "EventQueue.h"
+#include "Event.h"
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
@@ -9,7 +9,8 @@
 import Core.Action;
 import Core.App.State;
 
-CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {
+CEventHandler::CEventHandler()
+	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
@@ -23,11 +24,11 @@ CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {
 void CEventHandler::Start() {
 	m_thread = std::jthread([this]() -> void {
 		while (g_running.load()) {
-			auto event = g_eventQueue.Pop();
+			auto event = m_eventQueue.Pop();
 			if (event) [[likely]] {
 				switch (event.value().GetType()) {
 				case CEvent::OBJECT: {
-					auto pool = g_eventQueue.GetPool();
+					auto pool = m_eventQueue.GetPool();
 					if (!pool) [[unlikely]]
 						break;
 
@@ -39,7 +40,7 @@ void CEventHandler::Start() {
 								return;
 							auto event_casted = static_cast<CEvent*>(pData);
 							g_eventHandler.Handle(std::move(*event_casted));
-							auto pool = g_eventQueue.GetPool();
+							auto pool = CEventQueue::GetInstance().GetPool();
 							if (!pool) [[unlikely]]
 								return;
 

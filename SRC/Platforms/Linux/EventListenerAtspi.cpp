@@ -4,7 +4,6 @@
 #include "UinputDevice.h"
 
 #include <Core/EventHandler.h>
-#include <Core/EventQueue.h>
 #include <Core/KeyboardHandler.h>
 #include <Core/Logger.h>
 #include <Core/SpeechEngine.h>
@@ -16,6 +15,7 @@
 #include <thread>
 #include <unistd.h>
 import Core.App.State;
+import Core.Event.Queue;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
@@ -97,7 +97,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
 	turn.
 	*/
-	g_eventQueue.Push(std::move(object_event), true);
+	CEventQueue::GetInstance().Push(std::move(object_event), true);
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
@@ -171,7 +171,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
-					g_eventQueue.Push(std::move(keyboard_event), false);
+					CEventQueue::GetInstance().Push(std::move(keyboard_event), false);
 				}
 				else
 					virtual_device.Post(ev.type, ev.code, ev.value);
@@ -276,7 +276,7 @@ void CEventListenerAtspi::do_PushToMainThread(ThreadFunction function, void* pUs
 	if (!function)
 		return;
 
-	auto pool = g_eventQueue.GetPool();
+	auto pool = CEventQueue::GetInstance().GetPool();
 	if (!pool)
 		return;
 	auto raw = pool->allocate(sizeof(SInvocationContext));
@@ -289,7 +289,7 @@ void CEventListenerAtspi::do_PushToMainThread(ThreadFunction function, void* pUs
 				return G_SOURCE_REMOVE;
 			casted->function(casted->pUserData);
 
-			auto pool = g_eventQueue.GetPool();
+			auto pool = CEventQueue::GetInstance().GetPool();
 			if (!pool)
 				return G_SOURCE_REMOVE;
 			casted->~SInvocationContext();
