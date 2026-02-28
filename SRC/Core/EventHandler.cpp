@@ -7,10 +7,10 @@ module;
 #include "SpeechEngine.h"
 
 #include <thread>
-module Core.Event.Handler;
+module Core.EventHandler;
 import Core.Action;
 import Core.App;
-import Core.App.State;
+import Core.AppState;
 import Core.Device;
 
 CEventHandler::CEventHandler()

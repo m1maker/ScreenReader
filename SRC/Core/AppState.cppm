@@ -1,7 +1,7 @@
 module;
 #include <atomic>
 #include <string_view>
-export module Core.App.State;
+export module Core.AppState;
 
 /*
 General return codes from the main function.

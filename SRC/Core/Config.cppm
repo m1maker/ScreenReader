@@ -14,7 +14,7 @@ module;
 		#x, std::ref(x)                                                                                                \
 	}
 
-export module Core.App.Config;
+export module Core.Config;
 
 export struct SScreenReaderAppSettings final {
 	bool read_list_item_count = true;

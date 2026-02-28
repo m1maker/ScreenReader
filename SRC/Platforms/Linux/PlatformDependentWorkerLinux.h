@@ -6,7 +6,7 @@
 #include <csignal>
 #include <thread>
 #include <unistd.h>
-import Core.App.State;
+import Core.AppState;
 
 /*
 We will also handle signals here to ensure safe exit.

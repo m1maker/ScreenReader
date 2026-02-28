@@ -15,9 +15,9 @@ module;
 #include <Version.h>
 extern constinit int g_speechEngineIndex;
 export module Core.App;
-import Core.App.Config;
-import Core.App.State;
-import Core.Event.Handler;
+import Core.AppState;
+import Core.Config;
+import Core.EventHandler;
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderAppOptions final {

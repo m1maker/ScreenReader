@@ -7,7 +7,7 @@
 #include <mutex>
 #include <unordered_map>
 import Core.Action;
-import Core.Event.Handler;
+import Core.EventHandler;
 import Core.Timer;
 
 class CKeyboardHandler final {

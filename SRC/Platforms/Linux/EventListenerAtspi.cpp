@@ -13,9 +13,9 @@
 #include <sstream>
 #include <thread>
 #include <unistd.h>
-import Core.App.State;
-import Core.Event.Handler;
-import Core.Event.Queue;
+import Core.AppState;
+import Core.EventHandler;
+import Core.EventQueue;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.

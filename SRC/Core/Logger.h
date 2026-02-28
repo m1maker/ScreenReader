@@ -6,7 +6,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
-import Core.App.State;
+import Core.AppState;
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {

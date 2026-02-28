@@ -6,7 +6,7 @@ module;
 #include <deque>
 #include <memory_resource>
 #include <mutex>
-export module Core.Event.Queue;
+export module Core.EventQueue;
 
 export class CEventQueue final {
 	std::pmr::synchronized_pool_resource m_pool;

@@ -8,8 +8,8 @@ module;
 #include <Traits/Object.h>
 #include <memory>
 #include <thread>
-export module Core.Event.Handler;
-import Core.Event.Queue;
+export module Core.EventHandler;
+import Core.EventQueue;
 import Core.FocusManager;
 
 export class CEventHandler final {

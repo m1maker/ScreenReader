@@ -6,7 +6,7 @@ module;
 #include <string_view>
 export module Core.Action;
 import Core.Device;
-import Core.Event.Handler;
+import Core.EventHandler;
 
 export enum class EAction : uint32_t { NONE = 0, STOP_SPEECH, STOP_KEYBOARD_HOOKS, USER };
 
