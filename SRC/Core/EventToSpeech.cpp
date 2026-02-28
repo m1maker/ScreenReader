@@ -3,7 +3,6 @@
 
 #include "App.h"
 #include "EventHandler.h"
-#include "FocusManager.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
 #include "Utf8.h"
@@ -129,14 +128,14 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	This will be a common practice when we send artificial events.
 	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
 	*/
-	auto object = g_focusManager.GetFocus();
+	auto object = m_focusManager.GetFocus();
 	if (!object.IsValid()) {
 		g_speechEngine.Speak("Unknown area", true);
 		return true;
 	}
 
 	LogCalled();
-	const auto chain = g_focusManager.GetContext();
+	const auto chain = m_focusManager.GetContext();
 
 	size_t diff_index{0};
 	size_t min_size = std::min(chain.size(), m_contextChain.size());
@@ -272,7 +271,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	LogCalled();
 
 	if (object_event.value().object.GetType() != EObjectType::SLIDER ||
-		g_focusManager.GetFocus() != object_event.value().object)
+		m_focusManager.GetFocus() != object_event.value().object)
 		return;
 
 	ScopedPool(pool, 256);
@@ -289,7 +288,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	}
 
 	LogCalled();
-	if (g_focusManager.GetFocus() != object_event.value().object)
+	if (m_focusManager.GetFocus() != object_event.value().object)
 		return;
 
 	DefaultPool(pool);

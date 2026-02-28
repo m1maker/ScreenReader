@@ -9,6 +9,7 @@
 #include <Traits/Object.h>
 #include <memory>
 #include <thread>
+import Core.FocusManager;
 
 class CEventHandler final {
 	DeclareSingleton(CEventHandler);
@@ -17,6 +18,7 @@ class CEventHandler final {
 	Event. Then this event handler then queries the queue of these events.
 	*/
 	CEventListener m_listener;
+	CFocusManager& m_focusManager;
 
 	std::jthread m_thread;
 	explicit CEventHandler();

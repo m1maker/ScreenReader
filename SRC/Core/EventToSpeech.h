@@ -8,6 +8,7 @@
 #include <memory_resource>
 #include <string>
 #include <vector>
+import Core.FocusManager;
 
 /*
 This is the final step of object event processing. Announce it.
@@ -20,12 +21,13 @@ class CEventToSpeech final {
 
 	bool m_isWhereAmIOperation{false};
 
+	CFocusManager& m_focusManager;
 	std::pmr::vector<CObject> m_contextChain;
 
 public:
 	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
-	explicit CEventToSpeech() = default;
+	explicit CEventToSpeech() : m_focusManager(CFocusManager::GetInstance()) {}
 	~CEventToSpeech() = default;
 
 public:

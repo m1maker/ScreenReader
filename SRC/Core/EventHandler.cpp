@@ -4,11 +4,10 @@
 #include "Action.h"
 #include "EventQueue.h"
 #include "EventToSpeech.h"
-#include "FocusManager.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
 
-CEventHandler::CEventHandler() {
+CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
@@ -76,7 +75,7 @@ void CEventHandler::Handle(CEvent&& event) {
 
 			switch (object_event.value().type) {
 			case EObjectEventType::FOCUS_GAINED:
-				g_focusManager.SetFocus(object_event.value().object);
+				m_focusManager.SetFocus(object_event.value().object);
 				g_speechEngine.Stop();
 				g_eventToSpeech.AnnounceFocusChange(event);
 				break;

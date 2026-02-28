@@ -1,13 +1,13 @@
-#pragma once
+module;
 #include "Environment.h"
 #include "Logger.h"
-#include "Singleton.h"
 
 #include <memory>
 #include <memory_resource>
 #include <vector>
+export module Core.FocusManager;
 
-class CFocusManager final {
+export class CFocusManager final {
 	DeclareSingleton(CFocusManager);
 
 	std::pmr::unsynchronized_pool_resource m_pool;
@@ -37,6 +37,11 @@ class CFocusManager final {
 	~CFocusManager() = default;
 
 public:
+	static auto& GetInstance() {
+		static CFocusManager instance;
+		return instance;
+	}
+
 	void SetFocus(CObject obj) {
 		if (!obj.IsValid() || m_objectInFocus == obj)
 			return;
@@ -49,5 +54,3 @@ public:
 
 	[[nodiscard]] auto GetFocus() const -> CObject { return m_objectInFocus; }
 };
-
-#define g_focusManager CSingleton<CFocusManager>::GetInstance()
