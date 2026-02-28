@@ -1,20 +1,17 @@
 // Event to speech.
-#pragma once
+module;
 #include "Event.h"
-#include "Singleton.h"
-#include "Sral.hpp"
 
 #include <memory_resource>
 #include <string>
 #include <vector>
+export module Core.EventToSpeech;
 import Core.FocusManager;
 
 /*
 This is the final step of object event processing. Announce it.
 */
-class CEventToSpeech final {
-	DeclareSingleton(CEventToSpeech);
-
+export class CEventToSpeech final {
 	void SpeakObject(CObject object);
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 
@@ -30,6 +27,11 @@ private:
 	~CEventToSpeech() = default;
 
 public:
+	static auto& GetInstance() {
+		static CEventToSpeech instance;
+		return instance;
+	}
+
 	/*[[candiscard]]*/ auto AnnounceWhereAmI() -> bool;
 
 	void AnnounceFocusChange(CEvent& event);
@@ -41,5 +43,3 @@ public:
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };
-
-#define g_eventToSpeech CSingleton<CEventToSpeech>::GetInstance() // Global instance.

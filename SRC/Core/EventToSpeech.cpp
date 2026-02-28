@@ -1,6 +1,5 @@
 // Event to speech.
-#include "EventToSpeech.h"
-
+module;
 #include "KeyboardHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
@@ -11,6 +10,7 @@
 #include <cmath>
 #include <functional>
 #include <sstream>
+module Core.EventToSpeech;
 import Core.App;
 
 /*

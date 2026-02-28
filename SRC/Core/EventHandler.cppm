@@ -10,6 +10,7 @@ module;
 #include <thread>
 export module Core.EventHandler;
 import Core.EventQueue;
+import Core.EventToSpeech;
 import Core.FocusManager;
 
 export class CEventHandler final {
@@ -21,6 +22,7 @@ export class CEventHandler final {
 	CEventListener m_listener;
 	CFocusManager& m_focusManager;
 	CEventQueue& m_eventQueue;
+	CEventToSpeech& m_eventToSpeech;
 
 	std::jthread m_thread;
 	explicit CEventHandler();

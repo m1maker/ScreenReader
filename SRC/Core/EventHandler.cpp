@@ -1,7 +1,6 @@
 // Handling events of different types.
 module;
 #include "Event.h"
-#include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
@@ -14,7 +13,8 @@ import Core.AppState;
 import Core.Device;
 
 CEventHandler::CEventHandler()
-	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()) {
+	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),
+	  m_eventToSpeech(CEventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	bool success{false};
 	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
@@ -22,7 +22,7 @@ CEventHandler::CEventHandler()
 		CKeyboardEvent::MODIFIER_SCREEN_READER + CKeyboardEvent::MODIFIER_CTRL + CKeyboardEvent::KEYCODE_K,
 		static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS));
 
-	g_eventToSpeech.AnnounceWhereAmI();
+	m_eventToSpeech.AnnounceWhereAmI();
 }
 
 void CEventHandler::Start() {
@@ -84,22 +84,22 @@ void CEventHandler::Handle(CEvent&& event) {
 			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(object_event.value().object);
 				g_speechEngine.Stop();
-				g_eventToSpeech.AnnounceFocusChange(event);
+				m_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			case EObjectEventType::PARENT_UPDATED:
-				g_eventToSpeech.AnnounceWhereAmI();
+				m_eventToSpeech.AnnounceWhereAmI();
 				break;
 			case EObjectEventType::VALUE_CHANGED:
-				g_eventToSpeech.AnnounceValueChange(event);
+				m_eventToSpeech.AnnounceValueChange(event);
 				break;
 			case EObjectEventType::STATE_CHANGED:
-				g_eventToSpeech.AnnounceStateChange(event);
+				m_eventToSpeech.AnnounceStateChange(event);
 				break;
 			case EObjectEventType::SELECTION_CHANGED:
-				g_eventToSpeech.AnnounceSelectionChange(event);
+				m_eventToSpeech.AnnounceSelectionChange(event);
 				break;
 			case EObjectEventType::CURSOR_MOVED:
-				g_eventToSpeech.AnnounceCursorMove(event);
+				m_eventToSpeech.AnnounceCursorMove(event);
 				break;
 			default:
 				break;
