@@ -7,6 +7,7 @@ target_sources(ScreenReader
     PUBLIC FILE_SET CXX_MODULES FILES
         Action.cppm
         App.cppm
+        AppState.cppm
         FocusManager.cppm
         Timer.cppm
 )

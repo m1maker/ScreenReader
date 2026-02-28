@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "SpeechEngine.h"
 import Core.Action;
+import Core.App.State;
 
 CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);

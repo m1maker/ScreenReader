@@ -1,12 +1,12 @@
 // Logger
 #pragma once
-#include "AppState.h"
 #include "Singleton.h"
 
 #include <fstream>
 #include <mutex>
 #include <string>
 #include <string_view>
+import Core.App.State;
 
 // This is the simplest inline logger with levels and categories.
 class CLogger final {

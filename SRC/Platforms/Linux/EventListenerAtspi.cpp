@@ -3,7 +3,6 @@
 
 #include "UinputDevice.h"
 
-#include <Core/AppState.h>
 #include <Core/EventHandler.h>
 #include <Core/EventQueue.h>
 #include <Core/KeyboardHandler.h>
@@ -16,6 +15,7 @@
 #include <sstream>
 #include <thread>
 #include <unistd.h>
+import Core.App.State;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.

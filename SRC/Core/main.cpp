@@ -1,6 +1,6 @@
 // Program entry point.
 import Core.App;
-#include "AppState.h"
+import Core.App.State;
 #include "Logger.h"
 
 #include <exception>

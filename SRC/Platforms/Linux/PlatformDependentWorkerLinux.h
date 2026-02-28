@@ -1,12 +1,12 @@
 // Platform dependent worker implementation for Linux.
 #pragma once
-#include <Core/AppState.h>
 #include <Traits/PlatformDependentWorker.h>
 #include <atspi/atspi.h>
 #include <chrono>
 #include <csignal>
 #include <thread>
 #include <unistd.h>
+import Core.App.State;
 
 /*
 We will also handle signals here to ensure safe exit.

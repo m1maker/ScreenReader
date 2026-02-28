@@ -1,11 +1,12 @@
-#pragma once
+module;
 #include <atomic>
 #include <string_view>
+export module Core.App.State;
 
 /*
 General return codes from the main function.
 */
-class CScreenReaderAppReturnCode final {
+export class CScreenReaderAppReturnCode final {
 public:
 	enum EReturnCode : int {
 		SUCCESS = 0,
@@ -95,5 +96,5 @@ After that, application must return g_retcode.
 However, a screen reader is a program that must be robust against exceptions and continue running.
 Hopefully, these flags will only be used when we disable the screen reader.
 */
-inline std::atomic<bool> g_running{false};
-inline constinit CScreenReaderAppReturnCode g_returnCode{CScreenReaderAppReturnCode::SUCCESS};
+export std::atomic<bool> g_running{false};
+export constinit CScreenReaderAppReturnCode g_returnCode{CScreenReaderAppReturnCode::SUCCESS};
