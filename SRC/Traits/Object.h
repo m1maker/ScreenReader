@@ -288,6 +288,8 @@ enum class EObjectEventType : unsigned char {
 	case EObjectType::WINDOW:
 	case EObjectType::DIALOG:
 		return true;
+	default:
+		return false;
 	}
 
 	return false;
