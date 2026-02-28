@@ -1,4 +1,4 @@
-#pragma once
+module;
 #include "Logger.h"
 
 #include <iostream>
@@ -14,7 +14,9 @@
 		#x, std::ref(x)                                                                                                \
 	}
 
-struct SScreenReaderAppSettings final {
+export module Core.App.Config;
+
+export struct SScreenReaderAppSettings final {
 	bool read_list_item_count = true;
 
 	[[nodiscard]] auto Reflect() { return std::make_tuple(ReflectField(read_list_item_count)); }
@@ -24,13 +26,13 @@ constexpr inline std::string_view cConfigFileName = "ScreenReader";
 
 using ConfigValueVariant = std::variant<int, double, std::string, bool>;
 
-class IConfig {
+export class IConfig {
 public:
 	virtual ~IConfig() = default;
 
 	virtual void OpenSection(std::string_view section) = 0;
 	virtual void CloseSection() = 0;
-	[[nodiscard]] virtual auto GetSectionsOpened() const -> std::vector<std::string_view>;
+	[[nodiscard]] virtual auto GetSectionsOpened() const -> std::vector<std::string_view> = 0;
 	virtual void CloseAllSections() = 0;
 
 	virtual void SetValue(std::string_view key, const ConfigValueVariant& value) = 0;
@@ -40,12 +42,12 @@ public:
 	virtual void Load() = 0;
 };
 
-template <typename T>
+export template <typename T>
 concept Reflectable = requires(T t) {
 	{ t.Reflect() };
 };
 
-class CConfigSerializer final {
+export class CConfigSerializer final {
 	IConfig& m_backend;
 
 public:

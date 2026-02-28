@@ -11,12 +11,12 @@ module;
 #if SR_LINUX
 #include <Platforms/Linux/PlatformDependentWorkerLinux.h>
 #endif
-#include "Config.h"
 #include "EventHandler.h"
 
 #include <Version.h>
 extern constinit int g_speechEngineIndex;
 export module Core.App;
+import Core.App.Config;
 import Core.App.State;
 
 // Define different screen reader startup options, command line and configuration.

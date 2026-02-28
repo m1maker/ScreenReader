@@ -8,6 +8,7 @@ target_sources(ScreenReader
         Action.cppm
         App.cppm
         AppState.cppm
+        Config.cppm
         FocusManager.cppm
         Timer.cppm
 )
