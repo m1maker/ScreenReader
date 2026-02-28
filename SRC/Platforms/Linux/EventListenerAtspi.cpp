@@ -3,7 +3,6 @@
 
 #include "UinputDevice.h"
 
-#include <Core/App.h>
 #include <Core/AppState.h>
 #include <Core/EventHandler.h>
 #include <Core/EventQueue.h>

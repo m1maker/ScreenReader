@@ -6,6 +6,7 @@ target_sources(ScreenReader
         main.cpp
     PUBLIC FILE_SET CXX_MODULES FILES
         Action.cppm
+        App.cppm
         FocusManager.cppm
         Timer.cppm
 )

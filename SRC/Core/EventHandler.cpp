@@ -5,6 +5,7 @@
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
+#include "SpeechEngine.h"
 import Core.Action;
 
 CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {

@@ -1,5 +1,4 @@
 module;
-#include "App.h"
 #include "Device.h"
 #include "EventHandler.h"
 #include "Logger.h"

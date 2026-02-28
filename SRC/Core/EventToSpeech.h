@@ -1,6 +1,5 @@
 // Event to speech.
 #pragma once
-#include "App.h"
 #include "Event.h"
 #include "Singleton.h"
 #include "Sral.hpp"

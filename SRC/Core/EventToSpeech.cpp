@@ -1,10 +1,10 @@
 // Event to speech.
 #include "EventToSpeech.h"
 
-#include "App.h"
 #include "EventHandler.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
+#include "SpeechEngine.h"
 #include "Utf8.h"
 
 #include <Core/ScopedPool.h>
@@ -12,6 +12,7 @@
 #include <cmath>
 #include <functional>
 #include <sstream>
+import Core.App;
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a
@@ -210,7 +211,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 	announcement += cSeparator;
 	announcement += GetObjectTypeName(type);
 
-	auto& settings = g_applicationInstance.GetSettings();
+	auto& settings = CScreenReaderApp::GetInstance().GetSettings();
 	switch (type) {
 	case EObjectType::MENU_ITEM:
 	case EObjectType::LIST_ITEM: {
