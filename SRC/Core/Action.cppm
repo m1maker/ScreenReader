@@ -1,5 +1,4 @@
 module;
-#include "Device.h"
 #include "EventHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
@@ -7,6 +6,7 @@ module;
 #include <concepts>
 #include <string_view>
 export module Core.Action;
+import Core.Device;
 
 export enum class EAction : uint32_t { NONE = 0, STOP_SPEECH, STOP_KEYBOARD_HOOKS, USER };
 

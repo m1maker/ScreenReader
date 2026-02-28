@@ -1,6 +1,7 @@
 // Event listener trait
 #pragma once
 #include <Core/StaticInterface.h>
+import Core.Device;
 
 /*
 A event listener is a platform-specific trait that processes events and converts them to a common screen reader's

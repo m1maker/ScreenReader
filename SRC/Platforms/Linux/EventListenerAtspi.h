@@ -1,7 +1,6 @@
 // AT_SPI's event listener.
 #pragma once
 
-#include <Core/Device.h>
 #include <Core/Event.h>
 #include <Traits/EventListener.h>
 #include <Traits/RefCountedObject.h>
@@ -16,6 +15,7 @@
 #include <thread>
 #include <unistd.h>
 #include <unordered_map>
+import Core.Device;
 
 /*
 AT-SPI has a listener where you need to register the required events one by one.
