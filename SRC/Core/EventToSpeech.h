@@ -4,7 +4,6 @@
 #include "Event.h"
 #include "Singleton.h"
 #include "Sral.hpp"
-#include "Utils.h"
 
 #include <memory_resource>
 #include <string>
@@ -20,13 +19,6 @@ class CEventToSpeech final {
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 
 	bool m_isWhereAmIOperation{false};
-	/*
-	Sometimes speech events can arrive too quickly.
-	We'll try to filter out events that arrive too frequently to avoid overloading the speech engine and to try to
-	eliminate unnecessary information.
-	*/
-	static constexpr const uint64_t cSpeechFilterTimeMs = 10;
-	CTimer m_speechFilterTimer;
 
 	std::pmr::vector<CObject> m_contextChain;
 
@@ -47,15 +39,6 @@ public:
 	void AnnounceCursorMove(CEvent& event);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
-
-	[[nodiscard]] inline auto Filter() -> bool {
-		if (m_speechFilterTimer.Elapsed() > cSpeechFilterTimeMs) {
-			m_speechFilterTimer.Restart();
-			return false;
-		}
-
-		return true;
-	}
 };
 
 #define g_eventToSpeech CSingleton<CEventToSpeech>::GetInstance() // Global instance.

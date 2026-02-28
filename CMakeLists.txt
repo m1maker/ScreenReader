@@ -30,6 +30,7 @@ FetchContent_MakeAvailable(SRAL)
 file(GLOB_RECURSE ALL_CXX_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cppm"
 )
 
 find_program(CLANG_FORMAT_EXE NAMES clang-format)

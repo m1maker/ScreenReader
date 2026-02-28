@@ -2,12 +2,12 @@
 #include "Action.h"
 #include "Event.h"
 #include "Singleton.h"
-#include "Utils.h"
 
 #include <Traits/ActionHandler.h>
 #include <functional>
 #include <mutex>
 #include <unordered_map>
+import Core.Timer;
 
 class CKeyboardHandler final {
 	DeclareSingleton(CKeyboardHandler);
