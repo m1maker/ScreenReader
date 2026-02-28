@@ -1,5 +1,4 @@
 module;
-#include "EventHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 
@@ -7,6 +6,7 @@ module;
 #include <string_view>
 export module Core.Action;
 import Core.Device;
+import Core.Event.Handler;
 
 export enum class EAction : uint32_t { NONE = 0, STOP_SPEECH, STOP_KEYBOARD_HOOKS, USER };
 
@@ -24,7 +24,7 @@ export template <typename T> struct SActions final {
 	}
 
 	static auto StopKeyboardHooks(const T&) -> EActionHandleResult {
-		auto listener = g_eventHandler.GetListener();
+		auto listener = CEventHandler::GetInstance().GetListener();
 		if (listener) [[likely]] {
 			listener->ListenDevice(EDeviceType::KEYBOARD, false);
 			g_speechEngine.Speak("Stop listening keyboard");

@@ -11,13 +11,13 @@ module;
 #if SR_LINUX
 #include <Platforms/Linux/PlatformDependentWorkerLinux.h>
 #endif
-#include "EventHandler.h"
 
 #include <Version.h>
 extern constinit int g_speechEngineIndex;
 export module Core.App;
 import Core.App.Config;
 import Core.App.State;
+import Core.Event.Handler;
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderAppOptions final {
@@ -58,7 +58,7 @@ public:
 				std::string(SScreenReaderVersion::STRING));
 		g_running.store(true);
 		g_speechEngineIndex = m_speechSystem.GetCurrentEngineId();
-		g_eventHandler.Start(); // It's the same as CSingleton<CEventHandler>::GetInstance()
+		CEventHandler::GetInstance().Start();
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.

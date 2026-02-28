@@ -1,7 +1,6 @@
 // Handling events of different types.
-#pragma once
+module;
 #include "Environment.h"
-#include "Singleton.h"
 #if SR_LINUX
 #include <Platforms/Linux/EventListenerAtspi.h>
 #endif
@@ -9,10 +8,11 @@
 #include <Traits/Object.h>
 #include <memory>
 #include <thread>
+export module Core.Event.Handler;
 import Core.Event.Queue;
 import Core.FocusManager;
 
-class CEventHandler final {
+export class CEventHandler final {
 	DeclareSingleton(CEventHandler);
 	/*
 	A listener is a platform-specific trait that processes events and converts them to a common screen reader's
@@ -27,11 +27,14 @@ class CEventHandler final {
 	~CEventHandler() = default;
 
 public:
+	static auto& GetInstance() {
+		static CEventHandler instance;
+		return instance;
+	}
+
 	void Handle(CEvent&& event);
 
 	void Start();
 
 	inline auto GetListener() -> CEventListener* { return &m_listener; }
 };
-
-#define g_eventHandler CSingleton<CEventHandler>::GetInstance() // Global instance

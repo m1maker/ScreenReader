@@ -1,13 +1,17 @@
 // Handling events of different types.
-#include "EventHandler.h"
-
+module;
 #include "Event.h"
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
+
+#include <thread>
+module Core.Event.Handler;
 import Core.Action;
+import Core.App;
 import Core.App.State;
+import Core.Device;
 
 CEventHandler::CEventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()) {
@@ -39,7 +43,7 @@ void CEventHandler::Start() {
 							if (!pData)
 								return;
 							auto event_casted = static_cast<CEvent*>(pData);
-							g_eventHandler.Handle(std::move(*event_casted));
+							CEventHandler::GetInstance().Handle(std::move(*event_casted));
 							auto pool = CEventQueue::GetInstance().GetPool();
 							if (!pool) [[unlikely]]
 								return;
@@ -52,7 +56,7 @@ void CEventHandler::Start() {
 				}
 
 				case CEvent::KEYBOARD:
-					g_eventHandler.Handle(std::move(event.value()));
+					Handle(std::move(event.value()));
 					break;
 				default:
 					break;

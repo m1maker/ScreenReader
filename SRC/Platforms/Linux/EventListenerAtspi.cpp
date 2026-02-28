@@ -3,7 +3,6 @@
 
 #include "UinputDevice.h"
 
-#include <Core/EventHandler.h>
 #include <Core/KeyboardHandler.h>
 #include <Core/Logger.h>
 #include <Core/SpeechEngine.h>
@@ -15,6 +14,7 @@
 #include <thread>
 #include <unistd.h>
 import Core.App.State;
+import Core.Event.Handler;
 import Core.Event.Queue;
 
 /*
