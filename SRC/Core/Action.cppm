@@ -1,5 +1,4 @@
-#pragma once
-
+module;
 #include "App.h"
 #include "Device.h"
 #include "EventHandler.h"
@@ -8,17 +7,18 @@
 
 #include <concepts>
 #include <string_view>
+export module Core.Action;
 
-enum class EAction : uint32_t { NONE = 0, STOP_SPEECH, STOP_KEYBOARD_HOOKS, USER };
+export enum class EAction : uint32_t { NONE = 0, STOP_SPEECH, STOP_KEYBOARD_HOOKS, USER };
 
-enum class EActionHandleResult : unsigned char {
+export enum class EActionHandleResult : unsigned char {
 	NOT_HANDLED = 0,
 	HANDLED,
 };
 
-template <typename EventType> using ActionCallback = EActionHandleResult (*)(const EventType&);
+export template <typename EventType> using ActionCallback = EActionHandleResult (*)(const EventType&);
 
-template <typename T> struct SActions final {
+export template <typename T> struct SActions final {
 	static auto StopSpeech(const T&) -> EActionHandleResult {
 		g_speechEngine.Stop();
 		return EActionHandleResult::HANDLED;

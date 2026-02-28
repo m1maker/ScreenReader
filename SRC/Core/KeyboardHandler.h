@@ -1,5 +1,4 @@
 #pragma once
-#include "Action.h"
 #include "Event.h"
 #include "Singleton.h"
 
@@ -7,6 +6,7 @@
 #include <functional>
 #include <mutex>
 #include <unordered_map>
+import Core.Action;
 import Core.Timer;
 
 class CKeyboardHandler final {

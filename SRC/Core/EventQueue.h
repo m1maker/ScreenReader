@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EventHandler.h"
+#include "Logger.h"
 #include "Singleton.h"
 
 #include <condition_variable>

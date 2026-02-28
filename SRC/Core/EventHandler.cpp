@@ -1,11 +1,11 @@
 // Handling events of different types.
 #include "EventHandler.h"
 
-#include "Action.h"
 #include "EventQueue.h"
 #include "EventToSpeech.h"
 #include "KeyboardHandler.h"
 #include "Logger.h"
+import Core.Action;
 
 CEventHandler::CEventHandler() : m_focusManager(CFocusManager::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
