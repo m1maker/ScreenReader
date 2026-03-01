@@ -3,9 +3,9 @@ module;
 #include <Core/ScopedPool.h>
 #include <iomanip>
 #include <sstream>
+#include <string_view>;
 #include <type_traits>
 #include <utility>
-#include <string_view>;
 #include <vector>
 module Traits.Object;
 

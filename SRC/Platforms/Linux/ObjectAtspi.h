@@ -4,8 +4,8 @@
 #include <Core/Rect.h>
 #include <Core/Text.h>
 #include <atspi/atspi.h>
-#include <map>
 #include <expected>
+#include <map>
 #include <mutex>
 #include <utility>
 import Traits.Object;

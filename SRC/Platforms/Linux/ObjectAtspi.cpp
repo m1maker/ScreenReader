@@ -78,7 +78,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(EObjectEventType event) {
 	if (!native_parent)
 		return std::unexpected(EObjectError::FAIL);
 
-	auto parent_object = CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_parent);
+	auto parent_object =
+		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_parent);
 	CacheReturn(parent, parent_object);
 }
 
@@ -99,7 +100,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(EObjectEventType event) {
 		if (!child_native)
 			continue;
 
-		auto child_object = CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(child_native);
+		auto child_object =
+			CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(child_native);
 
 		children_to_return.push_back(child_object);
 	}
@@ -242,7 +244,8 @@ void CObjectAtspi::do_UpdateCacheByEvent(EObjectEventType event) {
 		if (!child_native)
 			continue;
 
-		auto child_object = CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(child_native);
+		auto child_object =
+			CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(child_native);
 
 		children.push_back(child_object);
 	}

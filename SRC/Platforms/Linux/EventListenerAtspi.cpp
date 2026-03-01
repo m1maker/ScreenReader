@@ -90,7 +90,8 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	object_event.object = CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
+	object_event.object =
+		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object_event.object.UpdateCacheByEvent(type);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
