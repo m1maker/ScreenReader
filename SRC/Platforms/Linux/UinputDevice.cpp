@@ -1,9 +1,8 @@
 #include "UinputDevice.h"
 
-#include "EventListenerAtspi.h"
-
 #include <chrono>
 #include <thread>
+import Platforms.Linux.EventListener;
 
 void CUinputDevice::SetupVirtualDevice() {
 	m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);

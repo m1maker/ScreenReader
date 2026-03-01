@@ -1,9 +1,7 @@
 // Handling events of different types.
 module;
 #include "Environment.h"
-#if SR_LINUX
-#include <Platforms/Linux/EventListenerAtspi.h>
-#endif
+#include "Event.h"
 
 #include <Traits/Object.h>
 #include <memory>
@@ -12,6 +10,9 @@ export module Core.EventHandler;
 import Core.EventQueue;
 import Core.EventToSpeech;
 import Core.FocusManager;
+#if SR_LINUX
+import Platforms.Linux.EventListener;
+#endif
 
 export class CEventHandler final {
 	DeclareSingleton(CEventHandler);

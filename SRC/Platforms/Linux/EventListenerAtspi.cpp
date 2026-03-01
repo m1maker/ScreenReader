@@ -1,6 +1,5 @@
 // AT-SPI's event listener implementation.
-#include "EventListenerAtspi.h"
-
+module;
 #include "UinputDevice.h"
 
 #include <Core/KeyboardHandler.h>
@@ -13,8 +12,8 @@
 #include <sstream>
 #include <thread>
 #include <unistd.h>
+module Platforms.Linux.EventListener;
 import Core.AppState;
-import Core.EventHandler;
 import Core.EventQueue;
 
 /*

@@ -1,6 +1,7 @@
 // Event listener trait
-#pragma once
+module;
 #include <Core/StaticInterface.h>
+export module Traits.EventListener;
 import Core.Device;
 
 /*
@@ -8,8 +9,8 @@ A event listener is a platform-specific trait that processes events and converts
 IEvent.
 */
 
-using ThreadFunction = void (*)(void*);
-template <typename Derived> class TEventListener {
+export using ThreadFunction = void (*)(void*);
+export template <typename Derived> class TEventListener {
 public:
 	BindStaticInterface(Derived);
 

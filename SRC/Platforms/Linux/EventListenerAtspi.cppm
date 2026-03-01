@@ -1,8 +1,6 @@
 // AT_SPI's event listener.
-#pragma once
-
+module;
 #include <Core/Event.h>
-#include <Traits/EventListener.h>
 #include <Traits/RefCountedObject.h>
 #include <array>
 #include <atomic>
@@ -15,7 +13,9 @@
 #include <thread>
 #include <unistd.h>
 #include <unordered_map>
+export module Platforms.Linux.EventListener;
 import Core.Device;
+import Traits.EventListener;
 
 /*
 AT-SPI has a listener where you need to register the required events one by one.
@@ -375,7 +375,7 @@ inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObject
 	}
 }
 
-class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi> {
+export class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi> {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
@@ -397,4 +397,4 @@ public:
 	void do_PushToMainThread(ThreadFunction function, void* pUserData);
 };
 
-using CEventListener = CEventListenerAtspi;
+export using CEventListener = CEventListenerAtspi;

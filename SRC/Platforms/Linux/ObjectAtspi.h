@@ -379,7 +379,6 @@ class CObjectAtspi final : public TObject<CObjectAtspi>,
 						   public TSelectionProvider<CObjectAtspi>,
 						   public TValueProvider<CObjectAtspi> {
 	friend class CObjectCache<AtspiAccessible, struct SObjectAtspiData>;
-	friend class CEventListenerAtspi;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
 
