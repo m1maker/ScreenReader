@@ -1,7 +1,6 @@
 // AT_SPI's event listener.
 module;
 #include <Core/Event.h>
-#include <Traits/RefCountedObject.h>
 #include <array>
 #include <atomic>
 #include <atspi/atspi.h>

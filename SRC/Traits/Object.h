@@ -5,7 +5,6 @@
 #include <Core/Rect.h>
 #include <Core/StaticInterface.h>
 #include <Core/Text.h>
-#include <Traits/RefCountedObject.h>
 #include <expected>
 #include <map>
 #include <memory>
@@ -14,6 +13,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+import Traits.RefCountedObject;
 
 enum class EObjectInterfaceMask : uint32_t {
 	SUPPORTS_NOTHING = 0,
