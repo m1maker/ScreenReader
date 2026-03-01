@@ -1,10 +1,14 @@
 // AT-SPI object implementation and some inlines.
-#include <Core/Singleton.h>
-#include <Traits/Object.h>
+#pragma once
+#include <Core/Cache.h>
+#include <Core/Rect.h>
+#include <Core/Text.h>
 #include <atspi/atspi.h>
 #include <map>
+#include <expected>
 #include <mutex>
 #include <utility>
+import Traits.Object;
 import Traits.RefCountedObject;
 
 template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_convertible_v<T*, GObject*>>> final {

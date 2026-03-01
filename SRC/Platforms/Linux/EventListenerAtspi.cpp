@@ -14,6 +14,7 @@ module Platforms.Linux.EventListener;
 import Core.AppState;
 import Core.EventQueue;
 import Platforms.Linux.UinputDevice;
+import Traits.Object;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
@@ -89,7 +90,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	object_event.object = g_objectCache(AtspiAccessible, SObjectAtspiData).GetOrCreate<CObjectAtspi>(event->source);
+	object_event.object = CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object_event.object.UpdateCacheByEvent(type);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
@@ -218,7 +219,7 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	g_objectCache(AtspiAccessible, SObjectAtspiData);
+	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance();
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -236,7 +237,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 	}
 	StopEvdevWatcher();
 
-	g_objectCache(AtspiAccessible, SObjectAtspiData).Clear();
+	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
 }
 
 [[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {

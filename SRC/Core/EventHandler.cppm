@@ -3,7 +3,6 @@ module;
 #include "Environment.h"
 #include "Event.h"
 
-#include <Traits/Object.h>
 #include <memory>
 #include <thread>
 export module Core.EventHandler;
@@ -15,7 +14,6 @@ import Platforms.Linux.EventListener;
 #endif
 
 export class CEventHandler final {
-	DeclareSingleton(CEventHandler);
 	/*
 	A listener is a platform-specific trait that processes events and converts them to a common screen reader's
 	Event. Then this event handler then queries the queue of these events.

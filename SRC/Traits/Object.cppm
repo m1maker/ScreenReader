@@ -1,5 +1,5 @@
 // Object trait.
-#pragma once
+module;
 #include <Core/Cache.h>
 #include <Core/EnumUtils.h>
 #include <Core/Rect.h>
@@ -13,17 +13,18 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+export module Traits.Object;
 import Traits.RefCountedObject;
 
-enum class EObjectInterfaceMask : uint32_t {
+export enum class EObjectInterfaceMask : uint32_t {
 	SUPPORTS_NOTHING = 0,
 	SUPPORTS_TEXT = 1 << 0,
 	SUPPORTS_SELECTION = 1 << 1,
 	SUPPORTS_VALUE = 1 << 2
 };
-EnableBitwiseEnum(EObjectInterfaceMask)
+EnableBitwiseEnum(EObjectInterfaceMask);
 
-	enum class EObjectType : unsigned char {
+	export enum class EObjectType : unsigned char {
 		UNKNOWN = 0,
 		ABBREVIATION,
 		ALERT,
@@ -168,7 +169,7 @@ EnableBitwiseEnum(EObjectInterfaceMask)
 		WINDOW,
 	};
 
-enum class EObjectState : unsigned long long {
+export enum class EObjectState : unsigned long long {
 	NO = 0,
 
 	ACTIVE = 1ULL << 0,
@@ -223,9 +224,9 @@ enum class EObjectState : unsigned long long {
 	PROTECTED = 1ULL << 47,
 	SENSITIVE = 1ULL << 48,
 };
-EnableBitwiseEnum(EObjectState)
+EnableBitwiseEnum(EObjectState);
 
-	enum class EObjectError : unsigned char {
+	export enum class EObjectError : unsigned char {
 		SUCCESS = 0,
 		DEFUNCT,
 		NOT_SUPPORTED,
@@ -235,9 +236,9 @@ EnableBitwiseEnum(EObjectState)
 		FAIL
 	};
 
-template <typename T> using ObjectResult = std::expected<T, EObjectError>;
+export template <typename T> using ObjectResult = std::expected<T, EObjectError>;
 
-enum class EObjectEventType : unsigned char {
+export enum class EObjectEventType : unsigned char {
 	NONE = 0,
 	FOCUS_GAINED,
 	FOCUS_LOST,
@@ -255,7 +256,7 @@ enum class EObjectEventType : unsigned char {
 	LAYOUT_UPDATED
 };
 
-[[nodiscard]] static constexpr auto ObjectErrorToString(EObjectError error) -> std::string_view {
+export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> std::string_view {
 	using enum EObjectError;
 	switch (error) {
 	case SUCCESS:
@@ -279,11 +280,11 @@ enum class EObjectEventType : unsigned char {
 	}
 }
 
-[[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
-[[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long states, bool require_all = false)
+export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
+export [[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long states, bool require_all = false)
 	-> std::vector<std::string_view>;
 
-[[nodiscard]] static constexpr inline auto IsValidObjectParent(EObjectType type) -> bool {
+export [[nodiscard]] constexpr inline auto IsValidObjectParent(EObjectType type) -> bool {
 	switch (type) {
 	case EObjectType::WINDOW:
 	case EObjectType::DIALOG:
@@ -295,7 +296,7 @@ enum class EObjectEventType : unsigned char {
 	return false;
 }
 
-template <typename Derived> class TTextProvider {
+export template <typename Derived> class TTextProvider {
 BindStaticInterface(Derived) public : [[nodiscard]] auto GetCursor() const { return Impl().do_GetCursor(); }
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const {
 		return Impl().do_GetText(cursor, granularity);
@@ -303,19 +304,19 @@ BindStaticInterface(Derived) public : [[nodiscard]] auto GetCursor() const { ret
 	[[nodiscard]] auto GetSelectedRanges() const { return Impl().do_GetSelectedRanges(); }
 };
 
-template <typename Derived> class TSelectionProvider {
+export template <typename Derived> class TSelectionProvider {
 BindStaticInterface(Derived) public : [[nodiscard]] auto GetSelectedItems() const {
 		return Impl().do_GetSelectedItems();
 	}
 };
 
-template <typename Derived> class TValueProvider {
+export template <typename Derived> class TValueProvider {
 BindStaticInterface(Derived) public : [[nodiscard]] auto GetMinValue() const { return Impl().do_GetMinValue(); }
 	[[nodiscard]] auto GetMaxValue() const { return Impl().do_GetMaxValue(); }
 	[[nodiscard]] auto GetCurrentValue() const { return Impl().do_GetCurrentValue(); }
 };
 
-template <typename Derived> class TObject {
+export template <typename Derived> class TObject {
 	// static_assert(std::is_trivially_copyable_v<Derived>, "Object handles must be trivial!");
 BindStaticInterface(Derived)
 
@@ -353,12 +354,16 @@ public:
 	void UpdateCacheByEvent(EObjectEventType type) { return Impl().do_UpdateCacheByEvent(type); }
 };
 
-template <class NativeHandle, typename ObjectData> class CObjectCache final {
+export template <class NativeHandle, typename ObjectData> class CObjectCache final {
 	std::pmr::unsynchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle*, ObjectData*> m_cache;
-
-public:
 	explicit CObjectCache() : m_cache(&m_pool) {}
+public:
+	//template<class NativeHandle, typename ObjectData>
+	static auto& GetInstance() {
+		static CObjectCache<NativeHandle, ObjectData> instance;
+		return instance;
+	}
 
 	template <typename PlatformObject> [[nodiscard]] auto GetOrCreate(NativeHandle* native_handle) -> PlatformObject {
 		if (!native_handle)
@@ -401,5 +406,3 @@ public:
 		m_cache.clear();
 	}
 };
-
-#define g_objectCache(T, U) CSingleton<CObjectCache<T, U>>::GetInstance()

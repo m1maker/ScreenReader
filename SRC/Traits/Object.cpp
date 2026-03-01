@@ -1,11 +1,13 @@
 // Some implementations of common object methods.
-#include "Object.h"
-
+module;
 #include <Core/ScopedPool.h>
 #include <iomanip>
 #include <sstream>
 #include <type_traits>
 #include <utility>
+#include <string_view>;
+#include <vector>
+module Traits.Object;
 
 /*
 Just convert types and states to strings.
