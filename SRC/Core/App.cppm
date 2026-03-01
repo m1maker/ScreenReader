@@ -8,16 +8,15 @@ module;
 #include <memory>
 #include <string>
 #include <vector>
-#if SR_LINUX
-#include <Platforms/Linux/PlatformDependentWorkerLinux.h>
-#endif
-
 #include <Version.h>
 extern constinit int g_speechEngineIndex;
 export module Core.App;
 import Core.AppState;
 import Core.Config;
 import Core.EventHandler;
+#if SR_LINUX
+import Platforms.Linux.Worker;
+#endif
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderAppOptions final {

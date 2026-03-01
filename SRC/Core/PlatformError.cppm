@@ -1,8 +1,8 @@
-#pragma once
-
+module;
 #include <string_view>
+export module Core.PlatformError;
 
-enum class EPlatformError : unsigned char {
+export enum class EPlatformError : unsigned char {
 	SUCCESS = 0,
 	IPC_FAILURE,
 	SERVICE_NOT_FOUND,
@@ -13,7 +13,7 @@ enum class EPlatformError : unsigned char {
 	FAIL
 };
 
-[[nodiscard]] static constexpr auto PlatformErrorToString(EPlatformError error) -> std::string_view {
+export [[nodiscard]] constexpr auto PlatformErrorToString(EPlatformError error) -> std::string_view {
 	using enum EPlatformError;
 	switch (error) {
 	case SUCCESS:

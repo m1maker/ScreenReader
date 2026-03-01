@@ -1,17 +1,19 @@
 // Platform dependent worker implementation for Linux.
-#pragma once
-#include <Traits/PlatformDependentWorker.h>
+module;
 #include <atspi/atspi.h>
 #include <chrono>
 #include <csignal>
 #include <thread>
 #include <unistd.h>
+export module Platforms.Linux.Worker;
 import Core.AppState;
+import Core.PlatformError;
+import Traits.PlatformDependentWorker;
 
 /*
 We will also handle signals here to ensure safe exit.
 */
-class CPlatformDependentWorkerLinux final : public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
+export class CPlatformDependentWorkerLinux final : public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {
@@ -106,7 +108,7 @@ class CPlatformDependentWorkerLinux final : public TPlatformDependentWorker<CPla
 		return plat_err;
 	}
 
-	struct sigaction m_signalAction{};
+	struct ::sigaction m_signalAction{};
 
 	static void HandleSignal(int signal) {
 		switch (signal) {
@@ -160,4 +162,4 @@ public:
 	}
 };
 
-using CPlatformDependentWorker = CPlatformDependentWorkerLinux;
+export using CPlatformDependentWorker = CPlatformDependentWorkerLinux;
