@@ -3,6 +3,7 @@ module;
 #include "KeyboardHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
+#include "Text.h"
 #include "Utf8.h"
 
 #include <Core/ScopedPool.h>

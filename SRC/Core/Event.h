@@ -1,7 +1,5 @@
 // An interface for abstracting event types. Categories are implemented here.
 #pragma once
-#include "Environment.h"
-
 #include <memory>
 #include <memory_resource>
 #include <optional>
@@ -9,6 +7,8 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+import Core.Environment;
+import Traits.Object;
 
 /*
 The object event category.

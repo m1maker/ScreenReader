@@ -10,6 +10,7 @@ target_sources(ScreenReader
         AppState.cppm
         Config.cppm
         Device.cppm
+        Environment.cppm
         EventHandler.cppm
         EventQueue.cppm
         EventToSpeech.cppm

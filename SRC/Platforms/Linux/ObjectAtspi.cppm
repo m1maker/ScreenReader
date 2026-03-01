@@ -1,5 +1,5 @@
 // AT-SPI object implementation and some inlines.
-#pragma once
+module;
 #include <Core/Cache.h>
 #include <Core/Rect.h>
 #include <Core/Text.h>
@@ -8,6 +8,7 @@
 #include <map>
 #include <mutex>
 #include <utility>
+export module Platforms.Linux.Object;
 import Traits.Object;
 import Traits.RefCountedObject;
 
@@ -22,7 +23,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	}
 };
 
-[[nodiscard]] static constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
+export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
 	using enum EObjectType;
 	switch (role) {
 	case ATSPI_ROLE_ACCELERATOR_LABEL:
@@ -200,7 +201,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	}
 }
 
-[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
+export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
 	using enum EObjectState;
 	switch (state) {
 	case ATSPI_STATE_ACTIVE:
@@ -270,7 +271,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	}
 }
 
-[[nodiscard]] static constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
+export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
 	-> unsigned long long {
 	unsigned long long result = 0;
 	for (const auto& state : states) {
@@ -279,7 +280,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	return result;
 }
 
-[[nodiscard]] static inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
+export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
 		return 0;
@@ -295,7 +296,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 	return GetObjectStateFromAtspiStates(state_types);
 }
 
-[[nodiscard]] static constexpr inline auto GetAtspiTextGranularityFromTextGranularity(ETextGranularity granularity)
+export [[nodiscard]] constexpr inline auto GetAtspiTextGranularityFromTextGranularity(ETextGranularity granularity)
 	-> AtspiTextGranularity {
 	switch (granularity) {
 	case ETextGranularity::CHARACTER:
@@ -316,8 +317,7 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 /*
 Wrapper class for GLib strings so that they are automatically freed.
 */
-class CGlibString final {
-private:
+export class CGlibString final {
 	gchar* m_pointer{nullptr};
 
 public:
@@ -355,8 +355,8 @@ public:
 	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
 };
 
-template <class T, class U>
-[[nodiscard]] static inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange<U> {
+export template <class T, class U>
+[[nodiscard]] inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange<U> {
 	STextRange<U> text_range;
 	if constexpr (std::is_same_v<T, AtspiTextRange> && std::is_same_v<U, std::string>) {
 		CGlibString content(range.content);
@@ -368,7 +368,7 @@ template <class T, class U>
 	return text_range;
 }
 
-template <typename T> struct SAtspiIface final {
+export template <typename T> struct SAtspiIface final {
 	T* pointer{nullptr};
 	explicit SAtspiIface(T* p) noexcept : pointer(p) {}
 	~SAtspiIface() noexcept {
@@ -378,10 +378,10 @@ template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-class CObjectAtspi final : public TObject<CObjectAtspi>,
-						   public TTextProvider<CObjectAtspi>,
-						   public TSelectionProvider<CObjectAtspi>,
-						   public TValueProvider<CObjectAtspi> {
+export class CObjectAtspi final : public TObject<CObjectAtspi>,
+								  public TTextProvider<CObjectAtspi>,
+								  public TSelectionProvider<CObjectAtspi>,
+								  public TValueProvider<CObjectAtspi> {
 	friend class CObjectCache<AtspiAccessible, struct SObjectAtspiData>;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
@@ -434,7 +434,7 @@ public:
 	[[nodiscard]] auto do_GetCurrentValue() const -> ObjectResult<double>;
 };
 
-struct SObjectAtspiData final {
+export struct SObjectAtspiData final {
 	DeclareCache(EObjectType, type);
 	DeclareCache(unsigned long long, states);
 	DeclareCache(class CObjectAtspi, parent);

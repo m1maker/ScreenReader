@@ -3,6 +3,7 @@ module;
 #include <Core/KeyboardHandler.h>
 #include <Core/Logger.h>
 #include <Core/SpeechEngine.h>
+#include <atspi/atspi.h>
 #include <cstdlib>
 #include <fcntl.h>
 #include <fstream>
@@ -13,6 +14,7 @@ module;
 module Platforms.Linux.EventListener;
 import Core.AppState;
 import Core.EventQueue;
+import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
 import Traits.Object;
 

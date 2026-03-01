@@ -1,11 +1,12 @@
 module;
-#include "Environment.h"
 #include "Logger.h"
 
 #include <memory>
 #include <memory_resource>
 #include <vector>
 export module Core.FocusManager;
+import Core.Environment;
+import Traits.Object;
 
 export class CFocusManager final {
 	DeclareSingleton(CFocusManager);

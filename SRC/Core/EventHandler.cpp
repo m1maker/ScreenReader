@@ -5,6 +5,7 @@ module;
 #include "Logger.h"
 #include "SpeechEngine.h"
 
+#include <expected>
 #include <thread>
 module Core.EventHandler;
 import Core.Action;
