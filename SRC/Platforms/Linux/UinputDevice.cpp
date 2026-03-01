@@ -1,7 +1,15 @@
-#include "UinputDevice.h"
-
+module;
 #include <chrono>
+#include <cstdint>
+#include <cstring>
+#include <fcntl.h>
+#include <linux/input.h>
+#include <linux/uinput.h>
+#include <stdexcept>
+#include <string>
 #include <thread>
+#include <unistd.h>
+module Platforms.Linux.UinputDevice;
 import Platforms.Linux.EventListener;
 
 void CUinputDevice::SetupVirtualDevice() {

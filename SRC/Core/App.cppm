@@ -4,11 +4,11 @@ module;
 #include "Logger.h"
 #include "Sral.hpp"
 
+#include <Version.h>
 #include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
-#include <Version.h>
 extern constinit int g_speechEngineIndex;
 export module Core.App;
 import Core.AppState;

@@ -1,7 +1,5 @@
 // AT-SPI's event listener implementation.
 module;
-#include "UinputDevice.h"
-
 #include <Core/KeyboardHandler.h>
 #include <Core/Logger.h>
 #include <Core/SpeechEngine.h>
@@ -15,6 +13,7 @@ module;
 module Platforms.Linux.EventListener;
 import Core.AppState;
 import Core.EventQueue;
+import Platforms.Linux.UinputDevice;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.

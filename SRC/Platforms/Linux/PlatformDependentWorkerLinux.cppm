@@ -13,7 +13,8 @@ import Traits.PlatformDependentWorker;
 /*
 We will also handle signals here to ensure safe exit.
 */
-export class CPlatformDependentWorkerLinux final : public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
+export class CPlatformDependentWorkerLinux final
+	: public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {

@@ -1,13 +1,8 @@
+module;
 #include <cstdint>
-#include <cstring>
-#include <fcntl.h>
-#include <linux/input.h>
-#include <linux/uinput.h>
-#include <stdexcept>
-#include <string>
-#include <unistd.h>
+export module Platforms.Linux.UinputDevice;
 
-class CUinputDevice final {
+export class CUinputDevice final {
 	int m_devFd{-1};
 	int m_uinputFd{-1};
 
