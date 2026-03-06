@@ -27,7 +27,7 @@ export class CFocusManager final {
 			m_contextChain.push_back(current);
 
 			auto type = current.GetType().value_or(EObjectType::UNKNOWN);
-			if (IsValidObjectParent(type)) {
+			if (IsObjectParent(type)) {
 				break;
 			}
 			current = current.GetParent().value_or(CObject());

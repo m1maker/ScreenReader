@@ -284,7 +284,7 @@ export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all =
 export [[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long states, bool require_all = false)
 	-> std::vector<std::string_view>;
 
-export [[nodiscard]] constexpr inline auto IsValidObjectParent(EObjectType type) -> bool {
+export [[nodiscard]] constexpr inline auto IsObjectParent(EObjectType type) -> bool {
 	switch (type) {
 	case EObjectType::WINDOW:
 	case EObjectType::DIALOG:
@@ -292,8 +292,150 @@ export [[nodiscard]] constexpr inline auto IsValidObjectParent(EObjectType type)
 	default:
 		return false;
 	}
+}
 
-	return false;
+export [[nodiscard]] constexpr inline auto IsObjectContainer(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::GENERIC_CONTAINER:
+	case EObjectType::GROUP:
+	case EObjectType::SECTION:
+	case EObjectType::PANEL:
+	case EObjectType::DRAWER:
+	case EObjectType::SHEET:
+	case EObjectType::ARTICLE:
+	case EObjectType::REGION:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectDataView(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::TABLE:
+	case EObjectType::GRID:
+	case EObjectType::TREE_GRID:
+	case EObjectType::LIST_BOX:
+	case EObjectType::DIRECTORY:
+	case EObjectType::FEED:
+	case EObjectType::TREE:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectDataElement(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::CELL:
+	case EObjectType::GRID_CELL:
+	case EObjectType::ROW:
+	case EObjectType::COLUMN:
+	case EObjectType::ROW_GROUP:
+	case EObjectType::LIST_ITEM:
+	case EObjectType::TREE_ITEM:
+	case EObjectType::COLUMN_HEADER:
+	case EObjectType::ROW_HEADER:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectMath(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::MATH:
+	case EObjectType::MATH_FRACTION:
+	case EObjectType::MATH_OPERATOR:
+	case EObjectType::MATH_ROOT:
+	case EObjectType::MATH_SUBSCRIPT:
+	case EObjectType::MATH_SUPERSCRIPT:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectNavigation(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::NAVIGATION:
+	case EObjectType::BREADCRUMB:
+	case EObjectType::MENU_BAR:
+	case EObjectType::TAB_LIST:
+	case EObjectType::PAGINATION:
+	case EObjectType::ANCHOR:
+	case EObjectType::LINK:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectMedia(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::IMAGE:
+	case EObjectType::VIDEO:
+	case EObjectType::AUDIO:
+	case EObjectType::CANVAS:
+	case EObjectType::ANIMATION:
+	case EObjectType::SVG_ROOT:
+	case EObjectType::FIGURE:
+	case EObjectType::CHART:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectWeb(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::WEB_VIEW:
+	case EObjectType::IFRAME:
+	case EObjectType::DOCUMENT:
+	case EObjectType::IMAGE_MAP:
+	case EObjectType::MAP:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectInput(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::BUTTON:
+	case EObjectType::CHECKBOX:
+	case EObjectType::COLOR_WELL:
+	case EObjectType::COMBO_BOX:
+	case EObjectType::DATE_PICKER:
+	case EObjectType::FILE_UPLOAD:
+	case EObjectType::RADIO_BUTTON:
+	case EObjectType::SEARCH_BOX:
+	case EObjectType::SLIDER:
+	case EObjectType::SPIN_BUTTON:
+	case EObjectType::SWITCH:
+	case EObjectType::TEXT_FIELD:
+	case EObjectType::TOGGLE_BUTTON:
+	case EObjectType::PASSWORD_FIELD:
+		return true;
+	default:
+		return false;
+	}
+}
+
+export [[nodiscard]] constexpr inline auto IsObjectFeedback(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::ALERT:
+	case EObjectType::ALERT_DIALOG:
+	case EObjectType::METER:
+	case EObjectType::PROGRESS_BAR:
+	case EObjectType::STATUS:
+	case EObjectType::TIMER:
+	case EObjectType::TOOLTIP:
+	case EObjectType::LOG:
+		return true;
+	default:
+		return false;
+	}
 }
 
 export template <typename Derived> class TTextProvider {
