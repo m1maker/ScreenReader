@@ -49,7 +49,7 @@ static void FindAnnouncementInHierarchy(
 
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 
-	if ((type == EObjectType::LIST_ITEM || type == EObjectType::MENU_ITEM) && collect_all_labels) {
+	if ((!IsObjectContainer(type) && !IsObjectParent(type)) && collect_all_labels) {
 		collect_labels_recursive(collect_labels_recursive, obj);
 		if (!out.empty())
 			return;
