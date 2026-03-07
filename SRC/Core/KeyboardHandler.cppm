@@ -1,17 +1,15 @@
-#pragma once
+module;
 #include "Event.h"
-#include "Singleton.h"
 
 #include <Traits/ActionHandler.h>
 #include <functional>
 #include <mutex>
 #include <unordered_map>
+export module Core.KeyboardHandler;
 import Core.Action;
-import Core.EventHandler;
 import Core.Timer;
 
-class CKeyboardHandler final {
-	DeclareSingleton(CKeyboardHandler);
+export class CKeyboardHandler final {
 	struct SActionInfo final {
 		uint32_t id{0};
 		ActionCallback<CKeyboardEvent::SHotkeyInfo> executable{nullptr};
@@ -39,6 +37,11 @@ class CKeyboardHandler final {
 	~CKeyboardHandler() = default;
 
 public:
+	static auto& GetInstance() {
+		static CKeyboardHandler instance;
+		return instance;
+	}
+
 	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false)
 		-> bool;
 	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action);
@@ -52,5 +55,3 @@ public:
 
 	void ResetState();
 };
-
-#define g_keyboardHandler CSingleton<CKeyboardHandler>::GetInstance()

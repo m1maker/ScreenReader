@@ -1,4 +1,8 @@
-#include "KeyboardHandler.h"
+module;
+#include "Event.h"
+
+#include <mutex>
+module Core.KeyboardHandler;
 
 auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {

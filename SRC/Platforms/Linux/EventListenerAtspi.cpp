@@ -1,6 +1,6 @@
 // AT-SPI's event listener implementation.
 module;
-#include <Core/KeyboardHandler.h>
+#include <Core/Event.h>
 #include <Core/Logger.h>
 #include <Core/SpeechEngine.h>
 #include <atspi/atspi.h>
@@ -14,6 +14,7 @@ module;
 module Platforms.Linux.EventListener;
 import Core.AppState;
 import Core.EventQueue;
+import Core.KeyboardHandler;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
 import Traits.Object;
@@ -169,7 +170,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					else
 						modifiers &= ~modifier;
 					keyboard_event.hotkey.modifiers = modifiers;
-					if (!g_keyboardHandler.IsHooked(keyboard_event.hotkey)) {
+					if (!CKeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;

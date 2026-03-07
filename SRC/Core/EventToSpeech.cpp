@@ -1,6 +1,6 @@
 // Event to speech.
 module;
-#include "KeyboardHandler.h"
+#include "Event.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 #include "Text.h"
@@ -13,6 +13,7 @@ module;
 #include <sstream>
 module Core.EventToSpeech;
 import Core.App;
+import Core.KeyboardHandler;
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a
@@ -93,15 +94,16 @@ static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj,
 		return;
 	}
 
-	bool vertical_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
-	bool horizontal_keys_down = g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) ||
-		g_keyboardHandler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
-	bool control_down = g_keyboardHandler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
+	auto& keyboard_handler = CKeyboardHandler::GetInstance();
+	bool vertical_keys_down = keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
+	bool horizontal_keys_down = keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) ||
+		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
+	bool control_down = keyboard_handler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
 
 	if (vertical_keys_down)
 		granularity = ETextGranularity::LINE;

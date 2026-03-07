@@ -1,7 +1,6 @@
 // Handling events of different types.
 module;
 #include "Event.h"
-#include "KeyboardHandler.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 
@@ -12,14 +11,17 @@ import Core.Action;
 import Core.App;
 import Core.AppState;
 import Core.Device;
+import Core.KeyboardHandler;
 
 CEventHandler::CEventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),
 	  m_eventToSpeech(CEventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
+	auto& keyboard_handler = CKeyboardHandler::GetInstance();
+
 	bool success{false};
-	success = g_keyboardHandler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
-	success = g_keyboardHandler.RegisterAction(
+	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
+	success = keyboard_handler.RegisterAction(
 		CKeyboardEvent::MODIFIER_SCREEN_READER + CKeyboardEvent::MODIFIER_CTRL + CKeyboardEvent::KEYCODE_K,
 		static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS));
 
@@ -108,21 +110,22 @@ void CEventHandler::Handle(CEvent&& event) {
 		}
 
 		case CEvent::KEYBOARD: {
-			std::scoped_lock lock(g_keyboardHandler.m_mutex);
+			auto& keyboard_handler = CKeyboardHandler::GetInstance();
+			std::scoped_lock lock(keyboard_handler.m_mutex);
 			auto keyboard_event = event.GetAs<CKeyboardEvent>();
 			if (!keyboard_event.has_value())
 				break;
 
 			switch (keyboard_event.value().type) {
 			case CKeyboardEvent::KEY_PRESSED:
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
-				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
+				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
+				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
-				g_keyboardHandler.Handle(keyboard_event.value());
+				keyboard_handler.Handle(keyboard_event.value());
 				break;
 			case CKeyboardEvent::KEY_RELEASED:
-				g_keyboardHandler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
-				g_keyboardHandler.m_modifiers = keyboard_event.value().hotkey.modifiers;
+				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
+				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
 
 				break;
 			default:
