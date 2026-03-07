@@ -6,4 +6,5 @@ target_sources(ScreenReader
         Object.cppm
         PlatformDependentWorker.cppm
         RefCountedObject.cppm
+        SpeechEngine.cppm
 )

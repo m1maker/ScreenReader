@@ -1,0 +1,84 @@
+module;
+#include <Core/StaticInterface.h>
+
+#include <bitset>
+#include <cstdint>
+#include <expected>
+#include <memory_resource>
+#include <string_view>
+export module Traits.SpeechEngine;
+
+export enum class ESpeechEngineParameter : unsigned char {
+	NONE = 0, // void
+	RATE, // unsigned char
+	VOLUME, // unsigned char
+	PITCH, // unsigned char
+	SPELLING, // bool
+	VOICE_INDEX, // unsigned long long int
+	VOICE_COUNT, // unsigned long long int
+};
+
+
+export enum class ESpeechEngineOutputMode : unsigned char {
+	VOID = 0,
+	AUDIO_DEVICE,
+	PCM_BUFFER
+};
+
+export constexpr const unsigned char cSpeechEngineMinRate = 0;
+export constexpr const unsigned char cSpeechEngineMaxRate = 255;
+export constexpr const unsigned char cSpeechEngineMinPitch = 0;
+export constexpr const unsigned char cSpeechEngineMaxPitch = 255;
+export constexpr const unsigned char cSpeechEngineMinVolume = 0;
+export constexpr const unsigned char cSpeechEngineMaxVolume = 255;
+
+export enum class ESpeechEngineError : unsigned char {
+	SUCCESS = 0,
+	DEFUNCT,
+	NOT_SUPPORTED,
+	ACCESS_DENIED,
+	INVALID_ARGUMENTS,
+	INVALID_ENCODING,
+	TIMEOUT,
+	FAIL
+};
+
+export template <typename T = void> using SpeechEngineResult = std::expected<T, ESpeechEngineError>;
+
+struct SVoiceInfo final {
+	unsigned long long int index{0};
+	std::string_view name;
+	std::string_view language;
+	std::string_view gender;
+	std::string_view vendor;
+};
+
+export template<typename Derived> class TSpeechEngine {
+	BindStaticInterface(Derived);
+protected:
+	std::pmr::memory_resource* m_pool{nullptr};
+public:
+	TSpeechEngine(std::pmr::memory_resource* pool) : m_pool(pool) {}
+
+	[[nodiscard]] auto Speak(std::string_view message, bool ssml = false) -> SpeechEngineResult<> {
+		return Impl().do_Speak(message);
+	}
+
+	void Stop() {
+		Impl().do_Stop();
+	}
+
+	template<typename T>
+	[[nodiscard]] auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+		return Impl().do_SetParameter(parameter, value);
+	}
+
+	template<typename T>
+	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T> {
+		return Impl().do_GetParameter(parameter);
+	}
+
+	[[nodiscard]] auto GetVoiceInfo(int index) -> SpeechEngineResult<SVoiceInfo> {
+		return Impl().do_GetVoiceInfo(index);
+	}
+};
