@@ -1,5 +1,4 @@
 module;
-#include "Event.h"
 #include "Logger.h"
 
 #include <condition_variable>
@@ -7,6 +6,7 @@ module;
 #include <memory_resource>
 #include <mutex>
 export module Core.EventQueue;
+import Core.Event;
 
 export class CEventQueue final {
 	std::pmr::synchronized_pool_resource m_pool;

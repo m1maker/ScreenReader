@@ -1,6 +1,5 @@
 // AT_SPI's event listener.
 module;
-#include <Core/Event.h>
 #include <array>
 #include <atomic>
 #include <atspi/atspi.h>
@@ -14,7 +13,9 @@ module;
 #include <unordered_map>
 export module Platforms.Linux.EventListener;
 import Core.Device;
+import Core.Event;
 import Traits.EventListener;
+import Traits.Object;
 
 /*
 AT-SPI has a listener where you need to register the required events one by one.

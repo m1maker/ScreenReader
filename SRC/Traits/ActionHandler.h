@@ -1,6 +1,6 @@
 #pragma once
-#include <Core/Event.h>
 import Core.Device;
+import Core.Event;
 
 template <typename T> struct DeviceEventTrait final {
 	static constexpr EDeviceType value = EDeviceType::NO;

@@ -1,5 +1,5 @@
 // An interface for abstracting event types. Categories are implemented here.
-#pragma once
+module;
 #include <memory>
 #include <memory_resource>
 #include <optional>
@@ -7,6 +7,7 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+export module Core.Event;
 import Core.Environment;
 import Traits.Object;
 
@@ -14,7 +15,7 @@ import Traits.Object;
 The object event category.
 Events such as changes to an object's focus, state, name, description, value, etc., always dispatch a CObjectEvent.
 */
-class CObjectEvent final {
+export class CObjectEvent final {
 public:
 	EObjectEventType type;
 	CObject object;
@@ -24,7 +25,7 @@ public:
 The keyboard event category.
 Key pressed and released events. always dispatch a CKeyboardEvent.
 */
-class CKeyboardEvent final {
+export class CKeyboardEvent final {
 public:
 	enum eKeyboardEventType : unsigned char { NONE = 0, KEY_PRESSED, KEY_RELEASED } type;
 
@@ -575,28 +576,29 @@ public:
 };
 
 // Allow operator+ to generate key bindings.
-[[nodiscard]] constexpr auto operator+(CKeyboardEvent::EModifier a, CKeyboardEvent::EModifier b) -> unsigned char {
+export [[nodiscard]] constexpr auto operator+(CKeyboardEvent::EModifier a, CKeyboardEvent::EModifier b)
+	-> unsigned char {
 	return static_cast<unsigned char>(a) | static_cast<unsigned char>(b);
 }
 
-[[nodiscard]] constexpr auto operator+(unsigned char a, CKeyboardEvent::EModifier b) -> unsigned char {
+export [[nodiscard]] constexpr auto operator+(unsigned char a, CKeyboardEvent::EModifier b) -> unsigned char {
 	return a | static_cast<unsigned char>(b);
 }
 
-[[nodiscard]] constexpr auto operator+(unsigned char mods, CKeyboardEvent::EKeycode key)
+export [[nodiscard]] constexpr auto operator+(unsigned char mods, CKeyboardEvent::EKeycode key)
 	-> CKeyboardEvent::SHotkeyInfo {
 	return CKeyboardEvent::SHotkeyInfo(key, mods);
 }
 
-[[nodiscard]] constexpr auto operator+(CKeyboardEvent::EKeycode key, unsigned char mods)
+export [[nodiscard]] constexpr auto operator+(CKeyboardEvent::EKeycode key, unsigned char mods)
 	-> CKeyboardEvent::SHotkeyInfo {
 	return CKeyboardEvent::SHotkeyInfo(key, mods);
 }
 
-using SHotkeyInfo = CKeyboardEvent::SHotkeyInfo;
+export using SHotkeyInfo = CKeyboardEvent::SHotkeyInfo;
 
 namespace std {
-template <> struct hash<CKeyboardEvent::SHotkeyInfo> {
+export template <> struct hash<CKeyboardEvent::SHotkeyInfo> {
 	auto operator()(const CKeyboardEvent::SHotkeyInfo& k) const noexcept -> std::size_t {
 		return std::hash<uint32_t>{}(k.Pack());
 	}
@@ -605,7 +607,7 @@ template <> struct hash<CKeyboardEvent::SHotkeyInfo> {
 
 using EventVariant = std::variant<std::monostate, CObjectEvent, CKeyboardEvent>;
 
-class CEvent final {
+export class CEvent final {
 	EventVariant m_variant;
 	bool m_now{false}; // A very specific flag. I'll describe it in the handlers.
 public:

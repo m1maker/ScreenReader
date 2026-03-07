@@ -1,12 +1,10 @@
 module;
-#include "Event.h"
-
-#include <Traits/ActionHandler.h>
 #include <functional>
 #include <mutex>
 #include <unordered_map>
 export module Core.KeyboardHandler;
 import Core.Action;
+import Core.Event;
 import Core.Timer;
 
 export class CKeyboardHandler final {

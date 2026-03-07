@@ -1,11 +1,11 @@
 // Handling events of different types.
 module;
 #include "Environment.h"
-#include "Event.h"
 
 #include <memory>
 #include <thread>
 export module Core.EventHandler;
+import Core.Event;
 import Core.EventQueue;
 import Core.EventToSpeech;
 import Core.FocusManager;

@@ -1,6 +1,4 @@
 module;
-#include "Event.h"
-
 #include <mutex>
 module Core.KeyboardHandler;
 

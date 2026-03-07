@@ -1,18 +1,18 @@
 // Event to speech.
 module;
-#include "Event.h"
 
 #include <memory_resource>
 #include <string>
 #include <vector>
 export module Core.EventToSpeech;
+import Core.Environment;
+import Core.Event;
 import Core.FocusManager;
 
 /*
 This is the final step of object event processing. Announce it.
 */
 export class CEventToSpeech final {
-	void SpeakObject(CObject object);
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 
 	bool m_isWhereAmIOperation{false};

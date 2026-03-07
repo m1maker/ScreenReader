@@ -1,6 +1,5 @@
 // Handling events of different types.
 module;
-#include "Event.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 
@@ -11,7 +10,9 @@ import Core.Action;
 import Core.App;
 import Core.AppState;
 import Core.Device;
+import Core.Event;
 import Core.KeyboardHandler;
+import Traits.Object;
 
 CEventHandler::CEventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),

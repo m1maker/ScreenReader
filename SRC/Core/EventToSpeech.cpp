@@ -1,6 +1,5 @@
 // Event to speech.
 module;
-#include "Event.h"
 #include "Logger.h"
 #include "SpeechEngine.h"
 #include "Text.h"
@@ -13,7 +12,9 @@ module;
 #include <sstream>
 module Core.EventToSpeech;
 import Core.App;
+import Core.Event;
 import Core.KeyboardHandler;
+import Traits.Object;
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a
