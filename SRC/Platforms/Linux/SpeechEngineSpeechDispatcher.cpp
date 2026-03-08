@@ -79,7 +79,7 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	m_connection = nullptr;
 }
 
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+[[nodiscard]] constexpr auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
 	static constinit SSpeechEngineInfo info;
 	info.name = "SpeechDispatcher";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;

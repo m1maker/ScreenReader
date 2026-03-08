@@ -49,7 +49,7 @@ public:
 		return SpeechEngineResult<>();
 	}
 
-	[[nodiscard]] auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
+	[[nodiscard]] constexpr auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
 	[[nodiscard]] auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void do_Stop();
