@@ -30,6 +30,8 @@ public:
 	void Text(std::string_view text);
 	void Break(std::string_view time = "500ms");
 
+	void Mark(std::string_view name);
+
 	void Pitch(std::string_view pitch);
 	void Rate(std::string_view rate);
 	void Volume(std::string_view volume);

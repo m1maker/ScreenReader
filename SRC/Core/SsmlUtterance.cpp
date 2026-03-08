@@ -30,6 +30,11 @@ void CSsmlUtterance::Break(std::string_view time) {
 	std::format_to(std::back_inserter(m_ssmlContent), "<break time=\"{}\"/>", time);
 }
 
+void CSsmlUtterance::Mark(std::string_view name) {
+	EndProsodyIfNeeded();
+	std::format_to(std::back_inserter(m_ssmlContent), "<mark name=\"{}\"/>", name);
+}
+
 void CSsmlUtterance::Pitch(std::string_view pitch) {
 	if (m_currentPitch != pitch) {
 		EndProsodyIfNeeded();
