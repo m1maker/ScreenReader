@@ -51,7 +51,7 @@ public:
 
 	[[nodiscard]] constexpr auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
-	[[nodiscard]] auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
+	auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void do_Stop();
 	void do_Cancel();
 

@@ -89,7 +89,7 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	return info;
 }
 
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message)
+auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message)
 	-> SpeechEngineResult<SpeechMessage> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);

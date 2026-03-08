@@ -72,7 +72,7 @@ public:
 
 	[[nodiscard]] constexpr auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
 
-	[[nodiscard]] auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
+	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 		return Impl().do_Speak(message);
 	}
 

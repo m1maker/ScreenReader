@@ -13,6 +13,9 @@ public:
 		return instance;
 	}
 
-	void SetEngine(SpeechEngineVariant variant);
-	[[nodiscard]] auto GetEngine() const -> SpeechEngineVariant;
+	void SetEngine(SpeechEngineVariant variant) {
+		m_variant = variant;
+	}
+
+	[[nodiscard]] auto GetEngine() const -> SpeechEngineVariant {return m_variant; }
 };
