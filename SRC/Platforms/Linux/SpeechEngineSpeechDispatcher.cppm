@@ -41,14 +41,21 @@ public:
 	explicit CSpeechEngineSpeechDispatcher();
 	~CSpeechEngineSpeechDispatcher();
 
+	[[nodiscard]] auto do_Test() const -> SpeechEngineResult<> {
+		if (m_connection == nullptr) [[unlikely]] {
+			return std::unexpected(ESpeechEngineError::DEFUNCT);
+		}
+
+		return SpeechEngineResult<>();
+	}
+
 	[[nodiscard]] auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
 	[[nodiscard]] auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
-	void do_Stop(SpeechMessage message);
-	void do_Pause(SpeechMessage message, bool pause = true);
+	void do_Stop();
+	void do_Pause(bool pause = true);
 
-	template <typename T>
-	[[nodiscard]] auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
+	template <typename T> auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
 	[[nodiscard]] auto do_GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
 

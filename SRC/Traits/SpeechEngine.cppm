@@ -65,17 +65,18 @@ public:
 	explicit TSpeechEngine() = default;
 	~TSpeechEngine() = default;
 
+	[[nodiscard]] auto Test() const -> SpeechEngineResult<> { return Impl().do_Test(); }
+
 	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
 
 	[[nodiscard]] auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 		return Impl().do_Speak(message);
 	}
 
-	void Stop(SpeechMessage message) { Impl().do_Stop(message); }
-	void Pause(SpeechMessage message, bool pause = true) { Impl().do_Pause(message, pause); }
+	void Stop() { Impl().do_Stop(); }
+	void Pause(bool pause = true) { Impl().do_Pause(pause); }
 
-	template <typename T>
-	[[nodiscard]] auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
 		return Impl().do_SetParameter(parameter, value);
 	}
 
