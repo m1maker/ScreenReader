@@ -6,7 +6,8 @@ import Core.Environment;
 export class CSpeechSystem final {
 	SpeechEngineVariant m_variant;
 
-	CSpeechSystem() = default;
+	explicit CSpeechSystem() { SetEngine(CDefaultSpeechEngine()); }
+
 	~CSpeechSystem() = default;
 
 public:

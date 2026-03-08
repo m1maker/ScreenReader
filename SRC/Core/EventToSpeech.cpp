@@ -134,7 +134,10 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	*/
 	auto object = m_focusManager.GetFocus();
 	if (!object.IsValid()) {
-		g_speechEngine.Speak("Unknown area", true);
+		m_speechSystem.WithEngine([this](auto& engine) {
+			engine.Stop();
+			engine.Speak("Unknown area");
+		});
 		return true;
 	}
 

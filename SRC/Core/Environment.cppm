@@ -8,6 +8,7 @@ import Platforms.Linux.Object;
 import Platforms.Linux.SpeechEngine;
 export using CObject = CObjectAtspi;
 export using SpeechEngineVariant = std::variant<std::monostate, CSpeechEngineSpeechDispatcher>;
+export using CDefaultSpeechEngine = CSpeechEngineSpeechDispatcher;
 #else
 export module Core.Environment;
 #endif

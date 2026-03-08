@@ -8,12 +8,16 @@ export module Core.EventToSpeech;
 import Core.Environment;
 import Core.Event;
 import Core.FocusManager;
+import Core.SpeechSystem;
+import Core.SsmlUtterance;
 
 /*
 This is the final step of object event processing. Announce it.
 */
 export class CEventToSpeech final {
 	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
+	CSsmlUtterance m_ssmlUtterance;
+	CSpeechSystem& m_speechSystem;
 
 	bool m_isWhereAmIOperation{false};
 
@@ -23,7 +27,8 @@ export class CEventToSpeech final {
 public:
 	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
-	explicit CEventToSpeech() : m_focusManager(CFocusManager::GetInstance()) {}
+	explicit CEventToSpeech()
+		: m_focusManager(CFocusManager::GetInstance()), m_speechSystem(CSpeechSystem::GetInstance()) {}
 	~CEventToSpeech() = default;
 
 public:
