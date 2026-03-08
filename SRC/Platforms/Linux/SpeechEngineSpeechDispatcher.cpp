@@ -1,5 +1,5 @@
 module;
-#include <bitset>
+#include <Core/EnumUtils.h>
 #include <cstdint>
 #include <expected>
 #include <speech-dispatcher/libspeechd.h>
@@ -66,7 +66,7 @@ CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
 		spd_set_notification_on(m_connection, SPD_CANCEL);
 	*/
 	auto index = SetVoiceIndex();
-	do_SetParameter(ESpeechEngineParameter::VOICE_INDEX, index);
+	do_SetParameter(SpeechEngineParameter::VOICE_INDEX, index);
 }
 
 CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
@@ -77,6 +77,16 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 		return;
 	spd_close(m_connection);
 	m_connection = nullptr;
+}
+
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+	static constinit SSpeechEngineInfo info;
+	info.name = "SpeechDispatcher";
+	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
+
+	using namespace SpeechEngineParameter;
+	info.supported_parameters |= RATE | VOLUME | PITCH | SPELLING | VOICE_COUNT | VOICE_INDEX | SSML;
+	return info;
 }
 
 [[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message)

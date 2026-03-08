@@ -1,9 +1,13 @@
 module;
 #include "Environment.h"
+
+#include <variant>
 #if SR_LINUX
 export module Core.Environment;
 import Platforms.Linux.Object;
+import Platforms.Linux.SpeechEngine;
 export using CObject = CObjectAtspi;
+export using SpeechEngineVariant = std::variant<std::monostate, CSpeechEngineSpeechDispatcher>;
 #else
 export module Core.Environment;
 #endif

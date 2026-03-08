@@ -1,21 +1,21 @@
 module;
+#include <Core/EnumUtils.h>
 #include <Core/StaticInterface.h>
-#include <bitset>
 #include <cstdint>
 #include <expected>
 #include <string_view>
 export module Traits.SpeechEngine;
 
-export enum class ESpeechEngineParameter : unsigned char {
-	NONE = 0,	 // void
-	RATE,		 // unsigned char
-	VOLUME,		 // unsigned char
-	PITCH,		 // unsigned char
-	SPELLING,	 // bool
-	VOICE_INDEX, // unsigned long long int
-	VOICE_COUNT, // unsigned long long int
-	SSML,		 // bool
-};
+export namespace SpeechEngineParameter {
+constexpr auto NONE = 0;				// void
+constexpr auto RATE = 1ULL << 0;		// unsigned char
+constexpr auto VOLUME = 1ULL << 1;		// unsigned char
+constexpr auto PITCH = 1ULL << 2;		// unsigned char
+constexpr auto SPELLING = 1ULL << 3;	// bool
+constexpr auto VOICE_INDEX = 1ULL << 4; // unsigned long long int
+constexpr auto VOICE_COUNT = 1ULL << 5; // unsigned long long int
+constexpr auto SSML = 1ULL << 6;		// bool
+} // namespace SpeechEngineParameter
 
 export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVICE, PCM_BUFFER };
 
@@ -45,7 +45,10 @@ export struct SSpeechEngineInfo final {
 	std::string_view name;
 	ESpeechEngineOutputMode output_mode{ESpeechEngineOutputMode::VOID};
 	ESpeechEngineSyncMode sync_mode{ESpeechEngineSyncMode::ASYNC};
-	std::bitset<64> supported_parameters;
+	unsigned long long supported_parameters{0};
+
+	constexpr SSpeechEngineInfo() = default;
+	~SSpeechEngineInfo() = default;
 };
 
 export struct SVoiceInfo final {
@@ -78,12 +81,11 @@ public:
 
 	void Pause(bool pause = true) { Impl().do_Pause(pause); }
 
-	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+	template <typename T> auto SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
 		return Impl().do_SetParameter(parameter, value);
 	}
 
-	template <typename T>
-	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T> {
+	template <typename T> [[nodiscard]] auto GetParameter(unsigned long long parameter) const -> SpeechEngineResult<T> {
 		return Impl().do_GetParameter(parameter);
 	}
 

@@ -57,9 +57,9 @@ public:
 
 	void do_Pause(bool pause = true);
 
-	template <typename T> auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
+	template <typename T> auto do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
-	[[nodiscard]] auto do_GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
+	[[nodiscard]] auto do_GetParameter(unsigned long long parameter) const -> SpeechEngineResult<T>;
 
 	[[nodiscard]] auto do_GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
 };

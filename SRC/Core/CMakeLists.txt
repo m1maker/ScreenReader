@@ -19,6 +19,7 @@ target_sources(ScreenReader
         FocusManager.cppm
         KeyboardHandler.cppm
         PlatformError.cppm
+        SpeechSystem.cppm
         SsmlUtterance.cppm
         Timer.cppm
 )
