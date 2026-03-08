@@ -22,11 +22,10 @@ export class CSsmlUtterance final {
 
 	void StartProsodyIfNeeded();
 	void EndProsodyIfNeeded();
-	[[nodiscard]] auto EscapeXml(std::string_view text) const -> std::pmr::string;
+	[[nodiscard]] auto EscapeXml(std::string_view text) -> std::pmr::string;
 
 public:
 	explicit CSsmlUtterance();
-	explicit CSsmlUtterance(std::string_view text);
 
 	void Text(std::string_view text);
 	void Break(std::string_view time = "500ms");
@@ -37,7 +36,7 @@ public:
 
 	void Voice(std::string_view voice);
 
-	[[nodiscard]] auto ToSsml() const -> std::string_view;
+	[[nodiscard]] auto ToSsml() -> std::string_view;
 
 	void Clear();
 
@@ -61,5 +60,5 @@ public:
 	static constexpr const std::string_view cVolumeMedium = "medium";
 	static constexpr const std::string_view cVolumeLoud = "loud";
 	static constexpr const std::string_view cVolumeXloud = "x-loud";
-	static constexpr const std::string_view xVolumeDefault = "default";
+	static constexpr const std::string_view cVolumeDefault = "default";
 };
