@@ -12,7 +12,7 @@ module Core.SsmlUtterance;
 
 CSsmlUtterance::CSsmlUtterance()
 	: m_currentPitch(cPitchDefault), m_currentRate(cRateDefault), m_currentVolume(cVolumeDefault),
-	  m_ssmlContent(&m_pool) {
+	  m_pool(__buf_, cBufferSize), m_ssmlContent(&m_pool) {
 	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
 }
