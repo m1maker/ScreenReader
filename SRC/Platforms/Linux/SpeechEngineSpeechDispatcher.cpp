@@ -79,7 +79,8 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	m_connection = nullptr;
 }
 
-[[nodiscard]] constexpr auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+[[nodiscard]] constexpr auto CSpeechEngineSpeechDispatcher::do_GetInfo() const
+	-> SpeechEngineResult<SSpeechEngineInfo> {
 	static constinit SSpeechEngineInfo info;
 	info.name = "SpeechDispatcher";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
@@ -89,8 +90,7 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	return info;
 }
 
-auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message)
-	-> SpeechEngineResult<SpeechMessage> {
+auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
@@ -113,4 +113,66 @@ void CSpeechEngineSpeechDispatcher::do_Cancel() {
 		return;
 
 	spd_cancel(m_connection);
+}
+
+template <typename T>
+auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
+	if (!m_connection) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+	using namespace SpeechEngineParameter;
+	switch (parameter) {
+	/*		case SRAL_PARAM_SYMBOL_LEVEL:
+				spd_set_punctuation(speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
+				break;
+	*/
+	case RATE:
+		spd_set_voice_rate(m_connection, value);
+		break;
+	case VOLUME:
+		spd_set_volume(m_connection, value);
+		break;
+	case SPELLING:
+		m_enableSpelling = value;
+		break;
+	case VOICE_INDEX: {
+		RefreshVoiceList();
+		if (!m_voiceList) [[unlikely]]
+			return std::unexpected(ESpeechEngineError::FAIL);
+		if (spd_set_synthesis_voice(m_connection, m_voiceList[value]->name) == 0) {
+			m_voiceIndex = value;
+			return SpeechEngineResult<>();
+		}
+		break;
+	}
+
+	[[unlikely]] default:
+		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
+	}
+	return SpeechEngineResult<>();
+}
+
+template <typename T>
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(unsigned long long parameter) const
+	-> SpeechEngineResult<T> {
+	if (!m_connection) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+	using namespace SpeechEngineParameter;
+	switch (parameter) {
+	case RATE:
+		return spd_get_voice_rate(m_connection);
+	case VOLUME:
+		return spd_get_volume(m_connection);
+	case SPELLING:
+		return m_enableSpelling;
+
+	case VOICE_COUNT:
+		RefreshVoiceList();
+		return m_voiceCount;
+
+	case VOICE_INDEX:
+		return m_voiceIndex;
+
+	[[unlikely]] default:
+		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
+	}
 }

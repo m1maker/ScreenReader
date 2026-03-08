@@ -12,11 +12,11 @@ export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechE
 	::SPDConnection* m_connection{nullptr};
 	bool m_enableSpelling{false};
 
-	::SPDVoice** m_voiceList{nullptr};
-	int m_voiceCount{0};
-	int m_voiceIndex{0};
+	mutable ::SPDVoice** m_voiceList{nullptr};
+	mutable int m_voiceCount{0};
+	mutable int m_voiceIndex{0};
 	[[nodiscard]] auto SetVoiceIndex() -> int;
-	inline void ClearVoiceList() {
+	inline void ClearVoiceList() const {
 		if (m_voiceList) {
 			free_spd_voices(m_voiceList);
 			m_voiceList = nullptr;
@@ -24,7 +24,7 @@ export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechE
 		m_voiceCount = 0;
 	}
 
-	inline void RefreshVoiceList() {
+	inline void RefreshVoiceList() const {
 		ClearVoiceList();
 		if (!m_connection) [[unlikely]]
 			return;

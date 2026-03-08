@@ -13,6 +13,7 @@ export class CSsmlUtterance final {
 	alignas(64) char __buf_[cBufferSize];
 	std::pmr::monotonic_buffer_resource m_pool;
 
+	size_t m_prefixLength{0};
 	std::pmr::string m_ssmlContent;
 	std::string_view m_currentPitch;
 	std::string_view m_currentRate;

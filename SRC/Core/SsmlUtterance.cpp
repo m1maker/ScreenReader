@@ -15,6 +15,7 @@ CSsmlUtterance::CSsmlUtterance()
 	  m_pool(__buf_, cBufferSize), m_ssmlContent(&m_pool) {
 	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
+	m_prefixLength = m_ssmlContent.size();
 }
 
 void CSsmlUtterance::Text(std::string_view text) {
@@ -81,14 +82,12 @@ void CSsmlUtterance::Voice(std::string_view voice) {
 }
 
 void CSsmlUtterance::Clear() {
-	m_ssmlContent.clear();
+	m_ssmlContent.resize(m_prefixLength);
 	m_currentPitch = cPitchDefault;
 	m_currentRate = cRateDefault;
 	m_currentVolume = cVolumeDefault;
 	m_currentVoice = "";
 	m_inProsody = false;
-	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
 }
 
 void CSsmlUtterance::StartProsodyIfNeeded() {

@@ -1,3 +1,5 @@
+module;
+#include <variant>
 export module Core.SpeechSystem;
 import Core.Environment;
 
@@ -13,9 +15,16 @@ public:
 		return instance;
 	}
 
-	void SetEngine(SpeechEngineVariant variant) {
-		m_variant = variant;
-	}
+	void SetEngine(auto&& variant) { m_variant = variant; }
 
-	[[nodiscard]] auto GetEngine() const -> SpeechEngineVariant {return m_variant; }
+	template <typename F> decltype(auto) WithEngine(F&& func) {
+		return std::visit(
+			[&](auto&& eng) -> decltype(auto) {
+				using T = std::decay_t<decltype(eng)>;
+				if constexpr (!std::is_same_v<T, std::monostate>) {
+					return func(eng);
+				}
+			},
+			m_variant);
+	}
 };

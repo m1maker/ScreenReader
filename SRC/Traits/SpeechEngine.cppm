@@ -70,11 +70,11 @@ public:
 
 	[[nodiscard]] auto Test() const -> SpeechEngineResult<> { return Impl().do_Test(); }
 
-	[[nodiscard]] constexpr auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
-
-	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
-		return Impl().do_Speak(message);
+	[[nodiscard]] constexpr auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+		return Impl().do_GetInfo();
 	}
+
+	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> { return Impl().do_Speak(message); }
 
 	void Stop() { Impl().do_Stop(); }
 	void Cancel() { Impl().do_Cancel(); }
