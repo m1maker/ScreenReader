@@ -3,7 +3,6 @@ module;
 #include <bitset>
 #include <cstdint>
 #include <expected>
-#include <memory_resource>
 #include <string_view>
 export module Traits.SpeechEngine;
 
@@ -49,7 +48,7 @@ export struct SSpeechEngineInfo final {
 	std::bitset<64> supported_parameters;
 };
 
-struct SVoiceInfo final {
+export struct SVoiceInfo final {
 	unsigned long long int index{0};
 	std::string_view name;
 	std::string_view language;
@@ -62,15 +61,13 @@ export using SpeechMessage = unsigned long long;
 export template <typename Derived> class TSpeechEngine {
 	BindStaticInterface(Derived);
 
-protected:
-	std::pmr::memory_resource* m_pool{nullptr};
-
 public:
-	TSpeechEngine(std::pmr::memory_resource* pool) : m_pool(pool) {}
+	explicit TSpeechEngine() = default;
+	~TSpeechEngine() = default;
 
 	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
 
-	[[nodiscard]] auto Speak(std::string_view message, bool ssml = false) -> SpeechEngineResult<SpeechMessage> {
+	[[nodiscard]] auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 		return Impl().do_Speak(message);
 	}
 
@@ -87,7 +84,7 @@ public:
 		return Impl().do_GetParameter(parameter);
 	}
 
-	[[nodiscard]] auto GetVoiceInfo(int index) -> SpeechEngineResult<SVoiceInfo> {
+	[[nodiscard]] auto GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo> {
 		return Impl().do_GetVoiceInfo(index);
 	}
 };

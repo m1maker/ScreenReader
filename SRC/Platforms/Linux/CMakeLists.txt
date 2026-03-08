@@ -7,5 +7,6 @@ target_sources(ScreenReader
         EventListenerAtspi.cppm
         ObjectAtspi.cppm
         PlatformDependentWorkerLinux.cppm
+        SpeechEngineSpeechDispatcher.cppm
         UinputDevice.cppm
 )

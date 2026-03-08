@@ -1,0 +1,56 @@
+module;
+#include <Core/StaticInterface.h>
+#include <bitset>
+#include <cstdint>
+#include <expected>
+#include <speech-dispatcher/libspeechd.h>
+#include <string_view>
+export module Platforms.Linux.SpeechEngine;
+import Traits.SpeechEngine;
+
+export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechEngineSpeechDispatcher> {
+	::SPDConnection* m_connection{nullptr};
+	bool m_enableSpelling{false};
+
+	::SPDVoice** m_voiceList{nullptr};
+	int m_voiceCount{0};
+	int m_voiceIndex{0};
+	[[nodiscard]] auto SetVoiceIndex() -> int;
+	inline void ClearVoiceList() {
+		if (m_voiceList) {
+			free_spd_voices(m_voiceList);
+			m_voiceList = nullptr;
+		}
+		m_voiceCount = 0;
+	}
+
+	inline void RefreshVoiceList() {
+		ClearVoiceList();
+		if (!m_connection) [[unlikely]]
+			return;
+		m_voiceList = spd_list_synthesis_voices(m_connection);
+		if (!m_voiceList)
+			return;
+		for (; m_voiceList[m_voiceCount] != nullptr; ++m_voiceCount)
+			;
+	}
+
+	static void SpeechNotificationCallback(size_t message_id, size_t client_id, SPDNotificationType notification_type);
+
+public:
+	explicit CSpeechEngineSpeechDispatcher();
+	~CSpeechEngineSpeechDispatcher();
+
+	[[nodiscard]] auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
+
+	[[nodiscard]] auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
+	void do_Stop(SpeechMessage message);
+	void do_Pause(SpeechMessage message, bool pause = true);
+
+	template <typename T>
+	[[nodiscard]] auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
+	template <typename T>
+	[[nodiscard]] auto do_GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
+
+	[[nodiscard]] auto do_GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
+};
