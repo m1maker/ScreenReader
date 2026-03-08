@@ -53,6 +53,8 @@ public:
 
 	[[nodiscard]] auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void do_Stop();
+	void do_Cancel();
+
 	void do_Pause(bool pause = true);
 
 	template <typename T> auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;

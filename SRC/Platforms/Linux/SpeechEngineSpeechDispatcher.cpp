@@ -80,4 +80,27 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 }
 
 [[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message)
-	-> SpeechEngineResult<SpeechMessage> {}
+	-> SpeechEngineResult<SpeechMessage> {
+	if (!m_connection) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+
+	auto result = spd_say(m_connection, SPD_IMPORTANT, message.data());
+	if (result < 0)
+		return std::unexpected(ESpeechEngineError::FAIL);
+
+	return static_cast<SpeechMessage>(result);
+}
+
+void CSpeechEngineSpeechDispatcher::do_Stop() {
+	if (!m_connection) [[unlikely]]
+		return;
+
+	spd_stop(m_connection);
+}
+
+void CSpeechEngineSpeechDispatcher::do_Cancel() {
+	if (!m_connection) [[unlikely]]
+		return;
+
+	spd_cancel(m_connection);
+}

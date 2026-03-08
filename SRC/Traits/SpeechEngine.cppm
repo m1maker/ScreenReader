@@ -74,6 +74,8 @@ public:
 	}
 
 	void Stop() { Impl().do_Stop(); }
+	void Cancel() { Impl().do_Cancel(); }
+
 	void Pause(bool pause = true) { Impl().do_Pause(pause); }
 
 	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
