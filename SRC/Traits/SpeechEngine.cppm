@@ -1,6 +1,5 @@
 module;
 #include <Core/StaticInterface.h>
-
 #include <bitset>
 #include <cstdint>
 #include <expected>
@@ -9,21 +8,19 @@ module;
 export module Traits.SpeechEngine;
 
 export enum class ESpeechEngineParameter : unsigned char {
-	NONE = 0, // void
-	RATE, // unsigned char
-	VOLUME, // unsigned char
-	PITCH, // unsigned char
-	SPELLING, // bool
+	NONE = 0,	 // void
+	RATE,		 // unsigned char
+	VOLUME,		 // unsigned char
+	PITCH,		 // unsigned char
+	SPELLING,	 // bool
 	VOICE_INDEX, // unsigned long long int
 	VOICE_COUNT, // unsigned long long int
+	SSML,		 // bool
 };
 
+export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVICE, PCM_BUFFER };
 
-export enum class ESpeechEngineOutputMode : unsigned char {
-	VOID = 0,
-	AUDIO_DEVICE,
-	PCM_BUFFER
-};
+export enum class ESpeechEngineSyncMode : unsigned char { SYNC = 0, ASYNC };
 
 export constexpr const unsigned char cSpeechEngineMinRate = 0;
 export constexpr const unsigned char cSpeechEngineMaxRate = 255;
@@ -45,6 +42,13 @@ export enum class ESpeechEngineError : unsigned char {
 
 export template <typename T = void> using SpeechEngineResult = std::expected<T, ESpeechEngineError>;
 
+export struct SSpeechEngineInfo final {
+	std::string_view name;
+	ESpeechEngineOutputMode output_mode{ESpeechEngineOutputMode::VOID};
+	ESpeechEngineSyncMode sync_mode{ESpeechEngineSyncMode::ASYNC};
+	std::bitset<64> supported_parameters;
+};
+
 struct SVoiceInfo final {
 	unsigned long long int index{0};
 	std::string_view name;
@@ -53,27 +57,32 @@ struct SVoiceInfo final {
 	std::string_view vendor;
 };
 
-export template<typename Derived> class TSpeechEngine {
+export using SpeechMessage = unsigned long long;
+
+export template <typename Derived> class TSpeechEngine {
 	BindStaticInterface(Derived);
+
 protected:
 	std::pmr::memory_resource* m_pool{nullptr};
+
 public:
 	TSpeechEngine(std::pmr::memory_resource* pool) : m_pool(pool) {}
 
-	[[nodiscard]] auto Speak(std::string_view message, bool ssml = false) -> SpeechEngineResult<> {
+	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
+
+	[[nodiscard]] auto Speak(std::string_view message, bool ssml = false) -> SpeechEngineResult<SpeechMessage> {
 		return Impl().do_Speak(message);
 	}
 
-	void Stop() {
-		Impl().do_Stop();
-	}
+	void Stop(SpeechMessage message) { Impl().do_Stop(message); }
+	void Pause(SpeechMessage message, bool pause = true) { Impl().do_Pause(message, pause); }
 
-	template<typename T>
+	template <typename T>
 	[[nodiscard]] auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
 		return Impl().do_SetParameter(parameter, value);
 	}
 
-	template<typename T>
+	template <typename T>
 	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T> {
 		return Impl().do_GetParameter(parameter);
 	}

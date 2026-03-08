@@ -25,7 +25,7 @@ FetchContent_Declare(SRAL
   SYSTEM
 )
 set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(SRAL)
+#FetchContent_MakeAvailable(SRAL)
 
 file(GLOB_RECURSE ALL_CXX_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
