@@ -55,8 +55,6 @@ CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
 	SPDConnectionAddress__free(address);
 	address = nullptr;
 
-	spd_set_data_mode(m_connection, SPD_DATA_SSML);
-
 	/*	m_connection->callback_begin = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
 		m_connection->callback_end = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
 		m_connection->callback_cancel = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
@@ -134,6 +132,12 @@ auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter
 	case SPELLING:
 		m_enableSpelling = value;
 		break;
+	case SSML:
+		if (value == m_ssml)
+			break;
+		spd_set_data_mode(m_connection, value ? SPD_DATA_SSML : SPD_DATA_TEXT);
+		m_ssml = value;
+		break;
 	case VOICE_INDEX: {
 		RefreshVoiceList();
 		if (!m_voiceList) [[unlikely]]
@@ -164,6 +168,8 @@ template <typename T>
 		return spd_get_volume(m_connection);
 	case SPELLING:
 		return m_enableSpelling;
+	case SSML:
+		return m_ssml;
 
 	case VOICE_COUNT:
 		RefreshVoiceList();

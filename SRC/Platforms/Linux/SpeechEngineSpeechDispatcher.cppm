@@ -11,6 +11,7 @@ import Traits.SpeechEngine;
 export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechEngineSpeechDispatcher> {
 	::SPDConnection* m_connection{nullptr};
 	bool m_enableSpelling{false};
+	bool m_ssml{false};
 
 	mutable ::SPDVoice** m_voiceList{nullptr};
 	mutable int m_voiceCount{0};
