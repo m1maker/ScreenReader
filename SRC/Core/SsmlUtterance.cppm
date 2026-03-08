@@ -40,6 +40,7 @@ public:
 	void Voice(std::string_view voice);
 
 	[[nodiscard]] auto ToSsml() -> std::string_view;
+	[[nodiscard]] constexpr operator std::string_view() { return ToSsml(); }
 
 	void Clear();
 
