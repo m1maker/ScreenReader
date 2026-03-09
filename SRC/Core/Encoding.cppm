@@ -35,6 +35,47 @@ export [[nodiscard]] inline auto DecodeUtf8(const char* pointer) -> SUtf8Result 
 	return {0xFFFD, 1};
 }
 
+export struct SUtf8EncodeResult final {
+	char bytes[4]{};
+	size_t size{0};
+};
+
+export [[nodiscard]] inline auto EncodeUtf8(uint32_t code_point) -> SUtf8EncodeResult {
+	SUtf8EncodeResult result;
+
+	if (code_point < 0x80) {
+		result.bytes[0] = static_cast<char>(code_point);
+		result.size = 1;
+	}
+	else if (code_point < 0x800) {
+		result.bytes[0] = static_cast<char>(0xC0 | ((code_point >> 6) & 0x1F));
+		result.bytes[1] = static_cast<char>(0x80 | (code_point & 0x3F));
+		result.size = 2;
+	}
+	else if (code_point < 0x10000) {
+		if (code_point >= 0xD800 && code_point <= 0xDFFF) {
+			return EncodeUtf8(0xFFFD);
+		}
+
+		result.bytes[0] = static_cast<char>(0xE0 | ((code_point >> 12) & 0x0F));
+		result.bytes[1] = static_cast<char>(0x80 | ((code_point >> 6) & 0x3F));
+		result.bytes[2] = static_cast<char>(0x80 | (code_point & 0x3F));
+		result.size = 3;
+	}
+	else if (code_point <= 0x10FFFF) {
+		result.bytes[0] = static_cast<char>(0xF0 | ((code_point >> 18) & 0x07));
+		result.bytes[1] = static_cast<char>(0x80 | ((code_point >> 12) & 0x3F));
+		result.bytes[2] = static_cast<char>(0x80 | ((code_point >> 6) & 0x3F));
+		result.bytes[3] = static_cast<char>(0x80 | (code_point & 0x3F));
+		result.size = 4;
+	}
+	else {
+		return EncodeUtf8(0xFFFD);
+	}
+
+	return result;
+}
+
 export class CUtf8Iterator final {
 	const char* m_pointer{nullptr};
 
