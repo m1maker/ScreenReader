@@ -24,7 +24,8 @@ CEventHandler::CEventHandler()
 	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = keyboard_handler.RegisterAction(
 		CKeyboardEvent::MODIFIER_SCREEN_READER + CKeyboardEvent::MODIFIER_CTRL + CKeyboardEvent::KEYCODE_K,
-		static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS));
+		static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS),
+		true);
 
 	m_eventToSpeech.AnnounceWhereAmI();
 }

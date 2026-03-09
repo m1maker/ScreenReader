@@ -1,4 +1,6 @@
 module;
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -58,7 +60,196 @@ public:
 	explicit CUtf8View(const std::string& s) : m_begin(s.data()), m_end(s.data() + s.size()) {}
 	explicit CUtf8View(std::string_view s) : m_begin(s.data()), m_end(s.data() + s.size()) {}
 
-
 	[[nodiscard]] auto begin() const -> CUtf8Iterator { return CUtf8Iterator(m_begin); }
 	[[nodiscard]] auto end() const -> CUtf8Iterator { return CUtf8Iterator(m_end); }
 };
+
+namespace PunctuationNames {
+struct SPunctuationEntry final {
+	char32_t character{0};
+	std::string_view name{"unknown character"};
+};
+
+static constexpr std::array<SPunctuationEntry, 138> cPunctuationMap = {{// ASCII punctuation
+	{U'!', "bang"},
+	{U'"', "quote"},
+	{U'#', "number"},
+	{U'$', "dollar"},
+	{U'%', "percent"},
+	{U'&', "and"},
+	{U'\'', "tick"},
+	{U'(', "left paren"},
+	{U')', "right paren"},
+	{U'*', "star"},
+	{U'+', "plus"},
+	{U',', "comma"},
+	{U'-', "dash"},
+	{U'.', "dot"},
+	{U'/', "slash"},
+	{U':', "colon"},
+	{U';', "semi"},
+	{U'<', "less"},
+	{U'=', "equals"},
+	{U'>', "greater"},
+	{U'?', "question"},
+	{U'@', "at"},
+	{U'[', "left bracket"},
+	{U'\\', "backslash"},
+	{U']', "right bracket"},
+	{U'^', "caret"},
+	{U'_', "underscore"},
+	{U'`', "grave"},
+	{U'{', "left brace"},
+	{U'|', "bar"},
+	{U'}', "right brace"},
+	{U'~', "tilde"},
+
+	// General punctuation
+	{U'‐', "dash"},
+	{U'‑', "non-breaking dash"},
+	{U'‒', "figure dash"},
+	{U'–', "en dash"},
+	{U'—', "em dash"},
+	{U'―', "horizontal bar"},
+	{U'‖', "double vertical line"},
+	{U'‘', "left single quote"},
+	{U'’', "right single quote"},
+	{U'‚', "single low-9 quote"},
+	{U'‛', "single high-reversed-9 quote"},
+	{U'“', "left double quote"},
+	{U'”', "right double quote"},
+	{U'„', "double low-9 quote"},
+	{U'‟', "double high-reversed-9 quote"},
+	{U'†', "dagger"},
+	{U'‡', "double dagger"},
+	{U'•', "bullet"},
+	{U'‥', "two dot leader"},
+	{U'…', "ellipsis"},
+	{U'‧', "hyphenation point"},
+	{U'‰', "per mille"},
+	{U'‱', "per ten thousand"},
+	{U'′', "prime"},
+	{U'″', "double prime"},
+	{U'‴', "triple prime"},
+	{U'‵', "reversed prime"},
+	{U'‶', "reversed double prime"},
+	{U'‷', "reversed triple prime"},
+	{U'‸', "caret"},
+	{U'※', "reference"},
+	{U'‼', "double bang"},
+	{U'‽', "interrobang"},
+	{U'‾', "overline"},
+	{U'‿', "undertie"},
+	{U'⁀', "character tie"},
+	{U'⁁', "caret insertion point"},
+	{U'⁂', "asterism"},
+	{U'⁃', "hyphen bullet"},
+	{U'⁄', "fraction slash"},
+	{U'⁅', "left bracket with quill"},
+	{U'⁆', "right bracket with quill"},
+	{U'⁇', "double question"},
+	{U'⁈', "question bang"},
+	{U'⁉', "bang question"},
+	{U'⁊', "tironian sign et"},
+
+	// Dashes and other common punctuation
+	{U'—', "em dash"},
+	{U'–', "en dash"},
+	{U'〜', "wave dash"},
+	{U'〰', "wavy dash"},
+
+	// Curly quotes and dashes
+	{U'«', "left-pointing double angle quote"},
+	{U'»', "right-pointing double angle quote"},
+	{U'‹', "single left-pointing angle quote"},
+	{U'›', "single right-pointing angle quote"},
+
+	// Braces and brackets variations
+	{U'〈', "left-pointing angle bracket"},
+	{U'〉', "right-pointing angle bracket"},
+	{U'◊', "lozenge"},
+	{U'✓', "check mark"},
+	{U'✗', "ballot x"},
+	{U'✘', "heavy ballot x"},
+
+	// Mathematical operators as punctuation
+	{U'÷', "division"},
+	{U'×', "multiplication"},
+	{U'±', "plus-minus"},
+	{U'∓', "minus-or-plus"},
+	{U'∑', "summation"},
+	{U'∏', "product"},
+	{U'∫', "integral"},
+	{U'√', "square root"},
+	{U'∞', "infinity"},
+	{U'≈', "almost equal to"},
+	{U'≠', "not equal to"},
+	{U'≡', "identical to"},
+	{U'≤', "less-than or equal to"},
+	{U'≥', "greater-than or equal to"},
+	{U'⊂', "subset of"},
+	{U'⊃', "superset of"},
+	{U'⊆', "subset of or equal to"},
+	{U'⊇', "superset of or equal to"},
+	{U'⊕', "circled plus"},
+	{U'⊗', "circled times"},
+	{U'⊥', "up tack"},
+	{U'∠', "angle"},
+
+	// Currency symbols
+	{U'€', "euro"},
+	{U'£', "pound"},
+	{U'¥', "yen"},
+	{U'¢', "cent"},
+	{U'₹', "rupee"},
+	{U'₽', "ruble"},
+	{U'₿', "bitcoin"},
+
+	// Common emoji punctuation
+	{U'❤', "heart"},
+	{U'★', "star"},
+	{U'☆', "white star"},
+	{U'☀', "sun"},
+	{U'☁', "cloud"},
+	{U'☂', "umbrella"},
+	{U'☃', "snowman"},
+	{U'☄', "comet"},
+	{U'🔥', "fire"},
+
+	// Arrows
+	{U'←', "left arrow"},
+	{U'↑', "up arrow"},
+	{U'→', "right arrow"},
+	{U'↓', "down arrow"},
+	{U'↔', "left right arrow"},
+	{U'↕', "up down arrow"},
+	{U'◀', "black left-pointing triangle"},
+	{U'▶', "black right-pointing triangle"}}};
+
+[[nodiscard]] constexpr auto FindPunctuationName(char32_t c) -> std::string_view {
+	if (c < 128) {
+		for (const auto& entry : cPunctuationMap) {
+			if (entry.character == c) {
+				return entry.name;
+			}
+		}
+	}
+	else {
+		for (const auto& entry : cPunctuationMap) {
+			if (entry.character == c) {
+				return entry.name;
+			}
+		}
+	}
+	return "unknown character";
+}
+
+} // namespace PunctuationNames
+
+export [[nodiscard]] constexpr auto PunctuationToName(char32_t c) -> std::string_view {
+	return PunctuationNames::FindPunctuationName(c);
+}
+
+export [[nodiscard]] constexpr auto PunctuationToName(char c) -> std::string_view {
+	return PunctuationToName(static_cast<char32_t>(c));
+}
