@@ -1,5 +1,6 @@
 module;
 #include <Core/EnumUtils.h>
+#include <Core/ScopedPool.h>
 #include <Core/Logger.h>
 #include <cstdint>
 #include <expected>
@@ -7,6 +8,7 @@ module;
 #include <string.h>
 #include <string>
 #include <string_view>
+#include <memory_resource>
 #include <unistd.h>
 module Platforms.Linux.SpeechEngine;
 
@@ -26,14 +28,15 @@ If someone can do this differently and better, I would be very grateful!
 	if (!system_locale) [[unlikely]]
 		return 0;
 
-	std::string system_lang = system_locale;
+	DefaultPool(pool);
+	std::pmr::string system_lang(system_locale, &pool);
 	system_lang = system_lang.substr(0, 5);
 	auto index = system_lang.find('_');
-	if (index != std::string::npos) [[likely]]
+	if (index != std::pmr::string::npos) [[likely]]
 		system_lang[index] = '-';
 	for (int i = 0; i < m_voiceCount; ++i) {
 		if (m_voiceList[i] && m_voiceList[i]->language) [[likely]] {
-			std::string voice_lang = m_voiceList[i]->language;
+			std::pmr::string voice_lang(m_voiceList[i]->language, &pool);
 			voice_lang = voice_lang.substr(0, 5);
 			if (voice_lang == system_lang) [[likely]] {
 				return i;
