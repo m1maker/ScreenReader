@@ -78,7 +78,15 @@ public:
 			CUtf8View message_view(message);
 
 			for (uint32_t c : message_view) {
-				engine.Speak(PunctuationToName(static_cast<char32_t>(c)));
+				if (IsPunctuation(c)) {
+					engine.Speak(PunctuationToName(static_cast<char32_t>(c)));
+				}
+
+				else {
+					auto result = EncodeUtf8(c);
+					std::string_view character_data(result.bytes, result.size);
+					engine.Speak(character_data);
+				}
 			}
 		});
 		return *this;
