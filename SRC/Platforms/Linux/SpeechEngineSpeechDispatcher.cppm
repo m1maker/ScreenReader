@@ -50,7 +50,7 @@ public:
 		return SpeechEngineResult<>();
 	}
 
-	[[nodiscard]] constexpr auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
+	[[nodiscard]] auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
 	auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void do_Stop();
@@ -64,3 +64,73 @@ public:
 
 	[[nodiscard]] auto do_GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
 };
+
+template <typename T>
+auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
+	if (!m_connection) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+	using namespace SpeechEngineParameter;
+	switch (parameter) {
+	/*		case SRAL_PARAM_SYMBOL_LEVEL:
+				spd_set_punctuation(speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
+				break;
+	*/
+	case RATE:
+		spd_set_voice_rate(m_connection, value);
+		break;
+	case VOLUME:
+		spd_set_volume(m_connection, value);
+		break;
+	case SPELLING:
+		m_enableSpelling = value;
+		break;
+	case SSML:
+		if (value == m_ssml)
+			break;
+		spd_set_data_mode(m_connection, value ? SPD_DATA_SSML : SPD_DATA_TEXT);
+		m_ssml = value;
+		break;
+	case VOICE_INDEX: {
+		RefreshVoiceList();
+		if (!m_voiceList) [[unlikely]]
+			return std::unexpected(ESpeechEngineError::FAIL);
+		if (spd_set_synthesis_voice(m_connection, m_voiceList[value]->name) == 0) {
+			m_voiceIndex = value;
+			return SpeechEngineResult<>();
+		}
+		break;
+	}
+
+	[[unlikely]] default:
+		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
+	}
+	return SpeechEngineResult<>();
+}
+
+template <typename T>
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(unsigned long long parameter) const
+	-> SpeechEngineResult<T> {
+	if (!m_connection) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+	using namespace SpeechEngineParameter;
+	switch (parameter) {
+	case RATE:
+		return spd_get_voice_rate(m_connection);
+	case VOLUME:
+		return spd_get_volume(m_connection);
+	case SPELLING:
+		return m_enableSpelling;
+	case SSML:
+		return m_ssml;
+
+	case VOICE_COUNT:
+		RefreshVoiceList();
+		return m_voiceCount;
+
+	case VOICE_INDEX:
+		return m_voiceIndex;
+
+	[[unlikely]] default:
+		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
+	}
+}

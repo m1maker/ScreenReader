@@ -1,11 +1,10 @@
 // Program entry point.
 import Core.App;
 import Core.AppState;
+import Core.SpeechSystem;
 #include "Logger.h"
 
 #include <exception>
-
-constinit int g_speechEngineIndex = 0;
 
 auto main(signed int argc, char** argv) -> signed int {
 	/*
@@ -15,6 +14,7 @@ auto main(signed int argc, char** argv) -> signed int {
 	*/
 	g_logger; // Invoke the logger instance to avoid uninitialization before the application instance.
 	try {
+		CSpeechSystem::GetInstance().Speak("Screenreader");
 		CScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {

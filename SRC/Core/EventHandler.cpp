@@ -1,7 +1,6 @@
 // Handling events of different types.
 module;
 #include "Logger.h"
-#include "SpeechEngine.h"
 
 #include <expected>
 #include <thread>
@@ -12,6 +11,7 @@ import Core.AppState;
 import Core.Device;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.SpeechSystem;
 import Traits.Object;
 
 CEventHandler::CEventHandler()
@@ -87,7 +87,7 @@ void CEventHandler::Handle(CEvent&& event) {
 			switch (object_event.value().type) {
 			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(object_event.value().object);
-				g_speechEngine.Stop();
+				CSpeechSystem::GetInstance().Stop();
 				m_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			case EObjectEventType::PARENT_UPDATED:
@@ -136,10 +136,6 @@ void CEventHandler::Handle(CEvent&& event) {
 		default:
 			break;
 		}
-	}
-
-	catch (const Sral::Exception& speech_exception) {
-		g_logger.Log(CLogger::ERROR, speech_exception.what());
 	}
 	catch (const std::bad_expected_access<EObjectError>& error) {
 		g_logger.Log(CLogger::ERROR, "Expected access error: " + std::string(ObjectErrorToString(error.error())));

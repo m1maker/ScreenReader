@@ -1,4 +1,5 @@
 module;
+#include <string_view>
 #include <variant>
 export module Core.SpeechSystem;
 import Core.Environment;
@@ -7,7 +8,7 @@ import Traits.SpeechEngine;
 export class CSpeechSystem final {
 	SpeechEngineVariant m_variant;
 
-	explicit CSpeechSystem() { SetEngine(CDefaultSpeechEngine()); }
+	explicit CSpeechSystem() { m_variant.emplace<CDefaultSpeechEngine>(); }
 
 	~CSpeechSystem() = default;
 
@@ -16,8 +17,6 @@ public:
 		static CSpeechSystem instance;
 		return instance;
 	}
-
-	void SetEngine(auto&& variant) { m_variant = variant; }
 
 	template <typename F> decltype(auto) WithEngine(F&& func) {
 		return std::visit(
@@ -32,8 +31,8 @@ public:
 
 	[[nodiscard]] inline auto SpeakIfHasParameter(unsigned long long parameter, auto&& on_success, auto&& on_fail)
 		-> CSpeechSystem& {
-		WithEngine([&](const auto& engine) {
-			auto info = engine.GetInfo();
+		WithEngine([&](auto& engine) {
+			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			if (info.supported_parameters & SpeechEngineParameter::SSML) {
 				engine.SetParameter(SpeechEngineParameter::SSML, true);
 				engine.Speak(on_success());
@@ -41,5 +40,30 @@ public:
 			else
 				engine.Speak(on_fail());
 		});
+		return *this;
+	}
+
+	inline auto Speak(std::string_view message, bool interrupt = true, bool ssml = false) -> CSpeechSystem& {
+		WithEngine([&](auto& engine) {
+			SSpeechEngineInfo info = engine.GetInfo().value_or({});
+			if (info.supported_parameters & SpeechEngineParameter::SSML) {
+				engine.SetParameter(SpeechEngineParameter::SSML, ssml);
+			}
+
+			if (interrupt) {
+				engine.Stop();
+				engine.Cancel();
+			}
+			engine.Speak(message);
+		});
+		return *this;
+	}
+
+	inline auto Stop() -> CSpeechSystem& {
+		WithEngine([&](auto& engine) {
+			engine.Stop();
+			engine.Cancel();
+		});
+		return *this;
 	}
 };

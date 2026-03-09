@@ -1,13 +1,16 @@
 module;
 #include <Core/EnumUtils.h>
+#include <Core/Logger.h>
 #include <cstdint>
 #include <expected>
 #include <speech-dispatcher/libspeechd.h>
+#include <string.h>
 #include <string>
 #include <string_view>
+#include <unistd.h>
 module Platforms.Linux.SpeechEngine;
 
-static constexpr const std::string_view cSpeechDispatcherClientName = "ZhoriqueSR00";
+static constexpr const std::string_view cSpeechDispatcherClientName = "screenreader";
 
 /*
 Tell me! How do I get a current voice in SPD?
@@ -42,27 +45,23 @@ If someone can do this differently and better, I would be very grateful!
 }
 
 CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
+	CScopedCategory _("SpeechDispatcher");
 	auto address = spd_get_default_address(nullptr);
 	if (address == nullptr) [[unlikely]] {
+		g_logger.Log(CLogger::ERROR, "Failed to get default address");
 		return;
 	}
 
 	m_connection =
 		spd_open2(cSpeechDispatcherClientName.data(), nullptr, nullptr, SPD_MODE_THREADED, address, true, nullptr);
 	if (m_connection == nullptr) [[unlikely]] {
+		g_logger.Log(CLogger::ERROR, "Failed to open connection");
 		return;
 	}
+
 	SPDConnectionAddress__free(address);
 	address = nullptr;
 
-	/*	m_connection->callback_begin = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
-		m_connection->callback_end = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
-		m_connection->callback_cancel = &CSpeechEngineSpeechDispatcher::SpeechNotificationCallback;
-
-		spd_set_notification_on(m_connection, SPD_BEGIN);
-		spd_set_notification_on(m_connection, SPD_END);
-		spd_set_notification_on(m_connection, SPD_CANCEL);
-	*/
 	auto index = SetVoiceIndex();
 	do_SetParameter(SpeechEngineParameter::VOICE_INDEX, index);
 }
@@ -77,9 +76,8 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	m_connection = nullptr;
 }
 
-[[nodiscard]] constexpr auto CSpeechEngineSpeechDispatcher::do_GetInfo() const
-	-> SpeechEngineResult<SSpeechEngineInfo> {
-	static constinit SSpeechEngineInfo info;
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+	SSpeechEngineInfo info;
 	info.name = "SpeechDispatcher";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
 
@@ -111,74 +109,4 @@ void CSpeechEngineSpeechDispatcher::do_Cancel() {
 		return;
 
 	spd_cancel(m_connection);
-}
-
-template <typename T>
-auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
-	if (!m_connection) [[unlikely]]
-		return std::unexpected(ESpeechEngineError::DEFUNCT);
-	using namespace SpeechEngineParameter;
-	switch (parameter) {
-	/*		case SRAL_PARAM_SYMBOL_LEVEL:
-				spd_set_punctuation(speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
-				break;
-	*/
-	case RATE:
-		spd_set_voice_rate(m_connection, value);
-		break;
-	case VOLUME:
-		spd_set_volume(m_connection, value);
-		break;
-	case SPELLING:
-		m_enableSpelling = value;
-		break;
-	case SSML:
-		if (value == m_ssml)
-			break;
-		spd_set_data_mode(m_connection, value ? SPD_DATA_SSML : SPD_DATA_TEXT);
-		m_ssml = value;
-		break;
-	case VOICE_INDEX: {
-		RefreshVoiceList();
-		if (!m_voiceList) [[unlikely]]
-			return std::unexpected(ESpeechEngineError::FAIL);
-		if (spd_set_synthesis_voice(m_connection, m_voiceList[value]->name) == 0) {
-			m_voiceIndex = value;
-			return SpeechEngineResult<>();
-		}
-		break;
-	}
-
-	[[unlikely]] default:
-		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
-	}
-	return SpeechEngineResult<>();
-}
-
-template <typename T>
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(unsigned long long parameter) const
-	-> SpeechEngineResult<T> {
-	if (!m_connection) [[unlikely]]
-		return std::unexpected(ESpeechEngineError::DEFUNCT);
-	using namespace SpeechEngineParameter;
-	switch (parameter) {
-	case RATE:
-		return spd_get_voice_rate(m_connection);
-	case VOLUME:
-		return spd_get_volume(m_connection);
-	case SPELLING:
-		return m_enableSpelling;
-	case SSML:
-		return m_ssml;
-
-	case VOICE_COUNT:
-		RefreshVoiceList();
-		return m_voiceCount;
-
-	case VOICE_INDEX:
-		return m_voiceIndex;
-
-	[[unlikely]] default:
-		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
-	}
 }

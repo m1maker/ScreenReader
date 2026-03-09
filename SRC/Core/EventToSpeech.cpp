@@ -1,7 +1,6 @@
 // Event to speech.
 module;
 #include "Logger.h"
-#include "SpeechEngine.h"
 #include "Text.h"
 #include "Utf8.h"
 
@@ -15,6 +14,7 @@ import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
 import Traits.Object;
+import Traits.SpeechEngine;
 
 /*
 This static function attempts to find a named object if the object that received the focus gain event doesn't have a
@@ -134,10 +134,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 	*/
 	auto object = m_focusManager.GetFocus();
 	if (!object.IsValid()) {
-		m_speechSystem.WithEngine([this](auto& engine) {
-			engine.Stop();
-			engine.Speak("Unknown area");
-		});
+		m_speechSystem.Speak("Unknown area");
 		return true;
 	}
 
@@ -240,10 +237,10 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
 
-	g_speechEngine.Speak(announcement, event.GetNow());
+	m_speechSystem.Speak(announcement, event.GetNow());
 	if (auto description = object_event.value().object.GetDescription()) {
 		if (!description->empty()) {
-			g_speechEngine.Speak(*description, false);
+			m_speechSystem.Speak(*description, false);
 		}
 	}
 
@@ -284,7 +281,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 	ScopedPool(pool, 256);
 	std::pmr::string announcement(&pool);
 	std::format_to(std::back_inserter(announcement), "{}", object_event.value().object.GetCurrentValue().value_or(0));
-	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
+	m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -309,7 +306,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
 	}
 
-	g_speechEngine.Speak(announcement, event.GetNow());
+	m_speechSystem.Speak(announcement, event.GetNow());
 }
 
 void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
@@ -342,8 +339,8 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	std::pmr::string announcement(&pool);
 	FindAnnouncementOfCursorPosition(announcement, object_event.value().object, granularity);
 	bool enable_spelling{false};
-	g_speechSystem.SetParameter(
-		g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
-	g_speechEngine.Speak(std::string_view(announcement), event.GetNow());
-	g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
+	// g_speechSystem.SetParameter(
+	//		g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
+	m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
+	// g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
 }

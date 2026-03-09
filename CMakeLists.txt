@@ -17,15 +17,7 @@ endif()
 project(ScreenReader VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 26)
 
-include(FetchContent)
-FetchContent_Declare(SRAL
-  GIT_REPOSITORY https://github.com/m1maker/SRAL.git
-  GIT_TAG main
-  GIT_SHALLOW ON
-  SYSTEM
-)
-set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
-#FetchContent_MakeAvailable(SRAL)
+#include(FetchContent)
 
 file(GLOB_RECURSE ALL_CXX_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
@@ -129,9 +121,5 @@ if(LINUX)
         ${BRLAPI}
     )
 endif()
-
-target_link_libraries(ScreenReader
-    SRAL_static
-)
 
 install(TARGETS ScreenReader DESTINATION bin)

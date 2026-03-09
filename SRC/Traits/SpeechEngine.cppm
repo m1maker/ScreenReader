@@ -70,11 +70,13 @@ public:
 
 	[[nodiscard]] auto Test() const -> SpeechEngineResult<> { return Impl().do_Test(); }
 
-	[[nodiscard]] constexpr auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
-		return Impl().do_GetInfo();
-	}
+	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
 
-	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> { return Impl().do_Speak(message); }
+	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
+		if (message.empty())
+			return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
+		return Impl().do_Speak(message);
+	}
 
 	void Stop() { Impl().do_Stop(); }
 	void Cancel() { Impl().do_Cancel(); }

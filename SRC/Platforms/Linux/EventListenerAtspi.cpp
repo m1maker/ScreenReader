@@ -1,7 +1,6 @@
 // AT-SPI's event listener implementation.
 module;
 #include <Core/Logger.h>
-#include <Core/SpeechEngine.h>
 #include <atspi/atspi.h>
 #include <cstdlib>
 #include <fcntl.h>
@@ -15,6 +14,7 @@ import Core.AppState;
 import Core.Event;
 import Core.EventQueue;
 import Core.KeyboardHandler;
+import Core.SpeechSystem;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
 import Traits.Object;
@@ -124,7 +124,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 				if (errno == EACCES) {
 					g_logger.Log(CLogger::INFO, "Access denied to " + dev + ". Requesting privileges...");
 
-					g_speechEngine.Speak("Please authenticate to allow keyboard intercepting.", true);
+					CSpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
 
 					if (ElevatePrivileges()) {
 						std::this_thread::sleep_for(std::chrono::milliseconds(500));
