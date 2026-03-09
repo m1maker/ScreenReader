@@ -339,6 +339,6 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	FindAnnouncementOfCursorPosition(announcement, object_event.value().object, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
 		m_speechSystem.Spell(std::string_view(announcement), event.GetNow());
-else 		m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
-
+	else
+		m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
 }

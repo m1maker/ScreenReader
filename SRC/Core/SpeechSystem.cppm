@@ -1,7 +1,7 @@
 module;
-#include <string_view>
 #include <cctype>
 #include <cstdint>
+#include <string_view>
 #include <variant>
 export module Core.SpeechSystem;
 import Core.Encoding;
@@ -65,9 +65,9 @@ public:
 	inline auto Spell(std::string_view message, bool interrupt = true, bool ssml = false) -> CSpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-/*TODOPITCH			if (info.supported_parameters & SpeechEngineParameter::SSML) {
-				engine.SetParameter(SpeechEngineParameter::SSML, ssml);
-}DOTOPITCH*/			
+			/*TODOPITCH			if (info.supported_parameters & SpeechEngineParameter::SSML) {
+							engine.SetParameter(SpeechEngineParameter::SSML, ssml);
+			}DOTOPITCH*/
 
 			if (interrupt) {
 				engine.Stop();
