@@ -337,9 +337,8 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
 	std::pmr::string announcement(&pool);
 	FindAnnouncementOfCursorPosition(announcement, object_event.value().object, granularity);
-	bool enable_spelling{false};
-	// g_speechSystem.SetParameter(
-	//		g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, granularity == ETextGranularity::CHARACTER ? true : false);
-	m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
-	// g_speechSystem.SetParameter(g_speechEngineIndex, SRAL_PARAM_ENABLE_SPELLING, false);
+	if (granularity == ETextGranularity::CHARACTER)
+		m_speechSystem.Spell(std::string_view(announcement), event.GetNow());
+else 		m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
+
 }
