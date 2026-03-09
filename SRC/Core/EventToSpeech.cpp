@@ -2,7 +2,6 @@
 module;
 #include "Logger.h"
 #include "Text.h"
-#include "Utf8.h"
 
 #include <Core/ScopedPool.h>
 #include <algorithm>

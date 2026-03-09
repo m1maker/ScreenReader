@@ -1,11 +1,15 @@
-#pragma once
+module;
+#include <cstdint>
+#include <string>
+#include <string_view>
+export module Core.Encoding;
 
-struct SUtf8Result final {
+export struct SUtf8Result final {
 	uint32_t code_point{0};
 	size_t size{0};
 };
 
-[[nodiscard]] inline auto DecodeUtf8(const char* pointer) -> SUtf8Result {
+export [[nodiscard]] inline auto DecodeUtf8(const char* pointer) -> SUtf8Result {
 	auto c = static_cast<unsigned char>(*pointer);
 	if (c < 0x80)
 		return {c, 1};
@@ -29,7 +33,7 @@ struct SUtf8Result final {
 	return {0xFFFD, 1};
 }
 
-class CUtf8Iterator final {
+export class CUtf8Iterator final {
 	const char* m_pointer{nullptr};
 
 public:
@@ -45,13 +49,15 @@ public:
 	[[nodiscard]] auto operator!=(const CUtf8Iterator& other) const -> bool { return m_pointer != other.m_pointer; }
 };
 
-class CUtf8View final {
+export class CUtf8View final {
 	const char* m_begin{nullptr};
 	const char* m_end{nullptr};
 
 public:
 	explicit CUtf8View(const char* str, size_t len) : m_begin(str), m_end(str + len) {}
 	explicit CUtf8View(const std::string& s) : m_begin(s.data()), m_end(s.data() + s.size()) {}
+	explicit CUtf8View(std::string_view s) : m_begin(s.data()), m_end(s.data() + s.size()) {}
+
 
 	[[nodiscard]] auto begin() const -> CUtf8Iterator { return CUtf8Iterator(m_begin); }
 	[[nodiscard]] auto end() const -> CUtf8Iterator { return CUtf8Iterator(m_end); }

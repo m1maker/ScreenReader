@@ -11,6 +11,7 @@ target_sources(ScreenReader
         AppState.cppm
         Config.cppm
         Device.cppm
+        Encoding.cppm
         Environment.cppm
         Event.cppm
         EventHandler.cppm
