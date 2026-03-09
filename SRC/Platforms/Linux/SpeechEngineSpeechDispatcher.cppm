@@ -1,10 +1,14 @@
 module;
 #include <Core/StaticInterface.h>
+#include <atomic>
 #include <bitset>
 #include <cstdint>
 #include <expected>
+#include <mutex>
 #include <speech-dispatcher/libspeechd.h>
+#include <stop_token>
 #include <string_view>
+#include <thread>
 export module Platforms.Linux.SpeechEngine;
 import Traits.SpeechEngine;
 
@@ -14,21 +18,27 @@ export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechE
 	bool m_ssml{false};
 
 	mutable ::SPDVoice** m_voiceList{nullptr};
-	mutable int m_voiceCount{0};
-	mutable int m_voiceIndex{0};
-	[[nodiscard]] auto SetVoiceIndex() -> int;
+	mutable std::mutex m_voiceListMutex;
+	mutable std::atomic<int> m_voiceCount{0};
+	mutable std::atomic<int> m_voiceIndex{0};
+	std::atomic<bool> m_voiceFound{false};
+	std::jthread m_voiceFinder;
+	void FindVoiceIndex();
 	inline void ClearVoiceList() const {
+		std::scoped_lock _(m_voiceListMutex);
 		if (m_voiceList) {
 			free_spd_voices(m_voiceList);
 			m_voiceList = nullptr;
 		}
-		m_voiceCount = 0;
+		m_voiceCount.store(0);
 	}
 
 	inline void RefreshVoiceList() const {
 		ClearVoiceList();
 		if (!m_connection) [[unlikely]]
 			return;
+		std::scoped_lock _(m_voiceListMutex);
+
 		m_voiceList = spd_list_synthesis_voices(m_connection);
 		if (!m_voiceList)
 			return;
@@ -95,7 +105,7 @@ auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter
 		if (!m_voiceList) [[unlikely]]
 			return std::unexpected(ESpeechEngineError::FAIL);
 		if (spd_set_synthesis_voice(m_connection, m_voiceList[value]->name) == 0) {
-			m_voiceIndex = value;
+			m_voiceIndex.store(value);
 			return SpeechEngineResult<>();
 		}
 		break;
@@ -125,10 +135,10 @@ template <typename T>
 
 	case VOICE_COUNT:
 		RefreshVoiceList();
-		return m_voiceCount;
+		return m_voiceCount.load();
 
 	case VOICE_INDEX:
-		return m_voiceIndex;
+		return m_voiceIndex.load();
 
 	[[unlikely]] default:
 		return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);

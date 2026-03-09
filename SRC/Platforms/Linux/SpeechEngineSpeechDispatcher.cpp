@@ -1,14 +1,17 @@
 module;
 #include <Core/EnumUtils.h>
-#include <Core/ScopedPool.h>
 #include <Core/Logger.h>
+#include <Core/ScopedPool.h>
+#include <atomic>
 #include <cstdint>
 #include <expected>
+#include <memory_resource>
 #include <speech-dispatcher/libspeechd.h>
+#include <stop_token>
 #include <string.h>
 #include <string>
 #include <string_view>
-#include <memory_resource>
+#include <thread>
 #include <unistd.h>
 module Platforms.Linux.SpeechEngine;
 
@@ -19,32 +22,35 @@ Tell me! How do I get a current voice in SPD?
 I couldn't find anything better than choosing the first available voice based on locale.
 If someone can do this differently and better, I would be very grateful!
 */
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::SetVoiceIndex() -> int {
-	RefreshVoiceList();
-	if (!m_voiceList || m_voiceCount == 0) [[unlikely]]
-		return 0;
+void CSpeechEngineSpeechDispatcher::FindVoiceIndex() {
+	m_voiceFinder = std::jthread([this](const std::stop_token& stop_token) {
+		RefreshVoiceList();
+		if (!m_voiceList || m_voiceCount.load() == 0) [[unlikely]]
+			return;
 
-	auto system_locale = setlocale(LC_ALL, "");
-	if (!system_locale) [[unlikely]]
-		return 0;
+		auto system_locale = setlocale(LC_ALL, "");
+		if (!system_locale) [[unlikely]]
+			return;
 
-	DefaultPool(pool);
-	std::pmr::string system_lang(system_locale, &pool);
-	system_lang = system_lang.substr(0, 5);
-	auto index = system_lang.find('_');
-	if (index != std::pmr::string::npos) [[likely]]
-		system_lang[index] = '-';
-	for (int i = 0; i < m_voiceCount; ++i) {
-		if (m_voiceList[i] && m_voiceList[i]->language) [[likely]] {
-			std::pmr::string voice_lang(m_voiceList[i]->language, &pool);
-			voice_lang = voice_lang.substr(0, 5);
-			if (voice_lang == system_lang) [[likely]] {
-				return i;
+		DefaultPool(pool);
+		std::pmr::string system_lang(system_locale, &pool);
+		system_lang = system_lang.substr(0, 5);
+		auto index = system_lang.find('_');
+		if (index != std::pmr::string::npos) [[likely]]
+			system_lang[index] = '-';
+		for (int i = 0; !stop_token.stop_requested() && i < m_voiceCount; ++i) {
+			if (m_voiceList[i] && m_voiceList[i]->language) [[likely]] {
+				std::pmr::string voice_lang(m_voiceList[i]->language, &pool);
+				voice_lang = voice_lang.substr(0, 5);
+				if (voice_lang == system_lang) [[likely]] {
+					m_voiceIndex.store(i);
+					m_voiceFound.store(true);
+					return;
+				}
 			}
 		}
-	}
-
-	return 0;
+	});
+	m_voiceFinder.detach();
 }
 
 CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
@@ -64,12 +70,11 @@ CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
 
 	SPDConnectionAddress__free(address);
 	address = nullptr;
-
-	auto index = SetVoiceIndex();
-	do_SetParameter(SpeechEngineParameter::VOICE_INDEX, index);
+	FindVoiceIndex();
 }
 
 CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
+	m_voiceFinder.request_stop();
 	ClearVoiceList();
 	m_voiceIndex = 0;
 
@@ -92,6 +97,11 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
+
+	if (m_voiceFound.load()) {
+		do_SetParameter(SpeechEngineParameter::VOICE_INDEX, m_voiceIndex.load());
+		m_voiceFound.store(false);
+	}
 
 	auto result = spd_say(m_connection, SPD_IMPORTANT, message.data());
 	if (result < 0)
