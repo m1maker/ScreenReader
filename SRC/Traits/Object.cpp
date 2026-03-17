@@ -3,7 +3,7 @@ module;
 #include <Core/ScopedPool.h>
 #include <iomanip>
 #include <sstream>
-#include <string_view>;
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>

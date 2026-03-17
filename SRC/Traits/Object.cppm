@@ -439,23 +439,38 @@ export [[nodiscard]] constexpr inline auto IsObjectFeedback(EObjectType type) ->
 }
 
 export template <typename Derived> class TTextProvider {
-BindStaticInterface(Derived) public : [[nodiscard]] auto GetCursor() const { return Impl().do_GetCursor(); }
-	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const {
-		return Impl().do_GetText(cursor, granularity);
+public:
+	[[nodiscard]] auto GetCursor(this auto&& self) -> ObjectResult<int> {
+		return std::forward<decltype(self)>(self).do_GetCursor();
 	}
-	[[nodiscard]] auto GetSelectedRanges() const { return Impl().do_GetSelectedRanges(); }
+	[[nodiscard]] auto GetText(this auto&& self, int cursor, ETextGranularity granularity)
+		-> ObjectResult<STextRange<std::string>> {
+		return std::forward<decltype(self)>(self).do_GetText(cursor, granularity);
+	}
+
+	[[nodiscard]] auto GetSelectedRanges(this auto&& self) -> ObjectResult<std::vector<STextRange<void>>> {
+		return std::forward<decltype(self)>(self).do_GetSelectedRanges();
+	}
 };
 
 export template <typename Derived> class TSelectionProvider {
-BindStaticInterface(Derived) public : [[nodiscard]] auto GetSelectedItems() const {
-		return Impl().do_GetSelectedItems();
+public:
+	[[nodiscard]] auto GetSelectedItems(this auto&& self) -> ObjectResult<std::vector<Derived>> {
+		return std::forward<decltype(self)>(self).do_GetSelectedItems();
 	}
 };
 
 export template <typename Derived> class TValueProvider {
-BindStaticInterface(Derived) public : [[nodiscard]] auto GetMinValue() const { return Impl().do_GetMinValue(); }
-	[[nodiscard]] auto GetMaxValue() const { return Impl().do_GetMaxValue(); }
-	[[nodiscard]] auto GetCurrentValue() const { return Impl().do_GetCurrentValue(); }
+public:
+	[[nodiscard]] auto GetMinValue(this auto&& self) -> ObjectResult<double> {
+		return std::forward<decltype(self)>(self).do_GetMinValue();
+	}
+	[[nodiscard]] auto GetMaxValue(this auto&& self) -> ObjectResult<double> {
+		return std::forward<decltype(self)>(self).do_GetMaxValue();
+	}
+	[[nodiscard]] auto GetCurrentValue(this auto&& self) -> ObjectResult<double> {
+		return std::forward<decltype(self)>(self).do_GetCurrentValue();
+	}
 };
 
 export template <typename Derived> class TObject {
