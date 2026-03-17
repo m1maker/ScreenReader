@@ -28,16 +28,16 @@ export class CSsmlUtterance final {
 public:
 	explicit CSsmlUtterance();
 
-	void Text(std::string_view text);
-	void Break(std::string_view time = "500ms");
+	auto Text(this auto&& self, std::string_view text);
+	auto Break(this auto&& self, std::string_view time = "500ms");
 
-	void Mark(std::string_view name);
+	auto Mark(this auto&& self, std::string_view name);
 
-	void Pitch(std::string_view pitch);
-	void Rate(std::string_view rate);
-	void Volume(std::string_view volume);
+	auto Pitch(this auto&& self, std::string_view pitch);
+	auto Rate(this auto&& self, std::string_view rate);
+	auto Volume(this auto&& self, std::string_view volume);
 
-	void Voice(std::string_view voice);
+	auto Voice(this auto&& self, std::string_view voice);
 
 	[[nodiscard]] auto ToSsml() -> std::string_view;
 	[[nodiscard]] constexpr operator std::string_view() { return ToSsml(); }

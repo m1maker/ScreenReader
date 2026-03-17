@@ -18,54 +18,61 @@ CSsmlUtterance::CSsmlUtterance()
 	m_prefixLength = m_ssmlContent.size();
 }
 
-void CSsmlUtterance::Text(std::string_view text) {
-	if (text.empty()) [[unlikely]]
-		return;
+auto CSsmlUtterance::Text(this auto&& self, std::string_view text) {
+	if (self.text.empty()) [[unlikely]]
+		return self;
 
-	StartProsodyIfNeeded();
-	m_ssmlContent += EscapeXml(text);
+	self.StartProsodyIfNeeded();
+	self.m_ssmlContent += self.EscapeXml(text);
+	return self;
 }
 
-void CSsmlUtterance::Break(std::string_view time) {
-	EndProsodyIfNeeded();
-	std::format_to(std::back_inserter(m_ssmlContent), "<break time=\"{}\"/>", time);
+auto CSsmlUtterance::Break(this auto&& self, std::string_view time) {
+	self.EndProsodyIfNeeded();
+	std::format_to(std::back_inserter(self.m_ssmlContent), "<break time=\"{}\"/>", time);
+	return self;
 }
 
-void CSsmlUtterance::Mark(std::string_view name) {
-	EndProsodyIfNeeded();
-	std::format_to(std::back_inserter(m_ssmlContent), "<mark name=\"{}\"/>", name);
+auto CSsmlUtterance::Mark(this auto&& self, std::string_view name) {
+	self.EndProsodyIfNeeded();
+	std::format_to(std::back_inserter(self.m_ssmlContent), "<mark name=\"{}\"/>", name);
+	return self;
 }
 
-void CSsmlUtterance::Pitch(std::string_view pitch) {
-	if (m_currentPitch != pitch) {
-		EndProsodyIfNeeded();
-		m_currentPitch = pitch;
+auto CSsmlUtterance::Pitch(this auto&& self, std::string_view pitch) {
+	if (self.m_currentPitch != pitch) {
+		self.EndProsodyIfNeeded();
+		self.m_currentPitch = pitch;
 	}
+	return self;
 }
 
-void CSsmlUtterance::Rate(std::string_view rate) {
-	if (m_currentRate != rate) {
-		EndProsodyIfNeeded();
-		m_currentRate = rate;
+auto CSsmlUtterance::Rate(this auto&& self, std::string_view rate) {
+	if (self.m_currentRate != rate) {
+		self.EndProsodyIfNeeded();
+		self.m_currentRate = rate;
 	}
+	return self;
 }
 
-void CSsmlUtterance::Volume(std::string_view volume) {
-	if (m_currentVolume != volume) {
-		EndProsodyIfNeeded();
-		m_currentVolume = volume;
+auto CSsmlUtterance::Volume(this auto&& self, std::string_view volume) {
+	if (self.m_currentVolume != volume) {
+		self.EndProsodyIfNeeded();
+		self.m_currentVolume = volume;
 	}
+	return self;
 }
 
-void CSsmlUtterance::Voice(std::string_view voice) {
-	EndProsodyIfNeeded();
-	if (!m_currentVoice.empty()) {
-		m_ssmlContent += "</voice>";
+auto CSsmlUtterance::Voice(this auto&& self, std::string_view voice) {
+	self.EndProsodyIfNeeded();
+	if (!self.m_currentVoice.empty()) {
+		self.m_ssmlContent += "</voice>";
 	}
-	m_currentVoice = voice;
+	self.m_currentVoice = voice;
 	if (!voice.empty()) [[likely]] {
-		std::format_to(std::back_inserter(m_ssmlContent), "<voice name=\"{}\">", EscapeXml(voice));
+		std::format_to(std::back_inserter(self.m_ssmlContent), "<voice name=\"{}\">", self.EscapeXml(voice));
 	}
+	return self;
 }
 
 [[nodiscard]] auto CSsmlUtterance::ToSsml() -> std::string_view {
