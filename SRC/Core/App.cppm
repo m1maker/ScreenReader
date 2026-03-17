@@ -3,7 +3,6 @@ module;
 #include "Environment.h"
 #include "Logger.h"
 
-#include <Version.h>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -48,10 +47,6 @@ public:
 	}
 
 	void Run() {
-		g_logger.Log(CLogger::INFO,
-			"Application",
-			"Starting " + std::string(SScreenReaderVersion::PROJECT_NAME) + " version " +
-				std::string(SScreenReaderVersion::STRING));
 		g_running.store(true);
 		CEventHandler::GetInstance().Start();
 		/*

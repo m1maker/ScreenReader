@@ -4,9 +4,17 @@ import Core.AppState;
 import Core.SpeechSystem;
 #include "Logger.h"
 
+#include <Version.h>
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
+	g_logger.Log(CLogger::INFO,
+		"Application",
+		"Starting ",
+		SScreenReaderVersion::PROJECT_NAME,
+		" version ",
+		SScreenReaderVersion::STRING);
+
 	/*
 	We log exceptions directly from main, not from CScreenReaderApp.
 
