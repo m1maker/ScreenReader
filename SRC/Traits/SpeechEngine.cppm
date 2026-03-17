@@ -1,6 +1,4 @@
 module;
-#include <Core/EnumUtils.h>
-#include <Core/StaticInterface.h>
 #include <cstdint>
 #include <expected>
 #include <string_view>
@@ -62,36 +60,39 @@ export struct SVoiceInfo final {
 export using SpeechMessage = unsigned long long;
 
 export template <typename Derived> class TSpeechEngine {
-	BindStaticInterface(Derived);
-
 public:
 	explicit TSpeechEngine() = default;
 	~TSpeechEngine() = default;
 
-	[[nodiscard]] auto Test() const -> SpeechEngineResult<> { return Impl().do_Test(); }
+	[[nodiscard]] auto Test(this auto&& self) -> SpeechEngineResult<> {
+		return std::forward<decltype(self)>(self).do_Test();
+	}
 
-	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> { return Impl().do_GetInfo(); }
+	[[nodiscard]] auto GetInfo(this auto&& self) -> SpeechEngineResult<SSpeechEngineInfo> {
+		return std::forward<decltype(self)>(self).do_GetInfo();
+	}
 
-	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
+	auto Speak(this auto&& self, std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 		if (message.empty())
 			return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
-		return Impl().do_Speak(message);
+		return std::forward<decltype(self)>(self).do_Speak(message);
 	}
 
-	void Stop() { Impl().do_Stop(); }
-	void Cancel() { Impl().do_Cancel(); }
+	void Stop(this auto&& self) { std::forward<decltype(self)>(self).do_Stop(); }
+	void Cancel(this auto&& self) { std::forward<decltype(self)>(self).do_Cancel(); }
 
-	void Pause(bool pause = true) { Impl().do_Pause(pause); }
+	void Pause(this auto&& self, bool pause = true) { std::forward<decltype(self)>(self).do_Pause(pause); }
 
-	template <typename T> auto SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
-		return Impl().do_SetParameter(parameter, value);
+	auto SetParameter(this auto&& self, unsigned long long parameter, auto&& value) -> SpeechEngineResult<> {
+		return std::forward<decltype(self)>(self).do_SetParameter(parameter, value);
 	}
 
-	template <typename T> [[nodiscard]] auto GetParameter(unsigned long long parameter) const -> SpeechEngineResult<T> {
-		return Impl().do_GetParameter(parameter);
+	template <typename Parameter>
+	[[nodiscard]] auto GetParameter(this auto&& self, unsigned long long parameter) -> SpeechEngineResult<Parameter> {
+		return std::forward<decltype(self)>(self).do_GetParameter(parameter);
 	}
 
-	[[nodiscard]] auto GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo> {
-		return Impl().do_GetVoiceInfo(index);
+	[[nodiscard]] auto GetVoiceInfo(this auto&& self, unsigned long long index) -> SpeechEngineResult<SVoiceInfo> {
+		return std::forward<decltype(self)>(self).do_GetVoiceInfo(index);
 	}
 };
