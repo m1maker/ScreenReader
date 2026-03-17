@@ -474,41 +474,60 @@ public:
 };
 
 export template <typename Derived> class TObject {
-	// static_assert(std::is_trivially_copyable_v<Derived>, "Object handles must be trivial!");
-BindStaticInterface(Derived)
-
-	protected : std::pmr::memory_resource* m_pool {
-		nullptr
-	};
+protected:
+	std::pmr::memory_resource* m_pool{nullptr};
 
 public:
 	explicit TObject(std::pmr::memory_resource* pool) : m_pool(pool) {}
 
-	[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t {
-		return Impl().do_GetSupportedInterfaces();
+	[[nodiscard]] auto GetSupportedInterfaces(this auto&& self) noexcept -> uint32_t {
+		return std::forward<decltype(self)>(self).do_GetSupportedInterfaces();
 	}
-	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> { return Impl().do_GetNativeHandle(); }
-	[[nodiscard]] auto IsValid() const noexcept -> bool { return Impl().do_IsValid(); }
 
-	[[nodiscard]] auto GetType() const { return Impl().do_GetType(); }
-	[[nodiscard]] auto IsVisible() const { return Impl().do_IsVisible(); }
-	[[nodiscard]] auto IsEnabled() const { return Impl().do_IsEnabled(); }
+	[[nodiscard]] auto GetNativeHandle(this auto&& self) noexcept -> ObjectResult<void*> {
+		return std::forward<decltype(self)>(self).do_GetNativeHandle();
+	}
+	[[nodiscard]] auto IsValid(this auto&& self) noexcept -> bool {
+		return std::forward<decltype(self)>(self).do_IsValid();
+	}
 
-	[[nodiscard]] auto GetState() const { return Impl().do_GetState(); }
-	[[nodiscard]] auto HasState(EObjectState state) const { return Impl().do_HasState(state); }
+	[[nodiscard]] auto GetType(this auto&& self) -> ObjectResult<EObjectType> {
+		return std::forward<decltype(self)>(self).do_GetType();
+	}
 
-	[[nodiscard]] auto GetParent() const -> ObjectResult<Derived> { return Impl().do_GetParent(); }
-	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<Derived>> { return Impl().do_GetChildren(); }
-	[[nodiscard]] auto GetChildrenCount() const { return Impl().do_GetChildrenCount(); }
+	[[nodiscard]] auto GetState(this auto&& self) -> ObjectResult<unsigned long long> {
+		return std::forward<decltype(self)>(self).do_GetState();
+	}
 
-	[[nodiscard]] auto GetBounds() const { return Impl().do_GetBounds(); }
-	[[nodiscard]] auto GetIndex() const { return Impl().do_GetIndex(); }
+	[[nodiscard]] auto GetParent(this auto&& self) -> ObjectResult<Derived> {
+		return std::forward<decltype(self)>(self).do_GetParent();
+	}
+	[[nodiscard]] auto GetChildren(this auto&& self) -> ObjectResult<std::vector<Derived>> {
+		return std::forward<decltype(self)>(self).do_GetChildren();
+	}
+	[[nodiscard]] auto GetChildrenCount(this auto&& self) -> ObjectResult<int> {
+		return std::forward<decltype(self)>(self).do_GetChildrenCount();
+	}
 
-	[[nodiscard]] auto GetApplicationName() const { return Impl().do_GetApplicationName(); }
-	[[nodiscard]] auto GetName() const { return Impl().do_GetName(); }
-	[[nodiscard]] auto GetDescription() const { return Impl().do_GetDescription(); }
+	[[nodiscard]] auto GetBounds(this auto&& self) -> ObjectResult<SRect> {
+		return std::forward<decltype(self)>(self).do_GetBounds();
+	}
 
-	void UpdateCacheByEvent(EObjectEventType type) { return Impl().do_UpdateCacheByEvent(type); }
+	[[nodiscard]] auto GetIndex(this auto&& self) -> ObjectResult<int> {
+		return std::forward<decltype(self)>(self).do_GetIndex();
+	}
+
+	[[nodiscard]] auto GetApplicationName(this auto&& self) -> ObjectResult<std::string> {
+		return std::forward<decltype(self)>(self).do_GetApplicationName();
+	}
+	[[nodiscard]] auto GetName(this auto&& self) -> ObjectResult<std::string> {
+		return std::forward<decltype(self)>(self).do_GetName();
+	}
+	[[nodiscard]] auto GetDescription(this auto&& self) -> ObjectResult<std::string> {
+		return std::forward<decltype(self)>(self).do_GetDescription();
+	}
+
+	void UpdateCacheByEvent(this auto&& self, EObjectEventType type) { self.do_UpdateCacheByEvent(type); }
 };
 
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
