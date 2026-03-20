@@ -8,6 +8,7 @@ export module Core.EventToSpeech;
 import Core.Environment;
 import Core.Event;
 import Core.FocusManager;
+import Core.ObjectAccessor;
 import Core.SpeechSystem;
 import Core.SsmlUtterance;
 
@@ -22,7 +23,7 @@ export class CEventToSpeech final {
 	bool m_isWhereAmIOperation{false};
 
 	CFocusManager& m_focusManager;
-	std::pmr::vector<CObject> m_contextChain;
+	std::pmr::vector<CObjectAccessor> m_contextChain;
 
 public:
 	static constexpr inline std::string_view cSeparator = "  "; // This is a separator for name, type and state.

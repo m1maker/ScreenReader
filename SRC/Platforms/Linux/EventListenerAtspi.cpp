@@ -14,6 +14,7 @@ import Core.AppState;
 import Core.Event;
 import Core.EventQueue;
 import Core.KeyboardHandler;
+import Core.ObjectAccessor;
 import Core.SpeechSystem;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
@@ -93,9 +94,10 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	object_event.object =
+	auto object =
 		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
-	object_event.object.UpdateCacheByEvent(type);
+	object.UpdateCacheByEvent(type);
+	object_event.object = CObjectAccessor(object);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
 	turn.

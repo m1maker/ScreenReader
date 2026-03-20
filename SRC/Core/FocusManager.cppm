@@ -6,15 +6,14 @@ module;
 #include <vector>
 export module Core.FocusManager;
 import Core.Environment;
+import Core.ObjectAccessor;
 import Traits.Object;
 
 export class CFocusManager final {
-	DeclareSingleton(CFocusManager);
-
 	std::pmr::unsynchronized_pool_resource m_pool;
 
-	CObject m_objectInFocus;
-	std::pmr::vector<CObject> m_contextChain;
+	CObjectAccessor m_objectInFocus;
+	std::pmr::vector<CObjectAccessor> m_contextChain;
 
 	void UpdateContextChain() {
 		LogCalled();
@@ -22,15 +21,15 @@ export class CFocusManager final {
 		if (!m_objectInFocus.IsValid())
 			return;
 
-		auto current = m_objectInFocus.GetParent().value_or(CObject());
-		while (current.IsValid()) {
-			m_contextChain.push_back(current);
+		auto current = m_objectInFocus.GetParent();
+		while (current && current->IsValid()) {
+			m_contextChain.push_back(*current);
 
-			auto type = current.GetType().value_or(EObjectType::UNKNOWN);
+			auto type = current->GetType().value_or(EObjectType::UNKNOWN);
 			if (IsObjectParent(type)) {
 				break;
 			}
-			current = current.GetParent().value_or(CObject());
+			current = current->GetParent();
 		}
 	}
 
@@ -43,7 +42,7 @@ public:
 		return instance;
 	}
 
-	void SetFocus(CObject obj) {
+	void SetFocus(auto&& obj) {
 		if (!obj.IsValid() || m_objectInFocus == obj)
 			return;
 
@@ -51,7 +50,7 @@ public:
 		UpdateContextChain();
 	}
 
-	[[nodiscard]] auto GetContext() const -> const std::pmr::vector<CObject> { return m_contextChain; }
+	[[nodiscard]] auto GetContext() const { return m_contextChain; }
 
-	[[nodiscard]] auto GetFocus() const -> CObject { return m_objectInFocus; }
+	[[nodiscard]] auto GetFocus() const { return m_objectInFocus; }
 };

@@ -9,6 +9,7 @@ module;
 #include <vector>
 export module Core.Event;
 import Core.Environment;
+import Core.ObjectAccessor;
 import Traits.Object;
 
 /*
@@ -18,7 +19,7 @@ Events such as changes to an object's focus, state, name, description, value, et
 export class CObjectEvent final {
 public:
 	EObjectEventType type;
-	CObject object;
+	CObjectAccessor object;
 };
 
 /*

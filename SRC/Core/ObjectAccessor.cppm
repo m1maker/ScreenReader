@@ -12,8 +12,8 @@ template <typename Variant> class CVariantAccessor {
 	Variant m_variant;
 
 protected:
+	CVariantAccessor() = default;
 	explicit CVariantAccessor(Variant variant) : m_variant(variant) {}
-	~CVariantAccessor() = default;
 
 public:
 	template <typename Result = void> auto With(auto&& func) const /*final*/ -> ObjectResult<Result> {
@@ -28,10 +28,30 @@ public:
 			},
 			m_variant);
 	}
+
+	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(m_variant); }
+
+	bool IsValid() const {
+		auto valid = std::visit(
+			[&](auto&& obj) -> bool {
+				using T = std::decay_t<decltype(obj)>;
+				if constexpr (!std::is_same_v<T, std::monostate>) {
+					if constexpr (std::is_same_v<Variant, ObjectVariant>)
+						return obj.IsValid();
+					return true;
+				}
+				else
+					return false;
+			},
+			m_variant);
+		return valid;
+	}
+	[[nodiscard]] auto operator==(const CVariantAccessor& other) const -> bool { return m_variant == other.m_variant; }
 };
 
 export class CObjectAccessor final : public CVariantAccessor<ObjectVariant> {
 public:
+	CObjectAccessor() = default;
 	explicit CObjectAccessor(ObjectVariant object) : CVariantAccessor(object) {}
 	~CObjectAccessor() = default;
 

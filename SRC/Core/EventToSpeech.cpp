@@ -11,6 +11,7 @@ module Core.EventToSpeech;
 import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.ObjectAccessor;
 import Core.Text;
 import Traits.Object;
 import Traits.SpeechEngine;
@@ -21,13 +22,13 @@ name. For example, Mate system info has list items, which also contain a bunch o
 in there are information labels.
 */
 static void FindAnnouncementInHierarchy(
-	std::pmr::string& out, CObject obj, bool recursive = true, bool collect_all_labels = true) {
+	std::pmr::string& out, CObjectAccessor obj, bool recursive = true, bool collect_all_labels = true) {
 	if (!obj.IsValid())
 		return;
 
 	DefaultPool(pool);
 
-	auto collect_labels_recursive = [&](auto& self, CObject current) -> void {
+	auto collect_labels_recursive = [&](auto& self, CObjectAccessor current) -> void {
 		if (!current.IsValid())
 			return;
 
@@ -41,9 +42,11 @@ static void FindAnnouncementInHierarchy(
 			}
 		}
 
-		if (auto children_res = current.GetChildren()) {
-			for (const auto child : *children_res) {
-				self(self, child);
+		if (auto children_count = current.GetChildrenCount()) {
+			for (auto i = 0; i < *children_count; ++i) {
+				auto child = current.GetChildAt(i);
+				if (child)
+					self(self, *child);
 			}
 		}
 	};
@@ -61,8 +64,8 @@ static void FindAnnouncementInHierarchy(
 		out += announcement;
 		return;
 	}
-
-	if (auto text = obj.GetText(obj.GetCursor().value_or(0), ETextGranularity::LINE)) {
+	auto text_provider = obj.GetAs<CTextProviderAccessor>();
+	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		announcement = text->text;
 		if (!announcement.empty()) {
 			out += announcement;
@@ -70,9 +73,10 @@ static void FindAnnouncementInHierarchy(
 	}
 
 	if (recursive) {
-		if (auto children = obj.GetChildren()) {
-			for (const auto child : *children) {
-				FindAnnouncementInHierarchy(out, child, true, collect_all_labels);
+		if (auto children_count = obj.GetChildrenCount()) {
+			for (auto i = 0; i < *children_count; ++i) {
+				if (auto child = obj.GetChildAt(i))
+					FindAnnouncementInHierarchy(out, *child, true, collect_all_labels);
 			}
 		}
 	}
@@ -82,13 +86,11 @@ static void FindAnnouncementInHierarchy(
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj, ETextGranularity& granularity) {
-	if (!obj.IsValid())
-		return;
-
+static void FindAnnouncementOfCursorPosition(
+	std::pmr::string& out, CTextProviderAccessor provider, ETextGranularity& granularity) {
 	LogCalled();
 
-	auto current_cursor = obj.GetCursor();
+	auto current_cursor = provider.GetCursor();
 	if (!current_cursor) {
 		g_logger.Log(CLogger::ERROR, std::string(ObjectErrorToString(current_cursor.error())));
 		return;
@@ -114,7 +116,7 @@ static void FindAnnouncementOfCursorPosition(std::pmr::string& out, CObject obj,
 	else
 		granularity = ETextGranularity::LINE;
 
-	if (auto keys_range = obj.GetText(current_cursor.value_or(0), granularity)) {
+	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
 		out += keys_range->text;
 	}
 }
@@ -220,10 +222,10 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 		if (!settings.read_list_item_count)
 			break;
 		auto index = object_event.value().object.GetIndex().value_or(0) + 1;
-		auto parent = object_event.value().object.GetParent().value_or(CObject());
-		if (!parent.IsValid())
+		auto parent = object_event.value().object.GetParent();
+		if (!parent || !parent->IsValid())
 			break;
-		auto children_count = parent.GetChildrenCount().value_or(0);
+		auto children_count = parent->GetChildrenCount().value_or(0);
 		std::format_to(std::back_inserter(announcement), "{}{} of {}", cSeparator, index, children_count);
 		break;
 	}
@@ -277,9 +279,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		m_focusManager.GetFocus() != object_event.value().object)
 		return;
 
+	auto value_provider = object_event.value().object.GetAs<CValueProviderAccessor>();
 	ScopedPool(pool, 256);
 	std::pmr::string announcement(&pool);
-	std::format_to(std::back_inserter(announcement), "{}", object_event.value().object.GetCurrentValue().value_or(0));
+	std::format_to(std::back_inserter(announcement), "{}", value_provider.GetCurrent().value_or(0));
 	m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
 }
 
@@ -328,7 +331,8 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	LogCalled();
 	// if (g_focusManager.GetFocus() != object_event.value().object) return;
 
-	auto cursor = object_event.value().object.GetCursor();
+	auto text_provider = object_event.value().object.GetAs<CTextProviderAccessor>();
+	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
 		return;
 	}
@@ -336,7 +340,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	DefaultPool(pool);
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
 	std::pmr::string announcement(&pool);
-	FindAnnouncementOfCursorPosition(announcement, object_event.value().object, granularity);
+	FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
 		m_speechSystem.Spell(std::string_view(announcement), event.GetNow());
 	else
