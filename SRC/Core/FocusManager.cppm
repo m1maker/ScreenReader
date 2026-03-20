@@ -6,8 +6,8 @@ module;
 #include <vector>
 export module Core.FocusManager;
 import Core.Environment;
+import Core.Object;
 import Core.ObjectAccessor;
-import Traits.Object;
 
 export class CFocusManager final {
 	std::pmr::unsynchronized_pool_resource m_pool;

@@ -7,7 +7,7 @@ module;
 #include <type_traits>
 #include <utility>
 #include <vector>
-module Traits.Object;
+module Core.Object;
 
 /*
 Just convert types and states to strings.

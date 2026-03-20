@@ -1,8 +1,5 @@
-// Object trait.
 module;
-#include <Core/Cache.h>
 #include <Core/EnumUtils.h>
-#include <Core/StaticInterface.h>
 #include <expected>
 #include <map>
 #include <memory>
@@ -11,7 +8,7 @@ module;
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-export module Traits.Object;
+export module Core.Object;
 import Core.Rect;
 import Core.Text;
 import Traits.RefCountedObject;
@@ -437,102 +434,6 @@ export [[nodiscard]] constexpr inline auto IsObjectFeedback(EObjectType type) ->
 		return false;
 	}
 }
-
-export template <typename Derived> class TTextProvider {
-public:
-	[[nodiscard]] auto GetCursor(this auto&& self) -> ObjectResult<int> {
-		return std::forward<decltype(self)>(self).do_GetCursor();
-	}
-	[[nodiscard]] auto GetText(this auto&& self, int cursor, ETextGranularity granularity)
-		-> ObjectResult<STextRange<std::string>> {
-		return std::forward<decltype(self)>(self).do_GetText(cursor, granularity);
-	}
-
-	[[nodiscard, deprecated]] auto GetSelectedRanges(this auto&& self) -> ObjectResult<std::vector<STextRange<void>>> {
-		return std::forward<decltype(self)>(self).do_GetSelectedRanges();
-	}
-};
-
-export template <typename Derived> class TSelectionProvider {
-public:
-	[[nodiscard, deprecated]] auto GetSelectedItems(this auto&& self) -> ObjectResult<std::vector<Derived>> {
-		return std::forward<decltype(self)>(self).do_GetSelectedItems();
-	}
-};
-
-export template <typename Derived> class TValueProvider {
-public:
-	[[nodiscard]] auto GetMinValue(this auto&& self) -> ObjectResult<double> {
-		return std::forward<decltype(self)>(self).do_GetMinValue();
-	}
-	[[nodiscard]] auto GetMaxValue(this auto&& self) -> ObjectResult<double> {
-		return std::forward<decltype(self)>(self).do_GetMaxValue();
-	}
-	[[nodiscard]] auto GetCurrentValue(this auto&& self) -> ObjectResult<double> {
-		return std::forward<decltype(self)>(self).do_GetCurrentValue();
-	}
-};
-
-export template <typename Derived> class TObject {
-protected:
-	std::pmr::memory_resource* m_pool{nullptr};
-
-public:
-	explicit TObject(std::pmr::memory_resource* pool) : m_pool(pool) {}
-
-	[[nodiscard]] auto GetSupportedInterfaces(this auto&& self) noexcept -> uint32_t {
-		return std::forward<decltype(self)>(self).do_GetSupportedInterfaces();
-	}
-
-	[[nodiscard]] auto GetNativeHandle(this auto&& self) noexcept -> ObjectResult<void*> {
-		return std::forward<decltype(self)>(self).do_GetNativeHandle();
-	}
-	[[nodiscard]] auto IsValid(this auto&& self) noexcept -> bool {
-		return std::forward<decltype(self)>(self).do_IsValid();
-	}
-
-	[[nodiscard]] auto GetType(this auto&& self) -> ObjectResult<EObjectType> {
-		return std::forward<decltype(self)>(self).do_GetType();
-	}
-
-	[[nodiscard]] auto GetState(this auto&& self) -> ObjectResult<unsigned long long> {
-		return std::forward<decltype(self)>(self).do_GetState();
-	}
-
-	[[nodiscard]] auto GetParent(this auto&& self) -> ObjectResult<Derived> {
-		return std::forward<decltype(self)>(self).do_GetParent();
-	}
-	[[nodiscard, deprecated]] auto GetChildren(this auto&& self) -> ObjectResult<std::vector<Derived>> {
-		return std::forward<decltype(self)>(self).do_GetChildren();
-	}
-	[[nodiscard]] auto GetChildAt(this auto&& self, int index) -> ObjectResult<Derived> {
-		return std::forward<decltype(self)>(self).do_GetChildAt(index);
-	}
-
-	[[nodiscard]] auto GetChildrenCount(this auto&& self) -> ObjectResult<int> {
-		return std::forward<decltype(self)>(self).do_GetChildrenCount();
-	}
-
-	[[nodiscard]] auto GetBounds(this auto&& self) -> ObjectResult<SRect> {
-		return std::forward<decltype(self)>(self).do_GetBounds();
-	}
-
-	[[nodiscard]] auto GetIndex(this auto&& self) -> ObjectResult<int> {
-		return std::forward<decltype(self)>(self).do_GetIndex();
-	}
-
-	[[nodiscard]] auto GetApplicationName(this auto&& self) -> ObjectResult<std::string> {
-		return std::forward<decltype(self)>(self).do_GetApplicationName();
-	}
-	[[nodiscard]] auto GetName(this auto&& self) -> ObjectResult<std::string> {
-		return std::forward<decltype(self)>(self).do_GetName();
-	}
-	[[nodiscard]] auto GetDescription(this auto&& self) -> ObjectResult<std::string> {
-		return std::forward<decltype(self)>(self).do_GetDescription();
-	}
-
-	void UpdateCacheByEvent(this auto&& self, EObjectEventType type) { self.do_UpdateCacheByEvent(type); }
-};
 
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
 	std::pmr::unsynchronized_pool_resource m_pool;

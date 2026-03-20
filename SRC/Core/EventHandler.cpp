@@ -11,8 +11,8 @@ import Core.AppState;
 import Core.Device;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.Object;
 import Core.SpeechSystem;
-import Traits.Object;
 
 CEventHandler::CEventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),

@@ -4,6 +4,7 @@ target_sources(ScreenReader
         EventToSpeech.cpp
         KeyboardHandler.cpp
         main.cpp
+        Object.cpp
         SsmlUtterance.cpp
     PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}" FILES
         Action.cppm
@@ -19,6 +20,7 @@ target_sources(ScreenReader
         EventToSpeech.cppm
         FocusManager.cppm
         KeyboardHandler.cppm
+        Object.cppm
         ObjectAccessor.cppm
         PlatformError.cppm
        Rect.cppm

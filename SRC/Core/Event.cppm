@@ -9,8 +9,8 @@ module;
 #include <vector>
 export module Core.Event;
 import Core.Environment;
+import Core.Object;
 import Core.ObjectAccessor;
-import Traits.Object;
 
 /*
 The object event category.

@@ -11,9 +11,9 @@ module Core.EventToSpeech;
 import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.Object;
 import Core.ObjectAccessor;
 import Core.Text;
-import Traits.Object;
 import Traits.SpeechEngine;
 
 /*

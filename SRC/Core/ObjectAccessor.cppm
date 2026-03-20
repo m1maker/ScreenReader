@@ -4,9 +4,9 @@ module;
 #include <variant>
 export module Core.ObjectAccessor;
 import Core.Environment;
+import Core.Object;
 import Core.Rect;
 import Core.Text;
-import Traits.Object;
 
 template <typename Variant> class CVariantAccessor {
 	Variant m_variant;

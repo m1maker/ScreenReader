@@ -8,9 +8,9 @@ module;
 #include <string>
 #include <utility>
 export module Platforms.Linux.Object;
+import Core.Object;
 import Core.Rect;
 import Core.Text;
-import Traits.Object;
 import Traits.RefCountedObject;
 
 template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_convertible_v<T*, GObject*>>> final {
@@ -379,10 +379,8 @@ export template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-export class CObjectAtspi final : public TObject<CObjectAtspi>,
-								  public TTextProvider<CObjectAtspi>,
-								  public TSelectionProvider<CObjectAtspi>,
-								  public TValueProvider<CObjectAtspi> {
+export class CObjectAtspi final {
+	std::pmr::memory_resource* m_pool{nullptr};
 	friend class CObjectCache<AtspiAccessible, struct SObjectAtspiData>;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
@@ -390,51 +388,51 @@ export class CObjectAtspi final : public TObject<CObjectAtspi>,
 	mutable struct SObjectAtspiData* m_data{nullptr};
 
 public:
-	CObjectAtspi() : TObject(nullptr) {}
+	CObjectAtspi() = default;
 	explicit CObjectAtspi(AtspiAccessible* accessible, struct SObjectAtspiData* data, std::pmr::memory_resource* pool);
 
 	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
-	//[[nodiscard]] auto do_GetSupportedInterfaces() const noexcept -> uint32_t ;
+	//[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t ;
 
-	[[nodiscard]] auto do_GetNativeHandle() const noexcept -> ObjectResult<void*> {
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> {
 		return reinterpret_cast<void*>(m_accessible);
 	}
 
-	[[nodiscard]] inline auto do_IsValid() const noexcept -> bool {
+	[[nodiscard]] inline auto IsValid() const noexcept -> bool {
 		return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr;
 	}
 
-	[[nodiscard]] auto do_GetType() const -> ObjectResult<EObjectType>;
+	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType>;
 
-	[[nodiscard]] auto do_GetState() const -> ObjectResult<unsigned long long>;
+	[[nodiscard]] auto GetState() const -> ObjectResult<unsigned long long>;
 
-	[[nodiscard]] auto do_GetParent() const -> ObjectResult<CObjectAtspi>;
-	[[nodiscard]] auto do_GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
-	[[nodiscard]] auto do_GetChildAt(int index) const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto GetParent() const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
+	[[nodiscard]] auto GetChildAt(int index) const -> ObjectResult<CObjectAtspi>;
 
-	[[nodiscard]] auto do_GetChildrenCount() const -> ObjectResult<int>;
+	[[nodiscard]] auto GetChildrenCount() const -> ObjectResult<int>;
 
-	[[nodiscard]] auto do_GetBounds() const -> ObjectResult<SRect>;
+	[[nodiscard]] auto GetBounds() const -> ObjectResult<SRect>;
 
-	[[nodiscard]] auto do_GetIndex() const -> ObjectResult<int>;
+	[[nodiscard]] auto GetIndex() const -> ObjectResult<int>;
 
-	[[nodiscard]] auto do_GetApplicationName() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto GetApplicationName() const -> ObjectResult<std::string>;
 
-	[[nodiscard]] auto do_GetName() const -> ObjectResult<std::string>;
-	[[nodiscard]] auto do_GetDescription() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto GetName() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string>;
 
-	void do_UpdateCacheByEvent(EObjectEventType event);
+	void UpdateCacheByEvent(EObjectEventType event);
 
-	[[nodiscard]] auto do_GetCursor() const -> ObjectResult<int>;
-	[[nodiscard]] auto do_GetText(int cursor, const ETextGranularity& granularity) const
+	[[nodiscard]] auto GetCursor() const -> ObjectResult<int>;
+	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const
 		-> ObjectResult<STextRange<std::string>>;
-	[[nodiscard]] auto do_GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
-	[[nodiscard]] auto do_GetSelectedItems() const -> ObjectResult<std::vector<CObjectAtspi>>;
+	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
+	[[nodiscard]] auto GetSelectedItems() const -> ObjectResult<std::vector<CObjectAtspi>>;
 
-	[[nodiscard]] auto do_GetMinValue() const -> ObjectResult<double>;
-	[[nodiscard]] auto do_GetMaxValue() const -> ObjectResult<double>;
-	[[nodiscard]] auto do_GetCurrentValue() const -> ObjectResult<double>;
+	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double>;
+	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double>;
+	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double>;
 };
 
 export struct SObjectAtspiData final {

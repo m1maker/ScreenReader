@@ -14,11 +14,11 @@ import Core.AppState;
 import Core.Event;
 import Core.EventQueue;
 import Core.KeyboardHandler;
+import Core.Object;
 import Core.ObjectAccessor;
 import Core.SpeechSystem;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
-import Traits.Object;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
