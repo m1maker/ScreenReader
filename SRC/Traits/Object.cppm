@@ -448,14 +448,14 @@ public:
 		return std::forward<decltype(self)>(self).do_GetText(cursor, granularity);
 	}
 
-	[[nodiscard]] auto GetSelectedRanges(this auto&& self) -> ObjectResult<std::vector<STextRange<void>>> {
+	[[nodiscard, deprecated]] auto GetSelectedRanges(this auto&& self) -> ObjectResult<std::vector<STextRange<void>>> {
 		return std::forward<decltype(self)>(self).do_GetSelectedRanges();
 	}
 };
 
 export template <typename Derived> class TSelectionProvider {
 public:
-	[[nodiscard]] auto GetSelectedItems(this auto&& self) -> ObjectResult<std::vector<Derived>> {
+	[[nodiscard, deprecated]] auto GetSelectedItems(this auto&& self) -> ObjectResult<std::vector<Derived>> {
 		return std::forward<decltype(self)>(self).do_GetSelectedItems();
 	}
 };
