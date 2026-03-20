@@ -93,3 +93,19 @@ public:
 			[cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
 	}
 };
+
+export class CValueProviderAccessor final : public CVariantAccessor<ValueProviderVariant> {
+public:
+	explicit CValueProviderAccessor(ValueProviderVariant provider) : CVariantAccessor(provider) {}
+	~CValueProviderAccessor() = default;
+
+	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
+		return With<double>([](auto&& obj) { return obj.GetMinValue(); });
+	}
+	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> {
+		return With<double>([](auto&& obj) { return obj.GetMaxValue(); });
+	}
+	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
+		return With<double>([](auto&& obj) { return obj.GetCurrentValue(); });
+	}
+};
