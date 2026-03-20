@@ -1,7 +1,6 @@
 // Event to speech.
 module;
 #include "Logger.h"
-#include "Text.h"
 
 #include <Core/ScopedPool.h>
 #include <algorithm>
@@ -12,6 +11,7 @@ module Core.EventToSpeech;
 import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.Text;
 import Traits.Object;
 import Traits.SpeechEngine;
 

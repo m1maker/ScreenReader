@@ -1,14 +1,15 @@
 // AT-SPI object implementation and some inlines.
 module;
 #include <Core/Cache.h>
-#include <Core/Text.h>
 #include <atspi/atspi.h>
 #include <expected>
 #include <map>
 #include <mutex>
+#include <string>
 #include <utility>
 export module Platforms.Linux.Object;
 import Core.Rect;
+import Core.Text;
 import Traits.Object;
 import Traits.RefCountedObject;
 

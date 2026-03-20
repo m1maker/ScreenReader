@@ -3,7 +3,6 @@ module;
 #include <Core/Cache.h>
 #include <Core/EnumUtils.h>
 #include <Core/StaticInterface.h>
-#include <Core/Text.h>
 #include <expected>
 #include <map>
 #include <memory>
@@ -14,6 +13,7 @@ module;
 #include <vector>
 export module Traits.Object;
 import Core.Rect;
+import Core.Text;
 import Traits.RefCountedObject;
 
 export enum class EObjectInterfaceMask : uint32_t {

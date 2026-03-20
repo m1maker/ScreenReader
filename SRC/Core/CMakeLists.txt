@@ -24,6 +24,7 @@ target_sources(ScreenReader
        Rect.cppm
         SpeechSystem.cppm
         SsmlUtterance.cppm
+        Text.cppm
         Timer.cppm
         UnicodeData.cppm
 )

@@ -5,6 +5,7 @@ module;
 export module Core.ObjectAccessor;
 import Core.Environment;
 import Core.Rect;
+import Core.Text;
 import Traits.Object;
 
 template <typename Variant> class CVariantAccessor {
@@ -75,5 +76,20 @@ public:
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string> {
 		return With<std::string>([](auto&& obj) { return obj.GetDescription(); });
+	}
+};
+
+export class CTextProviderAccessor final : public CVariantAccessor<TextProviderVariant> {
+public:
+	explicit CTextProviderAccessor(TextProviderVariant provider) : CVariantAccessor(provider) {}
+	~CTextProviderAccessor() = default;
+
+	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
+		return With<int>([](auto&& obj) { return obj.GetCursor(); });
+	}
+	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const
+		-> ObjectResult<STextRange<std::string>> {
+		return With<STextRange<std::string>>(
+			[cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
 	}
 };

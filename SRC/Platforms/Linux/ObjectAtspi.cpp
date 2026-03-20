@@ -2,13 +2,13 @@
 module;
 #include <Core/Cache.h>
 #include <Core/Defer.h>
-#include <Core/Text.h>
 #include <atspi/atspi.h>
 #include <expected>
 #include <string>
 #include <utility>
 module Platforms.Linux.Object;
 import Core.Rect;
+import Core.Text;
 
 CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, std::pmr::memory_resource* pool)
 	: m_accessible(accessible), m_data(data), TObject(pool) {
