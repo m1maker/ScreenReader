@@ -15,10 +15,10 @@ import Core.Event;
 import Core.EventQueue;
 import Core.KeyboardHandler;
 import Core.Object;
-import Core.ObjectAccessor;
 import Core.SpeechSystem;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
+import Proxies.Object;
 
 /*
 We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
@@ -97,7 +97,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	auto object =
 		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object.UpdateCacheByEvent(type);
-	object_event.object = CObjectAccessor(object);
+	object_event.object = CObjectProxy(object);
 	/*
 	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
 	turn.

@@ -12,8 +12,8 @@ import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
 import Core.Object;
-import Core.ObjectAccessor;
 import Core.Text;
+import Proxies.Object;
 import Traits.SpeechEngine;
 
 /*
@@ -22,13 +22,13 @@ name. For example, Mate system info has list items, which also contain a bunch o
 in there are information labels.
 */
 static void FindAnnouncementInHierarchy(
-	std::pmr::string& out, CObjectAccessor obj, bool recursive = true, bool collect_all_labels = true) {
+	std::pmr::string& out, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true) {
 	if (!obj.IsValid())
 		return;
 
 	DefaultPool(pool);
 
-	auto collect_labels_recursive = [&](auto& self, CObjectAccessor current) -> void {
+	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
 		if (!current.IsValid())
 			return;
 
@@ -64,7 +64,7 @@ static void FindAnnouncementInHierarchy(
 		out += announcement;
 		return;
 	}
-	auto text_provider = obj.GetAs<CTextProviderAccessor>();
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		announcement = text->text;
 		if (!announcement.empty()) {
@@ -87,7 +87,7 @@ This static function tries to determine where the cursor has moved and returns a
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
 static void FindAnnouncementOfCursorPosition(
-	std::pmr::string& out, CTextProviderAccessor provider, ETextGranularity& granularity) {
+	std::pmr::string& out, CTextProviderProxy provider, ETextGranularity& granularity) {
 	LogCalled();
 
 	auto current_cursor = provider.GetCursor();
@@ -279,7 +279,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		m_focusManager.GetFocus() != object_event.value().object)
 		return;
 
-	auto value_provider = object_event.value().object.GetAs<CValueProviderAccessor>();
+	auto value_provider = object_event.value().object.GetAs<CValueProviderProxy>();
 	ScopedPool(pool, 256);
 	std::pmr::string announcement(&pool);
 	std::format_to(std::back_inserter(announcement), "{}", value_provider.GetCurrent().value_or(0));
@@ -331,7 +331,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	LogCalled();
 	// if (g_focusManager.GetFocus() != object_event.value().object) return;
 
-	auto text_provider = object_event.value().object.GetAs<CTextProviderAccessor>();
+	auto text_provider = object_event.value().object.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
 		return;

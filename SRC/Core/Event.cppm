@@ -10,7 +10,7 @@ module;
 export module Core.Event;
 import Core.Environment;
 import Core.Object;
-import Core.ObjectAccessor;
+import Proxies.Object;
 
 /*
 The object event category.
@@ -19,7 +19,7 @@ Events such as changes to an object's focus, state, name, description, value, et
 export class CObjectEvent final {
 public:
 	EObjectEventType type;
-	CObjectAccessor object;
+	CObjectProxy object;
 };
 
 /*

@@ -7,13 +7,13 @@ module;
 export module Core.FocusManager;
 import Core.Environment;
 import Core.Object;
-import Core.ObjectAccessor;
+import Proxies.Object;
 
 export class CFocusManager final {
 	std::pmr::unsynchronized_pool_resource m_pool;
 
-	CObjectAccessor m_objectInFocus;
-	std::pmr::vector<CObjectAccessor> m_contextChain;
+	CObjectProxy m_objectInFocus;
+	std::pmr::vector<CObjectProxy> m_contextChain;
 
 	void UpdateContextChain() {
 		LogCalled();

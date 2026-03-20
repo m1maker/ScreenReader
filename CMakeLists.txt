@@ -92,6 +92,7 @@ endif()
 add_executable(ScreenReader)
 
 add_subdirectory(SRC/Core)
+add_subdirectory(SRC/Proxies)
 add_subdirectory(SRC/Traits)
 
 if(WIN32)

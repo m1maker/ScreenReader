@@ -21,7 +21,6 @@ target_sources(ScreenReader
         FocusManager.cppm
         KeyboardHandler.cppm
         Object.cppm
-        ObjectAccessor.cppm
         PlatformError.cppm
        Rect.cppm
         SpeechSystem.cppm

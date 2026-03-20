@@ -2,18 +2,18 @@ module;
 #include <expected>
 #include <string_view>
 #include <variant>
-export module Core.ObjectAccessor;
+export module Proxies.Object;
 import Core.Environment;
 import Core.Object;
 import Core.Rect;
 import Core.Text;
 
-template <typename Variant> class CVariantAccessor {
+template <typename Variant> class CUnknownProxy {
 	Variant m_variant;
 
 protected:
-	CVariantAccessor() = default;
-	explicit CVariantAccessor(Variant variant) : m_variant(variant) {}
+	CUnknownProxy() = default;
+	explicit CUnknownProxy(Variant variant) : m_variant(variant) {}
 
 public:
 	template <typename Result = void> auto With(auto&& func) const /*final*/ -> ObjectResult<Result> {
@@ -46,14 +46,14 @@ public:
 			m_variant);
 		return valid;
 	}
-	[[nodiscard]] auto operator==(const CVariantAccessor& other) const -> bool { return m_variant == other.m_variant; }
+	[[nodiscard]] auto operator==(const CUnknownProxy& other) const -> bool { return m_variant == other.m_variant; }
 };
 
-export class CObjectAccessor final : public CVariantAccessor<ObjectVariant> {
+export class CObjectProxy final : public CUnknownProxy<ObjectVariant> {
 public:
-	CObjectAccessor() = default;
-	explicit CObjectAccessor(ObjectVariant object) : CVariantAccessor(object) {}
-	~CObjectAccessor() = default;
+	CObjectProxy() = default;
+	explicit CObjectProxy(ObjectVariant object) : CUnknownProxy(object) {}
+	~CObjectProxy() = default;
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
 		return With<EObjectType>([](auto&& obj) { return obj.GetType(); });
@@ -62,22 +62,22 @@ public:
 		return With<unsigned long long>([](auto&& obj) { return obj.GetState(); });
 	}
 
-	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectAccessor> {
+	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
 		ObjectResult<ObjectVariant> variant =
 			With<ObjectVariant>([](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetParent(); });
 		if (variant)
-			return ObjectResult<CObjectAccessor>(variant.value());
+			return ObjectResult<CObjectProxy>(variant.value());
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetChildrenCount(); });
 	}
 
-	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectAccessor> {
+	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
 		ObjectResult<ObjectVariant> variant =
 			With<ObjectVariant>([index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetChildAt(index); });
 		if (variant)
-			return ObjectResult<CObjectAccessor>(variant.value());
+			return ObjectResult<CObjectProxy>(variant.value());
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
@@ -99,10 +99,10 @@ public:
 	}
 };
 
-export class CTextProviderAccessor final : public CVariantAccessor<TextProviderVariant> {
+export class CTextProviderProxy final : public CUnknownProxy<TextProviderVariant> {
 public:
-	explicit CTextProviderAccessor(TextProviderVariant provider) : CVariantAccessor(provider) {}
-	~CTextProviderAccessor() = default;
+	explicit CTextProviderProxy(TextProviderVariant provider) : CUnknownProxy(provider) {}
+	~CTextProviderProxy() = default;
 
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetCursor(); });
@@ -114,10 +114,10 @@ public:
 	}
 };
 
-export class CValueProviderAccessor final : public CVariantAccessor<ValueProviderVariant> {
+export class CValueProviderProxy final : public CUnknownProxy<ValueProviderVariant> {
 public:
-	explicit CValueProviderAccessor(ValueProviderVariant provider) : CVariantAccessor(provider) {}
-	~CValueProviderAccessor() = default;
+	explicit CValueProviderProxy(ValueProviderVariant provider) : CUnknownProxy(provider) {}
+	~CValueProviderProxy() = default;
 
 	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
 		return With<double>([](auto&& obj) { return obj.GetMinValue(); });
