@@ -2,13 +2,13 @@
 module;
 #include <Core/Cache.h>
 #include <Core/Defer.h>
-#include <Core/Rect.h>
 #include <Core/Text.h>
 #include <atspi/atspi.h>
 #include <expected>
 #include <string>
 #include <utility>
 module Platforms.Linux.Object;
+import Core.Rect;
 
 CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, std::pmr::memory_resource* pool)
 	: m_accessible(accessible), m_data(data), TObject(pool) {
@@ -114,6 +114,21 @@ void CObjectAtspi::do_UpdateCacheByEvent(EObjectEventType event) {
 	CacheReturnTransformed(children, children_to_return, [](const auto& vec) -> auto {
 		return std::vector<CObjectAtspi>(vec.begin(), vec.end());
 	});
+}
+
+[[nodiscard]] auto CObjectAtspi::do_GetChildAt(int index) const -> ObjectResult<CObjectAtspi> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	m_data->ResetLastError();
+	AtspiAccessible* native_child = atspi_accessible_get_child_at_index(m_accessible, index, &m_data->last_error);
+
+	if (!native_child)
+		return std::unexpected(EObjectError::FAIL);
+
+	auto child_object =
+		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_child);
+	return child_object;
 }
 
 [[nodiscard]] auto CObjectAtspi::do_GetChildrenCount() const -> ObjectResult<int> {

@@ -1,7 +1,6 @@
 // AT-SPI object implementation and some inlines.
 module;
 #include <Core/Cache.h>
-#include <Core/Rect.h>
 #include <Core/Text.h>
 #include <atspi/atspi.h>
 #include <expected>
@@ -9,6 +8,7 @@ module;
 #include <mutex>
 #include <utility>
 export module Platforms.Linux.Object;
+import Core.Rect;
 import Traits.Object;
 import Traits.RefCountedObject;
 
@@ -410,6 +410,8 @@ public:
 
 	[[nodiscard]] auto do_GetParent() const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto do_GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
+	[[nodiscard]] auto do_GetChildAt(int index) const -> ObjectResult<CObjectAtspi>;
+
 	[[nodiscard]] auto do_GetChildrenCount() const -> ObjectResult<int>;
 
 	[[nodiscard]] auto do_GetBounds() const -> ObjectResult<SRect>;

@@ -19,7 +19,9 @@ target_sources(ScreenReader
         EventToSpeech.cppm
         FocusManager.cppm
         KeyboardHandler.cppm
+        ObjectAccessor.cppm
         PlatformError.cppm
+       Rect.cppm
         SpeechSystem.cppm
         SsmlUtterance.cppm
         Timer.cppm

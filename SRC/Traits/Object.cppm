@@ -2,7 +2,6 @@
 module;
 #include <Core/Cache.h>
 #include <Core/EnumUtils.h>
-#include <Core/Rect.h>
 #include <Core/StaticInterface.h>
 #include <Core/Text.h>
 #include <expected>
@@ -14,6 +13,7 @@ module;
 #include <unordered_map>
 #include <vector>
 export module Traits.Object;
+import Core.Rect;
 import Traits.RefCountedObject;
 
 export enum class EObjectInterfaceMask : uint32_t {
@@ -502,9 +502,13 @@ public:
 	[[nodiscard]] auto GetParent(this auto&& self) -> ObjectResult<Derived> {
 		return std::forward<decltype(self)>(self).do_GetParent();
 	}
-	[[nodiscard]] auto GetChildren(this auto&& self) -> ObjectResult<std::vector<Derived>> {
+	[[nodiscard, deprecated]] auto GetChildren(this auto&& self) -> ObjectResult<std::vector<Derived>> {
 		return std::forward<decltype(self)>(self).do_GetChildren();
 	}
+	[[nodiscard]] auto GetChildAt(this auto&& self, int index) -> ObjectResult<Derived> {
+		return std::forward<decltype(self)>(self).do_GetChildAt(index);
+	}
+
 	[[nodiscard]] auto GetChildrenCount(this auto&& self) -> ObjectResult<int> {
 		return std::forward<decltype(self)>(self).do_GetChildrenCount();
 	}
