@@ -7,14 +7,15 @@ import Core.Environment;
 import Core.Rect;
 import Traits.Object;
 
-export class CObjectAccessor final {
-	ObjectVariant m_variant;
+template <typename Variant> class CVariantAccessor {
+	Variant m_variant;
+
+protected:
+	explicit CVariantAccessor(Variant variant) : m_variant(variant) {}
+	~CVariantAccessor() = default;
 
 public:
-	explicit CObjectAccessor(ObjectVariant object) : m_variant(object) {}
-	~CObjectAccessor() = default;
-
-	template <typename Result = void> auto WithObject(auto&& func) const -> ObjectResult<Result> {
+	template <typename Result = void> auto With(auto&& func) const /*final*/ -> ObjectResult<Result> {
 		return std::visit(
 			[&](auto&& obj) -> ObjectResult<Result> {
 				using T = std::decay_t<decltype(obj)>;
@@ -26,47 +27,53 @@ public:
 			},
 			m_variant);
 	}
+};
+
+export class CObjectAccessor final : public CVariantAccessor<ObjectVariant> {
+public:
+	explicit CObjectAccessor(ObjectVariant object) : CVariantAccessor(object) {}
+	~CObjectAccessor() = default;
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-		return WithObject<EObjectType>([](auto&& obj) { return obj.GetType(); });
+		return With<EObjectType>([](auto&& obj) { return obj.GetType(); });
 	}
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<unsigned long long> {
-		return WithObject<unsigned long long>([](auto&& obj) { return obj.GetState(); });
+		return With<unsigned long long>([](auto&& obj) { return obj.GetState(); });
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectAccessor> {
 		ObjectResult<ObjectVariant> variant =
-			WithObject<ObjectVariant>([](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetParent(); });
+			With<ObjectVariant>([](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetParent(); });
 		if (variant)
 			return ObjectResult<CObjectAccessor>(variant.value());
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-		return WithObject<int>([](auto&& obj) { return obj.GetChildrenCount(); });
+		return With<int>([](auto&& obj) { return obj.GetChildrenCount(); });
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectAccessor> {
-		ObjectResult<ObjectVariant> variant = WithObject<ObjectVariant>(
-			[index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetChildAt(index); });
+		ObjectResult<ObjectVariant> variant =
+			With<ObjectVariant>([index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetChildAt(index); });
 		if (variant)
 			return ObjectResult<CObjectAccessor>(variant.value());
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		return WithObject<int>([](auto&& obj) { return obj.GetIndex(); });
+		return With<int>([](auto&& obj) { return obj.GetIndex(); });
 	}
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
-		return WithObject<SRect>([](auto&& obj) { return obj.GetBounds(); });
+		return With<SRect>([](auto&& obj) { return obj.GetBounds(); });
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string> {
-		return WithObject<std::string>([](auto&& obj) { return obj.GetApplicationName(); });
+		return With<std::string>([](auto&& obj) { return obj.GetApplicationName(); });
 	}
 	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string> {
-		return WithObject<std::string>([](auto&& obj) { return obj.GetName(); });
+		return With<std::string>([](auto&& obj) { return obj.GetName(); });
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string> {
-		return WithObject<std::string>([](auto&& obj) { return obj.GetDescription(); });
+		return With<std::string>([](auto&& obj) { return obj.GetDescription(); });
 	}
 };
