@@ -125,8 +125,9 @@ void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 
 	FindAnnouncementInHierarchy(out, obj, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-	Separate(out);
-	out += GetObjectTypeName(type);
+	if (!out.empty())
+		Separate(out);
+	out += GetObjectTypeName(type, out.empty() ? true : require_all);
 	Separate(out);
 	BuildStateAnnouncement(out, obj, require_all);
 
