@@ -242,28 +242,16 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		CObjectEvent object_event;
 		object_event.object = current_object;
 		object_event.type = EObjectEventType::FOCUS_GAINED;
-		CEvent to_post(std::move(object_event), false);
+		CEvent to_post(std::move(object_event));
 		AnnounceFocusChange(to_post);
 	}
 	m_isWhereAmIOperation = false;
-	CObjectEvent object_event;
-	object_event.object = object;
-	object_event.type = EObjectEventType::FOCUS_GAINED;
-	CEvent to_post(std::move(object_event), false);
-	AnnounceFocusChange(to_post);
-
 	m_contextChain = chain;
 	return true;
 }
 
 // Various Announcers
 void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
-	if (event.GetNow() && AnnounceWhereAmI()) {
-		// We are canceling this event, since AnnounceWhereAmI is announcing the last object, but without the "now"
-		// flag.
-		return;
-	}
-
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -276,7 +264,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	std::pmr::string announcement(&m_pool);
 	BuildFocusAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement, event.GetNow());
+	m_speechSystem.Speak(announcement);
 }
 
 void CEventToSpeech::AnnounceValueChange(CEvent& event) {
@@ -291,7 +279,7 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		return;
 	std::pmr::string announcement(&m_pool);
 	BuildValueAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement, event.GetNow());
+	m_speechSystem.Speak(announcement);
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -304,7 +292,7 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	LogCalled();
 	std::pmr::string announcement(&m_pool);
 	BuildStateAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement, event.GetNow());
+	m_speechSystem.Speak(announcement);
 }
 
 void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
@@ -337,7 +325,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	std::pmr::string announcement(&m_pool);
 	FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
-		m_speechSystem.Spell(std::string_view(announcement), event.GetNow());
+		m_speechSystem.Spell(announcement);
 	else
-		m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
+		m_speechSystem.Speak(announcement);
 }

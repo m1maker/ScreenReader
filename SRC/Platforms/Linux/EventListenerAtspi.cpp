@@ -99,11 +99,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object.UpdateCacheByEvent(type);
 	object_event.object = CObjectProxy(object);
-	/*
-	Here's the CEvent::now flag. It's currently used to determine whether to interrupt the speaker or wait for their
-	turn.
-	*/
-	CEventQueue::GetInstance().Push(std::move(object_event), true);
+	CEventQueue::GetInstance().Push(std::move(object_event));
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
@@ -177,7 +173,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
-					CEventQueue::GetInstance().Push(std::move(keyboard_event), false);
+					CEventQueue::GetInstance().Push(std::move(keyboard_event));
 				}
 				else
 					virtual_device.Post(ev.type, ev.code, ev.value);

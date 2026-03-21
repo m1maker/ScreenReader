@@ -610,7 +610,7 @@ using EventVariant = std::variant<std::monostate, CObjectEvent, CKeyboardEvent>;
 
 export class CEvent final {
 	EventVariant m_variant;
-	bool m_now{false}; // A very specific flag. I'll describe it in the handlers.
+
 public:
 	using allocator_type = std::pmr::polymorphic_allocator<>;
 
@@ -621,21 +621,18 @@ private:
 
 public:
 	~CEvent() = default;
-	CEvent(CObjectEvent&& object_event, bool now = false, allocator_type alloc = {})
-		: m_variant(std::move(object_event)), m_type(OBJECT), m_now(now) {}
+	CEvent(CObjectEvent&& object_event, allocator_type alloc = {})
+		: m_variant(std::move(object_event)), m_type(OBJECT) {}
 
-	CEvent(CKeyboardEvent&& keyboard_event, bool now = false, allocator_type alloc = {})
-		: m_variant(std::move(keyboard_event)), m_type(KEYBOARD), m_now(now) {}
+	CEvent(CKeyboardEvent&& keyboard_event, allocator_type alloc = {})
+		: m_variant(std::move(keyboard_event)), m_type(KEYBOARD) {}
 
-	CEvent(CEvent&& other, allocator_type alloc)
-		: m_variant(std::move(other.m_variant)), m_now(other.m_now), m_type(other.m_type) {}
+	CEvent(CEvent&& other, allocator_type alloc) : m_variant(std::move(other.m_variant)), m_type(other.m_type) {}
 
 	CEvent(CEvent&&) = default;
 	auto operator=(CEvent&&) -> CEvent& = default;
 
 	[[nodiscard]] auto GetType() const -> EEventType { return m_type; }
-
-	[[nodiscard]] auto GetNow() const -> bool { return m_now; }
 
 	template <typename T>
 	auto GetAs(this auto&& self)

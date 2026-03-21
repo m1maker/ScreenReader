@@ -89,6 +89,7 @@ void CEventHandler::Handle(CEvent&& event) {
 			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(object_event.value().object);
 				CSpeechSystem::GetInstance().Stop();
+				m_eventToSpeech.AnnounceWhereAmI();
 				m_eventToSpeech.AnnounceFocusChange(event);
 				break;
 			case EObjectEventType::PARENT_UPDATED:

@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 
-	inline auto Speak(std::string_view message, bool interrupt = true, bool ssml = false) -> CSpeechSystem& {
+	inline auto Speak(std::string_view message, bool interrupt = false, bool ssml = false) -> CSpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			if (info.supported_parameters & SpeechEngineParameter::SSML) {
@@ -63,7 +63,7 @@ public:
 		return *this;
 	}
 
-	inline auto Spell(std::string_view message, bool interrupt = true, bool ssml = false) -> CSpeechSystem& {
+	inline auto Spell(std::string_view message, bool interrupt = false, bool ssml = false) -> CSpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			/*TODOPITCH			if (info.supported_parameters & SpeechEngineParameter::SSML) {
