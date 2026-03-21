@@ -132,7 +132,7 @@ void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 	BuildStateAnnouncement(out, obj, require_all);
 
 	auto& settings = CScreenReaderApp::GetInstance().GetSettings();
-	if (settings.read_list_item_count && IsObjectDataElement(type)) {
+	if (settings.object_presentation.read_item_count && IsObjectDataElement(type)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();
 		if (parent || parent->IsValid()) {
@@ -243,7 +243,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 		object_event.object = current_object;
 		object_event.type = EObjectEventType::FOCUS_GAINED;
 		CEvent to_post(std::move(object_event));
-		AnnounceFocusChange(to_post);
+		AnnounceFocusChange(to_post, false);
 	}
 	m_isWhereAmIOperation = false;
 	m_contextChain = chain;
@@ -251,7 +251,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 }
 
 // Various Announcers
-void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
+void CEventToSpeech::AnnounceFocusChange(CEvent& event, bool interrupt) {
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -264,10 +264,10 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	std::pmr::string announcement(&m_pool);
 	BuildFocusAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement);
+	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceValueChange(CEvent& event) {
+void CEventToSpeech::AnnounceValueChange(CEvent& event, bool interrupt) {
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -279,10 +279,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		return;
 	std::pmr::string announcement(&m_pool);
 	BuildValueAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement);
+	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceStateChange(CEvent& event) {
+void CEventToSpeech::AnnounceStateChange(CEvent& event, bool interrupt) {
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -292,10 +292,10 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	LogCalled();
 	std::pmr::string announcement(&m_pool);
 	BuildStateAnnouncement(announcement, object_event.value().object);
-	m_speechSystem.Speak(announcement);
+	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
+void CEventToSpeech::AnnounceSelectionChange(CEvent& event, bool interrupt) {
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -305,7 +305,7 @@ void CEventToSpeech::AnnounceSelectionChange(CEvent& event) {
 	LogCalled();
 }
 
-void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
+void CEventToSpeech::AnnounceCursorMove(CEvent& event, bool interrupt) {
 	auto object_event = event.GetAs<CObjectEvent>();
 	if (!object_event.has_value()) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
@@ -325,7 +325,7 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 	std::pmr::string announcement(&m_pool);
 	FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
-		m_speechSystem.Spell(announcement);
+		m_speechSystem.Spell(announcement, interrupt);
 	else
-		m_speechSystem.Speak(announcement);
+		m_speechSystem.Speak(announcement, interrupt);
 }

@@ -50,12 +50,12 @@ public:
 
 	/*[[candiscard]]*/ auto AnnounceWhereAmI() -> bool;
 
-	void AnnounceFocusChange(CEvent& event);
-	void AnnounceValueChange(CEvent& event);
-	void AnnounceStateChange(CEvent& event);
-	void AnnounceSelectionChange(CEvent& event);
+	void AnnounceFocusChange(CEvent& event, bool interrupt = false);
+	void AnnounceValueChange(CEvent& event, bool interrupt = false);
+	void AnnounceStateChange(CEvent& event, bool interrupt = false);
+	void AnnounceSelectionChange(CEvent& event, bool interrupt = false);
 
-	void AnnounceCursorMove(CEvent& event);
+	void AnnounceCursorMove(CEvent& event, bool interrupt = false);
 
 	inline void ParentUpdated() { m_parentAnnounced = false; }
 };

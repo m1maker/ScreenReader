@@ -17,9 +17,10 @@ module;
 export module Core.Config;
 
 export struct SScreenReaderAppSettings final {
-	bool read_list_item_count = true;
-
-	[[nodiscard]] auto Reflect() { return std::make_tuple(ReflectField(read_list_item_count)); }
+	struct {
+		bool read_item_count = true;
+		bool read_unfocused_object_changes = true;
+	} object_presentation;
 };
 
 constexpr inline std::string_view cConfigFileName = "ScreenReader";
