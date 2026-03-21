@@ -240,7 +240,7 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	m_speechSystem.Speak(announcement, event.GetNow());
 	if (auto description = object_event.value().object.GetDescription()) {
-		if (!description->empty()) {
+		if (!description->empty() && !announcement.starts_with(*description)) {
 			m_speechSystem.Speak(*description, false);
 		}
 	}
