@@ -284,7 +284,10 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
 		return;
 	}
-	LogCalled();
+
+	auto type = object_event.value().object.GetType();
+	if (!type || !IsObjectValue(*type))
+		return;
 	std::pmr::string announcement(&m_pool);
 	BuildValueAnnouncement(announcement, object_event.value().object);
 	m_speechSystem.Speak(announcement, event.GetNow());

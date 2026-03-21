@@ -436,6 +436,17 @@ export [[nodiscard]] constexpr inline auto IsObjectFeedback(EObjectType type) ->
 	}
 }
 
+export [[nodiscard]] constexpr inline auto IsObjectValue(EObjectType type) -> bool {
+	switch (type) {
+	case EObjectType::PROGRESS_BAR:
+	case EObjectType::SLIDER:
+	case EObjectType::TIMER:
+		return true;
+	default:
+		return false;
+	}
+}
+
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
 	std::pmr::unsynchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle*, ObjectData*> m_cache;
