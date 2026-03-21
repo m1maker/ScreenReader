@@ -23,7 +23,7 @@ But there's one very strange thing: all of these types are strings. Look at this
 */
 inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObjectEventTypeMap = {
 	{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
-	{"object:state-changed", EObjectEventType::STATE_CHANGED},
+	{"object:state-changed:checked", EObjectEventType::STATE_CHANGED},
 	{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
 	{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
 	{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},

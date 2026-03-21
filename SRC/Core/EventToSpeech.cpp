@@ -294,8 +294,6 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	}
 
 	LogCalled();
-	if (m_focusManager.GetFocus() != object_event.value().object)
-		return;
 
 	DefaultPool(pool);
 
