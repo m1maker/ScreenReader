@@ -22,33 +22,33 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, 
 }
 
 void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
-/*
-	if (!IsValid()) [[unlikely]]
-		return;
-	using enum EObjectEventType;
-	switch (event) {
-	case VALUE_CHANGED:
-		InvalidateCache(min_value);
-		InvalidateCache(max_value);
-		InvalidateCache(current_value);
-		break;
-	case STATE_CHANGED:
-		InvalidateCache(states);
-		break;
-	case CURSOR_MOVED:
-		InvalidateCache(cursor);
-		break;
-	case CHILD_ADDED:
-	case CHILD_REMOVED:
-		InvalidateCache(children);
-		break;
-	case PARENT_UPDATED:
-		InvalidateCache(parent);
-		break;
-	default:
-		break;
-	}
-*/
+	/*
+		if (!IsValid()) [[unlikely]]
+			return;
+		using enum EObjectEventType;
+		switch (event) {
+		case VALUE_CHANGED:
+			InvalidateCache(min_value);
+			InvalidateCache(max_value);
+			InvalidateCache(current_value);
+			break;
+		case STATE_CHANGED:
+			InvalidateCache(states);
+			break;
+		case CURSOR_MOVED:
+			InvalidateCache(cursor);
+			break;
+		case CHILD_ADDED:
+		case CHILD_REMOVED:
+			InvalidateCache(children);
+			break;
+		case PARENT_UPDATED:
+			InvalidateCache(parent);
+			break;
+		default:
+			break;
+		}
+	*/
 }
 
 [[nodiscard]] auto CObjectAtspi::GetType() const -> ObjectResult<EObjectType> {

@@ -1,13 +1,13 @@
 // AT-SPI object implementation and some inlines.
 module;
-#include <memory_resource>
-#include <vector>
 #include <atspi/atspi.h>
 #include <expected>
 #include <map>
+#include <memory_resource>
 #include <mutex>
 #include <string>
 #include <utility>
+#include <vector>
 export module Platforms.Linux.Object;
 import Core.Object;
 import Core.Rect;
