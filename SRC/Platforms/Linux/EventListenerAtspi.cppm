@@ -25,7 +25,7 @@ inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObject
 	{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
 	{"object:state-changed", EObjectEventType::STATE_CHANGED},
 	{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
-	{"object:text-selection-changed", EObjectEventType::SELECTION_CHANGED},
+	{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
 	{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
 	{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
 
