@@ -1,6 +1,7 @@
 // AT-SPI object implementation and some inlines.
 module;
-#include <Core/Cache.h>
+#include <memory_resource>
+#include <vector>
 #include <atspi/atspi.h>
 #include <expected>
 #include <map>
@@ -428,7 +429,6 @@ public:
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const
 		-> ObjectResult<STextRange<std::string>>;
 	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
-	[[nodiscard]] auto GetSelectedItems() const -> ObjectResult<std::vector<CObjectAtspi>>;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double>;
@@ -436,20 +436,6 @@ public:
 };
 
 export struct SObjectAtspiData final {
-	DeclareCache(EObjectType, type);
-	DeclareCache(unsigned long long, states);
-	DeclareCache(class CObjectAtspi, parent);
-	DeclareCache(std::pmr::vector<class CObjectAtspi>, children);
-	DeclareCache(int, children_count);
-	DeclareCache(int, index);
-	DeclareCache(std::string, name);
-	DeclareCache(std::string, application_name);
-	DeclareCache(std::string, description);
-	DeclareCache(int, cursor);
-	DeclareCache(double, min_value);
-	DeclareCache(double, max_value);
-	DeclareCache(double, current_value);
-
 	mutable GError* last_error{nullptr};
 	uint32_t interfaces_mask{0};
 
