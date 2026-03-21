@@ -2,7 +2,6 @@
 module;
 #include "Logger.h"
 
-#include <Core/ScopedPool.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -25,8 +24,6 @@ static void FindAnnouncementInHierarchy(
 	std::pmr::string& out, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true) {
 	if (!obj.IsValid())
 		return;
-
-	DefaultPool(pool);
 
 	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
 		if (!current.IsValid())
@@ -121,6 +118,77 @@ static void FindAnnouncementOfCursorPosition(
 	}
 }
 
+// Announcement builders
+void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	FindAnnouncementInHierarchy(out, obj, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
+	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
+	Separate(out);
+	out += GetObjectTypeName(type);
+	Separate(out);
+	BuildStateAnnouncement(out, obj, require_all);
+
+	auto& settings = CScreenReaderApp::GetInstance().GetSettings();
+	if (settings.read_list_item_count && IsObjectDataElement(type)) {
+		auto index = obj.GetIndex().value_or(0) + 1;
+		auto parent = obj.GetParent();
+		if (parent || parent->IsValid()) {
+			auto children_count = parent->GetChildrenCount().value_or(0);
+			Separate(out);
+			std::format_to(std::back_inserter(out), "{}{} of {}", cSeparator, index, children_count);
+		}
+	}
+	Separate(out);
+	BuildValueAnnouncement(out, obj);
+	Separate(out);
+	BuildTextAnnouncement(out, obj);
+
+	if (auto description = obj.GetDescription()) {
+		if (!description->empty() && !out.starts_with(*description)) {
+			Separate(out);
+			out += *description;
+		}
+	}
+}
+
+void CEventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	auto type = obj.GetType();
+	if (!type)
+		return;
+
+	if (auto state = obj.GetState()) {
+		auto state_names = GetObjectStateNames(*type, *state);
+		for (std::string_view state_name : state_names) {
+			std::format_to(std::back_inserter(out), "{}{}", cSeparator, state_name);
+		}
+	}
+}
+
+void CEventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	auto value_provider = obj.GetAs<CValueProviderProxy>();
+	if (auto current = value_provider.GetCurrent()) {
+		std::format_to(std::back_inserter(out), "{}", *current);
+	}
+}
+
+void CEventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
+	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
+		out += text->text;
+	}
+}
+
 /*
 This is the final step of object event processing. Announce it.
 */
@@ -203,68 +271,11 @@ void CEventToSpeech::AnnounceFocusChange(CEvent& event) {
 
 	// g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
 
-	DefaultPool(pool);
 	LogCalled();
 
-	std::pmr::string announcement(&pool);
-	FindAnnouncementInHierarchy(
-		announcement, object_event.value().object, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
-	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
-	auto state = object_event.value().object.GetState().value_or(0);
-
-	announcement += cSeparator;
-	announcement += GetObjectTypeName(type);
-
-	auto& settings = CScreenReaderApp::GetInstance().GetSettings();
-	switch (type) {
-	case EObjectType::MENU_ITEM:
-	case EObjectType::LIST_ITEM: {
-		if (!settings.read_list_item_count)
-			break;
-		auto index = object_event.value().object.GetIndex().value_or(0) + 1;
-		auto parent = object_event.value().object.GetParent();
-		if (!parent || !parent->IsValid())
-			break;
-		auto children_count = parent->GetChildrenCount().value_or(0);
-		std::format_to(std::back_inserter(announcement), "{}{} of {}", cSeparator, index, children_count);
-		break;
-	}
-	default:
-		break;
-	}
-
-	auto state_names = GetObjectStateNames(type, state);
-	for (std::string_view state_name : state_names) {
-		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
-	}
-
+	std::pmr::string announcement(&m_pool);
+	BuildFocusAnnouncement(announcement, object_event.value().object);
 	m_speechSystem.Speak(announcement, event.GetNow());
-	if (auto description = object_event.value().object.GetDescription()) {
-		if (!description->empty() && !announcement.starts_with(*description)) {
-			m_speechSystem.Speak(*description, false);
-		}
-	}
-
-	switch (type) {
-	case EObjectType::SLIDER: {
-		CObjectEvent object_event_to_post;
-		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = EObjectEventType::VALUE_CHANGED;
-		CEvent to_post(std::move(object_event_to_post), false);
-		AnnounceValueChange(to_post);
-		break;
-	}
-	case EObjectType::TEXT_FIELD: {
-		CObjectEvent object_event_to_post;
-		object_event_to_post.object = object_event.value().object;
-		object_event_to_post.type = EObjectEventType::CURSOR_MOVED;
-		CEvent to_post(std::move(object_event_to_post), false);
-		AnnounceCursorMove(to_post);
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 void CEventToSpeech::AnnounceValueChange(CEvent& event) {
@@ -274,16 +285,9 @@ void CEventToSpeech::AnnounceValueChange(CEvent& event) {
 		return;
 	}
 	LogCalled();
-
-	if (object_event.value().object.GetType() != EObjectType::SLIDER ||
-		m_focusManager.GetFocus() != object_event.value().object)
-		return;
-
-	auto value_provider = object_event.value().object.GetAs<CValueProviderProxy>();
-	ScopedPool(pool, 256);
-	std::pmr::string announcement(&pool);
-	std::format_to(std::back_inserter(announcement), "{}", value_provider.GetCurrent().value_or(0));
-	m_speechSystem.Speak(std::string_view(announcement), event.GetNow());
+	std::pmr::string announcement(&m_pool);
+	BuildValueAnnouncement(announcement, object_event.value().object);
+	m_speechSystem.Speak(announcement, event.GetNow());
 }
 
 void CEventToSpeech::AnnounceStateChange(CEvent& event) {
@@ -294,18 +298,8 @@ void CEventToSpeech::AnnounceStateChange(CEvent& event) {
 	}
 
 	LogCalled();
-
-	DefaultPool(pool);
-
-	std::pmr::string announcement(&pool);
-	auto type = object_event.value().object.GetType().value_or(EObjectType::UNKNOWN);
-	auto state = object_event.value().object.GetState().value_or(0);
-
-	auto state_names = GetObjectStateNames(type, state);
-	for (auto state_name : state_names) {
-		std::format_to(std::back_inserter(announcement), "{}{}", cSeparator, state_name);
-	}
-
+	std::pmr::string announcement(&m_pool);
+	BuildStateAnnouncement(announcement, object_event.value().object);
 	m_speechSystem.Speak(announcement, event.GetNow());
 }
 
@@ -335,9 +329,8 @@ void CEventToSpeech::AnnounceCursorMove(CEvent& event) {
 		return;
 	}
 
-	DefaultPool(pool);
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	std::pmr::string announcement(&pool);
+	std::pmr::string announcement(&m_pool);
 	FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
 		m_speechSystem.Spell(std::string_view(announcement), event.GetNow());
