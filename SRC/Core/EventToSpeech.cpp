@@ -34,7 +34,7 @@ static void FindAnnouncementInHierarchy(
 			auto name = current.GetName().value_or("");
 			if (!name.empty()) {
 				if (!out.empty())
-					out += CEventToSpeech::cSeparator;
+					out += EventToSpeech::cSeparator;
 				out += name;
 			}
 		}
@@ -120,7 +120,7 @@ static void FindAnnouncementOfCursorPosition(
 }
 
 // Announcement builders
-void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+void EventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -155,7 +155,7 @@ void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 	}
 }
 
-void CEventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+void EventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -168,7 +168,7 @@ void CEventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy 
 	}
 }
 
-void CEventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+void EventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -178,7 +178,7 @@ void CEventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy 
 	}
 }
 
-void CEventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+void EventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -195,7 +195,7 @@ This is the final step of object event processing. Announce it.
 This function tries to find parents who have not been announced or have changed, and pushes the announcements without
 interrupt in reverse order, except the last object.
 */
-auto CEventToSpeech::AnnounceWhereAmI() -> bool {
+auto EventToSpeech::AnnounceWhereAmI() -> bool {
 	auto object = m_focusManager.GetFocus();
 	if (!object.IsValid()) {
 		m_speechSystem.Speak("Unknown area");
@@ -240,7 +240,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 }
 
 // Various Announcers
-void CEventToSpeech::AnnounceFocusChange(CObjectProxy obj, bool interrupt) {
+void EventToSpeech::AnnounceFocusChange(CObjectProxy obj, bool interrupt) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -249,7 +249,7 @@ void CEventToSpeech::AnnounceFocusChange(CObjectProxy obj, bool interrupt) {
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceValueChange(CObjectProxy obj, bool interrupt) {
+void EventToSpeech::AnnounceValueChange(CObjectProxy obj, bool interrupt) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -261,7 +261,7 @@ void CEventToSpeech::AnnounceValueChange(CObjectProxy obj, bool interrupt) {
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceStateChange(CObjectProxy obj, bool interrupt) {
+void EventToSpeech::AnnounceStateChange(CObjectProxy obj, bool interrupt) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -270,12 +270,12 @@ void CEventToSpeech::AnnounceStateChange(CObjectProxy obj, bool interrupt) {
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceSelectionChange(CObjectProxy obj, bool interrupt) {
+void EventToSpeech::AnnounceSelectionChange(CObjectProxy obj, bool interrupt) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 }
 
-void CEventToSpeech::AnnounceCursorMove(CObjectProxy obj, bool interrupt) {
+void EventToSpeech::AnnounceCursorMove(CObjectProxy obj, bool interrupt) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 

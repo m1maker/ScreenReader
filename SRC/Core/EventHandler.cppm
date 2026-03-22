@@ -21,7 +21,7 @@ export class EventHandler final {
 	CEventListener m_listener;
 	CFocusManager& m_focusManager;
 	EventQueue& m_eventQueue;
-	CEventToSpeech& m_eventToSpeech;
+	EventToSpeech& m_eventToSpeech;
 
 	std::jthread m_thread;
 	explicit EventHandler();

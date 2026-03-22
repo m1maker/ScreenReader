@@ -16,7 +16,7 @@ import Core.SpeechSystem;
 
 EventHandler::EventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
-	  m_eventToSpeech(CEventToSpeech::GetInstance()) {
+	  m_eventToSpeech(EventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	auto& keyboard_handler = CKeyboardHandler::GetInstance();
 

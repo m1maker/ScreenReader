@@ -15,7 +15,7 @@ import Proxies.Object;
 /*
 This is the final step of object event processing. Announce it.
 */
-export class CEventToSpeech final {
+export class EventToSpeech final {
 	static constexpr size_t cBufferSize = 1024;
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
@@ -37,13 +37,13 @@ export class CEventToSpeech final {
 public:
 	static constexpr std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
-	explicit CEventToSpeech()
+	explicit EventToSpeech()
 		: m_focusManager(CFocusManager::GetInstance()), m_speechSystem(CSpeechSystem::GetInstance()) {}
-	~CEventToSpeech() = default;
+	~EventToSpeech() = default;
 
 public:
 	static auto& GetInstance() {
-		static CEventToSpeech instance;
+		static EventToSpeech instance;
 		return instance;
 	}
 
