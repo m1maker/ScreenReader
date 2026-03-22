@@ -8,12 +8,12 @@ import Core.Object;
 import Core.Rect;
 import Core.Text;
 
-template <typename Variant> class CUnknownProxy {
+template <typename Variant> class TUnknownProxy {
 	Variant m_variant;
 
 protected:
-	CUnknownProxy() = default;
-	explicit CUnknownProxy(Variant variant) : m_variant(variant) {}
+	TUnknownProxy() = default;
+	explicit TUnknownProxy(Variant variant) : m_variant(variant) {}
 
 public:
 	template <typename Result = void> auto With(auto&& func) const /*final*/ -> ObjectResult<Result> {
@@ -46,13 +46,13 @@ public:
 			m_variant);
 		return valid;
 	}
-	[[nodiscard]] auto operator==(const CUnknownProxy& other) const -> bool { return m_variant == other.m_variant; }
+	[[nodiscard]] auto operator==(const TUnknownProxy& other) const -> bool { return m_variant == other.m_variant; }
 };
 
-export class CObjectProxy final : public CUnknownProxy<ObjectVariant> {
+export class CObjectProxy final : public TUnknownProxy<ObjectVariant> {
 public:
 	CObjectProxy() = default;
-	explicit CObjectProxy(ObjectVariant object) : CUnknownProxy(object) {}
+	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
 	~CObjectProxy() = default;
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
@@ -99,9 +99,9 @@ public:
 	}
 };
 
-export class CTextProviderProxy final : public CUnknownProxy<TextProviderVariant> {
+export class CTextProviderProxy final : public TUnknownProxy<TextProviderVariant> {
 public:
-	explicit CTextProviderProxy(TextProviderVariant provider) : CUnknownProxy(provider) {}
+	explicit CTextProviderProxy(TextProviderVariant provider) : TUnknownProxy(provider) {}
 	~CTextProviderProxy() = default;
 
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
@@ -114,9 +114,9 @@ public:
 	}
 };
 
-export class CValueProviderProxy final : public CUnknownProxy<ValueProviderVariant> {
+export class CValueProviderProxy final : public TUnknownProxy<ValueProviderVariant> {
 public:
-	explicit CValueProviderProxy(ValueProviderVariant provider) : CUnknownProxy(provider) {}
+	explicit CValueProviderProxy(ValueProviderVariant provider) : TUnknownProxy(provider) {}
 	~CValueProviderProxy() = default;
 
 	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
