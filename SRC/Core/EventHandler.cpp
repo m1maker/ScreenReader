@@ -86,7 +86,7 @@ void CEventHandler::Handle(CEvent&& event) {
 				break;
 
 			auto evt = object_event.value();
-			auto& settings = CScreenReaderApp::GetInstance().GetSettings();
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 			if (settings.object_presentation.read_unfocused_object_changes && m_focusManager.GetFocus() != evt.object &&
 				evt.type != EObjectEventType::FOCUS_GAINED) {
 				m_eventToSpeech.AnnounceFocusChange(evt.object);

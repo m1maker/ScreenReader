@@ -6,7 +6,7 @@ export module Core.AppState;
 /*
 General return codes from the main function.
 */
-export class CScreenReaderAppReturnCode final {
+export class ScreenReaderAppReturnCode final {
 public:
 	enum EReturnCode : int {
 		SUCCESS = 0,
@@ -36,8 +36,8 @@ private:
 	EReturnCode m_returnCode{SUCCESS};
 
 public:
-	constexpr CScreenReaderAppReturnCode(const EReturnCode& return_code) : m_returnCode(return_code) {}
-	auto operator=(const EReturnCode& return_code) -> CScreenReaderAppReturnCode& {
+	constexpr ScreenReaderAppReturnCode(const EReturnCode& return_code) : m_returnCode(return_code) {}
+	auto operator=(const EReturnCode& return_code) -> ScreenReaderAppReturnCode& {
 		m_returnCode = return_code;
 		return *this;
 	}
@@ -97,4 +97,4 @@ However, a screen reader is a program that must be robust against exceptions and
 Hopefully, these flags will only be used when we disable the screen reader.
 */
 export std::atomic<bool> g_running{false};
-export constinit CScreenReaderAppReturnCode g_returnCode{CScreenReaderAppReturnCode::SUCCESS};
+export constinit ScreenReaderAppReturnCode g_returnCode{ScreenReaderAppReturnCode::SUCCESS};

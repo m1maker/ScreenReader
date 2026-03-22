@@ -20,8 +20,8 @@ struct SScreenReaderAppOptions final {
 	SScreenReaderAppSettings settings;
 };
 
-export class CScreenReaderApp final {
-	explicit CScreenReaderApp() = default;
+export class ScreenReaderApp final {
+	explicit ScreenReaderApp() = default;
 
 	SScreenReaderAppOptions m_options;
 
@@ -33,7 +33,7 @@ export class CScreenReaderApp final {
 	CPlatformDependentWorker m_worker;
 	unsigned int m_loopRestartAttempts{0};
 
-	~CScreenReaderApp() {
+	~ScreenReaderApp() {
 		g_logger.Log(CLogger::INFO,
 			"Application",
 			"Shutting down with return code " + std::to_string(g_returnCode.ToInt()) + " - " +
@@ -42,7 +42,7 @@ export class CScreenReaderApp final {
 
 public:
 	static auto& GetInstance() {
-		static CScreenReaderApp instance;
+		static ScreenReaderApp instance;
 		return instance;
 	}
 

@@ -24,7 +24,7 @@ private:
 	explicit CLogger() {
 		m_file.open("ScreenReader.log", std::ios::app);
 		if (!m_file.is_open()) {
-			g_returnCode = CScreenReaderAppReturnCode::ERROR_LOGGER;
+			g_returnCode = ScreenReaderAppReturnCode::ERROR_LOGGER;
 			g_running.store(false);
 			return;
 		}

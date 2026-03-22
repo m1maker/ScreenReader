@@ -132,7 +132,7 @@ void CEventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 	Separate(out);
 	BuildStateAnnouncement(out, obj, require_all);
 
-	auto& settings = CScreenReaderApp::GetInstance().GetSettings();
+	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 	if (settings.object_presentation.read_item_count && IsObjectDataElement(type)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();
