@@ -9,7 +9,7 @@ import Core.Environment;
 import Core.Object;
 import Proxies.Object;
 
-export class CFocusManager final {
+export class FocusManager final {
 	std::pmr::unsynchronized_pool_resource m_pool;
 
 	CObjectProxy m_objectInFocus;
@@ -33,12 +33,12 @@ export class CFocusManager final {
 		}
 	}
 
-	explicit CFocusManager() : m_contextChain(&m_pool) {}
-	~CFocusManager() = default;
+	explicit FocusManager() : m_contextChain(&m_pool) {}
+	~FocusManager() = default;
 
 public:
 	static auto& GetInstance() {
-		static CFocusManager instance;
+		static FocusManager instance;
 		return instance;
 	}
 

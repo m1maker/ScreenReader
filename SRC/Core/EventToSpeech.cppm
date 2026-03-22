@@ -24,7 +24,7 @@ export class EventToSpeech final {
 
 	bool m_isWhereAmIOperation{false};
 
-	CFocusManager& m_focusManager;
+	FocusManager& m_focusManager;
 	std::pmr::vector<CObjectProxy> m_contextChain;
 
 	inline void Separate(std::pmr::string& out) { out += cSeparator; }
@@ -38,7 +38,7 @@ public:
 	static constexpr std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
 	explicit EventToSpeech()
-		: m_focusManager(CFocusManager::GetInstance()), m_speechSystem(CSpeechSystem::GetInstance()) {}
+		: m_focusManager(FocusManager::GetInstance()), m_speechSystem(CSpeechSystem::GetInstance()) {}
 	~EventToSpeech() = default;
 
 public:

@@ -19,7 +19,7 @@ export class EventHandler final {
 	Event. Then this event handler then queries the queue of these events.
 	*/
 	CEventListener m_listener;
-	CFocusManager& m_focusManager;
+	FocusManager& m_focusManager;
 	EventQueue& m_eventQueue;
 	EventToSpeech& m_eventToSpeech;
 
