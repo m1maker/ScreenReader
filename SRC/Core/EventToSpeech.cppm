@@ -20,7 +20,6 @@ export class CEventToSpeech final {
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 
-	bool m_parentAnnounced{false}; // Regarding parentAnnounce* I haven't decided yet.
 	CSpeechSystem& m_speechSystem;
 
 	bool m_isWhereAmIOperation{false};
@@ -50,12 +49,10 @@ public:
 
 	/*[[candiscard]]*/ auto AnnounceWhereAmI() -> bool;
 
-	void AnnounceFocusChange(CEvent& event, bool interrupt = false);
-	void AnnounceValueChange(CEvent& event, bool interrupt = false);
-	void AnnounceStateChange(CEvent& event, bool interrupt = false);
-	void AnnounceSelectionChange(CEvent& event, bool interrupt = false);
+	void AnnounceFocusChange(CObjectProxy obj, bool interrupt = false);
+	void AnnounceValueChange(CObjectProxy obj, bool interrupt = false);
+	void AnnounceStateChange(CObjectProxy obj, bool interrupt = false);
+	void AnnounceSelectionChange(CObjectProxy obj, bool interrupt = false);
 
-	void AnnounceCursorMove(CEvent& event, bool interrupt = false);
-
-	inline void ParentUpdated() { m_parentAnnounced = false; }
+	void AnnounceCursorMove(CObjectProxy obj, bool interrupt = false);
 };

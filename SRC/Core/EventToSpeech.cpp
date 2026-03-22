@@ -22,7 +22,7 @@ in there are information labels.
 */
 static void FindAnnouncementInHierarchy(
 	std::pmr::string& out, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true) {
-	if (!obj.IsValid())
+	if (!obj.IsValid()) [[unlikely]]
 		return;
 
 	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
@@ -85,7 +85,8 @@ Granularity is needed if the cursor has moved one character, in which case spell
 */
 static void FindAnnouncementOfCursorPosition(
 	std::pmr::string& out, CTextProviderProxy provider, ETextGranularity& granularity) {
-	LogCalled();
+	if (!provider.IsValid()) [[unlikely]]
+		return;
 
 	auto current_cursor = provider.GetCursor();
 	if (!current_cursor) {
@@ -194,21 +195,16 @@ void CEventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy o
 This is the final step of object event processing. Announce it.
 */
 /*
-This function tries to find parents who have not been announced or have changed, and pushes the events without the "now"
-flag in reverse order, including the last object.
+This function tries to find parents who have not been announced or have changed, and pushes the announcements without
+interrupt in reverse order, except the last object.
 */
 auto CEventToSpeech::AnnounceWhereAmI() -> bool {
-	/*
-	This will be a common practice when we send artificial events.
-	Since the event doesn't post, we don't want to duplicate the focus change announcer code.
-	*/
 	auto object = m_focusManager.GetFocus();
 	if (!object.IsValid()) {
 		m_speechSystem.Speak("Unknown area");
 		return true;
 	}
 
-	LogCalled();
 	const auto chain = m_focusManager.GetContext();
 
 	size_t diff_index{0};
@@ -239,11 +235,7 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 
 		last_name = current_name;
 
-		CObjectEvent object_event;
-		object_event.object = current_object;
-		object_event.type = EObjectEventType::FOCUS_GAINED;
-		CEvent to_post(std::move(object_event));
-		AnnounceFocusChange(to_post, false);
+		AnnounceFocusChange(current_object, false);
 	}
 	m_isWhereAmIOperation = false;
 	m_contextChain = chain;
@@ -251,71 +243,46 @@ auto CEventToSpeech::AnnounceWhereAmI() -> bool {
 }
 
 // Various Announcers
-void CEventToSpeech::AnnounceFocusChange(CEvent& event, bool interrupt) {
-	auto object_event = event.GetAs<CObjectEvent>();
-	if (!object_event.has_value()) {
-		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+void CEventToSpeech::AnnounceFocusChange(CObjectProxy obj, bool interrupt) {
+	if (!obj.IsValid()) [[unlikely]]
 		return;
-	}
-
-	// g_logger.Log(CLogger::DEBUG, "Focus", DumpObjectToString(object_event.value().object, 0, true));
-
-	LogCalled();
 
 	std::pmr::string announcement(&m_pool);
-	BuildFocusAnnouncement(announcement, object_event.value().object);
+	BuildFocusAnnouncement(announcement, obj);
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceValueChange(CEvent& event, bool interrupt) {
-	auto object_event = event.GetAs<CObjectEvent>();
-	if (!object_event.has_value()) {
-		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+void CEventToSpeech::AnnounceValueChange(CObjectProxy obj, bool interrupt) {
+	if (!obj.IsValid()) [[unlikely]]
 		return;
-	}
 
-	auto type = object_event.value().object.GetType();
+	auto type = obj.GetType();
 	if (!type || !IsObjectValue(*type))
 		return;
 	std::pmr::string announcement(&m_pool);
-	BuildValueAnnouncement(announcement, object_event.value().object);
+	BuildValueAnnouncement(announcement, obj);
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceStateChange(CEvent& event, bool interrupt) {
-	auto object_event = event.GetAs<CObjectEvent>();
-	if (!object_event.has_value()) {
-		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+void CEventToSpeech::AnnounceStateChange(CObjectProxy obj, bool interrupt) {
+	if (!obj.IsValid()) [[unlikely]]
 		return;
-	}
 
-	LogCalled();
 	std::pmr::string announcement(&m_pool);
-	BuildStateAnnouncement(announcement, object_event.value().object);
+	BuildStateAnnouncement(announcement, obj);
 	m_speechSystem.Speak(announcement, interrupt);
 }
 
-void CEventToSpeech::AnnounceSelectionChange(CEvent& event, bool interrupt) {
-	auto object_event = event.GetAs<CObjectEvent>();
-	if (!object_event.has_value()) {
-		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+void CEventToSpeech::AnnounceSelectionChange(CObjectProxy obj, bool interrupt) {
+	if (!obj.IsValid()) [[unlikely]]
 		return;
-	}
-
-	LogCalled();
 }
 
-void CEventToSpeech::AnnounceCursorMove(CEvent& event, bool interrupt) {
-	auto object_event = event.GetAs<CObjectEvent>();
-	if (!object_event.has_value()) {
-		g_logger.Log(CLogger::ERROR, "Announcer", "Bad access to object event");
+void CEventToSpeech::AnnounceCursorMove(CObjectProxy obj, bool interrupt) {
+	if (!obj.IsValid()) [[unlikely]]
 		return;
-	}
 
-	LogCalled();
-	// if (g_focusManager.GetFocus() != object_event.value().object) return;
-
-	auto text_provider = object_event.value().object.GetAs<CTextProviderProxy>();
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
 		return;

@@ -85,38 +85,29 @@ void CEventHandler::Handle(CEvent&& event) {
 			if (!object_event.has_value())
 				break;
 
+			auto evt = object_event.value();
 			auto& settings = CScreenReaderApp::GetInstance().GetSettings();
-			switch (object_event.value().type) {
+			switch (evt.type) {
 			case EObjectEventType::FOCUS_GAINED:
-				m_focusManager.SetFocus(object_event.value().object);
+				m_focusManager.SetFocus(evt.object);
 				CSpeechSystem::GetInstance().Stop();
 				m_eventToSpeech.AnnounceWhereAmI();
-				m_eventToSpeech.AnnounceFocusChange(event, false);
+				m_eventToSpeech.AnnounceFocusChange(evt.object, false);
 				break;
 			case EObjectEventType::PARENT_UPDATED:
 				m_eventToSpeech.AnnounceWhereAmI();
 				break;
 			case EObjectEventType::VALUE_CHANGED:
-				if (settings.object_presentation.read_unfocused_object_changes &&
-					m_focusManager.GetFocus() != object_event.value().object) {
-					m_eventToSpeech.AnnounceFocusChange(event, false);
-					break;
-				}
-				m_eventToSpeech.AnnounceValueChange(event);
+				m_eventToSpeech.AnnounceValueChange(evt.object, m_focusManager.GetFocus() == evt.object);
 				break;
 			case EObjectEventType::STATE_CHANGED:
-				if (settings.object_presentation.read_unfocused_object_changes &&
-					m_focusManager.GetFocus() != object_event.value().object) {
-					m_eventToSpeech.AnnounceFocusChange(event, false);
-					break;
-				}
-				m_eventToSpeech.AnnounceStateChange(event);
+				m_eventToSpeech.AnnounceStateChange(evt.object, m_focusManager.GetFocus() == evt.object);
 				break;
 			case EObjectEventType::SELECTION_CHANGED:
-				m_eventToSpeech.AnnounceSelectionChange(event);
+				m_eventToSpeech.AnnounceSelectionChange(evt.object);
 				break;
 			case EObjectEventType::CURSOR_MOVED:
-				m_eventToSpeech.AnnounceCursorMove(event);
+				m_eventToSpeech.AnnounceCursorMove(evt.object, m_focusManager.GetFocus() == evt.object);
 				break;
 			default:
 				break;
