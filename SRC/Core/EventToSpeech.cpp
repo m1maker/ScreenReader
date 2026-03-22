@@ -164,10 +164,7 @@ void CEventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy 
 		return;
 
 	if (auto state = obj.GetState()) {
-		auto state_names = GetObjectStateNames(*type, *state);
-		for (std::string_view state_name : state_names) {
-			std::format_to(std::back_inserter(out), "{}{}", cSeparator, state_name);
-		}
+		GetObjectStateNames(out, *type, *state);
 	}
 }
 

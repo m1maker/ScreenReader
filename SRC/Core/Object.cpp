@@ -139,111 +139,106 @@ For example, there's no such state as EObjectState::UNCHECKED, but there is CHEC
 We need to understand what kind of object this is to more accurately determine the states for announcements when we
 don't request `require_all`.
 */
-[[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long state, bool require_all)
-	-> std::vector<std::string_view> {
-	ScopedPool(pool, 8192);
+void GetObjectStateNames(std::pmr::string& out, EObjectType type, unsigned long long state, bool require_all) {
 	using enum EObjectType;
 	using enum EObjectState;
-	std::pmr::vector<std::string_view> state_names(&pool);
 
 	auto states = static_cast<EObjectState>(state);
 	// Capability / Infrastructure States (Usually only for logging/require_all).
 	if (require_all) {
 		if (!!(states & VISIBLE))
-			state_names.emplace_back("visible");
+			out += " visible";
 		if (!!(states & ENABLED))
-			state_names.emplace_back("enabled");
+			out += " enabled";
 		if (!!(states & FOCUSABLE))
-			state_names.emplace_back("focusable");
+			out += " focusable";
 		if (!!(states & FOCUSED))
-			state_names.emplace_back("focused");
+			out += " focused";
 		if (!!(states & SELECTABLE))
-			state_names.emplace_back("selectable");
+			out += " selectable";
 		if (!!(states & CHECKABLE))
-			state_names.emplace_back("checkable");
+			out += " checkable";
 		if (!!(states & EDITABLE))
-			state_names.emplace_back("editable");
+			out += " editable";
 		if (!!(states & EXPANDABLE))
-			state_names.emplace_back("expandable");
+			out += " expandable";
 		if (!!(states & RESIZABLE))
-			state_names.emplace_back("resizable");
+			out += " resizable";
 	}
 
 	// Interactive / Crucial States (Always announced or contextually forced).
 	if (!!(states & BUSY))
-		state_names.emplace_back("busy");
+		out += " busy";
 	if (!!(states & LOADING))
-		state_names.emplace_back("loading");
+		out += " loading";
 
 	// Selection Logic.
 	if (!!(states & SELECTED)) {
-		state_names.emplace_back("selected");
+		out += " selected";
 	}
 
 	// Toggle/Checked Logic (Normalization).
 	// For Toggle Buttons, we prefer "pressed" over "checked".
 	if (type == TOGGLE_BUTTON) {
 		if (!!(states & PRESSED)) {
-			state_names.emplace_back("pressed");
+			out += " pressed";
 		}
 		else {
-			state_names.emplace_back("not pressed");
+			out += " not pressed";
 		}
 	}
 
 	// For Checkboxes (and generic checkables that aren't toggle buttons).
 	else {
 		if (!!(states & CHECKED)) {
-			state_names.emplace_back("checked");
+			out += " checked";
 		}
 		else if (!!(states & INDETERMINATE)) {
-			state_names.emplace_back("partially checked");
+			out += " partially checked";
 		}
 		else if (type == CHECKBOX || (!!(states & CHECKABLE) && require_all)) {
-			state_names.emplace_back("not checked");
+			out += " not checked";
 		}
 
 		// Handle non-toggle-button 'pressed' state (e.g. normal button).
 		if (!!(states & PRESSED))
-			state_names.emplace_back("pressed");
+			out += " pressed";
 	}
 
 	// Expansion Logic.
 	if (!!(states & EXPANDED)) {
-		state_names.emplace_back("expanded");
+		out += " expanded";
 	}
 	else if (!!(states & COLLAPSED)) {
-		state_names.emplace_back("collapsed");
+		out += " collapsed";
 	}
 
 	// Text / Input specific normalization.
 	if (!!(states & READONLY))
-		state_names.emplace_back("read-only");
+		out += " read-only";
 	if (!!(states & SECURE))
-		state_names.emplace_back("secure");
+		out += " secure";
 	if (!!(states & INVALID))
-		state_names.emplace_back("invalid");
+		out += " invalid";
 	if (!!(states & REQUIRED)) {
 		// Only announce "required" for input types unless logging all.
-		if (type == TEXT_FIELD || type == COMBO_BOX || type == LIST_BOX || require_all) {
-			state_names.emplace_back("required");
+		if (IsObjectInput(type) || require_all) {
+			out += " required";
 		}
 	}
 
 	if (!!(states & MULTI_LINE))
-		state_names.emplace_back("multi-line");
+		out += " multi-line";
 	if (!!(states & MULTI_SELECTABLE))
-		state_names.emplace_back("multi-selectable");
+		out += " multi-selectable";
 
 	// Global attributes.
 	if (!!(states & HOVERED) && require_all)
-		state_names.emplace_back("hovered");
+		out += " hovered";
 	if (!!(states & DEFAULT))
-		state_names.emplace_back("default");
+		out += " default";
 	if (!!(states & MODAL))
-		state_names.emplace_back("modal");
+		out += " modal";
 	if (!!(states & VISITED))
-		state_names.emplace_back("visited");
-
-	return std::vector<std::string_view>(state_names.begin(), state_names.end());
+		out += " visited";
 }

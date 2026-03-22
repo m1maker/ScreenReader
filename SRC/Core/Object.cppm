@@ -279,8 +279,8 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 }
 
 export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
-export [[nodiscard]] auto GetObjectStateNames(EObjectType type, unsigned long long states, bool require_all = false)
-	-> std::vector<std::string_view>;
+export void GetObjectStateNames(
+	std::pmr::string& out, EObjectType type, unsigned long long states, bool require_all = false);
 
 export [[nodiscard]] constexpr inline auto IsObjectParent(EObjectType type) -> bool {
 	switch (type) {
