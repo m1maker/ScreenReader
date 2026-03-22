@@ -17,13 +17,13 @@ export enum class EActionHandleResult : unsigned char {
 
 export template <typename EventType> using ActionCallback = EActionHandleResult (*)(const EventType&);
 
-export template <typename T> struct SActions final {
-	static auto StopSpeech(const T&) -> EActionHandleResult {
+export template <typename Event> struct TActions final {
+	static auto StopSpeech(const Event&) -> EActionHandleResult {
 		CSpeechSystem::GetInstance().Stop();
 		return EActionHandleResult::HANDLED;
 	}
 
-	static auto StopKeyboardHooks(const T&) -> EActionHandleResult {
+	static auto StopKeyboardHooks(const Event&) -> EActionHandleResult {
 		auto listener = CEventHandler::GetInstance().GetListener();
 		if (listener) [[likely]] {
 			listener->ListenDevice(EDeviceType::KEYBOARD, false);
@@ -34,7 +34,7 @@ export template <typename T> struct SActions final {
 		return EActionHandleResult::NOT_HANDLED;
 	}
 
-	[[nodiscard]] static auto GetStaticExecutable(uint32_t type) -> ActionCallback<T> {
+	[[nodiscard]] static auto GetStaticExecutable(uint32_t type) -> ActionCallback<Event> {
 		switch (static_cast<EAction>(type)) {
 		case EAction::STOP_SPEECH:
 			return &StopSpeech;

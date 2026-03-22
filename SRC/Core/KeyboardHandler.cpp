@@ -8,7 +8,7 @@ auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey,
 	}
 
 	m_actions[hotkey].id = type;
-	m_actions[hotkey].executable = SActions<CKeyboardEvent::SHotkeyInfo>::GetStaticExecutable(type);
+	m_actions[hotkey].executable = TActions<SHotkeyInfo>::GetStaticExecutable(type);
 	m_actions[hotkey].hook = hook;
 	return true;
 }
