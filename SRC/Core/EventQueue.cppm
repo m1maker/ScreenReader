@@ -8,21 +8,21 @@ module;
 export module Core.EventQueue;
 import Core.Event;
 
-export class CEventQueue final {
+export class EventQueue final {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<CEvent> m_events;
 
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	bool m_stopping{false};
-	DeclareSingleton(CEventQueue);
-	explicit CEventQueue() : m_events(&m_pool) {}
+	DeclareSingleton(EventQueue);
+	explicit EventQueue() : m_events(&m_pool) {}
 
-	~CEventQueue() { Stop(); }
+	~EventQueue() { Stop(); }
 
 public:
 	static auto& GetInstance() {
-		static CEventQueue instance;
+		static EventQueue instance;
 		return instance;
 	}
 

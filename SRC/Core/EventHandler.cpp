@@ -15,7 +15,7 @@ import Core.Object;
 import Core.SpeechSystem;
 
 EventHandler::EventHandler()
-	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),
+	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
 	  m_eventToSpeech(CEventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	auto& keyboard_handler = CKeyboardHandler::GetInstance();
@@ -49,7 +49,7 @@ void EventHandler::Start() {
 								return;
 							auto event_casted = static_cast<CEvent*>(pData);
 							EventHandler::GetInstance().Handle(std::move(*event_casted));
-							auto pool = CEventQueue::GetInstance().GetPool();
+							auto pool = EventQueue::GetInstance().GetPool();
 							if (!pool) [[unlikely]]
 								return;
 

@@ -99,7 +99,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object.UpdateCacheByEvent(type);
 	object_event.object = CObjectProxy(object);
-	CEventQueue::GetInstance().Push(std::move(object_event));
+	EventQueue::GetInstance().Push(std::move(object_event));
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
@@ -173,7 +173,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
-					CEventQueue::GetInstance().Push(std::move(keyboard_event));
+					EventQueue::GetInstance().Push(std::move(keyboard_event));
 				}
 				else
 					virtual_device.Post(ev.type, ev.code, ev.value);
@@ -278,7 +278,7 @@ void CEventListenerAtspi::do_PushToMainThread(ThreadFunction function, void* pUs
 	if (!function)
 		return;
 
-	auto pool = CEventQueue::GetInstance().GetPool();
+	auto pool = EventQueue::GetInstance().GetPool();
 	if (!pool)
 		return;
 	auto raw = pool->allocate(sizeof(SInvocationContext));
@@ -291,7 +291,7 @@ void CEventListenerAtspi::do_PushToMainThread(ThreadFunction function, void* pUs
 				return G_SOURCE_REMOVE;
 			casted->function(casted->pUserData);
 
-			auto pool = CEventQueue::GetInstance().GetPool();
+			auto pool = EventQueue::GetInstance().GetPool();
 			if (!pool)
 				return G_SOURCE_REMOVE;
 			casted->~SInvocationContext();
