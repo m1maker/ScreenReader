@@ -5,21 +5,22 @@ module;
 export module Core.KeyboardHandler;
 import Core.Action;
 import Core.Event;
+import Core.KeyInfo;
 import Core.Timer;
 
 export class KeyboardHandler final {
 	struct SActionInfo final {
 		uint32_t id{0};
-		ActionCallback<CKeyboardEvent::SHotkeyInfo> executable{nullptr};
+		ActionCallback<SHotkeyInfo> executable{nullptr};
 		bool hook{false};
 	};
 
 	friend class EventHandler;
 
-	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
+	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
 
 	mutable std::mutex m_mutex;
-	std::unordered_map<CKeyboardEvent::EKeycode, bool> m_keysDown;
+	std::unordered_map<EKeycode, bool> m_keysDown;
 	unsigned char m_modifiers{};
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.
@@ -27,9 +28,9 @@ export class KeyboardHandler final {
 
 	Let's set a timer that, when user quickly press one of these modifiers, should let it pass to the OS.
 	*/
-	unsigned char m_hookedModifiers{CKeyboardEvent::MODIFIER_INSERT | CKeyboardEvent::MODIFIER_CAPS_LOCK};
+	unsigned char m_hookedModifiers{MODIFIER_INSERT | MODIFIER_CAPS_LOCK};
 	mutable CTimer m_hookedModifiersTimer;
-	static inline constexpr const uint64_t cHookedModifierPressTimeMs = 300;
+	static constexpr uint64_t cHookedModifierPressTimeMs = 300;
 
 	explicit KeyboardHandler() = default;
 	~KeyboardHandler() = default;
@@ -40,15 +41,14 @@ public:
 		return instance;
 	}
 
-	[[nodiscard]] auto RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook = false)
-		-> bool;
-	void UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action);
+	[[nodiscard]] auto RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook = false) -> bool;
+	void UnregisterAction(SHotkeyInfo action);
 
-	[[nodiscard]] auto IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool;
+	[[nodiscard]] auto IsHooked(SHotkeyInfo hotkey) const -> bool;
 
 	void Handle(CKeyboardEvent& event);
 
-	[[nodiscard]] auto IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool;
+	[[nodiscard]] auto IsKeyDown(EKeycode keycode) const -> bool;
 	[[nodiscard]] auto GetModifiers() const -> unsigned char { return m_modifiers; }
 
 	void ResetState();

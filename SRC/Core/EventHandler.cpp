@@ -11,6 +11,7 @@ import Core.AppState;
 import Core.Device;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.KeyInfo;
 import Core.Object;
 import Core.SpeechSystem;
 
@@ -23,9 +24,7 @@ EventHandler::EventHandler()
 	bool success{false};
 	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = keyboard_handler.RegisterAction(
-		CKeyboardEvent::MODIFIER_SCREEN_READER + CKeyboardEvent::MODIFIER_CTRL + CKeyboardEvent::KEYCODE_K,
-		static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS),
-		true);
+		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS), true);
 
 	m_eventToSpeech.AnnounceWhereAmI();
 }

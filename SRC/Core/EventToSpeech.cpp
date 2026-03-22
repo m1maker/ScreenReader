@@ -10,6 +10,7 @@ module Core.EventToSpeech;
 import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
+import Core.KeyInfo;
 import Core.Object;
 import Core.Text;
 import Proxies.Object;
@@ -95,15 +96,11 @@ static void FindAnnouncementOfCursorPosition(
 	}
 
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
-	bool vertical_keys_down = keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_DOWN);
-	bool horizontal_keys_down = keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_RIGHT) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_LEFT) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_HOME) ||
-		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_END);
-	bool control_down = keyboard_handler.GetModifiers() & CKeyboardEvent::MODIFIER_CTRL;
+	bool vertical_keys_down = keyboard_handler.IsKeyDown(KEYCODE_UP) || keyboard_handler.IsKeyDown(KEYCODE_DOWN) ||
+		keyboard_handler.IsKeyDown(KEYCODE_PAGE_UP) || keyboard_handler.IsKeyDown(KEYCODE_PAGE_DOWN);
+	bool horizontal_keys_down = keyboard_handler.IsKeyDown(KEYCODE_RIGHT) || keyboard_handler.IsKeyDown(KEYCODE_LEFT) ||
+		keyboard_handler.IsKeyDown(KEYCODE_HOME) || keyboard_handler.IsKeyDown(KEYCODE_END);
+	bool control_down = keyboard_handler.GetModifiers() & MODIFIER_CTRL;
 
 	if (vertical_keys_down)
 		granularity = ETextGranularity::LINE;

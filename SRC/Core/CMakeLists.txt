@@ -20,6 +20,7 @@ target_sources(ScreenReader
         EventToSpeech.cppm
         FocusManager.cppm
         KeyboardHandler.cppm
+        KeyInfo.cppm
         Object.cppm
         PlatformError.cppm
        Rect.cppm

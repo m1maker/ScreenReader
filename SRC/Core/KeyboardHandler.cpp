@@ -2,7 +2,7 @@ module;
 #include <mutex>
 module Core.KeyboardHandler;
 
-auto KeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook) -> bool {
+auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
@@ -13,7 +13,7 @@ auto KeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, 
 	return true;
 }
 
-void KeyboardHandler::UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) {
+void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 	m_actions.erase(action);
 }
 
@@ -21,12 +21,12 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto hotkey = event.hotkey;
 	if (hotkey.modifiers & m_hookedModifiers) {
 		hotkey.modifiers &= ~m_hookedModifiers;
-		hotkey.modifiers |= CKeyboardEvent::MODIFIER_SCREEN_READER;
+		hotkey.modifiers |= MODIFIER_SCREEN_READER;
 	}
 
 	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
-		it = m_actions.find(CKeyboardEvent::SHotkeyInfo::GetAny());
+		it = m_actions.find(SHotkeyInfo::GetAny());
 		if (it == m_actions.end())
 			return;
 	}
@@ -36,7 +36,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	}
 }
 
-[[nodiscard]] auto KeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
+[[nodiscard]] auto KeyboardHandler::IsKeyDown(EKeycode keycode) const -> bool {
 	std::scoped_lock lock(m_mutex);
 	auto it = m_keysDown.find(keycode);
 	if (it != m_keysDown.end())
@@ -50,7 +50,7 @@ void KeyboardHandler::ResetState() {
 	m_modifiers = 0;
 }
 
-[[nodiscard]] auto KeyboardHandler::IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool {
+[[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
 	if (hotkey.modifiers & m_hookedModifiers) {
 		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
 			m_hookedModifiersTimer.Restart();
