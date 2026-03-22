@@ -22,7 +22,7 @@ auto main(signed int argc, char** argv) -> signed int {
 	*/
 	g_logger; // Invoke the logger instance to avoid uninitialization before the application instance.
 	try {
-		CSpeechSystem::GetInstance().Speak("Screenreader");
+		SpeechSystem::GetInstance().Speak("Screenreader");
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {

@@ -20,7 +20,7 @@ export class EventToSpeech final {
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 
-	CSpeechSystem& m_speechSystem;
+	SpeechSystem& m_speechSystem;
 
 	bool m_isWhereAmIOperation{false};
 
@@ -38,7 +38,7 @@ public:
 	static constexpr std::string_view cSeparator = "  "; // This is a separator for name, type and state.
 private:
 	explicit EventToSpeech()
-		: m_focusManager(FocusManager::GetInstance()), m_speechSystem(CSpeechSystem::GetInstance()) {}
+		: m_focusManager(FocusManager::GetInstance()), m_speechSystem(SpeechSystem::GetInstance()) {}
 	~EventToSpeech() = default;
 
 public:

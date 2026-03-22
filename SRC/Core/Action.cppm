@@ -19,7 +19,7 @@ export template <typename EventType> using ActionCallback = EActionHandleResult 
 
 export template <typename Event> struct TActions final {
 	static auto StopSpeech(const Event&) -> EActionHandleResult {
-		CSpeechSystem::GetInstance().Stop();
+		SpeechSystem::GetInstance().Stop();
 		return EActionHandleResult::HANDLED;
 	}
 
@@ -27,7 +27,7 @@ export template <typename Event> struct TActions final {
 		auto listener = EventHandler::GetInstance().GetListener();
 		if (listener) [[likely]] {
 			listener->ListenDevice(EDeviceType::KEYBOARD, false);
-			CSpeechSystem::GetInstance().Speak("Stop listening keyboard");
+			SpeechSystem::GetInstance().Speak("Stop listening keyboard");
 			return EActionHandleResult::HANDLED;
 		}
 

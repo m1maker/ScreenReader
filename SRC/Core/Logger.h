@@ -10,6 +10,7 @@ import Core.AppState;
 
 // This is the simplest inline logger with levels and categories.
 class Logger final {
+	DeclareSingleton(Logger);
 public:
 	enum ELogLevel : unsigned char { DEBUG = 0, INFO, WARNING, ERROR, NOTHING };
 

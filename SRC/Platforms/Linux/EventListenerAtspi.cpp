@@ -123,7 +123,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 				if (errno == EACCES) {
 					g_logger.Log(Logger::INFO, "Access denied to " + dev + ". Requesting privileges...");
 
-					CSpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
+					SpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
 
 					if (ElevatePrivileges()) {
 						std::this_thread::sleep_for(std::chrono::milliseconds(500));

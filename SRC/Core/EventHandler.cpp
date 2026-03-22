@@ -95,7 +95,7 @@ void EventHandler::Handle(CEvent&& event) {
 			switch (evt.type) {
 			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(evt.object);
-				CSpeechSystem::GetInstance().Stop();
+				SpeechSystem::GetInstance().Stop();
 				m_eventToSpeech.AnnounceWhereAmI();
 				m_eventToSpeech.AnnounceFocusChange(evt.object, false);
 				break;

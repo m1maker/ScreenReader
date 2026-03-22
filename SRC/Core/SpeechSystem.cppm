@@ -9,16 +9,16 @@ import Core.Environment;
 import Core.UnicodeData;
 import Traits.SpeechEngine;
 
-export class CSpeechSystem final {
+export class SpeechSystem final {
 	SpeechEngineVariant m_variant;
 
-	explicit CSpeechSystem() { m_variant.emplace<CDefaultSpeechEngine>(); }
+	explicit SpeechSystem() { m_variant.emplace<CDefaultSpeechEngine>(); }
 
-	~CSpeechSystem() = default;
+	~SpeechSystem() = default;
 
 public:
 	static auto& GetInstance() {
-		static CSpeechSystem instance;
+		static SpeechSystem instance;
 		return instance;
 	}
 
@@ -34,7 +34,7 @@ public:
 	}
 
 	[[nodiscard]] inline auto SpeakIfHasParameter(unsigned long long parameter, auto&& on_success, auto&& on_fail)
-		-> CSpeechSystem& {
+		-> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			if (info.supported_parameters & SpeechEngineParameter::SSML) {
@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 
-	inline auto Speak(std::string_view message, bool interrupt = false, bool ssml = false) -> CSpeechSystem& {
+	inline auto Speak(std::string_view message, bool interrupt = false, bool ssml = false) -> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			if (info.supported_parameters & SpeechEngineParameter::SSML) {
@@ -63,7 +63,7 @@ public:
 		return *this;
 	}
 
-	inline auto Spell(std::string_view message, bool interrupt = false, bool ssml = false) -> CSpeechSystem& {
+	inline auto Spell(std::string_view message, bool interrupt = false, bool ssml = false) -> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			/*TODOPITCH			if (info.supported_parameters & SpeechEngineParameter::SSML) {
@@ -92,7 +92,7 @@ public:
 		return *this;
 	}
 
-	inline auto Stop() -> CSpeechSystem& {
+	inline auto Stop() -> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			engine.Stop();
 			engine.Cancel();
