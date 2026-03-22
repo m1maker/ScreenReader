@@ -7,7 +7,7 @@ import Core.Action;
 import Core.Event;
 import Core.Timer;
 
-export class CKeyboardHandler final {
+export class KeyboardHandler final {
 	struct SActionInfo final {
 		uint32_t id{0};
 		ActionCallback<CKeyboardEvent::SHotkeyInfo> executable{nullptr};
@@ -31,12 +31,12 @@ export class CKeyboardHandler final {
 	mutable CTimer m_hookedModifiersTimer;
 	static inline constexpr const uint64_t cHookedModifierPressTimeMs = 300;
 
-	explicit CKeyboardHandler() = default;
-	~CKeyboardHandler() = default;
+	explicit KeyboardHandler() = default;
+	~KeyboardHandler() = default;
 
 public:
 	static auto& GetInstance() {
-		static CKeyboardHandler instance;
+		static KeyboardHandler instance;
 		return instance;
 	}
 

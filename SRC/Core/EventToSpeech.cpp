@@ -94,7 +94,7 @@ static void FindAnnouncementOfCursorPosition(
 		return;
 	}
 
-	auto& keyboard_handler = CKeyboardHandler::GetInstance();
+	auto& keyboard_handler = KeyboardHandler::GetInstance();
 	bool vertical_keys_down = keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_UP) ||
 		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_DOWN) ||
 		keyboard_handler.IsKeyDown(CKeyboardEvent::KEYCODE_PAGE_UP) ||

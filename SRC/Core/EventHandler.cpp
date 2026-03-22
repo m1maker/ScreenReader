@@ -18,7 +18,7 @@ EventHandler::EventHandler()
 	: m_focusManager(FocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
 	  m_eventToSpeech(EventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
-	auto& keyboard_handler = CKeyboardHandler::GetInstance();
+	auto& keyboard_handler = KeyboardHandler::GetInstance();
 
 	bool success{false};
 	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
@@ -120,7 +120,7 @@ void EventHandler::Handle(CEvent&& event) {
 		}
 
 		case CEvent::KEYBOARD: {
-			auto& keyboard_handler = CKeyboardHandler::GetInstance();
+			auto& keyboard_handler = KeyboardHandler::GetInstance();
 			std::scoped_lock lock(keyboard_handler.m_mutex);
 			auto keyboard_event = event.GetAs<CKeyboardEvent>();
 			if (!keyboard_event.has_value())

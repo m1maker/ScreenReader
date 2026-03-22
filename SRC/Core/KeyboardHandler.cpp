@@ -2,7 +2,7 @@ module;
 #include <mutex>
 module Core.KeyboardHandler;
 
-auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook) -> bool {
+auto KeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey, uint32_t type, bool hook) -> bool {
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
@@ -13,11 +13,11 @@ auto CKeyboardHandler::RegisterAction(const CKeyboardEvent::SHotkeyInfo& hotkey,
 	return true;
 }
 
-void CKeyboardHandler::UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) {
+void KeyboardHandler::UnregisterAction(const CKeyboardEvent::SHotkeyInfo& action) {
 	m_actions.erase(action);
 }
 
-void CKeyboardHandler::Handle(CKeyboardEvent& event) {
+void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto hotkey = event.hotkey;
 	if (hotkey.modifiers & m_hookedModifiers) {
 		hotkey.modifiers &= ~m_hookedModifiers;
@@ -36,7 +36,7 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 	}
 }
 
-[[nodiscard]] auto CKeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
+[[nodiscard]] auto KeyboardHandler::IsKeyDown(const CKeyboardEvent::EKeycode& keycode) const -> bool {
 	std::scoped_lock lock(m_mutex);
 	auto it = m_keysDown.find(keycode);
 	if (it != m_keysDown.end())
@@ -44,13 +44,13 @@ void CKeyboardHandler::Handle(CKeyboardEvent& event) {
 	return false;
 }
 
-void CKeyboardHandler::ResetState() {
+void KeyboardHandler::ResetState() {
 	std::scoped_lock lock(m_mutex);
 	m_keysDown.clear();
 	m_modifiers = 0;
 }
 
-[[nodiscard]] auto CKeyboardHandler::IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool {
+[[nodiscard]] auto KeyboardHandler::IsHooked(const CKeyboardEvent::SHotkeyInfo& hotkey) const -> bool {
 	if (hotkey.modifiers & m_hookedModifiers) {
 		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
 			m_hookedModifiersTimer.Restart();

@@ -169,7 +169,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					else
 						modifiers &= ~modifier;
 					keyboard_event.hotkey.modifiers = modifiers;
-					if (!CKeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
+					if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
 						virtual_device.Post(ev.type, ev.code, ev.value);
 					}
 					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
