@@ -48,7 +48,7 @@ public:
 
 	void Run() {
 		g_running.store(true);
-		CEventHandler::GetInstance().Start();
+		EventHandler::GetInstance().Start();
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.

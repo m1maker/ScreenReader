@@ -14,7 +14,7 @@ import Core.KeyboardHandler;
 import Core.Object;
 import Core.SpeechSystem;
 
-CEventHandler::CEventHandler()
+EventHandler::EventHandler()
 	: m_focusManager(CFocusManager::GetInstance()), m_eventQueue(CEventQueue::GetInstance()),
 	  m_eventToSpeech(CEventToSpeech::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
@@ -30,7 +30,7 @@ CEventHandler::CEventHandler()
 	m_eventToSpeech.AnnounceWhereAmI();
 }
 
-void CEventHandler::Start() {
+void EventHandler::Start() {
 	m_thread = std::jthread([this]() -> void {
 		while (g_running.load()) {
 			auto event = m_eventQueue.Pop();
@@ -48,7 +48,7 @@ void CEventHandler::Start() {
 							if (!pData)
 								return;
 							auto event_casted = static_cast<CEvent*>(pData);
-							CEventHandler::GetInstance().Handle(std::move(*event_casted));
+							EventHandler::GetInstance().Handle(std::move(*event_casted));
 							auto pool = CEventQueue::GetInstance().GetPool();
 							if (!pool) [[unlikely]]
 								return;
@@ -75,7 +75,7 @@ void CEventHandler::Start() {
 This function is called by an event handler when it has been typecast to IEvent::EEventType by IEventListener and
 dispatched with the desired event type category.
 */
-void CEventHandler::Handle(CEvent&& event) {
+void EventHandler::Handle(CEvent&& event) {
 	LogCalled();
 
 	try {

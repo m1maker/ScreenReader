@@ -14,7 +14,7 @@ export class CKeyboardHandler final {
 		bool hook{false};
 	};
 
-	friend class CEventHandler;
+	friend class EventHandler;
 
 	std::unordered_map<CKeyboardEvent::SHotkeyInfo, SActionInfo> m_actions;
 

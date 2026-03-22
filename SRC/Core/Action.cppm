@@ -24,7 +24,7 @@ export template <typename Event> struct TActions final {
 	}
 
 	static auto StopKeyboardHooks(const Event&) -> EActionHandleResult {
-		auto listener = CEventHandler::GetInstance().GetListener();
+		auto listener = EventHandler::GetInstance().GetListener();
 		if (listener) [[likely]] {
 			listener->ListenDevice(EDeviceType::KEYBOARD, false);
 			CSpeechSystem::GetInstance().Speak("Stop listening keyboard");

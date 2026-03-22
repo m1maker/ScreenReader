@@ -13,7 +13,7 @@ import Core.FocusManager;
 import Platforms.Linux.EventListener;
 #endif
 
-export class CEventHandler final {
+export class EventHandler final {
 	/*
 	A listener is a platform-specific trait that processes events and converts them to a common screen reader's
 	Event. Then this event handler then queries the queue of these events.
@@ -24,12 +24,12 @@ export class CEventHandler final {
 	CEventToSpeech& m_eventToSpeech;
 
 	std::jthread m_thread;
-	explicit CEventHandler();
-	~CEventHandler() = default;
+	explicit EventHandler();
+	~EventHandler() = default;
 
 public:
 	static auto& GetInstance() {
-		static CEventHandler instance;
+		static EventHandler instance;
 		return instance;
 	}
 
