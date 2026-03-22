@@ -8,7 +8,7 @@ import Core.SpeechSystem;
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
-	g_logger.Log(CLogger::INFO,
+	g_logger.Log(Logger::INFO,
 		"Application",
 		"Starting ",
 		SScreenReaderVersion::PROJECT_NAME,
@@ -26,7 +26,7 @@ auto main(signed int argc, char** argv) -> signed int {
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {
-		g_logger.Log(CLogger::ERROR, standard_exception.what());
+		g_logger.Log(Logger::ERROR, standard_exception.what());
 	}
 
 	return g_returnCode.ToInt();

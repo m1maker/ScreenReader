@@ -9,9 +9,7 @@
 import Core.AppState;
 
 // This is the simplest inline logger with levels and categories.
-class CLogger final {
-	DeclareSingleton(CLogger);
-
+class Logger final {
 public:
 	enum ELogLevel : unsigned char { DEBUG = 0, INFO, WARNING, ERROR, NOTHING };
 
@@ -21,7 +19,7 @@ private:
 	std::string_view m_currentCategory{"Unknown"};
 	std::mutex m_mutex;
 
-	explicit CLogger() {
+	explicit Logger() {
 		m_file.open("ScreenReader.log", std::ios::app);
 		if (!m_file.is_open()) {
 			g_returnCode = ScreenReaderAppReturnCode::ERROR_LOGGER;
@@ -32,7 +30,7 @@ private:
 		Log(INFO, "Logger", "Initialized. Log level is ", LogLevelToString(m_level));
 	}
 
-	~CLogger() {
+	~Logger() {
 		if (m_file.is_open()) {
 			m_file << '\n';
 			m_file.close();
@@ -84,11 +82,11 @@ public:
 	inline auto GetCurrentCategory() const -> std::string_view { return m_currentCategory; }
 };
 
-#define g_logger CSingleton<CLogger>::GetInstance() // Global instance.
+#define g_logger CSingleton<Logger>::GetInstance() // Global instance.
 
 /*
 A scoped category is an object that keeps one category active in the logger during its lifetime.
-When we call the overloaded CLogger::Log without a category, it uses m_currentCategory.
+When we call the overloaded Logger::Log without a category, it uses m_currentCategory.
 This is useful if we use the logger many times in a single function. Then we set the category.
 
 If a function that uses CScopedCategory calls a function that also uses the logger, we need to make sure that it also

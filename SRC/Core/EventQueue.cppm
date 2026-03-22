@@ -29,7 +29,7 @@ public:
 	template <typename... Args> void Push(Args&&... args) {
 		std::scoped_lock lock(m_mutex);
 		if (m_events.size() > 100) {
-			g_logger.Log(CLogger::WARNING, "Queue", "Queue overflow! Events are leaking?");
+			g_logger.Log(Logger::WARNING, "Queue", "Queue overflow! Events are leaking?");
 		}
 		m_events.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();

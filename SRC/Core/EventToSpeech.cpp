@@ -90,7 +90,7 @@ static void FindAnnouncementOfCursorPosition(
 
 	auto current_cursor = provider.GetCursor();
 	if (!current_cursor) {
-		g_logger.Log(CLogger::ERROR, std::string(ObjectErrorToString(current_cursor.error())));
+		g_logger.Log(Logger::ERROR, std::string(ObjectErrorToString(current_cursor.error())));
 		return;
 	}
 

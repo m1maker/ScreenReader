@@ -147,6 +147,6 @@ void EventHandler::Handle(CEvent&& event) {
 		}
 	}
 	catch (const std::bad_expected_access<EObjectError>& error) {
-		g_logger.Log(CLogger::ERROR, "Expected access error: " + std::string(ObjectErrorToString(error.error())));
+		g_logger.Log(Logger::ERROR, "Expected access error: " + std::string(ObjectErrorToString(error.error())));
 	}
 }
