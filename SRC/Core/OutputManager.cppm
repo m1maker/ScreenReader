@@ -93,9 +93,7 @@ public:
 		return true;
 	}
 
-	inline void Stop() {
-		// WithAll<&COutputProxy::Stop>();
-	}
+	inline void Stop() { WithAll<&COutputProxy::Stop>(); }
 
 	inline void FocusChange(CObjectProxy obj) { WithAll<&COutputProxy::FocusChange>(obj); }
 	inline void StateChange(CObjectProxy obj) { WithAll<&COutputProxy::StateChange>(obj); }

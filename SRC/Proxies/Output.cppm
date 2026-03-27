@@ -29,7 +29,7 @@ public:
 	COutputProxy() = default;
 	explicit COutputProxy(OutputVariant&& variant) : TUnknownProxy(std::move(variant)) {}
 
-	void Stop(CObjectProxy obj) {
+	void Stop() {
 		With([](auto&& out) { out.Stop(); });
 	}
 
