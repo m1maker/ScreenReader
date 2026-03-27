@@ -1,12 +1,7 @@
-// Event to speech.
 module;
-#include "Logger.h"
-
-#include <algorithm>
 #include <cmath>
-#include <functional>
 #include <sstream>
-module Core.EventToSpeech;
+module Core.MessageBuilder;
 import Core.App;
 import Core.Event;
 import Core.KeyboardHandler;
@@ -21,8 +16,8 @@ This static function attempts to find a named object if the object that received
 name. For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere
 in there are information labels.
 */
-static void FindAnnouncementInHierarchy(
-	std::pmr::string& out, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true) {
+void MessageBuilder::FindAnnouncementInHierarchy(
+	std::pmr::string& out, CObjectProxy obj, bool recursive, bool collect_all_labels) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -35,7 +30,7 @@ static void FindAnnouncementInHierarchy(
 			auto name = current.GetName().value_or("");
 			if (!name.empty()) {
 				if (!out.empty())
-					out += EventToSpeech::cSeparator;
+					Separate(out);
 				out += name;
 			}
 		}
@@ -84,14 +79,13 @@ static void FindAnnouncementInHierarchy(
 This static function tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-static void FindAnnouncementOfCursorPosition(
+void MessageBuilder::FindAnnouncementOfCursorPosition(
 	std::pmr::string& out, CTextProviderProxy provider, ETextGranularity& granularity) {
 	if (!provider.IsValid()) [[unlikely]]
 		return;
 
 	auto current_cursor = provider.GetCursor();
 	if (!current_cursor) {
-		g_logger.Log(Logger::ERROR, std::string(ObjectErrorToString(current_cursor.error())));
 		return;
 	}
 
@@ -117,11 +111,11 @@ static void FindAnnouncementOfCursorPosition(
 }
 
 // Announcement builders
-void EventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+void MessageBuilder::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	FindAnnouncementInHierarchy(out, obj, !m_isWhereAmIOperation, !m_isWhereAmIOperation);
+	FindAnnouncementInHierarchy(out, obj /*, !m_isWhereAmIOperation, !m_isWhereAmIOperation*/);
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 	if (!out.empty())
 		Separate(out);
@@ -152,7 +146,7 @@ void EventToSpeech::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy o
 	}
 }
 
-void EventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
+void MessageBuilder::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -165,7 +159,7 @@ void EventToSpeech::BuildStateAnnouncement(std::pmr::string& out, CObjectProxy o
 	}
 }
 
-void EventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+void MessageBuilder::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -175,7 +169,7 @@ void EventToSpeech::BuildValueAnnouncement(std::pmr::string& out, CObjectProxy o
 	}
 }
 
-void EventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy obj) {
+void MessageBuilder::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
@@ -183,110 +177,4 @@ void EventToSpeech::BuildTextAnnouncement(std::pmr::string& out, CObjectProxy ob
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		out += text->text;
 	}
-}
-
-/*
-This is the final step of object event processing. Announce it.
-*/
-/*
-This function tries to find parents who have not been announced or have changed, and pushes the announcements without
-interrupt in reverse order, except the last object.
-*/
-auto EventToSpeech::AnnounceWhereAmI() -> bool {
-	auto object = m_focusManager.GetFocus();
-	if (!object.IsValid()) {
-		m_speechSystem.Speak("Unknown area");
-		return true;
-	}
-
-	const auto chain = m_focusManager.GetContext();
-
-	size_t diff_index{0};
-	size_t min_size = std::min(chain.size(), m_contextChain.size());
-
-	while (diff_index < min_size && chain[diff_index] == m_contextChain[diff_index]) {
-		++diff_index;
-	}
-
-	if (diff_index == chain.size() && chain.size() == m_contextChain.size()) {
-		return false;
-	}
-
-	std::string last_name{""};
-	m_isWhereAmIOperation = true;
-	for (size_t i = diff_index; i < chain.size(); ++i) {
-		const auto& current_object = chain[i];
-
-		auto it = std::ranges::find(m_contextChain, current_object);
-		if (it != m_contextChain.end())
-			continue;
-
-		auto current_name = current_object.GetName().value_or("");
-
-		if (current_name.empty() || current_name == last_name) {
-			continue;
-		}
-
-		last_name = current_name;
-
-		AnnounceFocusChange(current_object, false);
-	}
-	m_isWhereAmIOperation = false;
-	m_contextChain = chain;
-	return true;
-}
-
-// Various Announcers
-void EventToSpeech::AnnounceFocusChange(CObjectProxy obj, bool interrupt) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	std::pmr::string announcement(&m_pool);
-	BuildFocusAnnouncement(announcement, obj);
-	m_speechSystem.Speak(announcement, interrupt);
-}
-
-void EventToSpeech::AnnounceValueChange(CObjectProxy obj, bool interrupt) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	auto type = obj.GetType();
-	if (!type || !IsObjectValue(*type))
-		return;
-	std::pmr::string announcement(&m_pool);
-	BuildValueAnnouncement(announcement, obj);
-	m_speechSystem.Speak(announcement, interrupt);
-}
-
-void EventToSpeech::AnnounceStateChange(CObjectProxy obj, bool interrupt) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	std::pmr::string announcement(&m_pool);
-	BuildStateAnnouncement(announcement, obj);
-	m_speechSystem.Speak(announcement, interrupt);
-}
-
-void EventToSpeech::AnnounceSelectionChange(CObjectProxy obj, bool interrupt) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-}
-
-void EventToSpeech::AnnounceCursorMove(CObjectProxy obj, bool interrupt) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	auto cursor = text_provider.GetCursor();
-	if (!cursor) {
-		return;
-	}
-
-	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	std::pmr::string announcement(&m_pool);
-	FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
-	if (granularity == ETextGranularity::CHARACTER)
-		m_speechSystem.Spell(announcement, interrupt);
-	else
-		m_speechSystem.Speak(announcement, interrupt);
 }

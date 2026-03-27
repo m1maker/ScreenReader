@@ -1,8 +1,8 @@
 target_sources(ScreenReader
     PRIVATE
         EventHandler.cpp
-        EventToSpeech.cpp
         KeyboardHandler.cpp
+        MessageBuilder.cpp
         main.cpp
         Object.cpp
         SsmlUtterance.cpp
@@ -17,13 +17,15 @@ target_sources(ScreenReader
         Event.cppm
         EventHandler.cppm
         EventQueue.cppm
-        EventToSpeech.cppm
         FocusManager.cppm
         KeyboardHandler.cppm
         KeyInfo.cppm
+        MessageBuilder.cppm
         Object.cppm
+        OutputManager.cppm
+        Outputs.cppm
         PlatformError.cppm
-       Rect.cppm
+        Rect.cppm
         SpeechSystem.cppm
         SsmlUtterance.cppm
         Text.cppm

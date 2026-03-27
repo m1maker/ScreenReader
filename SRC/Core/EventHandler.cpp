@@ -17,7 +17,7 @@ import Core.SpeechSystem;
 
 EventHandler::EventHandler()
 	: m_focusManager(FocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
-	  m_eventToSpeech(EventToSpeech::GetInstance()) {
+	  m_outputManager(OutputManager::GetInstance()) {
 	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
 
@@ -26,7 +26,7 @@ EventHandler::EventHandler()
 	success = keyboard_handler.RegisterAction(
 		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS), true);
 
-	m_eventToSpeech.AnnounceWhereAmI();
+	m_outputManager.WhereAmI();
 }
 
 void EventHandler::Start() {
@@ -88,30 +88,32 @@ void EventHandler::Handle(CEvent&& event) {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 			if (settings.object_presentation.read_unfocused_object_changes && m_focusManager.GetFocus() != evt.object &&
 				evt.type != EObjectEventType::FOCUS_GAINED) {
-				m_eventToSpeech.AnnounceFocusChange(evt.object);
+				m_outputManager.FocusChange(evt.object);
 				return;
 			}
+			if (m_focusManager.GetFocus() == evt.object)
+				m_outputManager.Stop();
 			switch (evt.type) {
 			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(evt.object);
-				SpeechSystem::GetInstance().Stop();
-				m_eventToSpeech.AnnounceWhereAmI();
-				m_eventToSpeech.AnnounceFocusChange(evt.object, false);
+				m_outputManager.Stop();
+				m_outputManager.WhereAmI();
+				m_outputManager.FocusChange(evt.object);
 				break;
 			case EObjectEventType::PARENT_UPDATED:
-				m_eventToSpeech.AnnounceWhereAmI();
+				m_outputManager.WhereAmI();
 				break;
 			case EObjectEventType::VALUE_CHANGED:
-				m_eventToSpeech.AnnounceValueChange(evt.object, m_focusManager.GetFocus() == evt.object);
+				m_outputManager.ValueChange(evt.object);
 				break;
 			case EObjectEventType::STATE_CHANGED:
-				m_eventToSpeech.AnnounceStateChange(evt.object, m_focusManager.GetFocus() == evt.object);
+				m_outputManager.StateChange(evt.object);
 				break;
 			case EObjectEventType::SELECTION_CHANGED:
-				m_eventToSpeech.AnnounceSelectionChange(evt.object);
+				// m_outputManager.SelectionChange(evt.object);
 				break;
 			case EObjectEventType::CURSOR_MOVED:
-				m_eventToSpeech.AnnounceCursorMove(evt.object, m_focusManager.GetFocus() == evt.object);
+				m_outputManager.CursorMove(evt.object);
 				break;
 			default:
 				break;

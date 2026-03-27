@@ -7,8 +7,8 @@ module;
 export module Core.EventHandler;
 import Core.Event;
 import Core.EventQueue;
-import Core.EventToSpeech;
 import Core.FocusManager;
+import Core.OutputManager;
 #if SR_LINUX
 import Platforms.Linux.EventListener;
 #endif
@@ -21,7 +21,7 @@ export class EventHandler final {
 	CEventListener m_listener;
 	FocusManager& m_focusManager;
 	EventQueue& m_eventQueue;
-	EventToSpeech& m_eventToSpeech;
+	OutputManager& m_outputManager;
 
 	std::jthread m_thread;
 	explicit EventHandler();
