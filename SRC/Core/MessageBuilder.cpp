@@ -21,6 +21,20 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
+	if (auto name = obj.GetName()) {
+		if (!name->empty()) {
+			out += *name;
+			return;
+		}
+	}
+
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
+	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
+		if (!text->text.empty()) {
+			out += text->text;
+		}
+	}
+
 	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
 		if (!current.IsValid())
 			return;
@@ -50,19 +64,6 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		collect_labels_recursive(collect_labels_recursive, obj);
 		if (!out.empty())
 			return;
-	}
-
-	std::string announcement = obj.GetName().value_or("");
-	if (!announcement.empty()) {
-		out += announcement;
-		return;
-	}
-	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
-		announcement = text->text;
-		if (!announcement.empty()) {
-			out += announcement;
-		}
 	}
 
 	if (recursive) {
