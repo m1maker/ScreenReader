@@ -1,6 +1,5 @@
 // Some implementations of common object methods.
 module;
-#include <Core/ScopedPool.h>
 #include <iomanip>
 #include <sstream>
 #include <string_view>

@@ -1,7 +1,6 @@
 module;
 #include <Core/EnumUtils.h>
 #include <Core/Logger.h>
-#include <Core/ScopedPool.h>
 #include <atomic>
 #include <cstdint>
 #include <expected>
@@ -32,7 +31,8 @@ void CSpeechEngineSpeechDispatcher::FindVoiceIndex() {
 		if (!system_locale) [[unlikely]]
 			return;
 
-		DefaultPool(pool);
+		alignas(std::max_align_t) std::array<std::byte, 256> buffer;
+		std::pmr::monotonic_buffer_resource pool(&buffer, buffer.size());
 		std::pmr::string system_lang(system_locale, &pool);
 		system_lang = system_lang.substr(0, 5);
 		auto index = system_lang.find('_');

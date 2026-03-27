@@ -1,6 +1,4 @@
 module;
-#include "ScopedPool.h"
-
 #include <map>
 #include <memory>
 #include <memory_resource>
