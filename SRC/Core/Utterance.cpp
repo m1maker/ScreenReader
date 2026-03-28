@@ -38,6 +38,11 @@ CUtterance::CUtterance(std::pmr::string& ssml)
 }
 
 auto CUtterance::Begin(this auto&& self) -> CUtterance& {
+	if (self.m_ssmlContent >= self.m_prefixLength) {
+		self.Clear(false);
+		return self;
+	}
+
 	self.Clear(true);
 	self.m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	self.m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
