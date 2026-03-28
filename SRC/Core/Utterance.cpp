@@ -37,86 +37,86 @@ CUtterance::CUtterance(std::pmr::string& ssml)
 	: m_currentPitch(cPitchDefault), m_currentRate(cRateDefault), m_currentVolume(cVolumeDefault), m_ssmlContent(ssml) {
 }
 
-auto CUtterance::Begin(this auto&& self) -> CUtterance& {
-	if (self.m_ssmlContent >= self.m_prefixLength) {
-		self.Clear(false);
-		return self;
+auto CUtterance::Begin() -> CUtterance& {
+	if (m_ssmlContent.size() >= m_prefixLength) {
+		Clear(false);
+		return *this;
 	}
 
-	self.Clear(true);
-	self.m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	self.m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
-	self.m_prefixLength = self.m_ssmlContent.size();
-	return self;
+	Clear(true);
+	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
+	m_prefixLength = m_ssmlContent.size();
+	return *this;
 }
 
-auto CUtterance::Text(this auto&& self, std::string_view text) -> CUtterance& {
-	if (self.text.empty()) [[unlikely]]
-		return self;
+auto CUtterance::Text(std::string_view text) -> CUtterance& {
+	if (text.empty()) [[unlikely]]
+		return *this;
 
-	self.StartProsodyIfNeeded();
-	self.AddAndEscapeXml(text);
-	return self;
+	StartProsodyIfNeeded();
+	AddAndEscapeXml(text);
+	return *this;
 }
 
-auto CUtterance::Break(this auto&& self, std::string_view time) -> CUtterance& {
-	self.EndProsodyIfNeeded();
-	std::format_to(std::back_inserter(self.m_ssmlContent), "<break time=\"{}\"/>", time);
-	return self;
+auto CUtterance::Break(std::string_view time) -> CUtterance& {
+	EndProsodyIfNeeded();
+	std::format_to(std::back_inserter(m_ssmlContent), "<break time=\"{}\"/>", time);
+	return *this;
 }
 
-auto CUtterance::Mark(this auto&& self, std::string_view name) -> CUtterance& {
-	self.EndProsodyIfNeeded();
-	std::format_to(std::back_inserter(self.m_ssmlContent), "<mark name=\"{}\"/>", name);
-	return self;
+auto CUtterance::Mark(std::string_view name) -> CUtterance& {
+	EndProsodyIfNeeded();
+	std::format_to(std::back_inserter(m_ssmlContent), "<mark name=\"{}\"/>", name);
+	return *this;
 }
 
-auto CUtterance::Pitch(this auto&& self, std::string_view pitch) -> CUtterance& {
-	if (self.m_currentPitch != pitch) {
-		self.EndProsodyIfNeeded();
-		self.m_currentPitch = pitch;
+auto CUtterance::Pitch(std::string_view pitch) -> CUtterance& {
+	if (m_currentPitch != pitch) {
+		EndProsodyIfNeeded();
+		m_currentPitch = pitch;
 	}
-	return self;
+	return *this;
 }
 
-auto CUtterance::Rate(this auto&& self, std::string_view rate) -> CUtterance& {
-	if (self.m_currentRate != rate) {
-		self.EndProsodyIfNeeded();
-		self.m_currentRate = rate;
+auto CUtterance::Rate(std::string_view rate) -> CUtterance& {
+	if (m_currentRate != rate) {
+		EndProsodyIfNeeded();
+		m_currentRate = rate;
 	}
-	return self;
+	return *this;
 }
 
-auto CUtterance::Volume(this auto&& self, std::string_view volume) -> CUtterance& {
-	if (self.m_currentVolume != volume) {
-		self.EndProsodyIfNeeded();
-		self.m_currentVolume = volume;
+auto CUtterance::Volume(std::string_view volume) -> CUtterance& {
+	if (m_currentVolume != volume) {
+		EndProsodyIfNeeded();
+		m_currentVolume = volume;
 	}
-	return self;
+	return *this;
 }
 
-auto CUtterance::Voice(this auto&& self, std::string_view voice) -> CUtterance& {
-	self.EndProsodyIfNeeded();
-	if (!self.m_currentVoice.empty()) {
-		self.m_ssmlContent += "</voice>";
+auto CUtterance::Voice(std::string_view voice) -> CUtterance& {
+	EndProsodyIfNeeded();
+	if (!m_currentVoice.empty()) {
+		m_ssmlContent += "</voice>";
 	}
-	self.m_currentVoice = voice;
+	m_currentVoice = voice;
 	if (!voice.empty()) [[likely]] {
-		std::format_to(std::back_inserter(self.m_ssmlContent), "<voice name=\"{}\">", voice);
+		std::format_to(std::back_inserter(m_ssmlContent), "<voice name=\"{}\">", voice);
 	}
-	return self;
+	return *this;
 }
 
-void CUtterance::End(this auto&& self) {
-	if (self.m_inProsody) {
-		self.m_ssmlContent += "</prosody>";
+void CUtterance::End() {
+	if (m_inProsody) {
+		m_ssmlContent += "</prosody>";
 	}
 
-	if (!self.m_currentVoice.empty()) {
-		self.m_ssmlContent += "</voice>";
+	if (!m_currentVoice.empty()) {
+		m_ssmlContent += "</voice>";
 	}
 
-	self.m_ssmlContent += "</speak>";
+	m_ssmlContent += "</speak>";
 }
 
 void CUtterance::Clear(bool all) {

@@ -14,9 +14,9 @@ void COutputSpeech::FocusChange(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	auto announcement = MessageBuilder::GetInstance().CreateString();
-	MessageBuilder::GetInstance().BuildFocusAnnouncement(announcement, obj);
-	SpeechSystem::GetInstance().Speak(announcement);
+	MessageBuilder::GetInstance().Reset();
+	MessageBuilder::GetInstance().BuildFocusAnnouncement(obj);
+	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }
 
 void COutputSpeech::ValueChange(CObjectProxy obj) {
@@ -26,18 +26,18 @@ void COutputSpeech::ValueChange(CObjectProxy obj) {
 	auto type = obj.GetType();
 	if (!type || !IsObjectValue(*type))
 		return;
-	auto announcement = MessageBuilder::GetInstance().CreateString();
-	MessageBuilder::GetInstance().BuildValueAnnouncement(announcement, obj);
-	SpeechSystem::GetInstance().Speak(announcement);
+	MessageBuilder::GetInstance().Reset();
+	MessageBuilder::GetInstance().BuildValueAnnouncement(obj);
+	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }
 
 void COutputSpeech::StateChange(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	auto announcement = MessageBuilder::GetInstance().CreateString();
-	MessageBuilder::GetInstance().BuildStateAnnouncement(announcement, obj);
-	SpeechSystem::GetInstance().Speak(announcement);
+	MessageBuilder::GetInstance().Reset();
+	MessageBuilder::GetInstance().BuildStateAnnouncement(obj);
+	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }
 
 void COutputSpeech::SelectionChange(CObjectProxy obj) {
@@ -56,10 +56,10 @@ void COutputSpeech::CursorMove(CObjectProxy obj) {
 	}
 
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	auto announcement = MessageBuilder::GetInstance().CreateString();
-	MessageBuilder::GetInstance().FindAnnouncementOfCursorPosition(announcement, text_provider, granularity);
+	MessageBuilder::GetInstance().Reset();
+	MessageBuilder::GetInstance().FindAnnouncementOfCursorPosition(text_provider, granularity);
 	if (granularity == ETextGranularity::CHARACTER)
-		SpeechSystem::GetInstance().Spell(announcement);
+		SpeechSystem::GetInstance().Spell(MessageBuilder::GetInstance());
 	else
-		SpeechSystem::GetInstance().Speak(announcement);
+		SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }

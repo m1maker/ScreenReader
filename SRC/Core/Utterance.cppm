@@ -21,20 +21,20 @@ export class CUtterance final {
 
 public:
 	explicit CUtterance(std::pmr::string& ssml);
-	auto Begin(this auto&& self) -> CUtterance&;
+	auto Begin() -> CUtterance&;
 
-	auto Text(this auto&& self, std::string_view text) -> CUtterance&;
-	auto Break(this auto&& self, std::string_view time = "500ms") -> CUtterance&;
+	auto Text(std::string_view text) -> CUtterance&;
+	auto Break(std::string_view time = "500ms") -> CUtterance&;
 
-	auto Mark(this auto&& self, std::string_view name) -> CUtterance&;
+	auto Mark(std::string_view name) -> CUtterance&;
 
-	auto Pitch(this auto&& self, std::string_view pitch) -> CUtterance&;
-	auto Rate(this auto&& self, std::string_view rate) -> CUtterance&;
-	auto Volume(this auto&& self, std::string_view volume) -> CUtterance&;
+	auto Pitch(std::string_view pitch) -> CUtterance&;
+	auto Rate(std::string_view rate) -> CUtterance&;
+	auto Volume(std::string_view volume) -> CUtterance&;
 
-	auto Voice(this auto&& self, std::string_view voice) -> CUtterance&;
+	auto Voice(std::string_view voice) -> CUtterance&;
 
-	void End(this auto&& self);
+	void End();
 	void Clear(bool all = false);
 
 	static constexpr std::string_view cPitchXlow = "x-low";
