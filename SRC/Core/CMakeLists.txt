@@ -5,7 +5,7 @@ target_sources(ScreenReader
         MessageBuilder.cpp
         main.cpp
         Object.cpp
-        SsmlUtterance.cpp
+        Utterance.cpp
     PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}" FILES
         Action.cppm
         App.cppm
@@ -27,8 +27,8 @@ target_sources(ScreenReader
         PlatformError.cppm
         Rect.cppm
         SpeechSystem.cppm
-        SsmlUtterance.cppm
         Text.cppm
         Timer.cppm
         UnicodeData.cppm
+        Utterance.cppm
 )
