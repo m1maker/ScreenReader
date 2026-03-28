@@ -16,10 +16,13 @@ export class MessageBuilder final {
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 
+	std::pmr::string m_ssmlContent{&m_pool};
+	CUtterance m_utterance{m_ssmlContent};
+
 	static inline void Separate(std::pmr::string& out) { out += cSeparator; }
 
-	inline void ApplyUtteranceParameters(UtteranceParameters parameters, CUtterance& utterance) {
-		utterance.Break(parameters.pause_before)
+	inline void ApplyUtteranceParameters(UtteranceParameters parameters) {
+		m_utterance.Break(parameters.pause_before)
 			.Rate(parameters.rate)
 			.Pitch(parameters.pitch)
 			.Volume(parameters.volume)
