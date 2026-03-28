@@ -15,12 +15,23 @@ module;
 	}
 
 export module Core.Config;
+import Core.Utterance;
 
 export struct SScreenReaderAppSettings final {
 	struct {
 		bool read_item_count = true;
 		bool read_unfocused_object_changes = true;
 	} object_presentation;
+	struct {
+		bool ssml = true;
+		struct SUtteranceParameters final {
+			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,
+							 volume = CUtterance::cVolumeDefault, pause_before = "0ms", pause_after = "5ms";
+		} name, description = {.pause_before = "200ms"}, role = {.pitch = CUtterance::cPitchLow, .pause_after = "50ms"},
+				state = {.rate = CUtterance::cRateFast, .pitch = CUtterance::cPitchXlow, .pause_after = "30ms"},
+				text = {.pause_before = "150ms"};
+
+	} speech;
 };
 
 constexpr inline std::string_view cConfigFileName = "ScreenReader";
