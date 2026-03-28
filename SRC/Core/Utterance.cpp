@@ -40,7 +40,7 @@ CUtterance::CUtterance(std::pmr::string& ssml)
 	m_prefixLength = m_ssmlContent.size();
 }
 
-auto CUtterance::Text(this auto&& self, std::string_view text) {
+auto CUtterance::Text(this auto&& self, std::string_view text) -> CUtterance& {
 	if (self.text.empty()) [[unlikely]]
 		return self;
 
@@ -49,19 +49,19 @@ auto CUtterance::Text(this auto&& self, std::string_view text) {
 	return self;
 }
 
-auto CUtterance::Break(this auto&& self, std::string_view time) {
+auto CUtterance::Break(this auto&& self, std::string_view time) -> CUtterance& {
 	self.EndProsodyIfNeeded();
 	std::format_to(std::back_inserter(self.m_ssmlContent), "<break time=\"{}\"/>", time);
 	return self;
 }
 
-auto CUtterance::Mark(this auto&& self, std::string_view name) {
+auto CUtterance::Mark(this auto&& self, std::string_view name) -> CUtterance& {
 	self.EndProsodyIfNeeded();
 	std::format_to(std::back_inserter(self.m_ssmlContent), "<mark name=\"{}\"/>", name);
 	return self;
 }
 
-auto CUtterance::Pitch(this auto&& self, std::string_view pitch) {
+auto CUtterance::Pitch(this auto&& self, std::string_view pitch) -> CUtterance& {
 	if (self.m_currentPitch != pitch) {
 		self.EndProsodyIfNeeded();
 		self.m_currentPitch = pitch;
@@ -69,7 +69,7 @@ auto CUtterance::Pitch(this auto&& self, std::string_view pitch) {
 	return self;
 }
 
-auto CUtterance::Rate(this auto&& self, std::string_view rate) {
+auto CUtterance::Rate(this auto&& self, std::string_view rate) -> CUtterance& {
 	if (self.m_currentRate != rate) {
 		self.EndProsodyIfNeeded();
 		self.m_currentRate = rate;
@@ -77,7 +77,7 @@ auto CUtterance::Rate(this auto&& self, std::string_view rate) {
 	return self;
 }
 
-auto CUtterance::Volume(this auto&& self, std::string_view volume) {
+auto CUtterance::Volume(this auto&& self, std::string_view volume) -> CUtterance& {
 	if (self.m_currentVolume != volume) {
 		self.EndProsodyIfNeeded();
 		self.m_currentVolume = volume;
@@ -85,7 +85,7 @@ auto CUtterance::Volume(this auto&& self, std::string_view volume) {
 	return self;
 }
 
-auto CUtterance::Voice(this auto&& self, std::string_view voice) {
+auto CUtterance::Voice(this auto&& self, std::string_view voice) -> CUtterance& {
 	self.EndProsodyIfNeeded();
 	if (!self.m_currentVoice.empty()) {
 		self.m_ssmlContent += "</voice>";
@@ -97,7 +97,7 @@ auto CUtterance::Voice(this auto&& self, std::string_view voice) {
 	return self;
 }
 
-auto CUtterance::Finish(this auto&& self) {
+auto CUtterance::Finish(this auto&& self) -> CUtterance& {
 	if (self.m_inProsody) {
 		self.m_ssmlContent += "</prosody>";
 	}

@@ -6,7 +6,9 @@ module;
 #include <string>
 #include <vector>
 export module Core.MessageBuilder;
+import Core.Config;
 import Core.Text;
+import Core.Utterance;
 import Proxies.Object;
 
 export class MessageBuilder final {
@@ -15,6 +17,14 @@ export class MessageBuilder final {
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 
 	static inline void Separate(std::pmr::string& out) { out += cSeparator; }
+
+	inline void ApplyUtteranceParameters(UtteranceParameters parameters, CUtterance& utterance) {
+		utterance.Break(parameters.pause_before)
+			.Rate(parameters.rate)
+			.Pitch(parameters.pitch)
+			.Volume(parameters.volume)
+			.Break(parameters.pause_after);
+	}
 
 public:
 	static auto& GetInstance() {

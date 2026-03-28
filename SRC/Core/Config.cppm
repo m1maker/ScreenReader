@@ -22,7 +22,7 @@ export struct SScreenReaderAppSettings final {
 		bool read_item_count = true;
 		bool read_unfocused_object_changes = true;
 	} object_presentation;
-	struct {
+	struct SSpeechParameters final {
 		bool ssml = true;
 		struct SUtteranceParameters final {
 			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,
@@ -33,6 +33,8 @@ export struct SScreenReaderAppSettings final {
 
 	} speech;
 };
+
+export using UtteranceParameters = SScreenReaderAppSettings::SSpeechParameters::SUtteranceParameters;
 
 constexpr inline std::string_view cConfigFileName = "ScreenReader";
 
