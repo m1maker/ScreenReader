@@ -116,6 +116,9 @@ void MessageBuilder::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
+	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+	auto& speech_settings = settings.speech;
+
 	FindAnnouncementInHierarchy(out, obj /*, !m_isWhereAmIOperation, !m_isWhereAmIOperation*/);
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 	if (!out.empty())
@@ -124,7 +127,6 @@ void MessageBuilder::BuildFocusAnnouncement(std::pmr::string& out, CObjectProxy 
 	Separate(out);
 	BuildStateAnnouncement(out, obj, require_all);
 
-	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 	if (settings.object_presentation.read_item_count && IsObjectDataElement(type)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();

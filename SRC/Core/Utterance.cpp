@@ -35,9 +35,14 @@ void CUtterance::AddAndEscapeXml(std::string_view text) {
 
 CUtterance::CUtterance(std::pmr::string& ssml)
 	: m_currentPitch(cPitchDefault), m_currentRate(cRateDefault), m_currentVolume(cVolumeDefault), m_ssmlContent(ssml) {
-	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
-	m_prefixLength = m_ssmlContent.size();
+}
+
+auto CUtterance::Begin(this auto&& self) -> CUtterance& {
+	self.Clear(true);
+	self.m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	self.m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
+	self.m_prefixLength = self.m_ssmlContent.size();
+	return self;
 }
 
 auto CUtterance::Text(this auto&& self, std::string_view text) -> CUtterance& {
@@ -97,7 +102,7 @@ auto CUtterance::Voice(this auto&& self, std::string_view voice) -> CUtterance& 
 	return self;
 }
 
-auto CUtterance::Finish(this auto&& self) -> CUtterance& {
+void CUtterance::End(this auto&& self) {
 	if (self.m_inProsody) {
 		self.m_ssmlContent += "</prosody>";
 	}
@@ -107,11 +112,10 @@ auto CUtterance::Finish(this auto&& self) -> CUtterance& {
 	}
 
 	self.m_ssmlContent += "</speak>";
-	return self;
 }
 
-void CUtterance::Clear() {
-	m_ssmlContent.resize(m_prefixLength);
+void CUtterance::Clear(bool all) {
+	m_ssmlContent.resize(all ? 0 : m_prefixLength);
 	m_currentPitch = cPitchDefault;
 	m_currentRate = cRateDefault;
 	m_currentVolume = cVolumeDefault;

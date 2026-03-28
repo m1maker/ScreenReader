@@ -16,8 +16,8 @@ export class MessageBuilder final {
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 
-	std::pmr::string m_ssmlContent{&m_pool};
-	CUtterance m_utterance{m_ssmlContent};
+	std::pmr::string m_content{&m_pool};
+	CUtterance m_utterance{m_content};
 
 	static inline void Separate(std::pmr::string& out) { out += cSeparator; }
 
