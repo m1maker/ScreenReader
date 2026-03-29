@@ -6,7 +6,6 @@ module;
 #include <string>
 #include <vector>
 export module Core.MessageBuilder;
-import Core.App;
 import Core.Config;
 import Core.Text;
 import Core.Utterance;
@@ -16,15 +15,15 @@ export class MessageBuilder final {
 	static constexpr size_t cBufferSize = 1024;
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
-
 	std::pmr::string m_content{&m_pool};
 	CUtterance m_utterance{m_content};
+
+	bool m_ssml{false};
 
 	inline void Separate() { m_content += cSeparator; }
 
 	inline void Append(std::string_view text) {
-		bool ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
-		if (ssml) {
+		if (m_ssml) {
 			m_utterance.Text(text);
 		}
 		else
@@ -39,6 +38,8 @@ export class MessageBuilder final {
 			.Break(parameters.pause_after);
 	}
 
+	MessageBuilder();
+
 public:
 	static auto& GetInstance() {
 		static MessageBuilder instance;
@@ -48,8 +49,7 @@ public:
 	void FindAnnouncementOfCursorPosition(CTextProviderProxy provider, ETextGranularity& granularity);
 
 	inline void Reset() {
-		bool ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
-		if (ssml) {
+		if (m_ssml) {
 			m_utterance.Clear();
 		}
 		else

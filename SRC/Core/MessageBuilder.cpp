@@ -3,6 +3,7 @@ module;
 #include <sstream>
 module Core.MessageBuilder;
 import Core.App;
+import Core.Config;
 import Core.Event;
 import Core.KeyboardHandler;
 import Core.KeyInfo;
@@ -10,6 +11,10 @@ import Core.Object;
 import Core.Text;
 import Proxies.Object;
 import Traits.SpeechEngine;
+
+MessageBuilder::MessageBuilder() {
+	m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
+}
 
 /*
 This method attempts to find a named object if the object that received the focus gain event doesn't have a
@@ -116,7 +121,6 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 		return;
 
 	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
-	auto& speech_settings = settings.speech;
 
 	FindAnnouncementInHierarchy(obj /*, !m_isWhereAmIOperation, !m_isWhereAmIOperation*/);
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
