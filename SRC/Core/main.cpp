@@ -8,8 +8,7 @@ import Core.SpeechSystem;
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
-	auto& logger = Logger::GetInstance();
-	logger.Log(ELogLevel::INFO, "main", "Starting");
+	Module<"main"> module;
 	/*
 	We log exceptions directly from main, not from ScreenReaderApp.
 
@@ -20,7 +19,7 @@ auto main(signed int argc, char** argv) -> signed int {
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {
-		logger.Log(ELogLevel::ERROR, "main", "Unhandled C++ exception. \n  What: '{}'", standard_exception.what());
+		module.LogException(standard_exception);
 	}
 
 	return g_returnCode.ToInt();

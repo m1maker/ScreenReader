@@ -89,4 +89,8 @@ public:
 	template <typename... Args> inline void Log(ELogLevel level, std::format_string<Args...> fmt, Args&&... args) {
 		Logger::GetInstance().Log(level, Name.value, fmt, std::forward<Args>(args)...);
 	}
+
+	inline void LogException(const std::exception& exception) {
+		Log(ERROR, "C++ exception. \n What: '{}'", exception.what());
+	}
 };

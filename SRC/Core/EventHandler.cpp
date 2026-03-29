@@ -153,5 +153,6 @@ void EventHandler::Handle(CEvent&& event) {
 		}
 	}
 	catch (const std::exception& standard_exception) {
+		LogException(standard_exception);
 	}
 }
