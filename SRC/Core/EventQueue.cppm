@@ -27,9 +27,7 @@ public:
 	}
 
 	template <typename... Args> void Push(Args&&... args) {
-		std::scoped_lock lock(m_mutex);
-		if (m_events.size() > 100) {
-		}
+		std::scoped_lock _(m_mutex);
 		m_events.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();
 	}
@@ -49,7 +47,7 @@ public:
 
 	void Stop() {
 		{
-			std::scoped_lock lock(m_mutex);
+			std::scoped_lock _(m_mutex);
 			m_stopping = true;
 		}
 		m_cv.notify_all();

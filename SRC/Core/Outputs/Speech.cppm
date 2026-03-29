@@ -8,9 +8,10 @@ module;
 #include <vector>
 export module Core.Outputs.Speech;
 import Core.FocusManager;
+import Core.Logger;
 import Proxies.Object;
 
-export class COutputSpeech final {
+export class COutputSpeech final : TModule<"SpeechOutput"> {
 public:
 	void Stop();
 	void FocusChange(CObjectProxy obj);

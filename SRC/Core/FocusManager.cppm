@@ -5,10 +5,11 @@ module;
 #include <vector>
 export module Core.FocusManager;
 import Core.Environment;
+import Core.Logger;
 import Core.Object;
 import Proxies.Object;
 
-export class FocusManager final {
+export class FocusManager final : TModule<"FocusManager"> {
 	std::pmr::unsynchronized_pool_resource m_pool;
 
 	CObjectProxy m_objectInFocus;

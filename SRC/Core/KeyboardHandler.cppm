@@ -5,10 +5,11 @@ module;
 export module Core.KeyboardHandler;
 import Core.Action;
 import Core.Event;
+import Core.Logger;
 import Core.KeyInfo;
 import Core.Timer;
 
-export class KeyboardHandler final {
+export class KeyboardHandler final : TModule<"KeyboardHandler"> {
 	struct SActionInfo final {
 		uint32_t id{0};
 		ActionCallback<SHotkeyInfo> executable{nullptr};

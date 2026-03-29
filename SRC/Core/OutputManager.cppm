@@ -8,11 +8,12 @@ module;
 #include <vector>
 export module Core.OutputManager;
 import Core.FocusManager;
+import Core.Logger;
 import Core.Outputs;
 import Proxies.Object;
 import Proxies.Output;
 
-export class OutputManager final {
+export class OutputManager final : TModule<"OutputManager"> {
 	using OutputProxyMethodObject = void (COutputProxy::*)(CObjectProxy);
 	using OutputProxyMethodVoid = void (COutputProxy::*)(void);
 

@@ -6,10 +6,11 @@ module;
 export module Core.SpeechSystem;
 import Core.Encoding;
 import Core.Environment;
+import Core.Logger;
 import Core.UnicodeData;
 import Traits.SpeechEngine;
 
-export class SpeechSystem final {
+export class SpeechSystem final : TModule<"SpeechSystem"> {
 	SpeechEngineVariant m_variant;
 
 	explicit SpeechSystem() { m_variant.emplace<CDefaultSpeechEngine>(); }

@@ -7,11 +7,12 @@ module;
 #include <vector>
 export module Core.MessageBuilder;
 import Core.Config;
+import Core.Logger;
 import Core.Text;
 import Core.Utterance;
 import Proxies.Object;
 
-export class MessageBuilder final {
+export class MessageBuilder final : TModule<"MessageBuilder"> {
 	static constexpr size_t cBufferSize = 1024;
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
