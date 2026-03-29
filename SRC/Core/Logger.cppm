@@ -80,11 +80,11 @@ template <size_t N> struct TStringLiteral final {
 	constexpr TStringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
 };
 
-export template <TStringLiteral Name> class Module {
+export template <TStringLiteral Name> class TModule {
 public:
 	using enum ELogLevel;
-	Module() { Log(ELogLevel::INFO, "Initializing module"); }
-	~Module() { Log(ELogLevel::INFO, "Uninitializing module"); }
+	TModule() { Log(ELogLevel::INFO, "Initializing module"); }
+	~TModule() { Log(ELogLevel::INFO, "Uninitializing module"); }
 
 	template <typename... Args> inline void Log(ELogLevel level, std::format_string<Args...> fmt, Args&&... args) {
 		Logger::GetInstance().Log(level, Name.value, fmt, std::forward<Args>(args)...);

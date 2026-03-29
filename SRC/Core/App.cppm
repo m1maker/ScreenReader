@@ -20,7 +20,7 @@ struct SScreenReaderAppOptions final {
 	SScreenReaderAppSettings settings;
 };
 
-export class ScreenReaderApp final : Module<"Application"> {
+export class ScreenReaderApp final : TModule<"Application"> {
 	explicit ScreenReaderApp() = default;
 
 	SScreenReaderAppOptions m_options;

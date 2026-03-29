@@ -7,8 +7,9 @@ module;
 #include <optional>
 export module Core.EventQueue;
 import Core.Event;
+import Core.Logger;
 
-export class EventQueue final {
+export class EventQueue final : TModule<"EventQueue"> {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<CEvent> m_events;
 

@@ -8,7 +8,7 @@ import Core.SpeechSystem;
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
-	Module<"main"> module;
+	TModule<"main"> module;
 	/*
 	We log exceptions directly from main, not from ScreenReaderApp.
 
