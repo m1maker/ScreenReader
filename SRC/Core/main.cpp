@@ -20,8 +20,7 @@ auto main(signed int argc, char** argv) -> signed int {
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {
-		logger.Log(
-			ELogLevel::ERROR, "main", "Unhandled C++ exception. \n  What: '{}'\n  Where: ", standard_exception.what());
+		logger.Log(ELogLevel::ERROR, "main", "Unhandled C++ exception. \n  What: '{}'", standard_exception.what());
 	}
 
 	return g_returnCode.ToInt();

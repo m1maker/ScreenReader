@@ -8,12 +8,13 @@ export module Core.EventHandler;
 import Core.Event;
 import Core.EventQueue;
 import Core.FocusManager;
+import Core.Logger;
 import Core.OutputManager;
 #if SR_LINUX
 import Platforms.Linux.EventListener;
 #endif
 
-export class EventHandler final {
+export class EventHandler final : Module<"EventHandler"> {
 	/*
 	A listener is a platform-specific trait that processes events and converts them to a common screen reader's
 	Event. Then this event handler then queries the queue of these events.

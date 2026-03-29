@@ -37,21 +37,25 @@ void EventHandler::Start() {
 				switch (event.value().GetType()) {
 				case CEvent::OBJECT: {
 					auto pool = m_eventQueue.GetPool();
-					if (!pool) [[unlikely]]
+					if (!pool) [[unlikely]] {
+						Log(ERROR,
+							"Failed to get memory resource from event queue. It is not possible to allocate data to "
+							"move the object event for handling to the main thread");
 						break;
-
+					}
 					auto raw = pool->allocate(sizeof(CEvent));
 					auto raw_event = new (raw) CEvent(std::move(event.value()));
 					m_listener.PushToMainThread(
 						[](void* pData) -> void {
-							if (!pData)
+							if (!pData) [[unlikely]] {
 								return;
+							}
 							auto event_casted = static_cast<CEvent*>(pData);
 							EventHandler::GetInstance().Handle(std::move(*event_casted));
 							auto pool = EventQueue::GetInstance().GetPool();
-							if (!pool) [[unlikely]]
+							if (!pool) [[unlikely]] {
 								return;
-
+							}
 							event_casted->~CEvent();
 							pool->deallocate(pData, sizeof(CEvent));
 						},
@@ -62,7 +66,8 @@ void EventHandler::Start() {
 				case CEvent::KEYBOARD:
 					Handle(std::move(event.value()));
 					break;
-				default:
+				[[unlikely]] default:
+					Log(WARNING, "Unknown event received");
 					break;
 				}
 			}
@@ -79,9 +84,10 @@ void EventHandler::Handle(CEvent&& event) {
 		switch (event.GetType()) {
 		case CEvent::OBJECT: {
 			auto object_event = event.GetAs<CObjectEvent>();
-			if (!object_event.has_value())
+			if (!object_event.has_value()) {
+				Log(WARNING, "An object event received, but it could not be unpacked from the variant");
 				break;
-
+			}
 			auto evt = object_event.value();
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 			if (settings.object_presentation.read_unfocused_object_changes && m_focusManager.GetFocus() != evt.object &&
@@ -122,9 +128,10 @@ void EventHandler::Handle(CEvent&& event) {
 			auto& keyboard_handler = KeyboardHandler::GetInstance();
 			std::scoped_lock lock(keyboard_handler.m_mutex);
 			auto keyboard_event = event.GetAs<CKeyboardEvent>();
-			if (!keyboard_event.has_value())
+			if (!keyboard_event.has_value()) {
+				Log(WARNING, "A keyboard event received, but it could not be unpacked from the variant");
 				break;
-
+			}
 			switch (keyboard_event.value().type) {
 			case CKeyboardEvent::KEY_PRESSED:
 				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
@@ -145,6 +152,6 @@ void EventHandler::Handle(CEvent&& event) {
 			break;
 		}
 	}
-	catch (const std::bad_expected_access<EObjectError>& error) {
+	catch (const std::exception& standard_exception) {
 	}
 }
