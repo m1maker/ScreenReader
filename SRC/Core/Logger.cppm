@@ -74,12 +74,19 @@ public:
 	inline auto GetLevel() const noexcept -> ELogLevel { return m_level; }
 };
 
-export template <const char* Name> class Module {
+template <size_t N> struct TStringLiteral final {
+	char value[N];
+
+	constexpr TStringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
+};
+
+export template <TStringLiteral Name> class Module {
 public:
+	using enum ELogLevel;
 	Module() { Log(ELogLevel::INFO, "Initializing module"); }
 	~Module() { Log(ELogLevel::INFO, "Uninitializing module"); }
 
 	template <typename... Args> inline void Log(ELogLevel level, std::format_string<Args...> fmt, Args&&... args) {
-		Logger::GetInstance().Log(level, Name, fmt, std::forward<Args>(args)...);
+		Logger::GetInstance().Log(level, Name.value, fmt, std::forward<Args>(args)...);
 	}
 };

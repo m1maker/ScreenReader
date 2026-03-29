@@ -10,6 +10,7 @@ export module Core.App;
 import Core.AppState;
 import Core.Config;
 import Core.EventHandler;
+import Core.Logger;
 #if SR_LINUX
 import Platforms.Linux.Worker;
 #endif
@@ -19,7 +20,7 @@ struct SScreenReaderAppOptions final {
 	SScreenReaderAppSettings settings;
 };
 
-export class ScreenReaderApp final {
+export class ScreenReaderApp final : Module<"Application"> {
 	explicit ScreenReaderApp() = default;
 
 	SScreenReaderAppOptions m_options;
@@ -48,11 +49,9 @@ public:
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.
 		*/
 		while (g_running.load()) {
+			Log(DEBUG, "Main loop running. Attempt: {}", m_loopRestartAttempts + 1);
 			m_worker.Loop();
 			++m_loopRestartAttempts;
-			if (g_running) {
-				// g_logger.Log(Logger::WARNING, "Application", "Worker loop exited. Restarting");
-			}
 		}
 
 		g_running.store(false);
