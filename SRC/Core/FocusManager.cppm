@@ -7,9 +7,10 @@ export module Core.FocusManager;
 import Core.Environment;
 import Core.Logger;
 import Core.Object;
+import Core.Singleton;
 import Proxies.Object;
 
-export class FocusManager final : TModule<"FocusManager"> {
+export class FocusManager final : TModule<"FocusManager">, public TSingleton<FocusManager> {
 	std::pmr::unsynchronized_pool_resource m_pool;
 
 	CObjectProxy m_objectInFocus;
@@ -32,14 +33,9 @@ export class FocusManager final : TModule<"FocusManager"> {
 		}
 	}
 
+public:
 	explicit FocusManager() : m_contextChain(&m_pool) {}
 	~FocusManager() = default;
-
-public:
-	static auto& GetInstance() {
-		static FocusManager instance;
-		return instance;
-	}
 
 	void SetFocus(auto&& obj) {
 		if (!obj.IsValid() || m_objectInFocus == obj)

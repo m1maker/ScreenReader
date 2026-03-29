@@ -11,6 +11,7 @@ import Core.AppState;
 import Core.Config;
 import Core.EventHandler;
 import Core.Logger;
+import Core.Singleton;
 #if SR_LINUX
 import Platforms.Linux.Worker;
 #endif
@@ -20,8 +21,7 @@ struct SScreenReaderAppOptions final {
 	SScreenReaderAppSettings settings;
 };
 
-export class ScreenReaderApp final : TModule<"Application"> {
-	explicit ScreenReaderApp() = default;
+export class ScreenReaderApp final : TModule<"Application">, public TSingleton<ScreenReaderApp> {
 
 	SScreenReaderAppOptions m_options;
 
@@ -33,14 +33,7 @@ export class ScreenReaderApp final : TModule<"Application"> {
 	CPlatformDependentWorker m_worker;
 	unsigned int m_loopRestartAttempts{0};
 
-	~ScreenReaderApp() {}
-
 public:
-	static auto& GetInstance() {
-		static ScreenReaderApp instance;
-		return instance;
-	}
-
 	void Run() {
 		g_running.store(true);
 		EventHandler::GetInstance().Start();

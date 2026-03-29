@@ -10,10 +10,11 @@ export module Core.OutputManager;
 import Core.FocusManager;
 import Core.Logger;
 import Core.Outputs;
+import Core.Singleton;
 import Proxies.Object;
 import Proxies.Output;
 
-export class OutputManager final : TModule<"OutputManager"> {
+export class OutputManager final : TModule<"OutputManager">, public TSingleton<OutputManager> {
 	using OutputProxyMethodObject = void (COutputProxy::*)(CObjectProxy);
 	using OutputProxyMethodVoid = void (COutputProxy::*)(void);
 
@@ -36,13 +37,8 @@ export class OutputManager final : TModule<"OutputManager"> {
 		}
 	}
 
-	OutputManager() : m_focusManager(FocusManager::GetInstance()) { m_outputs[0] = COutputProxy(COutputSpeech()); }
-
 public:
-	static auto& GetInstance() {
-		static OutputManager instance;
-		return instance;
-	}
+	OutputManager() : m_focusManager(FocusManager::GetInstance()) { m_outputs[0] = COutputProxy(COutputSpeech()); }
 
 	inline void UnknownArea() {}
 

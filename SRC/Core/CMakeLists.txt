@@ -27,6 +27,7 @@ target_sources(ScreenReader
         Outputs.cppm
         PlatformError.cppm
         Rect.cppm
+        Singleton.cppm
         SpeechSystem.cppm
         Text.cppm
         Timer.cppm

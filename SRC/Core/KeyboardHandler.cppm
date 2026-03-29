@@ -7,9 +7,10 @@ import Core.Action;
 import Core.Event;
 import Core.Logger;
 import Core.KeyInfo;
+import Core.Singleton;
 import Core.Timer;
 
-export class KeyboardHandler final : TModule<"KeyboardHandler"> {
+export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSingleton<KeyboardHandler> {
 	struct SActionInfo final {
 		uint32_t id{0};
 		ActionCallback<SHotkeyInfo> executable{nullptr};
@@ -33,15 +34,7 @@ export class KeyboardHandler final : TModule<"KeyboardHandler"> {
 	mutable CTimer m_hookedModifiersTimer;
 	static constexpr uint64_t cHookedModifierPressTimeMs = 300;
 
-	explicit KeyboardHandler() = default;
-	~KeyboardHandler() = default;
-
 public:
-	static auto& GetInstance() {
-		static KeyboardHandler instance;
-		return instance;
-	}
-
 	[[nodiscard]] auto RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook = false) -> bool;
 	void UnregisterAction(SHotkeyInfo action);
 

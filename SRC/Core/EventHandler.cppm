@@ -10,11 +10,12 @@ import Core.EventQueue;
 import Core.FocusManager;
 import Core.Logger;
 import Core.OutputManager;
+import Core.Singleton;
 #if SR_LINUX
 import Platforms.Linux.EventListener;
 #endif
 
-export class EventHandler final : TModule<"EventHandler"> {
+export class EventHandler final : TModule<"EventHandler">, public TSingleton<EventHandler> {
 	/*
 	A listener is a platform-specific trait that processes events and converts them to a common screen reader's
 	Event. Then this event handler then queries the queue of these events.
@@ -25,15 +26,9 @@ export class EventHandler final : TModule<"EventHandler"> {
 	OutputManager& m_outputManager;
 
 	std::jthread m_thread;
-	explicit EventHandler();
-	~EventHandler() = default;
 
 public:
-	static auto& GetInstance() {
-		static EventHandler instance;
-		return instance;
-	}
-
+	explicit EventHandler();
 	void Handle(CEvent&& event);
 
 	void Start();

@@ -6,16 +6,18 @@ module;
 #include <string_view>
 export module Core.Logger;
 import Core.AppState;
+import Core.Singleton;
 
 export enum class ELogLevel : unsigned char { DEBUG = 0, INFO, WARNING, ERROR, NOTHING };
 
 // This is the simplest inline logger with levels and categories.
-export class Logger final {
+export class Logger final : public TSingleton<Logger> {
 	using enum ELogLevel;
 	std::ofstream m_file;
 	ELogLevel m_level{DEBUG};
 	std::mutex m_mutex;
 
+public:
 	explicit Logger() {
 		m_file.open("ScreenReader.log", std::ios::app);
 		if (!m_file.is_open()) {
@@ -32,12 +34,6 @@ export class Logger final {
 			m_file << '\n';
 			m_file.close();
 		}
-	}
-
-public:
-	static auto& GetInstance() {
-		static Logger instance;
-		return instance;
 	}
 
 	[[nodiscard]] static constexpr inline auto LogLevelToString(ELogLevel level) noexcept -> std::string_view {

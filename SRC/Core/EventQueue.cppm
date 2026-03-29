@@ -8,23 +8,20 @@ module;
 export module Core.EventQueue;
 import Core.Event;
 import Core.Logger;
+import Core.Singleton;
 
-export class EventQueue final : TModule<"EventQueue"> {
+export class EventQueue final : TModule<"EventQueue">, public TSingleton<EventQueue> {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<CEvent> m_events;
 
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	bool m_stopping{false};
+
+public:
 	explicit EventQueue() : m_events(&m_pool) {}
 
 	~EventQueue() { Stop(); }
-
-public:
-	static auto& GetInstance() {
-		static EventQueue instance;
-		return instance;
-	}
 
 	template <typename... Args> void Push(Args&&... args) {
 		std::scoped_lock _(m_mutex);
