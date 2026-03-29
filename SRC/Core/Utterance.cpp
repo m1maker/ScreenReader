@@ -38,14 +38,8 @@ CUtterance::CUtterance(std::pmr::string& ssml)
 }
 
 auto CUtterance::Begin() -> CUtterance& {
-	if (m_ssmlContent.size() >= m_prefixLength) {
-		Clear(false);
-		return *this;
-	}
-
 	Clear(true);
-	m_ssmlContent += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\">";
+	m_ssmlContent += "<speak>";
 	m_prefixLength = m_ssmlContent.size();
 	return *this;
 }
@@ -60,6 +54,8 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 }
 
 auto CUtterance::Break(std::string_view time) -> CUtterance& {
+	if (time == "0ms" || time.empty())
+		return *this;
 	EndProsodyIfNeeded();
 	std::format_to(std::back_inserter(m_ssmlContent), "<break time=\"{}\"/>", time);
 	return *this;

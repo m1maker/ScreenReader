@@ -19,6 +19,14 @@ export class MessageBuilder final {
 	CUtterance m_utterance{m_content};
 
 	bool m_ssml{false};
+	inline void Begin() {
+		if (m_ssml)
+			m_utterance.Begin();
+	}
+	inline void End() {
+		if (m_ssml)
+			m_utterance.End();
+	}
 
 	inline void Separate() { m_content += cSeparator; }
 
@@ -31,6 +39,8 @@ export class MessageBuilder final {
 	}
 
 	inline void ApplyUtteranceParameters(UtteranceParameters parameters) {
+		if (!m_ssml)
+			return;
 		m_utterance.Break(parameters.pause_before)
 			.Rate(parameters.rate)
 			.Pitch(parameters.pitch)

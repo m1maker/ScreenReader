@@ -13,7 +13,7 @@ import Proxies.Object;
 import Traits.SpeechEngine;
 
 MessageBuilder::MessageBuilder() {
-	m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
+	// m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
 }
 
 /*
@@ -121,13 +121,18 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 		return;
 
 	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+	auto& speech = settings.speech;
+	Begin();
+	ApplyUtteranceParameters(speech.name);
 
 	FindAnnouncementInHierarchy(obj /*, !m_isWhereAmIOperation, !m_isWhereAmIOperation*/);
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 	if (!m_content.empty())
 		Separate();
+	ApplyUtteranceParameters(speech.role);
 	Append(GetObjectTypeName(type, m_content.empty() ? true : require_all));
 	Separate();
+	ApplyUtteranceParameters(speech.state);
 	BuildStateAnnouncement(obj, require_all);
 
 	if (settings.object_presentation.read_item_count && IsObjectDataElement(type)) {
@@ -142,14 +147,17 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 	Separate();
 	BuildValueAnnouncement(obj);
 	Separate();
+	ApplyUtteranceParameters(speech.text);
 	BuildTextAnnouncement(obj);
 
 	if (auto description = obj.GetDescription()) {
 		if (!description->empty() && !m_content.starts_with(*description)) {
 			Separate();
+			ApplyUtteranceParameters(speech.description);
 			Append(*description);
 		}
 	}
+	End();
 }
 
 void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) {

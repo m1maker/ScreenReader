@@ -26,7 +26,7 @@ export struct SScreenReaderAppSettings final {
 		bool ssml = true;
 		struct SUtteranceParameters final {
 			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,
-							 volume = CUtterance::cVolumeDefault, pause_before = "0ms", pause_after = "5ms";
+							 volume = CUtterance::cVolumeDefault, pause_before = "", pause_after = "";
 		} name, description = {.pause_before = "200ms"}, role = {.pitch = CUtterance::cPitchLow, .pause_after = "50ms"},
 				state = {.rate = CUtterance::cRateFast, .pitch = CUtterance::cPitchXlow, .pause_after = "30ms"},
 				text = {.pause_before = "150ms"};
