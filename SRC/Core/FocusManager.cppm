@@ -1,5 +1,4 @@
 module;
-#include "Logger.h"
 
 #include <memory>
 #include <memory_resource>
@@ -16,7 +15,6 @@ export class FocusManager final {
 	std::pmr::vector<CObjectProxy> m_contextChain;
 
 	void UpdateContextChain() {
-		LogCalled();
 		m_contextChain.clear();
 		if (!m_objectInFocus.IsValid())
 			return;

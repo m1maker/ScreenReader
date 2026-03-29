@@ -1,6 +1,5 @@
 module;
 #include <Core/EnumUtils.h>
-#include <Core/Logger.h>
 #include <atomic>
 #include <cstdint>
 #include <expected>
@@ -54,17 +53,14 @@ void CSpeechEngineSpeechDispatcher::FindVoiceIndex() {
 }
 
 CSpeechEngineSpeechDispatcher::CSpeechEngineSpeechDispatcher() {
-	CScopedCategory _("SpeechDispatcher");
 	auto address = spd_get_default_address(nullptr);
 	if (address == nullptr) [[unlikely]] {
-		g_logger.Log(Logger::ERROR, "Failed to get default address");
 		return;
 	}
 
 	m_connection =
 		spd_open2(cSpeechDispatcherClientName.data(), nullptr, nullptr, SPD_MODE_THREADED, address, true, nullptr);
 	if (m_connection == nullptr) [[unlikely]] {
-		g_logger.Log(Logger::ERROR, "Failed to open connection");
 		return;
 	}
 

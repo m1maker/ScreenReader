@@ -1,32 +1,27 @@
 // Program entry point.
 import Core.App;
 import Core.AppState;
+import Core.Logger;
 import Core.SpeechSystem;
-#include "Logger.h"
 
 #include <Version.h>
 #include <exception>
 
 auto main(signed int argc, char** argv) -> signed int {
-	g_logger.Log(Logger::INFO,
-		"Application",
-		"Starting ",
-		SScreenReaderVersion::PROJECT_NAME,
-		" version ",
-		SScreenReaderVersion::STRING);
-
+	auto& logger = Logger::GetInstance();
+	logger.Log(ELogLevel::INFO, "main", "Starting");
 	/*
 	We log exceptions directly from main, not from ScreenReaderApp.
 
 	We'll simply log anything we don't handle in other parts of the application.
 	*/
-	g_logger; // Invoke the logger instance to avoid uninitialization before the application instance.
 	try {
 		SpeechSystem::GetInstance().Speak("Screenreader");
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {
-		g_logger.Log(Logger::ERROR, standard_exception.what());
+		logger.Log(
+			ELogLevel::ERROR, "main", "Unhandled C++ exception. \n  What: '{}'\n  Where: ", standard_exception.what());
 	}
 
 	return g_returnCode.ToInt();

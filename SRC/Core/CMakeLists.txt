@@ -20,6 +20,7 @@ target_sources(ScreenReader
         FocusManager.cppm
         KeyboardHandler.cppm
         KeyInfo.cppm
+        Logger.cppm
         MessageBuilder.cppm
         Object.cppm
         OutputManager.cppm

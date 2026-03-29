@@ -1,5 +1,4 @@
 module;
-#include "Logger.h"
 
 #include <iostream>
 #include <map>
@@ -98,7 +97,6 @@ private:
 			field_wrapper.get() = std::get<FieldType>(val);
 		}
 		else {
-			g_logger.Log(Logger::WARNING, "Config", "Type mismatch for key: " + std::string(name));
 		}
 	}
 };

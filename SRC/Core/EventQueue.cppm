@@ -1,10 +1,10 @@
 module;
-#include "Logger.h"
 
 #include <condition_variable>
 #include <deque>
 #include <memory_resource>
 #include <mutex>
+#include <optional>
 export module Core.EventQueue;
 import Core.Event;
 
@@ -15,7 +15,6 @@ export class EventQueue final {
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	bool m_stopping{false};
-	DeclareSingleton(EventQueue);
 	explicit EventQueue() : m_events(&m_pool) {}
 
 	~EventQueue() { Stop(); }
@@ -29,7 +28,6 @@ public:
 	template <typename... Args> void Push(Args&&... args) {
 		std::scoped_lock lock(m_mutex);
 		if (m_events.size() > 100) {
-			g_logger.Log(Logger::WARNING, "Queue", "Queue overflow! Events are leaking?");
 		}
 		m_events.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();

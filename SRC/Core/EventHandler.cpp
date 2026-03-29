@@ -1,8 +1,8 @@
 // Handling events of different types.
 module;
-#include "Logger.h"
 
 #include <expected>
+#include <mutex>
 #include <thread>
 module Core.EventHandler;
 import Core.Action;
@@ -75,8 +75,6 @@ This function is called by an event handler when it has been typecast to IEvent:
 dispatched with the desired event type category.
 */
 void EventHandler::Handle(CEvent&& event) {
-	LogCalled();
-
 	try {
 		switch (event.GetType()) {
 		case CEvent::OBJECT: {
@@ -148,6 +146,5 @@ void EventHandler::Handle(CEvent&& event) {
 		}
 	}
 	catch (const std::bad_expected_access<EObjectError>& error) {
-		g_logger.Log(Logger::ERROR, "Expected access error: " + std::string(ObjectErrorToString(error.error())));
 	}
 }

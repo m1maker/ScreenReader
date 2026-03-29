@@ -1,7 +1,6 @@
 // Main application class for screen reader.
 module;
 #include "Environment.h"
-#include "Logger.h"
 
 #include <atomic>
 #include <memory>
@@ -33,12 +32,7 @@ export class ScreenReaderApp final {
 	CPlatformDependentWorker m_worker;
 	unsigned int m_loopRestartAttempts{0};
 
-	~ScreenReaderApp() {
-		g_logger.Log(Logger::INFO,
-			"Application",
-			"Shutting down with return code " + std::to_string(g_returnCode.ToInt()) + " - " +
-				std::string(g_returnCode.ToString()));
-	}
+	~ScreenReaderApp() {}
 
 public:
 	static auto& GetInstance() {
@@ -54,17 +48,14 @@ public:
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.
 		*/
 		while (g_running.load()) {
-			g_logger.Log(Logger::DEBUG,
-				"Application",
-				"Entering worker loop. Attempt: " + std::to_string(m_loopRestartAttempts + 1));
 			m_worker.Loop();
 			++m_loopRestartAttempts;
-			if (g_running)
-				g_logger.Log(Logger::WARNING, "Application", "Worker loop exited. Restarting");
+			if (g_running) {
+				// g_logger.Log(Logger::WARNING, "Application", "Worker loop exited. Restarting");
+			}
 		}
 
 		g_running.store(false);
-		g_logger.Log(Logger::INFO, "Application", "Worker finished");
 	}
 
 	[[nodiscard]] auto GetSettings() -> SScreenReaderAppSettings& { return m_options.settings; }

@@ -1,6 +1,5 @@
 // AT-SPI's event listener implementation.
 module;
-#include <Core/Logger.h>
 #include <atspi/atspi.h>
 #include <cstdlib>
 #include <fcntl.h>
@@ -75,9 +74,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 		return;
 	}
 
-	[[maybe_unused]] CScopedCategory _("ATSPI object event callback");
 	if (!event || !user_data || !event->type) [[unlikely]] {
-		g_logger.Log(Logger::DEBUG, "One or more pointers required by event handler was nullptr");
 		return;
 	}
 
@@ -105,23 +102,19 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 void CEventListenerAtspi::StartEvdevWatcher() {
 	m_listenKeyboard.store(true);
 	m_keyboardListenerThread = std::jthread([this](const std::stop_token& stop_token) -> void {
-		LogCalled();
 		struct input_event ev{};
 
 		while (!stop_token.stop_requested()) {
 			auto dev = FindKeyboardDevice();
 			if (dev.empty()) {
-				g_logger.Log(Logger::ERROR, "Keyboard device not found. Retrying in 2s...");
 				std::this_thread::sleep_for(std::chrono::seconds(2));
 				continue;
 			}
-			g_logger.Log(Logger::DEBUG, "Found" + dev);
 
 			auto fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
 
 			if (fd == -1) {
 				if (errno == EACCES) {
-					g_logger.Log(Logger::INFO, "Access denied to " + dev + ". Requesting privileges...");
 
 					SpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
 
@@ -134,12 +127,9 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			}
 
 			if (fd == -1) {
-				g_logger.Log(Logger::ERROR, "Could not open evdev (" + dev + "): " + std::string(strerror(errno)));
 				std::this_thread::sleep_for(std::chrono::seconds(2));
 				continue;
 			}
-
-			g_logger.Log(Logger::INFO, "Evdev listener started on: " + dev);
 
 			CUinputDevice virtual_device(fd);
 			unsigned char modifiers{0};
@@ -151,7 +141,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						std::this_thread::sleep_for(std::chrono::milliseconds(10));
 						continue;
 					}
-					g_logger.Log(Logger::ERROR, "Evdev read error or device disconnected.");
 					modifiers = 0;
 					break;
 				}
@@ -179,7 +168,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					virtual_device.Post(ev.type, ev.code, ev.value);
 			}
 			close(fd);
-			g_logger.Log(Logger::INFO, "Evdev fd closed.");
 		}
 	});
 
@@ -203,9 +191,7 @@ void CEventListenerAtspi::do_ListenDevice(EDeviceType device, bool listen) {
 
 CEventListenerAtspi::CEventListenerAtspi()
 	: m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)) {
-	[[maybe_unused]] CScopedCategory _("ATSPI event listener");
 	if (!m_objectEventListener) [[unlikely]] {
-		g_logger.Log(Logger::ERROR, "Failed to register the object event listener");
 		return;
 	}
 
@@ -216,7 +202,6 @@ CEventListenerAtspi::CEventListenerAtspi()
 	for (const auto& [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
 		atspi_event_listener_register(m_objectEventListener, atspi_event_type.data(), &error);
 		if (error) {
-			g_logger.Log(Logger::ERROR, "Failed to register event: ", atspi_event_type, error->message);
 			g_error_free(error);
 			error = nullptr;
 		}
