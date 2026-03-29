@@ -18,8 +18,6 @@ public:
 	The Loop function should run as long as g_running is true.
 	*/
 
-	void Loop(this auto&& self) {
-		std::forward<decltype(self)>(self).do_Loop();
-	}
+	void Loop(this auto&& self) { std::forward<decltype(self)>(self).do_Loop(); }
 	void Throw(this auto&& self, const Error* error) { return std::forward<decltype(self)>(self).do_Throw(error); }
 };

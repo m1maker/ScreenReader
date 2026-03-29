@@ -12,7 +12,9 @@ IEvent.
 export using ThreadFunction = void (*)(void*);
 export template <typename Derived> class TEventListener {
 public:
-	void ListenDevice(this auto&& self, EDeviceType type, bool listen = true) { return std::forward<decltype(self)>(self).do_ListenDevice(type, listen); }
+	void ListenDevice(this auto&& self, EDeviceType type, bool listen = true) {
+		return std::forward<decltype(self)>(self).do_ListenDevice(type, listen);
+	}
 
 	void PushToMainThread(this auto&& self, ThreadFunction function, void* pUserData) {
 		return std::forward<decltype(self)>(self).do_PushToMainThread(function, pUserData);
