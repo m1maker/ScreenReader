@@ -1,5 +1,4 @@
 module;
-#include <Core/StaticInterface.h>
 #include <atomic>
 #include <bitset>
 #include <cstdint>

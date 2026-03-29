@@ -1,6 +1,5 @@
 // Platform dependent worker trait.
 module;
-#include <Core/StaticInterface.h>
 #include <utility>
 export module Traits.PlatformDependentWorker;
 import Core.PlatformError;
@@ -15,12 +14,12 @@ protected:
 	}
 
 public:
-	BindStaticInterface(Derived);
-
 	/*
 	The Loop function should run as long as g_running is true.
 	*/
 
-	ProxyMethod(Loop);
-	void Throw(const Error* error) { return Impl().do_Throw(error); }
+	void Loop(this auto&& self) {
+		std::forward<decltype(self)>(self).do_Loop();
+	}
+	void Throw(this auto&& self, const Error* error) { return std::forward<decltype(self)>(self).do_Throw(error); }
 };

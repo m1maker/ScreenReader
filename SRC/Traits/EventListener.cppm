@@ -1,6 +1,6 @@
 // Event listener trait
 module;
-#include <Core/StaticInterface.h>
+#include <utility>
 export module Traits.EventListener;
 import Core.Device;
 
@@ -12,11 +12,9 @@ IEvent.
 export using ThreadFunction = void (*)(void*);
 export template <typename Derived> class TEventListener {
 public:
-	BindStaticInterface(Derived);
+	void ListenDevice(this auto&& self, EDeviceType type, bool listen = true) { return std::forward<decltype(self)>(self).do_ListenDevice(type, listen); }
 
-	void ListenDevice(EDeviceType type, bool listen = true) { return Impl().do_ListenDevice(type, listen); }
-
-	void PushToMainThread(ThreadFunction function, void* pUserData) {
-		return Impl().do_PushToMainThread(function, pUserData);
+	void PushToMainThread(this auto&& self, ThreadFunction function, void* pUserData) {
+		return std::forward<decltype(self)>(self).do_PushToMainThread(function, pUserData);
 	}
 };
