@@ -1,6 +1,5 @@
 // AT-SPI object implementation.
 module;
-#include <Core/Defer.h>
 #include <atspi/atspi.h>
 #include <expected>
 #include <string>
@@ -67,8 +66,9 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	AtspiStateSet* state_set = atspi_accessible_get_state_set(m_accessible);
 	if (!state_set)
 		return std::unexpected(EObjectError::FAIL);
-	defer(g_object_unref(state_set));
-	return GetObjectStateFromAtspiStates(state_set);
+	auto state = GetObjectStateFromAtspiStates(state_set);
+	g_object_unref(state_set);
+	return state;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<CObjectAtspi> {
@@ -180,8 +180,9 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		text_interface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_data->last_error);
 	if (!pTextRange)
 		return std::unexpected(EObjectError::FAIL);
-	defer(g_free(pTextRange));
-	return GetTextRangeFromAtspiRange<AtspiTextRange, std::string>(*pTextRange);
+	auto text_range = GetTextRangeFromAtspiRange<AtspiTextRange, std::string>(*pTextRange);
+	g_free(pTextRange);
+	return text_range;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> ObjectResult<double> {
