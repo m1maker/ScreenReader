@@ -125,32 +125,38 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return index;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetApplicationName() const -> ObjectResult<std::string> {
+[[nodiscard]] auto CObjectAtspi::GetApplicationName() const -> ObjectResult<std::string_view> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
 	m_data->ResetLastError();
-	CGlibString application_name(atspi_accessible_get_toolkit_name(m_accessible, &m_data->last_error));
-	return application_name;
+	if (m_data->app_name)
+		g_free(m_data->app_name);
+	m_data->app_name = atspi_accessible_get_toolkit_name(m_accessible, &m_data->last_error);
+	return m_data->app_name;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetName() const -> ObjectResult<std::string> {
+[[nodiscard]] auto CObjectAtspi::GetName() const -> ObjectResult<std::string_view> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
 	m_data->ResetLastError();
-	CGlibString name(atspi_accessible_get_name(m_accessible, &m_data->last_error));
-	return name;
+	if (m_data->name)
+		g_free(m_data->name);
+	m_data->name = atspi_accessible_get_name(m_accessible, &m_data->last_error);
+	return m_data->name;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetDescription() const -> ObjectResult<std::string> {
+[[nodiscard]] auto CObjectAtspi::GetDescription() const -> ObjectResult<std::string_view> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
 	m_data->ResetLastError();
 
-	CGlibString description(atspi_accessible_get_description(m_accessible, &m_data->last_error));
-	return description;
+	if (m_data->description)
+		g_free(m_data->description);
+	m_data->description = atspi_accessible_get_description(m_accessible, &m_data->last_error);
+	return m_data->description;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetCursor() const -> ObjectResult<int> {

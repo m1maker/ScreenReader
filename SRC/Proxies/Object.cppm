@@ -88,14 +88,14 @@ public:
 		return With<SRect>([](auto&& obj) { return obj.GetBounds(); });
 	}
 
-	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string> {
-		return With<std::string>([](auto&& obj) { return obj.GetApplicationName(); });
+	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
+		return With<std::string_view>([](auto&& obj) { return obj.GetApplicationName(); });
 	}
-	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string> {
-		return With<std::string>([](auto&& obj) { return obj.GetName(); });
+	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
+		return With<std::string_view>([](auto&& obj) { return obj.GetName(); });
 	}
-	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string> {
-		return With<std::string>([](auto&& obj) { return obj.GetDescription(); });
+	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
+		return With<std::string_view>([](auto&& obj) { return obj.GetDescription(); });
 	}
 };
 

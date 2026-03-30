@@ -6,6 +6,7 @@ module;
 #include <memory_resource>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 export module Platforms.Linux.Object;
@@ -418,10 +419,10 @@ public:
 
 	[[nodiscard]] auto GetIndex() const -> ObjectResult<int>;
 
-	[[nodiscard]] auto GetApplicationName() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto GetApplicationName() const -> ObjectResult<std::string_view>;
 
-	[[nodiscard]] auto GetName() const -> ObjectResult<std::string>;
-	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string>;
+	[[nodiscard]] auto GetName() const -> ObjectResult<std::string_view>;
+	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string_view>;
 
 	void UpdateCacheByEvent(EObjectEventType event);
 
@@ -436,6 +437,9 @@ public:
 };
 
 export struct SObjectAtspiData final {
+	gchar* app_name{nullptr};
+	gchar* name{nullptr};
+	gchar* description{nullptr};
 	mutable GError* last_error{nullptr};
 	uint32_t interfaces_mask{0};
 
@@ -446,5 +450,13 @@ export struct SObjectAtspiData final {
 		}
 	}
 
-	~SObjectAtspiData() { ResetLastError(); }
+	~SObjectAtspiData() {
+		ResetLastError();
+		if (app_name)
+			g_free(app_name);
+		if (name)
+			g_free(name);
+		if (description)
+			g_free(description);
+	}
 };
