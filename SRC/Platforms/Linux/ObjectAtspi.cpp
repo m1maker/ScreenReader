@@ -191,6 +191,36 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return text_range;
 }
 
+[[nodiscard]] auto CObjectAtspi::GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+	SAtspiIface<AtspiSelection> selection_interface(atspi_accessible_get_selection_iface(m_accessible));
+	if (!selection_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+
+	m_data->ResetLastError();
+	AtspiAccessible* native_selected_child =
+		atspi_selection_get_selected_child(selection_interface, index, &m_data->last_error);
+	if (!native_selected_child)
+		return std::unexpected(EObjectError::FAIL);
+
+	auto selected_child_object =
+		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_selected_child);
+	return selected_child_object;
+}
+
+[[nodiscard]] auto CObjectAtspi::GetSelectedChildrenCount() const -> ObjectResult<int> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+	SAtspiIface<AtspiSelection> selection_interface(atspi_accessible_get_selection_iface(m_accessible));
+	if (!selection_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+
+	m_data->ResetLastError();
+	int selected_child_count = atspi_selection_get_n_selected_children(selection_interface, &m_data->last_error);
+	return selected_child_count;
+}
+
 [[nodiscard]] auto CObjectAtspi::GetMinValue() const -> ObjectResult<double> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);

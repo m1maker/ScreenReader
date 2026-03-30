@@ -423,6 +423,9 @@ public:
 		-> ObjectResult<STextRange<std::string>>;
 	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
 
+	[[nodiscard]] auto GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto GetSelectedChildrenCount() const -> ObjectResult<int>;
+
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double>;
