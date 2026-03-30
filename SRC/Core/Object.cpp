@@ -138,48 +138,47 @@ For example, there's no such state as EObjectState::UNCHECKED, but there is CHEC
 We need to understand what kind of object this is to more accurately determine the states for announcements when we
 don't request `require_all`.
 */
-void GetObjectStateNames(std::pmr::string& out, EObjectType type, unsigned long long state, bool require_all) {
+void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all) {
 	using enum EObjectType;
 	using enum EObjectState;
 
-	auto states = static_cast<EObjectState>(state);
 	// Capability / Infrastructure States (Usually only for logging/require_all).
 	if (require_all) {
-		if (!!(states & VISIBLE))
+		if (states[std::to_underlying(VISIBLE)])
 			out += " visible";
-		if (!!(states & ENABLED))
+		if (states[std::to_underlying(ENABLED)])
 			out += " enabled";
-		if (!!(states & FOCUSABLE))
+		if (states[std::to_underlying(FOCUSABLE)])
 			out += " focusable";
-		if (!!(states & FOCUSED))
+		if (states[std::to_underlying(FOCUSED)])
 			out += " focused";
-		if (!!(states & SELECTABLE))
+		if (states[std::to_underlying(SELECTABLE)])
 			out += " selectable";
-		if (!!(states & CHECKABLE))
+		if (states[std::to_underlying(CHECKABLE)])
 			out += " checkable";
-		if (!!(states & EDITABLE))
+		if (states[std::to_underlying(EDITABLE)])
 			out += " editable";
-		if (!!(states & EXPANDABLE))
+		if (states[std::to_underlying(EXPANDABLE)])
 			out += " expandable";
-		if (!!(states & RESIZABLE))
+		if (states[std::to_underlying(RESIZABLE)])
 			out += " resizable";
 	}
 
 	// Interactive / Crucial States (Always announced or contextually forced).
-	if (!!(states & BUSY))
+	if (states[std::to_underlying(BUSY)])
 		out += " busy";
-	if (!!(states & LOADING))
+	if (states[std::to_underlying(LOADING)])
 		out += " loading";
 
 	// Selection Logic.
-	if (!!(states & SELECTED)) {
+	if (states[std::to_underlying(SELECTED)]) {
 		out += " selected";
 	}
 
 	// Toggle/Checked Logic (Normalization).
 	// For Toggle Buttons, we prefer "pressed" over "checked".
 	if (type == TOGGLE_BUTTON) {
-		if (!!(states & PRESSED)) {
+		if (states[std::to_underlying(PRESSED)]) {
 			out += " pressed";
 		}
 		else {
@@ -189,55 +188,55 @@ void GetObjectStateNames(std::pmr::string& out, EObjectType type, unsigned long 
 
 	// For Checkboxes (and generic checkables that aren't toggle buttons).
 	else {
-		if (!!(states & CHECKED)) {
+		if (states[std::to_underlying(CHECKED)]) {
 			out += " checked";
 		}
-		else if (!!(states & INDETERMINATE)) {
+		else if (states[std::to_underlying(INDETERMINATE)]) {
 			out += " partially checked";
 		}
-		else if (type == CHECKBOX || (!!(states & CHECKABLE) && require_all)) {
+		else if (type == CHECKBOX || (states[std::to_underlying(CHECKABLE)] && require_all)) {
 			out += " not checked";
 		}
 
 		// Handle non-toggle-button 'pressed' state (e.g. normal button).
-		if (!!(states & PRESSED))
+		if (states[std::to_underlying(PRESSED)])
 			out += " pressed";
 	}
 
 	// Expansion Logic.
-	if (!!(states & EXPANDED)) {
+	if (states[std::to_underlying(EXPANDED)]) {
 		out += " expanded";
 	}
-	else if (!!(states & COLLAPSED)) {
+	else if (states[std::to_underlying(COLLAPSED)]) {
 		out += " collapsed";
 	}
 
 	// Text / Input specific normalization.
-	if (!!(states & READONLY))
+	if (states[std::to_underlying(READONLY)])
 		out += " read-only";
-	if (!!(states & SECURE))
+	if (states[std::to_underlying(SECURE)])
 		out += " secure";
-	if (!!(states & INVALID))
+	if (states[std::to_underlying(INVALID)])
 		out += " invalid";
-	if (!!(states & REQUIRED)) {
+	if (states[std::to_underlying(REQUIRED)]) {
 		// Only announce "required" for input types unless logging all.
 		if (IsObjectInput(type) || require_all) {
 			out += " required";
 		}
 	}
 
-	if (!!(states & MULTI_LINE))
+	if (states[std::to_underlying(MULTI_LINE)])
 		out += " multi-line";
-	if (!!(states & MULTI_SELECTABLE))
+	if (states[std::to_underlying(MULTI_SELECTABLE)])
 		out += " multi-selectable";
 
 	// Global attributes.
-	if (!!(states & HOVERED) && require_all)
+	if (states[std::to_underlying(HOVERED)] && require_all)
 		out += " hovered";
-	if (!!(states & DEFAULT))
+	if (states[std::to_underlying(DEFAULT)])
 		out += " default";
-	if (!!(states & MODAL))
+	if (states[std::to_underlying(MODAL)])
 		out += " modal";
-	if (!!(states & VISITED))
+	if (states[std::to_underlying(VISITED)])
 		out += " visited";
 }

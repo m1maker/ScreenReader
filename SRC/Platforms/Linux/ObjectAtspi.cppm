@@ -274,15 +274,15 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 }
 
 export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
-	-> unsigned long long {
-	unsigned long long result = 0;
+	-> ObjectStates {
+	ObjectStates result{};
 	for (const auto& state : states) {
-		result |= static_cast<unsigned long long>(GetObjectStateFromAtspiState(state));
+		result[std::to_underlying(GetObjectStateFromAtspiState(state))] = true;
 	}
 	return result;
 }
 
-export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> unsigned long long {
+export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> ObjectStates {
 	GArray* array = atspi_state_set_get_states(states);
 	if (!array) [[unlikely]] {
 		return 0;
@@ -406,7 +406,7 @@ public:
 
 	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType>;
 
-	[[nodiscard]] auto GetState() const -> ObjectResult<unsigned long long>;
+	[[nodiscard]] auto GetState() const -> ObjectResult<ObjectStates>;
 
 	[[nodiscard]] auto GetParent() const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;

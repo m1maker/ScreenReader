@@ -58,8 +58,8 @@ public:
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
 		return With<EObjectType>([](auto&& obj) { return obj.GetType(); });
 	}
-	[[nodiscard]] inline auto GetState() const -> ObjectResult<unsigned long long> {
-		return With<unsigned long long>([](auto&& obj) { return obj.GetState(); });
+	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStates> {
+		return With<ObjectStates>([](auto&& obj) { return obj.GetState(); });
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {

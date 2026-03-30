@@ -59,11 +59,11 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return GetObjectTypeFromAtspiRole(role);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetState() const -> ObjectResult<unsigned long long> {
+[[nodiscard]] auto CObjectAtspi::GetState() const -> ObjectResult<ObjectStates> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	AtspiStateSet* state_set = atspi_accessible_get_state_set(m_accessible);
+	auto state_set = atspi_accessible_get_state_set(m_accessible);
 	if (!state_set)
 		return std::unexpected(EObjectError::FAIL);
 	auto state = GetObjectStateFromAtspiStates(state_set);

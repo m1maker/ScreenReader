@@ -1,5 +1,5 @@
 module;
-#include <Core/EnumUtils.h>
+#include <bitset>
 #include <expected>
 #include <map>
 #include <memory>
@@ -7,19 +7,12 @@ module;
 #include <mutex>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 export module Core.Object;
 import Core.Rect;
 import Core.Text;
 import Traits.RefCountedObject;
-
-export enum class EObjectInterfaceMask : uint32_t {
-	SUPPORTS_NOTHING = 0,
-	SUPPORTS_TEXT = 1 << 0,
-	SUPPORTS_SELECTION = 1 << 1,
-	SUPPORTS_VALUE = 1 << 2
-};
-EnableBitwiseEnum(EObjectInterfaceMask);
 
 export enum class EObjectType : unsigned char {
 	UNKNOWN = 0,
@@ -166,62 +159,64 @@ export enum class EObjectType : unsigned char {
 	WINDOW,
 };
 
-export enum class EObjectState : unsigned long long {
+export enum class EObjectState : unsigned char {
 	NO = 0,
 
-	ACTIVE = 1ULL << 0,
-	BUSY = 1ULL << 1,
-	CHECKED = 1ULL << 2,
-	COLLAPSED = 1ULL << 3,
-	DEFAULT = 1ULL << 4,
-	DRAGGING = 1ULL << 5,
-	ENABLED = 1ULL << 6,
-	EXPANDED = 1ULL << 7,
-	FOCUSED = 1ULL << 8,
-	HOVERED = 1ULL << 9,
-	INDETERMINATE = 1ULL << 10, // For partial checkboxes
-	INVALID = 1ULL << 11,
-	LINKED = 1ULL << 12,
-	LOADING = 1ULL << 13,
-	MODAL = 1ULL << 14,
-	OFFSCREEN = 1ULL << 15,
-	PRESSED = 1ULL << 16,
-	READONLY = 1ULL << 17,
-	REQUIRED = 1ULL << 18,
-	SELECTED = 1ULL << 19,
-	VISITED = 1ULL << 20,
-	VISIBLE = 1ULL << 21,
+	ACTIVE,
+	BUSY,
+	CHECKED,
+	COLLAPSED,
+	DEFAULT,
+	DRAGGING,
+	ENABLED,
+	EXPANDED,
+	FOCUSED,
+	HOVERED,
+	INDETERMINATE,
+	INVALID,
+	LINKED,
+	LOADING,
+	MODAL,
+	OFFSCREEN,
+	PRESSED,
+	READONLY,
+	REQUIRED,
+	SELECTED,
+	VISITED,
+	VISIBLE,
 
-	ANIMATED = 1ULL << 22,
-	AUTO_FILL_AVAILABLE = 1ULL << 23,
-	CHECKABLE = 1ULL << 24,
-	CLICKABLE = 1ULL << 25,
-	DRAGGABLE = 1ULL << 26,
-	EDITABLE = 1ULL << 27,
-	EXPANDABLE = 1ULL << 28,
-	FOCUSABLE = 1ULL << 29,
-	HAS_POPUP = 1ULL << 30,
-	HORIZONTAL = 1ULL << 31,
-	MAPPABLE = 1ULL << 32,
-	MULTI_LINE = 1ULL << 33,
-	MULTI_SELECTABLE = 1ULL << 34,
-	MOVEABLE = 1ULL << 35,
-	PINNED = 1ULL << 36,
-	RESIZABLE = 1ULL << 37,
-	SELECTABLE = 1ULL << 38,
-	SECURE = 1ULL << 39, // For passwords
-	SORTABLE = 1ULL << 40,
-	TOUCH_OPTIMIZED = 1ULL << 41,
-	VERTICAL = 1ULL << 42,
+	ANIMATED,
+	AUTO_FILL_AVAILABLE,
+	CHECKABLE,
+	CLICKABLE,
+	DRAGGABLE,
+	EDITABLE,
+	EXPANDABLE,
+	FOCUSABLE,
+	HAS_POPUP,
+	HORIZONTAL,
+	MAPPABLE,
+	MULTI_LINE,
+	MULTI_SELECTABLE,
+	MOVEABLE,
+	PINNED,
+	RESIZABLE,
+	SELECTABLE,
+	SECURE,
+	SORTABLE,
+	TOUCH_OPTIMIZED,
+	VERTICAL,
 
-	CLIPPED = 1ULL << 43,
-	HAS_TOOLTIP = 1ULL << 44,
-	HIDDEN = 1ULL << 45,
-	LIVE_REGION = 1ULL << 46, // For dynamic content updates
-	PROTECTED = 1ULL << 47,
-	SENSITIVE = 1ULL << 48,
+	CLIPPED,
+	HAS_TOOLTIP,
+	HIDDEN,
+	LIVE_REGION,
+	PROTECTED,
+	SENSITIVE,
+	COUNT
 };
-EnableBitwiseEnum(EObjectState);
+
+export using ObjectStates = std::bitset<std::to_underlying(EObjectState::COUNT)>;
 
 export enum class EObjectError : unsigned char {
 	SUCCESS = 0,
@@ -279,8 +274,7 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 }
 
 export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
-export void GetObjectStateNames(
-	std::pmr::string& out, EObjectType type, unsigned long long states, bool require_all = false);
+export void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all = false);
 
 export [[nodiscard]] constexpr inline auto IsObjectParent(EObjectType type) -> bool {
 	switch (type) {
@@ -493,7 +487,7 @@ public:
 	}
 
 	void Clear() {
-		for (auto [handle, data] : m_cache) {
+		for (auto [handle, _] : m_cache) {
 			Remove(handle);
 		}
 
