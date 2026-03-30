@@ -274,29 +274,21 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 	}
 }
 
-export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiStates(const std::vector<AtspiStateType>& states)
-	-> ObjectStates {
-	ObjectStates result{};
-	for (const auto& state : states) {
-		result[std::to_underlying(GetObjectStateFromAtspiState(state))] = true;
-	}
-	return result;
-}
-
-export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* states) -> ObjectStates {
-	GArray* array = atspi_state_set_get_states(states);
+export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* state_set) -> ObjectStates {
+	GArray* array = atspi_state_set_get_states(state_set);
 	if (!array) [[unlikely]] {
 		return 0;
 	}
 
-	std::vector<AtspiStateType> state_types;
+	ObjectStates states{};
 	for (int i = 0; std::cmp_less(i, array->len); ++i) {
-		AtspiStateType state = g_array_index(array, AtspiStateType, i);
-		state_types.push_back(state);
+		auto atspi_state = g_array_index(array, AtspiStateType, i);
+		auto state = GetObjectStateFromAtspiState(atspi_state);
+		states[std::to_underlying(state)] = true;
 	}
 
 	g_array_free(array, TRUE);
-	return GetObjectStateFromAtspiStates(state_types);
+	return states;
 }
 
 export [[nodiscard]] constexpr inline auto GetAtspiTextGranularityFromTextGranularity(ETextGranularity granularity)
