@@ -1,5 +1,6 @@
 module;
 #include <atomic>
+#include <bitset>
 #include <cstdint>
 #include <expected>
 #include <memory_resource>
@@ -10,9 +11,14 @@ module;
 #include <string_view>
 #include <thread>
 #include <unistd.h>
+#include <utility>
 module Platforms.Linux.SpeechEngine;
 
-static constexpr const std::string_view cSpeechDispatcherClientName = "screenreader";
+template <std::size_t N, typename... Indices> static inline void SetBits(std::bitset<N>& bs, Indices... indices) {
+	(bs.set(std::to_underlying(indices)), ...);
+}
+
+static constexpr std::string_view cSpeechDispatcherClientName = "screenreader";
 
 /*
 Tell me! How do I get a current voice in SPD?
@@ -83,9 +89,8 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	SSpeechEngineInfo info;
 	info.name = "SpeechDispatcher";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
-
-	using namespace SpeechEngineParameter;
-	info.supported_parameters |= RATE | VOLUME | PITCH | SPELLING | VOICE_COUNT | VOICE_INDEX | SSML;
+	using enum ESpeechEngineParameter;
+	SetBits(info.supported_parameters, VOLUME, RATE, PITCH, SPELLING, VOICE_INDEX, VOICE_COUNT, SSML);
 	return info;
 }
 
@@ -94,7 +99,7 @@ auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message) -> Speech
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
 	if (m_voiceFound.load()) {
-		do_SetParameter(SpeechEngineParameter::VOICE_INDEX, m_voiceIndex.load());
+		do_SetParameter(ESpeechEngineParameter::VOICE_INDEX, m_voiceIndex.load());
 		m_voiceFound.store(false);
 	}
 

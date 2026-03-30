@@ -1,30 +1,35 @@
 module;
+#include <bitset>
 #include <cstdint>
 #include <expected>
 #include <string_view>
+#include <utility>
 export module Traits.SpeechEngine;
 
-export namespace SpeechEngineParameter {
-constexpr auto NONE = 0;				// void
-constexpr auto RATE = 1ULL << 0;		// unsigned char
-constexpr auto VOLUME = 1ULL << 1;		// unsigned char
-constexpr auto PITCH = 1ULL << 2;		// unsigned char
-constexpr auto SPELLING = 1ULL << 3;	// bool
-constexpr auto VOICE_INDEX = 1ULL << 4; // unsigned long long int
-constexpr auto VOICE_COUNT = 1ULL << 5; // unsigned long long int
-constexpr auto SSML = 1ULL << 6;		// bool
-} // namespace SpeechEngineParameter
+export enum class ESpeechEngineParameter : unsigned char {
+	NONE = 0,
+	RATE,
+	VOLUME,
+	PITCH,
+	SPELLING,
+	VOICE_INDEX,
+	VOICE_COUNT,
+	SSML,
+	COUNT
+};
+
+export using SpeechEngineParameters = std::bitset<std::to_underlying(ESpeechEngineParameter::COUNT)>;
 
 export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVICE, PCM_BUFFER };
 
 export enum class ESpeechEngineSyncMode : unsigned char { SYNC = 0, ASYNC };
 
-export constexpr const unsigned char cSpeechEngineMinRate = 0;
-export constexpr const unsigned char cSpeechEngineMaxRate = 255;
-export constexpr const unsigned char cSpeechEngineMinPitch = 0;
-export constexpr const unsigned char cSpeechEngineMaxPitch = 255;
-export constexpr const unsigned char cSpeechEngineMinVolume = 0;
-export constexpr const unsigned char cSpeechEngineMaxVolume = 255;
+export constexpr unsigned char cSpeechEngineMinRate = 0;
+export constexpr unsigned char cSpeechEngineMaxRate = 255;
+export constexpr unsigned char cSpeechEngineMinPitch = 0;
+export constexpr unsigned char cSpeechEngineMaxPitch = 255;
+export constexpr unsigned char cSpeechEngineMinVolume = 0;
+export constexpr unsigned char cSpeechEngineMaxVolume = 255;
 
 export enum class ESpeechEngineError : unsigned char {
 	SUCCESS = 0,
@@ -43,7 +48,7 @@ export struct SSpeechEngineInfo final {
 	std::string_view name;
 	ESpeechEngineOutputMode output_mode{ESpeechEngineOutputMode::VOID};
 	ESpeechEngineSyncMode sync_mode{ESpeechEngineSyncMode::ASYNC};
-	unsigned long long supported_parameters{0};
+	SpeechEngineParameters supported_parameters{};
 
 	constexpr SSpeechEngineInfo() = default;
 	~SSpeechEngineInfo() = default;
@@ -83,12 +88,13 @@ public:
 
 	void Pause(this auto&& self, bool pause = true) { std::forward<decltype(self)>(self).do_Pause(pause); }
 
-	auto SetParameter(this auto&& self, unsigned long long parameter, auto&& value) -> SpeechEngineResult<> {
+	auto SetParameter(this auto&& self, ESpeechEngineParameter parameter, auto&& value) -> SpeechEngineResult<> {
 		return std::forward<decltype(self)>(self).do_SetParameter(parameter, value);
 	}
 
 	template <typename Parameter>
-	[[nodiscard]] auto GetParameter(this auto&& self, unsigned long long parameter) -> SpeechEngineResult<Parameter> {
+	[[nodiscard]] auto GetParameter(this auto&& self, ESpeechEngineParameter parameter)
+		-> SpeechEngineResult<Parameter> {
 		return std::forward<decltype(self)>(self).do_GetParameter(parameter);
 	}
 

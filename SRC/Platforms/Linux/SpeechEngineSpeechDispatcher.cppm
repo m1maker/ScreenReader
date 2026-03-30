@@ -67,18 +67,18 @@ public:
 
 	void do_Pause(bool pause = true);
 
-	template <typename T> auto do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<>;
+	template <typename T> auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
-	[[nodiscard]] auto do_GetParameter(unsigned long long parameter) const -> SpeechEngineResult<T>;
+	[[nodiscard]] auto do_GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
 
 	[[nodiscard]] auto do_GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
 };
 
 template <typename T>
-auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter, T value) -> SpeechEngineResult<> {
+auto CSpeechEngineSpeechDispatcher::do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
-	using namespace SpeechEngineParameter;
+	using enum ESpeechEngineParameter;
 	switch (parameter) {
 	/*		case SRAL_PARAM_SYMBOL_LEVEL:
 				spd_set_punctuation(speech, static_cast<SPDPunctuation>(*reinterpret_cast<const int*>(value)));
@@ -117,11 +117,11 @@ auto CSpeechEngineSpeechDispatcher::do_SetParameter(unsigned long long parameter
 }
 
 template <typename T>
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(unsigned long long parameter) const
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(ESpeechEngineParameter parameter) const
 	-> SpeechEngineResult<T> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
-	using namespace SpeechEngineParameter;
+	using enum ESpeechEngineParameter;
 	switch (parameter) {
 	case RATE:
 		return spd_get_voice_rate(m_connection);

@@ -2,6 +2,7 @@ module;
 #include <cctype>
 #include <cstdint>
 #include <string_view>
+#include <utility>
 #include <variant>
 export module Core.SpeechSystem;
 import Core.Encoding;
@@ -34,12 +35,12 @@ public:
 			m_variant);
 	}
 
-	[[nodiscard]] inline auto SpeakIfHasParameter(unsigned long long parameter, auto&& on_success, auto&& on_fail)
+	[[nodiscard]] inline auto SpeakIfHasParameter(ESpeechEngineParameter parameter, auto&& on_success, auto&& on_fail)
 		-> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-			if (info.supported_parameters & SpeechEngineParameter::SSML) {
-				engine.SetParameter(SpeechEngineParameter::SSML, true);
+			if (info.supported_parameters[std::to_underlying(parameter)]) {
+				engine.SetParameter(ESpeechEngineParameter::SSML, true);
 				engine.Speak(on_success());
 			}
 			else
@@ -51,8 +52,8 @@ public:
 	inline auto Speak(std::string_view message, bool interrupt = false, bool ssml = false) -> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-			if (info.supported_parameters & SpeechEngineParameter::SSML) {
-				engine.SetParameter(SpeechEngineParameter::SSML, ssml);
+			if (info.supported_parameters[std::to_underlying(ESpeechEngineParameter::SSML)]) {
+				engine.SetParameter(ESpeechEngineParameter::SSML, ssml);
 			}
 
 			if (interrupt) {
