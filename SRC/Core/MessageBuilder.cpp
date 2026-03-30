@@ -173,6 +173,18 @@ void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) 
 	}
 }
 
+void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
+	if (auto current_selected = selection_provider.GetChildAt(0)) {
+		if (auto name = current_selected->GetName()) {
+			Append(*name);
+		}
+	}
+}
+
 void MessageBuilder::BuildValueAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;

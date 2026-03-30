@@ -114,7 +114,7 @@ void EventHandler::Handle(CEvent&& event) {
 				m_outputManager.StateChange(evt.object);
 				break;
 			case EObjectEventType::SELECTION_CHANGED:
-				// m_outputManager.SelectionChange(evt.object);
+				m_outputManager.SelectionChange(evt.object);
 				break;
 			case EObjectEventType::CURSOR_MOVED:
 				m_outputManager.CursorMove(evt.object);

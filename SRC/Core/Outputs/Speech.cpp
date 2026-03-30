@@ -43,6 +43,10 @@ void COutputSpeech::StateChange(CObjectProxy obj) {
 void COutputSpeech::SelectionChange(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
+
+	MessageBuilder::GetInstance().Reset();
+	MessageBuilder::GetInstance().BuildSelectionAnnouncement(obj);
+	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }
 
 void COutputSpeech::CursorMove(CObjectProxy obj) {

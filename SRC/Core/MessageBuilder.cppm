@@ -66,6 +66,7 @@ public:
 
 	void BuildFocusAnnouncement(CObjectProxy obj, bool require_all = false);
 	void BuildStateAnnouncement(CObjectProxy obj, bool require_all = false);
+	void BuildSelectionAnnouncement(CObjectProxy obj);
 	void BuildValueAnnouncement(CObjectProxy obj);
 	void BuildTextAnnouncement(CObjectProxy obj);
 

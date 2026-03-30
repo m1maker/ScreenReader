@@ -39,6 +39,9 @@ public:
 	void StateChange(CObjectProxy obj) {
 		With([obj](auto&& out) { out.StateChange(obj); });
 	}
+	void SelectionChange(CObjectProxy obj) {
+		With([obj](auto&& out) { out.SelectionChange(obj); });
+	}
 	void ValueChange(CObjectProxy obj) {
 		With([obj](auto&& out) { out.ValueChange(obj); });
 	}

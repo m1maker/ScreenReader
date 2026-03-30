@@ -94,6 +94,7 @@ public:
 
 	inline void FocusChange(CObjectProxy obj) { WithAll<&COutputProxy::FocusChange>(obj); }
 	inline void StateChange(CObjectProxy obj) { WithAll<&COutputProxy::StateChange>(obj); }
+	inline void SelectionChange(CObjectProxy obj) { WithAll<&COutputProxy::SelectionChange>(obj); }
 	inline void ValueChange(CObjectProxy obj) { WithAll<&COutputProxy::ValueChange>(obj); }
 	inline void CursorMove(CObjectProxy obj) { WithAll<&COutputProxy::CursorMove>(obj); }
 };
