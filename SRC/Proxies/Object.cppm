@@ -69,6 +69,7 @@ public:
 			return ObjectResult<CObjectProxy>(variant.value());
 		return std::unexpected(variant.error());
 	}
+
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetChildrenCount(); });
 	}
@@ -111,6 +112,24 @@ public:
 		-> ObjectResult<STextRange<std::string>> {
 		return With<STextRange<std::string>>(
 			[cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
+	}
+};
+
+export class CSelectionProviderProxy final : public TUnknownProxy<SelectionProviderVariant> {
+public:
+	explicit CSelectionProviderProxy(SelectionProviderVariant provider) : TUnknownProxy(provider) {}
+	~CSelectionProviderProxy() = default;
+
+	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
+		return With<int>([](auto&& obj) { return obj.GetSelectedChildrenCount(); });
+	}
+
+	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
+		ObjectResult<ObjectVariant> variant = With<ObjectVariant>(
+			[index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetSelectedChildAt(index); });
+		if (variant)
+			return ObjectResult<CObjectProxy>(variant.value());
+		return std::unexpected(variant.error());
 	}
 };
 
