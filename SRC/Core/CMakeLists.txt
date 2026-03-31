@@ -1,4 +1,4 @@
-target_sources(ScreenReader
+target_sources(${PROJECT_NAME}
     PRIVATE
         EventHandler.cpp
         KeyboardHandler.cpp

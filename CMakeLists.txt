@@ -14,7 +14,7 @@ if (POLICY CMP0141)
 endif()
 endif()
 
-project(ScreenReader VERSION 1.0.0 LANGUAGES CXX)
+project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 26)
 
 #include(FetchContent)
@@ -89,7 +89,7 @@ if(LINUX)
     pkg_check_modules(GDK REQUIRED gdk-3.0)
 endif()
 
-add_executable(ScreenReader)
+add_executable(${PROJECT_NAME})
 
 add_subdirectory(SRC/Core)
 add_subdirectory(SRC/Core/Outputs)
@@ -102,19 +102,19 @@ elseif(LINUX)
     add_subdirectory(SRC/Platforms/Linux)
 endif()
 
-target_include_directories(ScreenReader PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/SRC
 )
 
 if(LINUX)
-    target_include_directories(ScreenReader PRIVATE
+    target_include_directories(${PROJECT_NAME} PRIVATE
         ${ATSPI_INCLUDE_DIRS}
         ${SPEECHD_INCLUDE_DIRS}
         ${GDK_INCLUDE_DIRS}
     )
 endif()
 if(LINUX)
-    target_link_libraries(ScreenReader
+    target_link_libraries(${PROJECT_NAME}
         ${ATSPI_LIBRARIES}
         ${GOBJECT_LIBRARIES}
         ${GLIB_LIBRARIES}
@@ -124,4 +124,4 @@ if(LINUX)
     )
 endif()
 
-install(TARGETS ScreenReader DESTINATION bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
