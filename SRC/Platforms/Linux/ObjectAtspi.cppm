@@ -350,12 +350,10 @@ public:
 	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
 };
 
-export template <class T, class U>
-[[nodiscard]] inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange<U> {
-	STextRange<U> text_range;
-	if constexpr (std::is_same_v<T, AtspiTextRange> && std::is_same_v<U, std::string>) {
-		CGlibString content(range.content);
-		text_range.text = content;
+export template <class T> [[nodiscard]] inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange {
+	STextRange text_range;
+	if constexpr (std::is_same_v<T, AtspiTextRange>) {
+		text_range.text = range.content;
 	}
 
 	text_range.start = range.start_offset;
@@ -419,9 +417,8 @@ public:
 	void UpdateCacheByEvent(EObjectEventType event);
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int>;
-	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const
-		-> ObjectResult<STextRange<std::string>>;
-	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange<void>>>;
+	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange>;
+	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>>;
 
 	[[nodiscard]] auto GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto GetSelectedChildrenCount() const -> ObjectResult<int>;

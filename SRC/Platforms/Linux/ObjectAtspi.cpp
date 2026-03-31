@@ -172,7 +172,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 }
 
 [[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const
-	-> ObjectResult<STextRange<std::string>> {
+	-> ObjectResult<STextRange> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
@@ -186,7 +186,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		text_interface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_data->last_error);
 	if (!pTextRange)
 		return std::unexpected(EObjectError::FAIL);
-	auto text_range = GetTextRangeFromAtspiRange<AtspiTextRange, std::string>(*pTextRange);
+	auto text_range = GetTextRangeFromAtspiRange<AtspiTextRange>(*pTextRange);
 	g_free(pTextRange);
 	return text_range;
 }

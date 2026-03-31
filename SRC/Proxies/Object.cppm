@@ -108,10 +108,8 @@ public:
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetCursor(); });
 	}
-	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const
-		-> ObjectResult<STextRange<std::string>> {
-		return With<STextRange<std::string>>(
-			[cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
+	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
+		return With<STextRange>([cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
 	}
 };
 
