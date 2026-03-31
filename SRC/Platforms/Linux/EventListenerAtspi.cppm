@@ -33,8 +33,7 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	SEventTypeMapEntry{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
 	SEventTypeMapEntry{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
 	SEventTypeMapEntry{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
-	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}
-};
+	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
 
 [[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> EObjectEventType {
 	if (!type) [[unlikely]]
@@ -42,8 +41,9 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 
 	const std::string_view type_view(type);
 	for (const auto& entry : cAtspiObjectEventTypeMap) {
-		if (type_view == entry.key) return entry.value;
-}
+		if (type_view == entry.key)
+			return entry.value;
+	}
 	return EObjectEventType::NONE;
 }
 
