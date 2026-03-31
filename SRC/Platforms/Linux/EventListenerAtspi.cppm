@@ -32,6 +32,8 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	SEventTypeMapEntry{"object:state-changed:checked", EObjectEventType::STATE_CHANGED},
 	SEventTypeMapEntry{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
 	SEventTypeMapEntry{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
+	SEventTypeMapEntry{"object:property-change:accessible-name", EObjectEventType::NAME_CHANGED},
+	SEventTypeMapEntry{"object:property-change:accessible-description", EObjectEventType::DESCRIPTION_CHANGED},
 	SEventTypeMapEntry{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
 	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
 
