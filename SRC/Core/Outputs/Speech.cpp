@@ -24,6 +24,12 @@ void COutputSpeech::Output(CObjectEvent event) {
 	case STATE_CHANGED:
 		MessageBuilder::GetInstance().BuildStateAnnouncement(event.object);
 		break;
+	case NAME_CHANGED:
+		MessageBuilder::GetInstance().BuildNameAnnouncement(event.object);
+		break;
+	case DESCRIPTION_CHANGED:
+		MessageBuilder::GetInstance().BuildDescriptionAnnouncement(event.object);
+		break;
 	case VALUE_CHANGED:
 		MessageBuilder::GetInstance().BuildValueAnnouncement(event.object);
 		break;
