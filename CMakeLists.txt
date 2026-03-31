@@ -13,9 +13,9 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 endif()
-
-project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_COMPILER clang++)
+project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 
 #include(FetchContent)
 
