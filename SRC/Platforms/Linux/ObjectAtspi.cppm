@@ -377,7 +377,7 @@ public:
 
 	[[nodiscard]] auto GetCursor() const -> ObjectResult<int>;
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange>;
-	[[nodiscard]] auto GetSelectedRanges() const -> ObjectResult<std::vector<STextRange>>;
+	[[nodiscard]] auto GetSelectedText() const -> ObjectResult<STextRange>;
 
 	[[nodiscard]] auto GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto GetSelectedChildrenCount() const -> ObjectResult<int>;

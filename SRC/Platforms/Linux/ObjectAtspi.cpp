@@ -191,6 +191,27 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return text_range;
 }
 
+[[nodiscard]] auto CObjectAtspi::GetSelectedText() const -> ObjectResult<STextRange> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	SAtspiIface<AtspiText> text_interface(atspi_accessible_get_text_iface(m_accessible));
+	if (!text_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+
+	m_data->ResetLastError();
+
+	AtspiRange* pRange = atspi_text_get_selection(text_interface, 0, &m_data->last_error);
+	if (!pRange)
+		return std::unexpected(EObjectError::FAIL);
+
+	m_data->ResetLastError();
+	gchar* pText = atspi_text_get_text(text_interface, pRange->start_offset, pRange->end_offset, &m_data->last_error);
+	STextRange text_range = {.start = pRange->start_offset, .end = pRange->end_offset, .text = pText};
+	g_free(pRange);
+	return text_range;
+}
+
 [[nodiscard]] auto CObjectAtspi::GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
