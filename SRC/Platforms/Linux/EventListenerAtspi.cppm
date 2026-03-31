@@ -15,6 +15,7 @@ export module Platforms.Linux.EventListener;
 import Core.Device;
 import Core.Event;
 import Core.KeyInfo;
+import Core.Logger;
 import Core.Object;
 import Traits.EventListener;
 
@@ -374,7 +375,7 @@ inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObject
 	}
 }
 
-export class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi> {
+export class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi>, TModule<"EventListenerAtspi"> {
 	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 

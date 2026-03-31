@@ -115,7 +115,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 			if (fd == -1) {
 				if (errno == EACCES) {
-
 					SpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
 
 					if (ElevatePrivileges()) {
@@ -131,41 +130,47 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 				continue;
 			}
 
-			CUinputDevice virtual_device(fd);
-			unsigned char modifiers{0};
-			while (!stop_token.stop_requested()) {
-				ssize_t n = read(fd, &ev, sizeof(ev));
+			try {
+				CUinputDevice virtual_device(fd);
+				unsigned char modifiers{0};
+				while (!stop_token.stop_requested()) {
+					ssize_t n = read(fd, &ev, sizeof(ev));
 
-				if (n == -1) {
-					if (errno == EAGAIN || errno == EWOULDBLOCK) {
-						std::this_thread::sleep_for(std::chrono::milliseconds(10));
-						continue;
+					if (n == -1) {
+						if (errno == EAGAIN || errno == EWOULDBLOCK) {
+							std::this_thread::sleep_for(std::chrono::milliseconds(10));
+							continue;
+						}
+						modifiers = 0;
+						break;
 					}
-					modifiers = 0;
-					break;
-				}
 
-				if (n == sizeof(ev) && ev.type == EV_KEY) {
-					if (ev.value == 2)
-						continue;
+					if (n == sizeof(ev) && ev.type == EV_KEY) {
+						if (ev.value == 2)
+							continue;
 
-					CKeyboardEvent keyboard_event;
-					keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
+						CKeyboardEvent keyboard_event;
+						keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
 
-					auto modifier = LinuxModifierToKeyboardEventModifier(ev.code);
-					if (ev.value == 1)
-						modifiers |= modifier;
+						auto modifier = LinuxModifierToKeyboardEventModifier(ev.code);
+						if (ev.value == 1)
+							modifiers |= modifier;
+						else
+							modifiers &= ~modifier;
+						keyboard_event.hotkey.modifiers = modifiers;
+						if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
+							virtual_device.Post(ev.type, ev.code, ev.value);
+						}
+						keyboard_event.type =
+							(ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
+						EventQueue::GetInstance().Push(std::move(keyboard_event));
+					}
 					else
-						modifiers &= ~modifier;
-					keyboard_event.hotkey.modifiers = modifiers;
-					if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
 						virtual_device.Post(ev.type, ev.code, ev.value);
-					}
-					keyboard_event.type = (ev.value == 1) ? CKeyboardEvent::KEY_PRESSED : CKeyboardEvent::KEY_RELEASED;
-					EventQueue::GetInstance().Push(std::move(keyboard_event));
 				}
-				else
-					virtual_device.Post(ev.type, ev.code, ev.value);
+			}
+			catch (const std::exception& standard_exception) {
+				LogException(standard_exception);
 			}
 			close(fd);
 		}
@@ -192,6 +197,7 @@ void CEventListenerAtspi::do_ListenDevice(EDeviceType device, bool listen) {
 CEventListenerAtspi::CEventListenerAtspi()
 	: m_objectEventListener(atspi_event_listener_new(&CEventListenerAtspi::OnObjectEventCallback, this, nullptr)) {
 	if (!m_objectEventListener) [[unlikely]] {
+		Log(ERROR, "Failed to get event listener");
 		return;
 	}
 
@@ -199,9 +205,10 @@ CEventListenerAtspi::CEventListenerAtspi()
 	AT-SPI has a listener where you need to register the required events one by one.
 	*/
 	GError* error = nullptr;
-	for (const auto& [atspi_event_type, event_type] : cAtspiObjectEventTypeMap) {
+	for (const auto& [atspi_event_type, _] : cAtspiObjectEventTypeMap) {
 		atspi_event_listener_register(m_objectEventListener, atspi_event_type.data(), &error);
 		if (error) {
+			Log(ERROR, "Failed to register event {}. {}", atspi_event_type.data(), error->message);
 			g_error_free(error);
 			error = nullptr;
 		}
