@@ -68,6 +68,9 @@ public:
 	void BuildStateAnnouncement(CObjectProxy obj, bool require_all = false);
 	void BuildSelectionAnnouncement(CObjectProxy obj);
 	void BuildValueAnnouncement(CObjectProxy obj);
+
+	void BuildNameAnnouncement(CObjectProxy obj);
+	void BuildDescriptionAnnouncement(CObjectProxy obj);
 	void BuildTextAnnouncement(CObjectProxy obj);
 	void BuildCursorAnnouncement(CObjectProxy obj);
 
