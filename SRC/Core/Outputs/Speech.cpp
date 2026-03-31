@@ -1,5 +1,6 @@
 // Event to speech.
 module Core.Outputs.Speech;
+import Core.FocusManager;
 import Core.MessageBuilder;
 import Core.Object;
 import Core.SpeechSystem;
@@ -10,60 +11,30 @@ void COutputSpeech::Stop() {
 }
 
 // Various Announcers
-void COutputSpeech::FocusChange(CObjectProxy obj) {
-	if (!obj.IsValid()) [[unlikely]]
+void COutputSpeech::Output(CObjectEvent event) {
+	if (!event.object.IsValid()) [[unlikely]]
 		return;
 
 	MessageBuilder::GetInstance().Reset();
-	MessageBuilder::GetInstance().BuildFocusAnnouncement(obj);
-	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
-}
-
-void COutputSpeech::ValueChange(CObjectProxy obj) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	auto type = obj.GetType();
-	if (!type || !IsObjectValue(*type))
-		return;
-	MessageBuilder::GetInstance().Reset();
-	MessageBuilder::GetInstance().BuildValueAnnouncement(obj);
-	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
-}
-
-void COutputSpeech::StateChange(CObjectProxy obj) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	MessageBuilder::GetInstance().Reset();
-	MessageBuilder::GetInstance().BuildStateAnnouncement(obj);
-	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
-}
-
-void COutputSpeech::SelectionChange(CObjectProxy obj) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	MessageBuilder::GetInstance().Reset();
-	MessageBuilder::GetInstance().BuildSelectionAnnouncement(obj);
-	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
-}
-
-void COutputSpeech::CursorMove(CObjectProxy obj) {
-	if (!obj.IsValid()) [[unlikely]]
-		return;
-
-	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	auto cursor = text_provider.GetCursor();
-	if (!cursor) {
-		return;
+	using enum EObjectEventType;
+	switch (event.type) {
+	case FOCUS_GAINED:
+		MessageBuilder::GetInstance().BuildFocusAnnouncement(event.object);
+		break;
+	case STATE_CHANGED:
+		MessageBuilder::GetInstance().BuildStateAnnouncement(event.object);
+		break;
+	case VALUE_CHANGED:
+		MessageBuilder::GetInstance().BuildValueAnnouncement(event.object);
+		break;
+	case SELECTION_CHANGED:
+		MessageBuilder::GetInstance().BuildSelectionAnnouncement(event.object);
+		break;
+	case CURSOR_MOVED:
+		MessageBuilder::GetInstance().BuildCursorAnnouncement(event.object);
+		break;
+	default:
+		break;
 	}
-
-	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	MessageBuilder::GetInstance().Reset();
-	MessageBuilder::GetInstance().FindAnnouncementOfCursorPosition(text_provider, granularity);
-	if (granularity == ETextGranularity::CHARACTER)
-		SpeechSystem::GetInstance().Spell(MessageBuilder::GetInstance());
-	else
-		SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
+	SpeechSystem::GetInstance().Speak(MessageBuilder::GetInstance());
 }

@@ -204,3 +204,17 @@ void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
 		Append(text->text);
 	}
 }
+
+void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
+	auto cursor = text_provider.GetCursor();
+	if (!cursor) {
+		return;
+	}
+
+	ETextGranularity granularity{ETextGranularity::CHARACTER};
+	FindAnnouncementOfCursorPosition(text_provider, granularity);
+}

@@ -69,6 +69,7 @@ public:
 	void BuildSelectionAnnouncement(CObjectProxy obj);
 	void BuildValueAnnouncement(CObjectProxy obj);
 	void BuildTextAnnouncement(CObjectProxy obj);
+	void BuildCursorAnnouncement(CObjectProxy obj);
 
 	[[nodiscard]] operator std::string_view() const { return std::string_view(m_content); }
 

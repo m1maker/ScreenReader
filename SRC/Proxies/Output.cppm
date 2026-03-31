@@ -1,6 +1,7 @@
 module;
 #include <variant>
 export module Proxies.Output;
+import Core.Event;
 import Core.Outputs;
 import Proxies.Object;
 
@@ -33,19 +34,7 @@ public:
 		With([](auto&& out) { out.Stop(); });
 	}
 
-	void FocusChange(CObjectProxy obj) {
-		With([obj](auto&& out) { out.FocusChange(obj); });
-	}
-	void StateChange(CObjectProxy obj) {
-		With([obj](auto&& out) { out.StateChange(obj); });
-	}
-	void SelectionChange(CObjectProxy obj) {
-		With([obj](auto&& out) { out.SelectionChange(obj); });
-	}
-	void ValueChange(CObjectProxy obj) {
-		With([obj](auto&& out) { out.ValueChange(obj); });
-	}
-	void CursorMove(CObjectProxy obj) {
-		With([obj](auto&& out) { out.CursorMove(obj); });
+	void Output(CObjectEvent event) {
+		With([event](auto&& out) { out.Output(event); });
 	}
 };

@@ -7,15 +7,17 @@ module;
 #include <variant>
 #include <vector>
 export module Core.OutputManager;
+import Core.Event;
 import Core.FocusManager;
 import Core.Logger;
+import Core.Object;
 import Core.Outputs;
 import Core.Singleton;
 import Proxies.Object;
 import Proxies.Output;
 
 export class OutputManager final : TModule<"OutputManager">, public TSingleton<OutputManager> {
-	using OutputProxyMethodObject = void (COutputProxy::*)(CObjectProxy);
+	using OutputProxyMethodEvent = void (COutputProxy::*)(CObjectEvent);
 	using OutputProxyMethodVoid = void (COutputProxy::*)(void);
 
 	bool m_isWhereAmIOperation{false};
@@ -26,9 +28,9 @@ export class OutputManager final : TModule<"OutputManager">, public TSingleton<O
 	static constexpr size_t cOutputCount = 1;
 	std::array<COutputProxy, cOutputCount> m_outputs;
 
-	template <OutputProxyMethodObject Method> inline void WithAll(CObjectProxy obj) {
+	template <OutputProxyMethodEvent Method> inline void WithAll(CObjectEvent event) {
 		for (auto&& output : m_outputs) {
-			(output.*Method)(obj);
+			(output.*Method)(event);
 		}
 	}
 	template <OutputProxyMethodVoid Method> inline void WithAll(void) {
@@ -69,7 +71,7 @@ public:
 		std::string last_name{""};
 		m_isWhereAmIOperation = true;
 		for (size_t i = diff_index; i < chain.size(); ++i) {
-			const auto& current_object = chain[i];
+			const auto current_object = chain[i];
 
 			auto it = std::ranges::find(m_contextChain, current_object);
 			if (it != m_contextChain.end())
@@ -82,8 +84,8 @@ public:
 			}
 
 			last_name = current_name;
-
-			FocusChange(current_object);
+			CObjectEvent event{.type = EObjectEventType::FOCUS_GAINED, .object = current_object};
+			Output(event);
 		}
 		m_isWhereAmIOperation = false;
 		m_contextChain = chain;
@@ -92,9 +94,5 @@ public:
 
 	inline void Stop() { WithAll<&COutputProxy::Stop>(); }
 
-	inline void FocusChange(CObjectProxy obj) { WithAll<&COutputProxy::FocusChange>(obj); }
-	inline void StateChange(CObjectProxy obj) { WithAll<&COutputProxy::StateChange>(obj); }
-	inline void SelectionChange(CObjectProxy obj) { WithAll<&COutputProxy::SelectionChange>(obj); }
-	inline void ValueChange(CObjectProxy obj) { WithAll<&COutputProxy::ValueChange>(obj); }
-	inline void CursorMove(CObjectProxy obj) { WithAll<&COutputProxy::CursorMove>(obj); }
+	inline void Output(CObjectEvent event) { WithAll<&COutputProxy::Output>(event); }
 };

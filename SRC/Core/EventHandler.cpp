@@ -89,39 +89,15 @@ void EventHandler::Handle(CEvent&& event) {
 				break;
 			}
 			auto evt = object_event.value();
-			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
-			if (settings.object_presentation.read_unfocused_object_changes && m_focusManager.GetFocus() != evt.object &&
-				evt.type != EObjectEventType::FOCUS_GAINED && evt.type != EObjectEventType::SELECTION_CHANGED) {
-				m_outputManager.FocusChange(evt.object);
-				return;
-			}
-			if (m_focusManager.GetFocus() == evt.object)
+			auto& _ = ScreenReaderApp::GetInstance().GetSettings();
+			if (evt.type == EObjectEventType::FOCUS_GAINED) {
 				m_outputManager.Stop();
-			switch (evt.type) {
-			case EObjectEventType::FOCUS_GAINED:
 				m_focusManager.SetFocus(evt.object);
-				m_outputManager.Stop();
 				m_outputManager.WhereAmI();
-				m_outputManager.FocusChange(evt.object);
-				break;
-			case EObjectEventType::PARENT_UPDATED:
-				m_outputManager.WhereAmI();
-				break;
-			case EObjectEventType::VALUE_CHANGED:
-				m_outputManager.ValueChange(evt.object);
-				break;
-			case EObjectEventType::STATE_CHANGED:
-				m_outputManager.StateChange(evt.object);
-				break;
-			case EObjectEventType::SELECTION_CHANGED:
-				m_outputManager.SelectionChange(evt.object);
-				break;
-			case EObjectEventType::CURSOR_MOVED:
-				m_outputManager.CursorMove(evt.object);
-				break;
-			default:
-				break;
 			}
+			else if (m_focusManager.GetFocus() == evt.object)
+				m_outputManager.Stop();
+			m_outputManager.Output(evt);
 		}
 
 		case CEvent::KEYBOARD: {
