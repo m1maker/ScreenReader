@@ -309,47 +309,6 @@ export [[nodiscard]] constexpr inline auto GetAtspiTextGranularityFromTextGranul
 	}
 }
 
-/*
-Wrapper class for GLib strings so that they are automatically freed.
-*/
-export class CGlibString final {
-	gchar* m_pointer{nullptr};
-
-public:
-	constexpr explicit CGlibString(gchar* pointer) : m_pointer(pointer) {}
-
-	CGlibString(const CGlibString&) = delete;
-	auto operator=(const CGlibString&) -> CGlibString& = delete;
-
-	CGlibString(CGlibString&& other) noexcept : m_pointer(other.m_pointer) { other.m_pointer = nullptr; }
-
-	~CGlibString() {
-		if (m_pointer) {
-			g_free(m_pointer);
-		}
-	}
-
-	constexpr void reset(gchar* new_pointer = nullptr) {
-		if (m_pointer) {
-			g_free(m_pointer);
-		}
-		m_pointer = new_pointer;
-	}
-
-	auto operator=(CGlibString&& other) noexcept -> CGlibString& {
-		if (this != &other) {
-			reset(other.m_pointer);
-			other.m_pointer = nullptr;
-		}
-		return *this;
-	}
-
-	operator std::string() const { return m_pointer ? std::string(m_pointer) : std::string(); }
-
-	[[nodiscard]] inline constexpr auto c_str() const -> const char* { return m_pointer ? m_pointer : ""; }
-	[[nodiscard]] constexpr inline auto empty() const -> bool { return !m_pointer || !*m_pointer; }
-};
-
 export template <class T> [[nodiscard]] inline auto GetTextRangeFromAtspiRange(const T& range) -> STextRange {
 	STextRange text_range;
 	if constexpr (std::is_same_v<T, AtspiTextRange>) {
