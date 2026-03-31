@@ -10,7 +10,6 @@ module;
 #include <string>
 #include <thread>
 #include <unistd.h>
-#include <unordered_map>
 export module Platforms.Linux.EventListener;
 import Core.Device;
 import Core.Event;
@@ -23,25 +22,28 @@ import Traits.EventListener;
 AT-SPI has a listener where you need to register the required events one by one.
 But there's one very strange thing: all of these types are strings. Look at this code.
 */
-inline const std::unordered_map<std::string_view, EObjectEventType> cAtspiObjectEventTypeMap = {
-	{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
-	{"object:state-changed:checked", EObjectEventType::STATE_CHANGED},
-	{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
-	{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
-	{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
-	{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
+struct SEventTypeMapEntry final {
+	std::string_view key;
+	EObjectEventType value;
+};
+
+constexpr std::array cAtspiObjectEventTypeMap = {
+	SEventTypeMapEntry{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
+	SEventTypeMapEntry{"object:state-changed:checked", EObjectEventType::STATE_CHANGED},
+	SEventTypeMapEntry{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
+	SEventTypeMapEntry{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
+	SEventTypeMapEntry{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
+	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}
+};
 
 [[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> EObjectEventType {
 	if (!type) [[unlikely]]
 		return EObjectEventType::NONE;
 
-	std::string_view type_str(type);
-
-	auto it = cAtspiObjectEventTypeMap.find(type_str);
-	if (it != cAtspiObjectEventTypeMap.end()) [[likely]] {
-		return it->second;
-	}
-
+	const std::string_view type_view(type);
+	for (const auto& entry : cAtspiObjectEventTypeMap) {
+		if (type_view == entry.key) return entry.value;
+}
 	return EObjectEventType::NONE;
 }
 
