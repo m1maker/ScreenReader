@@ -13,7 +13,7 @@ import Proxies.Object;
 import Traits.SpeechEngine;
 
 MessageBuilder::MessageBuilder() {
-	// m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
+	m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
 }
 
 /*

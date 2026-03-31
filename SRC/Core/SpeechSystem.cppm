@@ -5,6 +5,7 @@ module;
 #include <utility>
 #include <variant>
 export module Core.SpeechSystem;
+import Core.App;
 import Core.Encoding;
 import Core.Environment;
 import Core.Logger;
@@ -49,7 +50,9 @@ public:
 		return *this;
 	}
 
-	inline auto Speak(std::string_view message, bool interrupt = false, bool ssml = false) -> SpeechSystem& {
+	inline auto Speak(std::string_view message,
+		bool interrupt = false,
+		bool ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml) -> SpeechSystem& {
 		WithEngine([&](auto& engine) {
 			SSpeechEngineInfo info = engine.GetInfo().value_or({});
 			if (info.supported_parameters[std::to_underlying(ESpeechEngineParameter::SSML)]) {
