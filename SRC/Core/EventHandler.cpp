@@ -91,6 +91,8 @@ void EventHandler::Handle(CEvent&& event) {
 			auto evt = object_event.value();
 			auto& _ = ScreenReaderApp::GetInstance().GetSettings();
 			if (evt.type == EObjectEventType::FOCUS_GAINED) {
+				if (m_focusManager.GetFocus() == evt.object)
+					return;
 				m_outputManager.Stop();
 				m_focusManager.SetFocus(evt.object);
 				m_outputManager.WhereAmI();
