@@ -36,6 +36,9 @@ void COutputSpeech::Output(CObjectEvent event) {
 	case SELECTION_CHANGED:
 		MessageBuilder::GetInstance().BuildSelectionAnnouncement(event.object);
 		break;
+	case TEXT_SELECTION_CHANGED:
+		MessageBuilder::GetInstance().BuildTextSelectionAnnouncement(event.object);
+		break;
 	case CURSOR_MOVED:
 		MessageBuilder::GetInstance().BuildCursorAnnouncement(event.object);
 		break;

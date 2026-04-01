@@ -222,6 +222,23 @@ void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
 	}
 }
 
+void MessageBuilder::BuildTextSelectionAnnouncement(CObjectProxy obj) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	TScopedBegin _(*this);
+	auto text_provider = obj.GetAs<CTextProviderProxy>();
+	auto selected_text = text_provider.GetSelected();
+	if (!selected_text)
+		return;
+
+	ApplyUtteranceParameters(m_speechParameters.text);
+	Append(selected_text->text);
+	Separate();
+	ApplyUtteranceParameters(m_speechParameters.state);
+	Append("selected");
+}
+
 void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;

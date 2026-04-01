@@ -31,6 +31,7 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 
 	bool m_ssml{false};
 	std::string_view m_lastBreakAfter{""};
+
 	mutable unsigned char m_counter{0};
 	friend TScopedBegin<MessageBuilder>;
 
@@ -96,6 +97,8 @@ public:
 	void BuildNameAnnouncement(CObjectProxy obj);
 	void BuildDescriptionAnnouncement(CObjectProxy obj);
 	void BuildTextAnnouncement(CObjectProxy obj);
+
+	void BuildTextSelectionAnnouncement(CObjectProxy obj);
 	void BuildCursorAnnouncement(CObjectProxy obj);
 
 	[[nodiscard]] operator std::string_view() const { return std::string_view(m_content); }

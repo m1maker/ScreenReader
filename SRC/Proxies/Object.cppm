@@ -111,6 +111,9 @@ public:
 	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
 		return With<STextRange>([cursor, granularity](auto&& obj) { return obj.GetText(cursor, granularity); });
 	}
+	[[nodiscard]] inline auto GetSelected() const -> ObjectResult<STextRange> {
+		return With<STextRange>([](auto&& obj) { return obj.GetSelectedText(); });
+	}
 };
 
 export class CSelectionProviderProxy final : public TUnknownProxy<SelectionProviderVariant> {
