@@ -106,6 +106,10 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(CTextProviderProxy provide
 	else if (horizontal_keys_down) {
 		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
 	}
+	else if (auto range = provider.GetText((*current_cursor) - 1, ETextGranularity::CHARACTER)) {
+		Append(range->text);
+		return;
+	}
 
 	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
 		Append(keys_range->text);
