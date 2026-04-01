@@ -38,7 +38,7 @@ CUtterance::CUtterance(std::pmr::string& ssml)
 }
 
 void CUtterance::Begin() {
-	m_ssmlContent += "<speak>";
+	m_ssmlContent += "<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">";
 }
 
 auto CUtterance::Text(std::string_view text) -> CUtterance& {
