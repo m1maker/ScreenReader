@@ -4,6 +4,7 @@ module;
 #include <cstdio>
 #include <memory_resource>
 #include <string>
+#include <string_view>
 #include <vector>
 export module Core.MessageBuilder;
 import Core.Config;
@@ -21,6 +22,8 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 	CUtterance m_utterance{m_content};
 
 	bool m_ssml{false};
+	std::string_view m_lastBreakAfter{""};
+
 	inline void Begin() {
 		if (m_ssml)
 			m_utterance.Begin();
@@ -28,6 +31,7 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 	inline void End() {
 		if (m_ssml)
 			m_utterance.End();
+		m_lastBreakAfter = "";
 	}
 
 	inline void Separate() { m_content += cSeparator; }
@@ -35,6 +39,10 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 	inline void Append(std::string_view text) {
 		if (m_ssml) {
 			m_utterance.Text(text);
+			if (!m_lastBreakAfter.empty()) {
+				m_utterance.Break(m_lastBreakAfter);
+				m_lastBreakAfter = "";
+			}
 		}
 		else
 			m_content += text;
@@ -46,8 +54,8 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 		m_utterance.Break(parameters.pause_before)
 			.Rate(parameters.rate)
 			.Pitch(parameters.pitch)
-			.Volume(parameters.volume)
-			.Break(parameters.pause_after);
+			.Volume(parameters.volume);
+		m_lastBreakAfter = parameters.pause_after;
 	}
 
 public:
