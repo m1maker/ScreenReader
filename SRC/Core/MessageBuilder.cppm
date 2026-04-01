@@ -24,12 +24,19 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 
 	bool m_ssml{false};
 	std::string_view m_lastBreakAfter{""};
+	unsigned char m_counter{0};
 
 	inline void Begin() {
-		if (m_ssml)
-			m_utterance.Begin();
+		if (m_counter == 0) {
+			if (m_ssml)
+				m_utterance.Begin();
+		}
+		++m_counter;
 	}
+
 	inline void End() {
+		if (--m_counter > 0)
+			return;
 		if (m_ssml)
 			m_utterance.End();
 		m_lastBreakAfter = "";
@@ -66,6 +73,7 @@ public:
 	void FindAnnouncementOfCursorPosition(CTextProviderProxy provider, ETextGranularity& granularity);
 
 	inline void Reset() {
+		m_counter = 0;
 		if (m_ssml) {
 			m_utterance.Clear();
 		}

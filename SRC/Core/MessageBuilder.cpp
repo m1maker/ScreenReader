@@ -159,6 +159,7 @@ void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) 
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
+	Begin();
 	auto type = obj.GetType();
 	if (!type)
 		return;
@@ -166,60 +167,67 @@ void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) 
 	if (auto state = obj.GetState()) {
 		GetObjectStateNames(m_content, *type, *state);
 	}
+	End();
 }
 
 void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
+	Begin();
 	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
 	if (auto current_selected = selection_provider.GetChildAt(0)) {
 		if (auto name = current_selected->GetName()) {
 			Append(*name);
 		}
 	}
+	End();
 }
 
 void MessageBuilder::BuildValueAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-
+	Begin();
 	auto value_provider = obj.GetAs<CValueProviderProxy>();
 	if (auto current = value_provider.GetCurrent()) {
 		std::format_to(std::back_inserter(m_content), "{}", *current);
 	}
+	End();
 }
 
 void MessageBuilder::BuildNameAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-
+	Begin();
 	FindAnnouncementInHierarchy(obj);
+	End();
 }
 
 void MessageBuilder::BuildDescriptionAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-
+	Begin();
 	if (auto description = obj.GetDescription()) {
 		Append(*description);
 	}
+	End();
 }
 
 void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-
+	Begin();
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		Append(text->text);
 	}
+	End();
 }
 
 void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-
+	Begin();
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
@@ -228,4 +236,5 @@ void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
 	FindAnnouncementOfCursorPosition(text_provider, granularity);
+	End();
 }
