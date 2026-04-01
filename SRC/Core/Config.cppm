@@ -34,7 +34,8 @@ export struct SScreenReaderAppSettings final {
 	} speech;
 };
 
-export using UtteranceParameters = SScreenReaderAppSettings::SSpeechParameters::SUtteranceParameters;
+export using SpeechParameters = SScreenReaderAppSettings::SSpeechParameters;
+export using UtteranceParameters = SpeechParameters::SUtteranceParameters;
 
 constexpr inline std::string_view cConfigFileName = "ScreenReader";
 

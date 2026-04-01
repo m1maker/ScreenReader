@@ -12,8 +12,8 @@ import Core.Text;
 import Proxies.Object;
 import Traits.SpeechEngine;
 
-MessageBuilder::MessageBuilder() {
-	m_ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml;
+MessageBuilder::MessageBuilder() : m_speechParameters(ScreenReaderApp::GetInstance().GetSettings().speech) {
+	m_ssml = m_speechParameters.ssml;
 }
 
 /*

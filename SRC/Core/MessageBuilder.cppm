@@ -20,6 +20,7 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
 	std::pmr::string m_content{&m_pool};
 	CUtterance m_utterance{m_content};
+	SpeechParameters& m_speechParameters;
 
 	bool m_ssml{false};
 	std::string_view m_lastBreakAfter{""};
