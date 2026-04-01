@@ -20,10 +20,12 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 	friend class EventHandler;
 
 	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
+	mutable std::mutex m_actionsMutex;
 
-	mutable std::mutex m_mutex;
 	std::unordered_map<EKeycode, bool> m_keysDown;
 	unsigned char m_modifiers{};
+	mutable std::mutex m_keysMutex;
+
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.
 	As a result of handling, one of these modifiers turns into a generic CKeyboardEvent::MODIFIER_SCREEN_READER.

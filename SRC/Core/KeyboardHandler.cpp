@@ -3,6 +3,7 @@ module;
 module Core.KeyboardHandler;
 
 auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
+	std::scoped_lock _(m_actionsMutex);
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
@@ -14,16 +15,21 @@ auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hoo
 }
 
 void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
+	std::scoped_lock _(m_actionsMutex);
 	m_actions.erase(action);
 }
 
 void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto hotkey = event.hotkey;
-	if (hotkey.modifiers & m_hookedModifiers) {
-		hotkey.modifiers &= ~m_hookedModifiers;
-		hotkey.modifiers |= MODIFIER_SCREEN_READER;
+	{
+		std::scoped_lock _(m_keysMutex);
+		if (hotkey.modifiers & m_hookedModifiers) {
+			hotkey.modifiers &= ~m_hookedModifiers;
+			hotkey.modifiers |= MODIFIER_SCREEN_READER;
+		}
 	}
 
+	std::scoped_lock _(m_actionsMutex);
 	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
 		it = m_actions.find(SHotkeyInfo::GetAny());
@@ -37,7 +43,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 [[nodiscard]] auto KeyboardHandler::IsKeyDown(EKeycode keycode) const -> bool {
-	std::scoped_lock lock(m_mutex);
+	std::scoped_lock _(m_keysMutex);
 	auto it = m_keysDown.find(keycode);
 	if (it != m_keysDown.end())
 		return it->second;
@@ -45,21 +51,25 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 void KeyboardHandler::ResetState() {
-	std::scoped_lock lock(m_mutex);
+	std::scoped_lock _(m_keysMutex);
 	m_keysDown.clear();
 	m_modifiers = 0;
 }
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
-	if (hotkey.modifiers & m_hookedModifiers) {
-		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
-			m_hookedModifiersTimer.Restart();
-			return true;
-		}
+	{
+		std::scoped_lock _(m_keysMutex);
+		if (hotkey.modifiers & m_hookedModifiers) {
+			if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
+				m_hookedModifiersTimer.Restart();
+				return true;
+			}
 
-		return false;
+			return false;
+		}
 	}
 
+	std::scoped_lock _(m_actionsMutex);
 	auto it = m_actions.find(hotkey);
 	if (it == m_actions.end()) {
 		return false;

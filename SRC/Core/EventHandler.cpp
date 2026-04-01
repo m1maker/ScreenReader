@@ -104,24 +104,24 @@ void EventHandler::Handle(CEvent&& event) {
 
 		case CEvent::KEYBOARD: {
 			auto& keyboard_handler = KeyboardHandler::GetInstance();
-			std::scoped_lock lock(keyboard_handler.m_mutex);
 			auto keyboard_event = event.GetAs<CKeyboardEvent>();
 			if (!keyboard_event.has_value()) {
 				Log(WARNING, "A keyboard event received, but it could not be unpacked from the variant");
 				break;
 			}
 			switch (keyboard_event.value().type) {
-			case CKeyboardEvent::KEY_PRESSED:
+			case CKeyboardEvent::KEY_PRESSED: {
+				std::scoped_lock _(keyboard_handler.m_keysMutex);
 				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
 				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
-
+			}
 				keyboard_handler.Handle(keyboard_event.value());
 				break;
-			case CKeyboardEvent::KEY_RELEASED:
+			case CKeyboardEvent::KEY_RELEASED: {
+				std::scoped_lock _(keyboard_handler.m_keysMutex);
 				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
 				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
-
-				break;
+			} break;
 			default:
 				break;
 			}
