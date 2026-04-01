@@ -21,13 +21,14 @@ This method attempts to find a named object if the object that received the focu
 name. For example, Mate system info has list items, which also contain a bunch of obscure nested elements, and somewhere
 in there are information labels.
 */
-void MessageBuilder::FindAnnouncementInHierarchy(CObjectProxy obj, bool recursive, bool collect_all_labels) {
+void MessageBuilder::FindAnnouncementInHierarchy(
+	CMessage& message, CObjectProxy obj, bool recursive, bool collect_all_labels) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
 	if (auto name = obj.GetName()) {
 		if (!name->empty()) {
-			Append(*name);
+			message.Append("{}", *name);
 			return;
 		}
 	}
@@ -35,7 +36,7 @@ void MessageBuilder::FindAnnouncementInHierarchy(CObjectProxy obj, bool recursiv
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		if (!text->text.empty()) {
-			Append(text->text);
+			message.Append("{}", text->text);
 			return;
 		}
 	}
@@ -48,9 +49,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(CObjectProxy obj, bool recursiv
 		if (current_type == EObjectType::LABEL) {
 			auto name = current.GetName().value_or("");
 			if (!name.empty()) {
-				if (!m_content.empty())
-					Separate();
-				Append(name);
+				message.Separate();
+				message.Append("{}", name);
 			}
 		}
 
@@ -67,15 +67,13 @@ void MessageBuilder::FindAnnouncementInHierarchy(CObjectProxy obj, bool recursiv
 
 	if ((!IsObjectContainer(type) && !IsObjectParent(type)) && collect_all_labels) {
 		collect_labels_recursive(collect_labels_recursive, obj);
-		if (!m_content.empty())
-			return;
 	}
 
 	if (recursive) {
 		if (auto children_count = obj.GetChildrenCount()) {
 			for (auto i = 0; i < *children_count; ++i) {
 				if (auto child = obj.GetChildAt(i))
-					FindAnnouncementInHierarchy(*child, true, collect_all_labels);
+					FindAnnouncementInHierarchy(message, *child, true, collect_all_labels);
 			}
 		}
 	}
@@ -85,7 +83,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(CObjectProxy obj, bool recursiv
 This method tries to determine where the cursor has moved and returns a chunk of text.
 Granularity is needed if the cursor has moved one character, in which case spelling should be enabled.
 */
-void MessageBuilder::FindAnnouncementOfCursorPosition(CTextProviderProxy provider, ETextGranularity& granularity) {
+void MessageBuilder::FindAnnouncementOfCursorPosition(
+	CMessage& message, CTextProviderProxy provider, ETextGranularity& granularity) {
 	if (!provider.IsValid()) [[unlikely]]
 		return;
 
@@ -107,143 +106,133 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(CTextProviderProxy provide
 		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
 	}
 	else if (auto range = provider.GetText((*current_cursor) - 1, ETextGranularity::CHARACTER)) {
-		Append(range->text);
+		message.Append("{}", range->text);
 		return;
 	}
 
 	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
-		Append(keys_range->text);
+		message.Append("{}", keys_range->text);
 	}
 }
 
 // Announcement builders
-void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) {
+void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
-	BuildNameAnnouncement(obj);
+	BuildNameAnnouncement(message, obj);
 
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-	if (!m_content.empty())
-		Separate();
-	ApplyUtteranceParameters(m_speechParameters.role);
-	Append(GetObjectTypeName(type, m_content.empty() ? true : require_all));
-	Separate();
-	BuildStateAnnouncement(obj, require_all);
+	message.Separate();
+	message.ApplyUtteranceParameters(m_speechParameters.role);
+	message.Append("{}", GetObjectTypeName(type, require_all));
+	message.Separate();
+	BuildStateAnnouncement(message, obj, require_all);
 
 	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count && IsObjectDataElement(type)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();
 		if (parent || parent->IsValid()) {
 			auto children_count = parent->GetChildrenCount().value_or(0);
-			Separate();
-			std::format_to(std::back_inserter(m_content), "{}{} of {}", cSeparator, index, children_count);
+			message.Separate();
+			message.Append("{} of {}", index, children_count);
 		}
 	}
-	Separate();
-	BuildValueAnnouncement(obj);
-	Separate();
-	BuildTextAnnouncement(obj);
+	message.Separate();
+	BuildValueAnnouncement(message, obj);
+	message.Separate();
+	BuildTextAnnouncement(message, obj);
 
-	BuildDescriptionAnnouncement(obj);
+	BuildDescriptionAnnouncement(message, obj);
 }
 
-void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) {
+void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto type = obj.GetType();
 	if (!type)
 		return;
 
 	if (auto state = obj.GetState()) {
-		ApplyUtteranceParameters(m_speechParameters.state);
-		GetObjectStateNames(m_content, *type, *state);
+		message.ApplyUtteranceParameters(m_speechParameters.state);
+		GetObjectStateNames(message.m_content, *type, *state);
 	}
 }
 
-void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
 	if (auto current_selected = selection_provider.GetChildAt(0)) {
 		if (auto name = current_selected->GetName()) {
-			ApplyUtteranceParameters(m_speechParameters.name);
-			Append(*name);
+			message.ApplyUtteranceParameters(m_speechParameters.name);
+			message.Append("{}", *name);
 		}
 	}
 }
 
-void MessageBuilder::BuildValueAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildValueAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto value_provider = obj.GetAs<CValueProviderProxy>();
 	if (auto current = value_provider.GetCurrent()) {
-		ApplyUtteranceParameters(m_speechParameters.state);
-		std::format_to(std::back_inserter(m_content), "{}", *current);
+		message.ApplyUtteranceParameters(m_speechParameters.state);
+		message.Append("{}", *current);
 	}
 }
 
-void MessageBuilder::BuildNameAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildNameAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
-	ApplyUtteranceParameters(m_speechParameters.name);
-	FindAnnouncementInHierarchy(obj);
+	message.ApplyUtteranceParameters(m_speechParameters.name);
+	FindAnnouncementInHierarchy(message, obj);
 }
 
-void MessageBuilder::BuildDescriptionAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildDescriptionAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	if (auto description = obj.GetDescription()) {
-		ApplyUtteranceParameters(m_speechParameters.description);
-		Append(*description);
+		message.ApplyUtteranceParameters(m_speechParameters.description);
+		message.Append("{}", *description);
 	}
 }
 
-void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildTextAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
-		ApplyUtteranceParameters(m_speechParameters.text);
-		Append(text->text);
+		message.ApplyUtteranceParameters(m_speechParameters.text);
+		message.Append("{}", text->text);
 	}
 }
 
-void MessageBuilder::BuildTextSelectionAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildTextSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto selected_text = text_provider.GetSelected();
 	if (!selected_text)
 		return;
 
-	ApplyUtteranceParameters(m_speechParameters.text);
-	Append(selected_text->text);
-	Separate();
-	ApplyUtteranceParameters(m_speechParameters.state);
-	Append("selected");
+	message.ApplyUtteranceParameters(m_speechParameters.text);
+	message.Append("{}", selected_text->text);
+	message.Separate();
+	message.ApplyUtteranceParameters(m_speechParameters.state);
+	message.Append("selected");
 }
 
-void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
+void MessageBuilder::BuildCursorAnnouncement(CMessage& message, CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	TScopedBegin _(*this);
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
@@ -251,5 +240,5 @@ void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 	}
 
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
-	FindAnnouncementOfCursorPosition(text_provider, granularity);
+	FindAnnouncementOfCursorPosition(message, text_provider, granularity);
 }

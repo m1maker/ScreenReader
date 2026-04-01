@@ -2,6 +2,7 @@ module;
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <format>
 #include <memory_resource>
 #include <string>
 #include <string_view>
@@ -14,56 +15,33 @@ import Core.Text;
 import Core.Utterance;
 import Proxies.Object;
 
-template <class T> class TScopedBegin final {
-	T& m_instance;
-	friend T;
-	explicit TScopedBegin(T& instance) : m_instance(instance) { m_instance.Begin(); }
-	~TScopedBegin() { m_instance.End(); }
-};
+export class CMessage final {
+	bool m_ssml;
+	std::pmr::memory_resource* m_pool;
+	std::pmr::string m_content;
+	mutable CUtterance m_utterance;
+	friend class MessageBuilder;
 
-export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton<MessageBuilder> {
-	static constexpr size_t cBufferSize = 1024;
-	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
-	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
-	std::pmr::string m_content{&m_pool};
-	CUtterance m_utterance{m_content};
-	SpeechParameters& m_speechParameters;
-
-	bool m_ssml{false};
-	std::string_view m_lastBreakAfter{""};
-
-	mutable unsigned char m_counter{0};
-	friend TScopedBegin<MessageBuilder>;
-
-	inline void Begin() {
-		if (++m_counter == 1) {
-			if (m_ssml)
-				m_utterance.Begin();
-		}
+	explicit CMessage(bool ssml, std::pmr::memory_resource* pool)
+		: m_ssml(ssml), m_pool(pool), m_content(m_pool), m_utterance(m_content) {
+		if (m_ssml)
+			m_utterance.Begin();
 	}
 
-	inline void End() {
-		if (--m_counter == 0) {
-			if (m_ssml)
-				m_utterance.End();
-			m_lastBreakAfter = "";
-		}
-	}
-
-	inline void Separate() { m_content += cSeparator; }
-
-	inline void Append(std::string_view text) {
-		if (m_ssml) {
-			m_utterance.Text(text);
-			if (!m_lastBreakAfter.empty()) {
-				m_utterance.Break(m_lastBreakAfter);
-				m_lastBreakAfter = "";
-			}
-		}
+public:
+	template <typename... Args> void Append(std::format_string<Args...> fmt, Args&&... args) {
+		if (!m_ssml)
+			std::format_to(std::back_inserter(m_content), fmt, std::forward<Args>(args)...);
 		else
-			m_content += text;
+			m_utterance.Text(std::format(fmt, std::forward<Args>(args)...));
 	}
 
+	void Separate() {
+		if (!m_ssml)
+			m_content += "  ";
+		else
+			m_utterance.Break("1ms");
+	}
 	inline void ApplyUtteranceParameters(UtteranceParameters parameters) {
 		if (!m_ssml)
 			return;
@@ -71,37 +49,40 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 			.Rate(parameters.rate)
 			.Pitch(parameters.pitch)
 			.Volume(parameters.volume);
-		m_lastBreakAfter = parameters.pause_after;
 	}
+
+	[[nodiscard]] operator std::string_view() const {
+		m_utterance.End();
+		return m_content;
+	}
+};
+
+export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton<MessageBuilder> {
+	static constexpr size_t cBufferSize = 1024;
+	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
+	std::pmr::monotonic_buffer_resource m_pool{m_buffer.data(), m_buffer.size()};
+	SpeechParameters& m_speechParameters;
+
+	bool m_ssml{false};
 
 public:
 	MessageBuilder();
 
-	void FindAnnouncementInHierarchy(CObjectProxy obj, bool recursive = true, bool collect_all_labels = true);
-	void FindAnnouncementOfCursorPosition(CTextProviderProxy provider, ETextGranularity& granularity);
+	void FindAnnouncementInHierarchy(
+		CMessage& message, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true);
+	void FindAnnouncementOfCursorPosition(
+		CMessage& message, CTextProviderProxy provider, ETextGranularity& granularity);
+	[[nodiscard]] auto CreateMessage() -> CMessage { return CMessage(m_ssml, &m_pool); }
 
-	inline void Reset() {
-		End();
-		if (m_ssml) {
-			m_utterance.Clear();
-		}
-		else
-			m_content.clear();
-	}
+	void BuildFocusAnnouncement(CMessage& message, CObjectProxy obj, bool require_all = false);
+	void BuildStateAnnouncement(CMessage& message, CObjectProxy obj, bool require_all = false);
+	void BuildSelectionAnnouncement(CMessage& message, CObjectProxy obj);
+	void BuildValueAnnouncement(CMessage& message, CObjectProxy obj);
 
-	void BuildFocusAnnouncement(CObjectProxy obj, bool require_all = false);
-	void BuildStateAnnouncement(CObjectProxy obj, bool require_all = false);
-	void BuildSelectionAnnouncement(CObjectProxy obj);
-	void BuildValueAnnouncement(CObjectProxy obj);
+	void BuildNameAnnouncement(CMessage& message, CObjectProxy obj);
+	void BuildDescriptionAnnouncement(CMessage& message, CObjectProxy obj);
+	void BuildTextAnnouncement(CMessage& message, CObjectProxy obj);
 
-	void BuildNameAnnouncement(CObjectProxy obj);
-	void BuildDescriptionAnnouncement(CObjectProxy obj);
-	void BuildTextAnnouncement(CObjectProxy obj);
-
-	void BuildTextSelectionAnnouncement(CObjectProxy obj);
-	void BuildCursorAnnouncement(CObjectProxy obj);
-
-	[[nodiscard]] operator std::string_view() const { return std::string_view(m_content); }
-
-	static constexpr std::string_view cSeparator = "  "; // This is a separator for name, type and state.
+	void BuildTextSelectionAnnouncement(CMessage& message, CObjectProxy obj);
+	void BuildCursorAnnouncement(CMessage& message, CObjectProxy obj);
 };
