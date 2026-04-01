@@ -120,22 +120,18 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	auto& settings = ScreenReaderApp::GetInstance().GetSettings();
-	auto& speech = settings.speech;
 	Begin();
-	ApplyUtteranceParameters(speech.name);
 	BuildNameAnnouncement(obj);
 
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 	if (!m_content.empty())
 		Separate();
-	ApplyUtteranceParameters(speech.role);
+	ApplyUtteranceParameters(m_speechParameters.role);
 	Append(GetObjectTypeName(type, m_content.empty() ? true : require_all));
 	Separate();
-	ApplyUtteranceParameters(speech.state);
 	BuildStateAnnouncement(obj, require_all);
 
-	if (settings.object_presentation.read_item_count && IsObjectDataElement(type)) {
+	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count && IsObjectDataElement(type)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();
 		if (parent || parent->IsValid()) {
@@ -147,10 +143,8 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 	Separate();
 	BuildValueAnnouncement(obj);
 	Separate();
-	ApplyUtteranceParameters(speech.text);
 	BuildTextAnnouncement(obj);
 
-	ApplyUtteranceParameters(speech.description);
 	BuildDescriptionAnnouncement(obj);
 	End();
 }
@@ -165,6 +159,7 @@ void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) 
 		return;
 
 	if (auto state = obj.GetState()) {
+		ApplyUtteranceParameters(m_speechParameters.state);
 		GetObjectStateNames(m_content, *type, *state);
 	}
 	End();
@@ -178,6 +173,7 @@ void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
 	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
 	if (auto current_selected = selection_provider.GetChildAt(0)) {
 		if (auto name = current_selected->GetName()) {
+			ApplyUtteranceParameters(m_speechParameters.name);
 			Append(*name);
 		}
 	}
@@ -190,6 +186,7 @@ void MessageBuilder::BuildValueAnnouncement(CObjectProxy obj) {
 	Begin();
 	auto value_provider = obj.GetAs<CValueProviderProxy>();
 	if (auto current = value_provider.GetCurrent()) {
+		ApplyUtteranceParameters(m_speechParameters.state);
 		std::format_to(std::back_inserter(m_content), "{}", *current);
 	}
 	End();
@@ -199,6 +196,7 @@ void MessageBuilder::BuildNameAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 	Begin();
+	ApplyUtteranceParameters(m_speechParameters.name);
 	FindAnnouncementInHierarchy(obj);
 	End();
 }
@@ -208,6 +206,7 @@ void MessageBuilder::BuildDescriptionAnnouncement(CObjectProxy obj) {
 		return;
 	Begin();
 	if (auto description = obj.GetDescription()) {
+		ApplyUtteranceParameters(m_speechParameters.description);
 		Append(*description);
 	}
 	End();
@@ -219,6 +218,7 @@ void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
 	Begin();
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
+		ApplyUtteranceParameters(m_speechParameters.text);
 		Append(text->text);
 	}
 	End();
