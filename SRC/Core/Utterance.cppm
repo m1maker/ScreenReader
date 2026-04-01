@@ -8,6 +8,7 @@ export module Core.Utterance;
 
 export class CUtterance final {
 	size_t m_prefixLength{0};
+	size_t m_lastLengthWithoutText{0};
 	std::pmr::string& m_ssmlContent;
 	std::string_view m_currentPitch;
 	std::string_view m_currentRate;
@@ -18,6 +19,9 @@ export class CUtterance final {
 	void StartProsodyIfNeeded();
 	void EndProsodyIfNeeded();
 	void AddAndEscapeXml(std::string_view text);
+	void ParameterChanged();
+	void TextAdded();
+	void UndoLastParametersIfUnused();
 
 public:
 	explicit CUtterance(std::pmr::string& ssml);

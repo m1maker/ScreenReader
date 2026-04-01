@@ -41,7 +41,21 @@ auto CUtterance::Begin() -> CUtterance& {
 	Clear(true);
 	m_ssmlContent += "<speak>";
 	m_prefixLength = m_ssmlContent.size();
+	m_lastLengthWithoutText = 0;
 	return *this;
+}
+
+void CUtterance::ParameterChanged() {
+	m_lastLengthWithoutText = m_ssmlContent.size();
+}
+
+void CUtterance::TextAdded() {
+	m_lastLengthWithoutText = 0;
+}
+
+void CUtterance::UndoLastParametersIfUnused() {
+	if (m_lastLengthWithoutText > 0)
+		m_ssmlContent.resize(m_lastLengthWithoutText);
 }
 
 auto CUtterance::Text(std::string_view text) -> CUtterance& {
@@ -50,6 +64,7 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 
 	StartProsodyIfNeeded();
 	AddAndEscapeXml(text);
+	TextAdded();
 	return *this;
 }
 
@@ -58,12 +73,14 @@ auto CUtterance::Break(std::string_view time) -> CUtterance& {
 		return *this;
 	EndProsodyIfNeeded();
 	std::format_to(std::back_inserter(m_ssmlContent), "<break time=\"{}\"/>", time);
+	ParameterChanged();
 	return *this;
 }
 
 auto CUtterance::Mark(std::string_view name) -> CUtterance& {
 	EndProsodyIfNeeded();
 	std::format_to(std::back_inserter(m_ssmlContent), "<mark name=\"{}\"/>", name);
+	ParameterChanged();
 	return *this;
 }
 
@@ -72,6 +89,7 @@ auto CUtterance::Pitch(std::string_view pitch) -> CUtterance& {
 		EndProsodyIfNeeded();
 		m_currentPitch = pitch;
 	}
+	ParameterChanged();
 	return *this;
 }
 
@@ -80,6 +98,7 @@ auto CUtterance::Rate(std::string_view rate) -> CUtterance& {
 		EndProsodyIfNeeded();
 		m_currentRate = rate;
 	}
+	ParameterChanged();
 	return *this;
 }
 
@@ -88,6 +107,7 @@ auto CUtterance::Volume(std::string_view volume) -> CUtterance& {
 		EndProsodyIfNeeded();
 		m_currentVolume = volume;
 	}
+	ParameterChanged();
 	return *this;
 }
 
@@ -100,10 +120,12 @@ auto CUtterance::Voice(std::string_view voice) -> CUtterance& {
 	if (!voice.empty()) [[likely]] {
 		std::format_to(std::back_inserter(m_ssmlContent), "<voice name=\"{}\">", voice);
 	}
+	ParameterChanged();
 	return *this;
 }
 
 void CUtterance::End() {
+	UndoLastParametersIfUnused();
 	if (m_inProsody) {
 		m_ssmlContent += "</prosody>";
 	}
@@ -122,6 +144,7 @@ void CUtterance::Clear(bool all) {
 	m_currentVolume = cVolumeDefault;
 	m_currentVoice = "";
 	m_inProsody = false;
+	m_lastLengthWithoutText = 0;
 }
 
 void CUtterance::StartProsodyIfNeeded() {
