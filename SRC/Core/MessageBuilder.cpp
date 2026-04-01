@@ -120,7 +120,7 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	Begin();
+	TScopedBegin _(*this);
 	BuildNameAnnouncement(obj);
 
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
@@ -146,14 +146,13 @@ void MessageBuilder::BuildFocusAnnouncement(CObjectProxy obj, bool require_all) 
 	BuildTextAnnouncement(obj);
 
 	BuildDescriptionAnnouncement(obj);
-	End();
 }
 
 void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	Begin();
+	TScopedBegin _(*this);
 	auto type = obj.GetType();
 	if (!type)
 		return;
@@ -162,14 +161,13 @@ void MessageBuilder::BuildStateAnnouncement(CObjectProxy obj, bool require_all) 
 		ApplyUtteranceParameters(m_speechParameters.state);
 		GetObjectStateNames(m_content, *type, *state);
 	}
-	End();
 }
 
 void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	Begin();
+	TScopedBegin _(*this);
 	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
 	if (auto current_selected = selection_provider.GetChildAt(0)) {
 		if (auto name = current_selected->GetName()) {
@@ -177,57 +175,57 @@ void MessageBuilder::BuildSelectionAnnouncement(CObjectProxy obj) {
 			Append(*name);
 		}
 	}
-	End();
 }
 
 void MessageBuilder::BuildValueAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-	Begin();
+
+	TScopedBegin _(*this);
 	auto value_provider = obj.GetAs<CValueProviderProxy>();
 	if (auto current = value_provider.GetCurrent()) {
 		ApplyUtteranceParameters(m_speechParameters.state);
 		std::format_to(std::back_inserter(m_content), "{}", *current);
 	}
-	End();
 }
 
 void MessageBuilder::BuildNameAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-	Begin();
+
+	TScopedBegin _(*this);
 	ApplyUtteranceParameters(m_speechParameters.name);
 	FindAnnouncementInHierarchy(obj);
-	End();
 }
 
 void MessageBuilder::BuildDescriptionAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-	Begin();
+
+	TScopedBegin _(*this);
 	if (auto description = obj.GetDescription()) {
 		ApplyUtteranceParameters(m_speechParameters.description);
 		Append(*description);
 	}
-	End();
 }
 
 void MessageBuilder::BuildTextAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-	Begin();
+
+	TScopedBegin _(*this);
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
 		ApplyUtteranceParameters(m_speechParameters.text);
 		Append(text->text);
 	}
-	End();
 }
 
 void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 	if (!obj.IsValid()) [[unlikely]]
 		return;
-	Begin();
+
+	TScopedBegin _(*this);
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
@@ -236,5 +234,4 @@ void MessageBuilder::BuildCursorAnnouncement(CObjectProxy obj) {
 
 	ETextGranularity granularity{ETextGranularity::CHARACTER};
 	FindAnnouncementOfCursorPosition(text_provider, granularity);
-	End();
 }

@@ -14,6 +14,13 @@ import Core.Text;
 import Core.Utterance;
 import Proxies.Object;
 
+template <class T> class TScopedBegin final {
+	T& m_instance;
+	friend T;
+	explicit TScopedBegin(T& instance) : m_instance(instance) { m_instance.Begin(); }
+	~TScopedBegin() { m_instance.End(); }
+};
+
 export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton<MessageBuilder> {
 	static constexpr size_t cBufferSize = 1024;
 	alignas(std::max_align_t) std::array<std::byte, cBufferSize> m_buffer;
@@ -25,6 +32,7 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 	bool m_ssml{false};
 	std::string_view m_lastBreakAfter{""};
 	mutable unsigned char m_counter{0};
+	friend TScopedBegin<MessageBuilder>;
 
 	inline void Begin() {
 		if (++m_counter == 1) {
