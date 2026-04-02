@@ -8,6 +8,10 @@ export module Core.BuiltInSpeechEngine;
 import Core.Speech;
 
 export class CSpeechEngineEspeakNg final {
+	bool m_initialized{false};
+
+	static int SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events);
+
 public:
 	explicit CSpeechEngineEspeakNg();
 	~CSpeechEngineEspeakNg();
