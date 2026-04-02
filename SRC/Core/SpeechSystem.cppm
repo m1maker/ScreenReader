@@ -6,16 +6,18 @@ module;
 #include <variant>
 export module Core.SpeechSystem;
 import Core.App;
+import Core.BuiltInSpeechEngine;
 import Core.Encoding;
-import Core.Environment;
 import Core.Logger;
 import Core.Speech;
 import Core.UnicodeData;
 
+export using SpeechEngineVariant = std::variant<std::monostate, BuiltInSpeechEngine /*, CSpeechEngineRuntime*/>;
+
 export class SpeechSystem final : TModule<"SpeechSystem"> {
 	SpeechEngineVariant m_variant;
 
-	explicit SpeechSystem() { m_variant.emplace<CDefaultSpeechEngine>(); }
+	explicit SpeechSystem() { m_variant.emplace<BuiltInSpeechEngine>(); }
 
 	~SpeechSystem() = default;
 

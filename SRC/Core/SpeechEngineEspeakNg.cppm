@@ -1,0 +1,43 @@
+module;
+#include <bitset>
+#include <cstdint>
+#include <espeak-ng/speak_lib.h>
+#include <expected>
+#include <string_view>
+export module Core.BuiltInSpeechEngine;
+import Core.Speech;
+
+export class CSpeechEngineEspeakNg final {
+public:
+	explicit CSpeechEngineEspeakNg();
+	~CSpeechEngineEspeakNg();
+
+	[[nodiscard]] auto Test() const -> SpeechEngineResult<> { return SpeechEngineResult<>(); }
+
+	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
+
+	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
+	void Stop();
+	void Cancel();
+
+	void Pause(bool pause = true);
+
+	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
+	template <typename T>
+	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
+
+	[[nodiscard]] auto GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
+};
+
+template <typename T>
+auto CSpeechEngineEspeakNg::SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+	return SpeechEngineResult<>();
+}
+
+template <typename T>
+[[nodiscard]] auto CSpeechEngineEspeakNg::GetParameter(ESpeechEngineParameter parameter) const
+	-> SpeechEngineResult<T> {
+	return std::unexpected(ESpeechEngineError::FAIL);
+}
+
+export using BuiltInSpeechEngine = CSpeechEngineEspeakNg;

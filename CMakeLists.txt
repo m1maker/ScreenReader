@@ -91,7 +91,6 @@ if(LINUX)
     find_package(PkgConfig REQUIRED)
 
     pkg_check_modules(ATSPI REQUIRED atspi-2)
-    pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
 
     pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
     pkg_check_modules(GLIB REQUIRED glib-2.0)
@@ -113,12 +112,12 @@ endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/SRC
+    ${espeak-ng_SOURCE_DIR}/src/include
 )
 
 if(LINUX)
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${ATSPI_INCLUDE_DIRS}
-        ${SPEECHD_INCLUDE_DIRS}
         ${GDK_INCLUDE_DIRS}
     )
 endif()
@@ -131,7 +130,6 @@ if(LINUX)
         ${GOBJECT_LIBRARIES}
         ${GLIB_LIBRARIES}
         ${GDK_LIBRARIES}
-        ${SPEECHD_LIBRARIES}
         ${BRLAPI}
     )
 endif()

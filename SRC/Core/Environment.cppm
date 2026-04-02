@@ -5,16 +5,12 @@ module;
 #if SR_LINUX
 export module Core.Environment;
 export import Platforms.Linux.Object;
-export import Platforms.Linux.SpeechEngine;
 export using ObjectVariant = std::variant<std::monostate, CObjectAtspi>;
 export using ProviderVariant = ObjectVariant;
 export using TextProviderVariant = ObjectVariant;
 export using SelectionProviderVariant = ObjectVariant;
 export using ValueProviderVariant = ObjectVariant;
 export using CObject = CObjectAtspi;
-
-export using SpeechEngineVariant = std::variant<std::monostate, CSpeechEngineSpeechDispatcher>;
-export using CDefaultSpeechEngine = CSpeechEngineSpeechDispatcher;
 #else
 export module Core.Environment;
 #endif

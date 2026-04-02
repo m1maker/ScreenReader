@@ -5,6 +5,7 @@ target_sources(${PROJECT_NAME}
         MessageBuilder.cpp
         main.cpp
         Object.cpp
+        SpeechEngineEspeakNg.cpp
         Utterance.cpp
     PUBLIC FILE_SET CXX_MODULES BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}" FILES
         Action.cppm
@@ -29,6 +30,7 @@ target_sources(${PROJECT_NAME}
         Rect.cppm
         Singleton.cppm
         Speech.cppm
+        SpeechEngineEspeakNg.cppm
         SpeechSystem.cppm
         Text.cppm
         Timer.cppm
