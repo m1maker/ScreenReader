@@ -17,7 +17,16 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_COMPILER clang++)
 project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 
-#include(FetchContent)
+include(FetchContent)
+
+FetchContent_Declare(
+		espeak-ng
+		GIT_REPOSITORY https://github.com/espeak-ng/espeak-ng.git
+  GIT_TAG master
+  GIT_SHALLOW ON
+		SYSTEM
+)
+FetchContent_MakeAvailable(espeak-ng)
 
 file(GLOB_RECURSE ALL_CXX_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
@@ -113,8 +122,11 @@ if(LINUX)
         ${GDK_INCLUDE_DIRS}
     )
 endif()
+
+set(libraries espeak-ng)
+
 if(LINUX)
-    target_link_libraries(${PROJECT_NAME}
+    list(APPEND libraries
         ${ATSPI_LIBRARIES}
         ${GOBJECT_LIBRARIES}
         ${GLIB_LIBRARIES}
@@ -123,5 +135,7 @@ if(LINUX)
         ${BRLAPI}
     )
 endif()
+
+target_link_libraries(${PROJECT_NAME} ${libraries})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
