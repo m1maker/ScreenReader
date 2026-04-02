@@ -10,7 +10,6 @@ import Core.KeyInfo;
 import Core.Object;
 import Core.Text;
 import Proxies.Object;
-import Traits.SpeechEngine;
 
 MessageBuilder::MessageBuilder() : m_speechParameters(ScreenReaderApp::GetInstance().GetSettings().speech) {
 	m_ssml = m_speechParameters.ssml;

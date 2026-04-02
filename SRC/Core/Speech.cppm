@@ -4,7 +4,7 @@ module;
 #include <expected>
 #include <string_view>
 #include <utility>
-export module Traits.SpeechEngine;
+export module Core.Speech;
 
 export enum class ESpeechEngineParameter : unsigned char {
 	NONE = 0,
@@ -63,42 +63,3 @@ export struct SVoiceInfo final {
 };
 
 export using SpeechMessage = unsigned long long;
-
-export template <typename Derived> class TSpeechEngine {
-public:
-	explicit TSpeechEngine() = default;
-	~TSpeechEngine() = default;
-
-	[[nodiscard]] auto Test(this auto&& self) -> SpeechEngineResult<> {
-		return std::forward<decltype(self)>(self).do_Test();
-	}
-
-	[[nodiscard]] auto GetInfo(this auto&& self) -> SpeechEngineResult<SSpeechEngineInfo> {
-		return std::forward<decltype(self)>(self).do_GetInfo();
-	}
-
-	auto Speak(this auto&& self, std::string_view message) -> SpeechEngineResult<SpeechMessage> {
-		if (message.empty())
-			return std::unexpected(ESpeechEngineError::INVALID_ARGUMENTS);
-		return std::forward<decltype(self)>(self).do_Speak(message);
-	}
-
-	void Stop(this auto&& self) { std::forward<decltype(self)>(self).do_Stop(); }
-	void Cancel(this auto&& self) { std::forward<decltype(self)>(self).do_Cancel(); }
-
-	void Pause(this auto&& self, bool pause = true) { std::forward<decltype(self)>(self).do_Pause(pause); }
-
-	auto SetParameter(this auto&& self, ESpeechEngineParameter parameter, auto&& value) -> SpeechEngineResult<> {
-		return std::forward<decltype(self)>(self).do_SetParameter(parameter, value);
-	}
-
-	template <typename Parameter>
-	[[nodiscard]] auto GetParameter(this auto&& self, ESpeechEngineParameter parameter)
-		-> SpeechEngineResult<Parameter> {
-		return std::forward<decltype(self)>(self).do_GetParameter(parameter);
-	}
-
-	[[nodiscard]] auto GetVoiceInfo(this auto&& self, unsigned long long index) -> SpeechEngineResult<SVoiceInfo> {
-		return std::forward<decltype(self)>(self).do_GetVoiceInfo(index);
-	}
-};

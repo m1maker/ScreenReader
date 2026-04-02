@@ -3,5 +3,4 @@ target_sources(${PROJECT_NAME}
         EventListener.cppm
         PlatformDependentWorker.cppm
         RefCountedObject.cppm
-        SpeechEngine.cppm
 )

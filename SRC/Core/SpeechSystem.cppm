@@ -9,8 +9,8 @@ import Core.App;
 import Core.Encoding;
 import Core.Environment;
 import Core.Logger;
+import Core.Speech;
 import Core.UnicodeData;
-import Traits.SpeechEngine;
 
 export class SpeechSystem final : TModule<"SpeechSystem"> {
 	SpeechEngineVariant m_variant;

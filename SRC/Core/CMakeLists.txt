@@ -28,6 +28,7 @@ target_sources(${PROJECT_NAME}
         PlatformError.cppm
         Rect.cppm
         Singleton.cppm
+        Speech.cppm
         SpeechSystem.cppm
         Text.cppm
         Timer.cppm

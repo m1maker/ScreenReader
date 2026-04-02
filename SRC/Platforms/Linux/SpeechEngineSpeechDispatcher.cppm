@@ -9,9 +9,9 @@ module;
 #include <string_view>
 #include <thread>
 export module Platforms.Linux.SpeechEngine;
-import Traits.SpeechEngine;
+import Core.Speech;
 
-export class CSpeechEngineSpeechDispatcher final : public TSpeechEngine<CSpeechEngineSpeechDispatcher> {
+export class CSpeechEngineSpeechDispatcher final {
 	::SPDConnection* m_connection{nullptr};
 	bool m_enableSpelling{false};
 	bool m_ssml{false};
@@ -51,7 +51,7 @@ public:
 	explicit CSpeechEngineSpeechDispatcher();
 	~CSpeechEngineSpeechDispatcher();
 
-	[[nodiscard]] auto do_Test() const -> SpeechEngineResult<> {
+	[[nodiscard]] auto Test() const -> SpeechEngineResult<> {
 		if (m_connection == nullptr) [[unlikely]] {
 			return std::unexpected(ESpeechEngineError::DEFUNCT);
 		}
@@ -59,23 +59,23 @@ public:
 		return SpeechEngineResult<>();
 	}
 
-	[[nodiscard]] auto do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
+	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
-	auto do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
-	void do_Stop();
-	void do_Cancel();
+	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
+	void Stop();
+	void Cancel();
 
-	void do_Pause(bool pause = true);
+	void Pause(bool pause = true);
 
-	template <typename T> auto do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
+	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
-	[[nodiscard]] auto do_GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
+	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
 
-	[[nodiscard]] auto do_GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
+	[[nodiscard]] auto GetVoiceInfo(unsigned long long index) -> SpeechEngineResult<SVoiceInfo>;
 };
 
 template <typename T>
-auto CSpeechEngineSpeechDispatcher::do_SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+auto CSpeechEngineSpeechDispatcher::SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 	using enum ESpeechEngineParameter;
@@ -117,7 +117,7 @@ auto CSpeechEngineSpeechDispatcher::do_SetParameter(ESpeechEngineParameter param
 }
 
 template <typename T>
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetParameter(ESpeechEngineParameter parameter) const
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::GetParameter(ESpeechEngineParameter parameter) const
 	-> SpeechEngineResult<T> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);

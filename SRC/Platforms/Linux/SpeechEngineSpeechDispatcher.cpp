@@ -85,7 +85,7 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	m_connection = nullptr;
 }
 
-[[nodiscard]] auto CSpeechEngineSpeechDispatcher::do_GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+[[nodiscard]] auto CSpeechEngineSpeechDispatcher::GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
 	SSpeechEngineInfo info;
 	info.name = "SpeechDispatcher";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
@@ -94,12 +94,12 @@ CSpeechEngineSpeechDispatcher::~CSpeechEngineSpeechDispatcher() {
 	return info;
 }
 
-auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
+auto CSpeechEngineSpeechDispatcher::Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 	if (!m_connection) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
 	if (m_voiceFound.load()) {
-		do_SetParameter(ESpeechEngineParameter::VOICE_INDEX, m_voiceIndex.load());
+		SetParameter(ESpeechEngineParameter::VOICE_INDEX, m_voiceIndex.load());
 		m_voiceFound.store(false);
 	}
 
@@ -110,14 +110,14 @@ auto CSpeechEngineSpeechDispatcher::do_Speak(std::string_view message) -> Speech
 	return static_cast<SpeechMessage>(result);
 }
 
-void CSpeechEngineSpeechDispatcher::do_Stop() {
+void CSpeechEngineSpeechDispatcher::Stop() {
 	if (!m_connection) [[unlikely]]
 		return;
 
 	spd_stop(m_connection);
 }
 
-void CSpeechEngineSpeechDispatcher::do_Cancel() {
+void CSpeechEngineSpeechDispatcher::Cancel() {
 	if (!m_connection) [[unlikely]]
 		return;
 
