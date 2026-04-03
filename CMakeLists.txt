@@ -47,7 +47,7 @@ endif()
 
 find_package(Git)
 find_library(BRLAPI "libbrlapi.so")
-
+find_library(ASOUND "libasound.so")
 
 function(get_git_version VERSION_HASH VERSION_TAG)
     if(GIT_FOUND)
@@ -128,6 +128,7 @@ set(libraries espeak-ng)
 
 if(LINUX)
     list(APPEND libraries
+        ${ASOUND}
         ${ATSPI_LIBRARIES}
         ${GOBJECT_LIBRARIES}
         ${GLIB_LIBRARIES}
