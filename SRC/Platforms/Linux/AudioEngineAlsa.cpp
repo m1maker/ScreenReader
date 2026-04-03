@@ -42,6 +42,8 @@ CAudioEngineAlsa::~CAudioEngineAlsa() {
 		parameters.period_size);
 	if (result < 0)
 		return std::unexpected(EAudioEngineError::FAIL);
+
+	m_parameters = parameters;
 	return AudioEngineResult<>();
 }
 
@@ -51,13 +53,18 @@ void CAudioEngineAlsa::Uninitialize() {
 
 	snd_pcm_drain(m_handle);
 	snd_pcm_close(m_handle);
+	m_parameters = {};
 	m_handle = nullptr;
 }
 
-[[nodiscard]] auto CAudioEngineAlsa::Write(const void* buffer, unsigned long long size) -> AudioEngineResult<> {
+[[nodiscard]] auto CAudioEngineAlsa::Write(const void* buffer, unsigned long long frames) -> AudioEngineResult<> {
 	if (!m_handle)
 		return std::unexpected(EAudioEngineError::DEFUNCT);
 
-	[[maybe_unused]] auto result = snd_pcm_writei(m_handle, buffer, size);
+	auto result = snd_pcm_writei(m_handle, buffer, frames);
+	if (result == -EPIPE) {
+		snd_pcm_prepare(m_handle);
+		result = snd_pcm_writei(m_handle, buffer, frames);
+	}
 	return AudioEngineResult<>();
 }
