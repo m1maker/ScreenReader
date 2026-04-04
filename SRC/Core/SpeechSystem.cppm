@@ -9,23 +9,19 @@ import Core.App;
 import Core.BuiltInSpeechEngine;
 import Core.Encoding;
 import Core.Logger;
+import Core.Singleton;
 import Core.Speech;
 import Core.UnicodeData;
 
 export using SpeechEngineVariant = std::variant<std::monostate, BuiltInSpeechEngine /*, CSpeechEngineRuntime*/>;
 
-export class SpeechSystem final : TModule<"SpeechSystem"> {
+export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
 	SpeechEngineVariant m_variant;
 
+public:
 	explicit SpeechSystem() { m_variant.emplace<BuiltInSpeechEngine>(); }
 
 	~SpeechSystem() = default;
-
-public:
-	static auto& GetInstance() {
-		static SpeechSystem instance;
-		return instance;
-	}
 
 	template <typename F> decltype(auto) WithEngine(F&& func) {
 		return std::visit(
