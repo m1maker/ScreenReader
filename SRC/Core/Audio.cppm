@@ -4,6 +4,24 @@ export module Core.Audio;
 
 export enum class EAudioFormat : unsigned char { UNKNOWN = 0, U8, S16, S24, S32, F32 };
 
+export template <EAudioFormat F> struct TAudioFormatSize final {};
+template <> struct TAudioFormatSize<EAudioFormat::U8> final {
+	static constexpr unsigned char value = 1;
+};
+template <> struct TAudioFormatSize<EAudioFormat::S16> final {
+	static constexpr unsigned char value = 2;
+};
+template <> struct TAudioFormatSize<EAudioFormat::S24> final {
+	static constexpr unsigned char value = 3;
+};
+template <> struct TAudioFormatSize<EAudioFormat::S32> final {
+	static constexpr unsigned char value = 4;
+};
+template <> struct TAudioFormatSize<EAudioFormat::F32> final {
+	static constexpr unsigned char value = 4;
+};
+template <> struct TAudioFormatSize<EAudioFormat::UNKNOWN> final {};
+
 export struct SAudioParameters final {
 	unsigned char channels{0};
 	unsigned int sample_rate{0};
