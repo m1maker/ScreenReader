@@ -5,7 +5,7 @@ import Core.Audio;
 
 class CAudioEngineAlsa final {
 	snd_pcm_t* m_handle{nullptr};
-	SAudioParameters m_parameters;
+
 public:
 	explicit CAudioEngineAlsa() = default;
 	~CAudioEngineAlsa();
@@ -13,5 +13,5 @@ public:
 	[[nodiscard]] auto Initialize(SAudioParameters parameters) -> AudioEngineResult<>;
 	void Uninitialize();
 
-	[[nodiscard]] auto Write(const void* buffer, unsigned long long frames) -> AudioEngineResult<>;
+	[[nodiscard]] auto Write(const signed short int* buffer, unsigned long long frames) -> AudioEngineResult<>;
 };
