@@ -3,7 +3,7 @@ module;
 export module Platforms.Linux.AudioEngine;
 import Core.Audio;
 
-class CAudioEngineAlsa final {
+export class CAudioEngineAlsa final {
 	snd_pcm_t* m_handle{nullptr};
 
 public:

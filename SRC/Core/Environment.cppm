@@ -5,12 +5,15 @@ module;
 #if SR_LINUX
 export module Core.Environment;
 export import Platforms.Linux.Object;
+export import Platforms.Linux.AudioEngine;
 export using ObjectVariant = std::variant<std::monostate, CObjectAtspi>;
 export using ProviderVariant = ObjectVariant;
 export using TextProviderVariant = ObjectVariant;
 export using SelectionProviderVariant = ObjectVariant;
 export using ValueProviderVariant = ObjectVariant;
-export using CObject = CObjectAtspi;
+
+export using AudioEngineVariant = std::variant<std::monostate, CAudioEngineAlsa>;
+export using DefaultAudioEngine = CAudioEngineAlsa;
 #else
 export module Core.Environment;
 #endif
