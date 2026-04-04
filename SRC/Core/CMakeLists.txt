@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}
         App.cppm
         AppState.cppm
         Audio.cppm
+        AudioSystem.cppm
         Config.cppm
         Device.cppm
         Encoding.cppm
