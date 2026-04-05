@@ -14,4 +14,6 @@ public:
 	void Uninitialize();
 
 	[[nodiscard]] auto Write(const signed short int* buffer, unsigned long long frames) -> AudioEngineResult<>;
+	void Wait();
+	void Drop();
 };

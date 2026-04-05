@@ -17,13 +17,14 @@ import Core.Logger;
 import Core.Singleton;
 
 export using AudioData = std::vector<signed short int>;
-export using AudioDataQueue = std::queue<AudioData>;
+using AudioDataQueue = std::queue<AudioData>;
 
 export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<AudioSystem> {
 	AudioEngineVariant m_variant;
 	AudioDataQueue m_queue;
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
+	std::jthread m_thread;
 
 	template <typename Result = void> auto WithEngine(auto&& func) -> AudioEngineResult<Result> {
 		return std::visit(
@@ -50,6 +51,19 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 
 	[[nodiscard]] auto Write(const signed short int* buffer, unsigned long long frames) -> AudioEngineResult<> {
 		return WithEngine<>([buffer, frames](auto&& engine) { return engine.Write(buffer, frames); });
+	}
+
+	inline void Wait() {
+		WithEngine<>([](auto&& engine) {
+			engine.Wait();
+			return AudioEngineResult<>();
+		});
+	}
+	inline void Drop() {
+		WithEngine<>([](auto&& engine) {
+			engine.Drop();
+			return AudioEngineResult<>();
+		});
 	}
 
 public:

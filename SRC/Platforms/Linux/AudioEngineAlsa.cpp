@@ -50,7 +50,6 @@ void CAudioEngineAlsa::Uninitialize() {
 	if (!m_handle)
 		return;
 
-	snd_pcm_drain(m_handle);
 	snd_pcm_close(m_handle);
 	m_handle = nullptr;
 }
@@ -66,4 +65,18 @@ void CAudioEngineAlsa::Uninitialize() {
 		result = snd_pcm_writei(m_handle, buffer, frames);
 	}
 	return AudioEngineResult<>();
+}
+
+void CAudioEngineAlsa::Wait() {
+	if (!m_handle)
+		return;
+
+	snd_pcm_drain(m_handle);
+}
+
+void CAudioEngineAlsa::Drop() {
+	if (!m_handle)
+		return;
+
+	snd_pcm_drop(m_handle);
 }
