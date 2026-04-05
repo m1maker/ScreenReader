@@ -37,6 +37,7 @@ void AudioSystem::Start() {
 void AudioSystem::Stop() {
 	m_cv.notify_all();
 	m_thread.request_stop();
+	Uninitialize();
 }
 
 void AudioSystem::PushData(const AudioData&& data) {

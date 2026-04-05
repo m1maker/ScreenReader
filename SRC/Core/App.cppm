@@ -8,6 +8,7 @@ module;
 #include <vector>
 export module Core.App;
 import Core.AppState;
+import Core.AudioSystem;
 import Core.Config;
 import Core.EventHandler;
 import Core.Logger;
@@ -37,6 +38,7 @@ public:
 	void Run() {
 		g_running.store(true);
 		EventHandler::GetInstance().Start();
+		AudioSystem::GetInstance().Start();
 		/*
 		Don't terminate the application while g_running is true. This is the only flag that explicitly tells us to
 		terminate the program. Even if the main loop terminates for some strange reason, we'll restart it.

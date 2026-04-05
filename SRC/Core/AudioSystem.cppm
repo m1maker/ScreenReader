@@ -73,7 +73,7 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 public:
 	explicit AudioSystem() { m_variant.emplace<DefaultAudioEngine>(); }
 
-	~AudioSystem() = default;
+	~AudioSystem() { Stop(); }
 
 	void Start();
 	void Stop();

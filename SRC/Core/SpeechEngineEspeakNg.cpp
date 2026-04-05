@@ -6,17 +6,30 @@ module;
 #include <string_view>
 #include <utility>
 module Core.BuiltInSpeechEngine;
+import Core.AudioSystem;
 
 template <std::size_t N, typename... Indices> static inline void SetBits(std::bitset<N>& bs, Indices... indices) {
 	(bs.set(std::to_underlying(indices)), ...);
 }
 
 int CSpeechEngineEspeakNg::SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events) {
-	return 1;
+	if (!samples || !events) [[unlikely]] {
+		return 1;
+	}
+
+	AudioData data(samples, samples + sample_count);
+	AudioSystem::GetInstance().PushData(std::move(data));
+	for (espeak_EVENT* event = events; event->type != espeakEVENT_LIST_TERMINATED; ++event) {
+		if (event->type == espeakEVENT_MSG_TERMINATED) {
+			break;
+		}
+	}
+
+	return 0;
 }
 
 CSpeechEngineEspeakNg::CSpeechEngineEspeakNg() {
-	m_initialized = espeak_Initialize(AUDIO_OUTPUT_SYNCH_PLAYBACK, 0, "./espeak-ng-data", 0) > 0;
+	m_initialized = espeak_Initialize(AUDIO_OUTPUT_RETRIEVAL, 0, "./espeak-ng-data", 0) > 0;
 	if (!m_initialized)
 		return;
 	espeak_SetSynthCallback(&CSpeechEngineEspeakNg::SpeakCallback);
