@@ -2,8 +2,11 @@ module;
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
+#include <expected>
 #include <mutex>
 #include <queue>
+#include <stop_token>
+#include <thread>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -22,19 +25,40 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 
+	template <typename Result = void> auto WithEngine(auto&& func) -> AudioEngineResult<Result> {
+		return std::visit(
+			[&](auto&& eng) -> AudioEngineResult<Result> {
+				using T = std::decay_t<decltype(eng)>;
+				if constexpr (!std::is_same_v<T, std::monostate>) {
+					return func(eng);
+				}
+				else
+					return std::unexpected(EAudioEngineError::DEFUNCT);
+			},
+			m_variant);
+	}
+
+	[[nodiscard]] inline auto Initialize(SAudioParameters parameters) -> AudioEngineResult<> {
+		return WithEngine<>([parameters](auto&& engine) { return engine.Initialize(parameters); });
+	}
+	inline void Uninitialize() {
+		WithEngine<>([](auto&& engine) {
+			engine.Uninitialize();
+			return AudioEngineResult<>();
+		});
+	}
+
+	[[nodiscard]] auto Write(const signed short int* buffer, unsigned long long frames) -> AudioEngineResult<> {
+		return WithEngine<>([buffer, frames](auto&& engine) { return engine.Write(buffer, frames); });
+	}
+
 public:
 	explicit AudioSystem() { m_variant.emplace<DefaultAudioEngine>(); }
 
 	~AudioSystem() = default;
 
-	template <typename F> decltype(auto) WithEngine(F&& func) {
-		return std::visit(
-			[&](auto&& eng) -> decltype(auto) {
-				using T = std::decay_t<decltype(eng)>;
-				if constexpr (!std::is_same_v<T, std::monostate>) {
-					return func(eng);
-				}
-			},
-			m_variant);
-	}
+	void Start();
+	void Stop();
+
+	void PushData(const AudioData&& data);
 };
