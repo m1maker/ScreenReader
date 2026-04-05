@@ -25,10 +25,22 @@ void AudioSystem::Start() {
 
 			auto data = std::move(m_queue.front());
 			m_queue.pop();
+
+			auto frames = data.size() / m_bytesPerFrame;
+			auto result = Write(data.data(), frames);
+			if (!result) {
+			}
 		}
 	});
 }
 
 void AudioSystem::Stop() {
+	m_cv.notify_all();
 	m_thread.request_stop();
+}
+
+void AudioSystem::PushData(const AudioData&& data) {
+	std::scoped_lock _(m_mutex);
+	m_queue.push(std::move(data));
+	m_cv.notify_one();
 }
