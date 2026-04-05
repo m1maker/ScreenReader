@@ -27,6 +27,9 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	std::jthread m_thread;
 	SAudioParameters m_parameters;
 
+	int m_bytesPerSample{0};
+	int m_bytesPerFrame{0};
+
 	template <typename Result = void> auto WithEngine(auto&& func) -> AudioEngineResult<Result> {
 		return std::visit(
 			[&](auto&& eng) -> AudioEngineResult<Result> {

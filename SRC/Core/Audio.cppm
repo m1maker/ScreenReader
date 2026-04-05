@@ -4,7 +4,7 @@ export module Core.Audio;
 
 export enum class EAudioFormat : unsigned char { UNKNOWN = 0, U8, S16, S24, S32, F32 };
 
-export template <EAudioFormat F> struct TAudioFormatSize final {};
+export template <EAudioFormat Format> struct TAudioFormatSize final {};
 template <> struct TAudioFormatSize<EAudioFormat::U8> final {
 	static constexpr unsigned char value = 1;
 };

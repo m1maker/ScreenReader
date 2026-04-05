@@ -13,6 +13,9 @@ void AudioSystem::Start() {
 		return;
 	}
 
+	m_bytesPerSample = TAudioFormatSize</*m_parameters.format*/ EAudioFormat::S16>::value;
+	m_bytesPerFrame = m_parameters.channels * m_bytesPerSample;
+
 	m_thread = std::jthread([this](const std::stop_token& stop_token) -> void {
 		while (!stop_token.stop_requested()) {
 			std::unique_lock lock(m_mutex);
