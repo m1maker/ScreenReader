@@ -17,8 +17,6 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_COMPILER clang++)
 project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 
-set(FETCHCONTENT_FULLY_DISCONNECTED ON)
-
 include(FetchContent)
 
 FetchContent_Declare(

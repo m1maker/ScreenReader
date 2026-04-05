@@ -1,4 +1,5 @@
 module;
+#include <atomic>
 #include <bitset>
 #include <cstdint>
 #include <espeak-ng/speak_lib.h>
@@ -8,6 +9,7 @@ export module Core.BuiltInSpeechEngine;
 import Core.Speech;
 
 export class CSpeechEngineEspeakNg final {
+	static std::atomic<bool> s_stopping;
 	bool m_initialized{false};
 
 	static int SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events);

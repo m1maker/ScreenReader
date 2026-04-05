@@ -25,8 +25,8 @@ void AudioSystem::Start() {
 
 			auto data = std::move(m_queue.front());
 			m_queue.pop();
-
-			auto frames = data.size() / m_bytesPerFrame;
+			lock.unlock();
+			auto frames = data.size() / m_bytesPerFrame * 2;
 			auto result = Write(data.data(), frames);
 			if (!result) {
 			}
@@ -41,7 +41,9 @@ void AudioSystem::Stop() {
 }
 
 void AudioSystem::PushData(const AudioData&& data) {
-	std::scoped_lock _(m_mutex);
-	m_queue.push(std::move(data));
+	{
+		std::scoped_lock _(m_mutex);
+		m_queue.push(std::move(data));
+	}
 	m_cv.notify_one();
 }
