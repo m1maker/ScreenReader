@@ -14,7 +14,11 @@ if (POLICY CMP0141)
 endif()
 endif()
 set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+set(CMAKE_LINKER_TYPE LLD)
+
 project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 
 include(FetchContent)
