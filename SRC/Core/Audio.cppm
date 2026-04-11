@@ -2,6 +2,8 @@ module;
 #include <expected>
 export module Core.Audio;
 
+export using AudioSample = signed short int;
+
 export enum class EAudioFormat : unsigned char { UNKNOWN = 0, U8, S16, S24, S32, F32 };
 
 export template <EAudioFormat Format> struct TAudioFormatSize final {};

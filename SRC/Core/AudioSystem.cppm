@@ -1,4 +1,6 @@
 module;
+#include <array>
+#include <bitset>
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
@@ -16,8 +18,19 @@ import Core.Environment;
 import Core.Logger;
 import Core.Singleton;
 
-export using AudioData = std::vector<signed short int>;
-using AudioDataQueue = std::queue<AudioData>;
+constexpr size_t cAudioChunkSize = 256;
+constexpr size_t cAudioSystemMaxChannels = 255;
+
+using AudioDataChunk = std::array<AudioSample, cAudioChunkSize>;
+
+struct SAudioChunk final {
+	unsigned char channel{0};
+	AudioDataChunk data;
+};
+
+using AudioDataQueue = std::queue<SAudioChunk>;
+
+export using AudioDataVector = std::vector<AudioSample>;
 
 export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<AudioSystem> {
 	AudioEngineVariant m_variant;
@@ -26,6 +39,8 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	std::condition_variable m_cv;
 	std::jthread m_thread;
 	SAudioParameters m_parameters;
+
+	std::bitset<cAudioSystemMaxChannels> m_channelsShouldStop{};
 
 	int m_bytesPerSample{0};
 	int m_bytesPerFrame{0};
@@ -76,7 +91,8 @@ public:
 	~AudioSystem() { Stop(); }
 
 	void Start();
-	void Stop();
+	void Stop(void);
+	void Stop(unsigned char channel);
 
-	void PushData(const AudioData&& data);
+	void PushData(unsigned char channel, const AudioDataVector& data);
 };

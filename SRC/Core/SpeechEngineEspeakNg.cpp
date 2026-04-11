@@ -16,14 +16,16 @@ template <std::size_t N, typename... Indices> static inline void SetBits(std::bi
 }
 
 int CSpeechEngineEspeakNg::SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events) {
-	if (s_stopping.load())
+	if (s_stopping.load()) {
+		AudioSystem::GetInstance().Stop(0);
 		return 1;
+	}
 	if (!samples || !events) {
 		return 1;
 	}
 
-	AudioData data(samples, samples + sample_count);
-	AudioSystem::GetInstance().PushData(std::move(data));
+	AudioDataVector data(samples, samples + sample_count);
+	AudioSystem::GetInstance().PushData(0, data);
 
 	return 0;
 }
@@ -66,6 +68,7 @@ void CSpeechEngineEspeakNg::Stop() {
 	if (!m_initialized) [[unlikely]]
 		return;
 	s_stopping.store(true);
+	AudioSystem::GetInstance().Stop(0);
 	espeak_Cancel();
 }
 
