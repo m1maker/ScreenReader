@@ -18,7 +18,7 @@ import Core.Environment;
 import Core.Logger;
 import Core.Singleton;
 
-constexpr size_t cAudioChunkSize = 128;
+constexpr size_t cAudioChunkSize = 2;
 constexpr size_t cAudioSystemMaxChannels = 255;
 
 using AudioDataChunk = std::array<AudioSample, cAudioChunkSize>;
