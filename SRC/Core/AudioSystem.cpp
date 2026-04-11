@@ -50,16 +50,18 @@ void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
 	size_t sample{0};
 	SAudioChunk chunk{.channel = channel};
 	for (size_t i = 0; i < data.size(); ++i) {
+		std::scoped_lock _(m_mutex);
 
 		if (sample < cAudioChunkSize) {
 			chunk.data[sample] = data[i];
 			++sample;
 		}
 		else {
-			std::scoped_lock _(m_mutex);
 			m_queue.push(chunk);
 			sample = 0;
 			chunk.data = {};
+			chunk.data[sample] = data[i];
+			++sample;
 		}
 	}
 	m_cv.notify_all();

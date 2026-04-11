@@ -18,7 +18,7 @@ export template <typename EventType> using ActionCallback = EActionHandleResult 
 
 export template <typename Event> struct TActions final {
 	static auto StopSpeech(const Event&) -> EActionHandleResult {
-		SpeechSystem::GetInstance().Stop();
+		SpeechSystem::GetInstance().Interrupt();
 		return EActionHandleResult::HANDLED;
 	}
 

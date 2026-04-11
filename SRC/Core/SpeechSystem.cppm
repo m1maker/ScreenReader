@@ -1,105 +1,70 @@
 module;
 #include <cctype>
+#include <condition_variable>
 #include <cstdint>
+#include <expected>
+#include <mutex>
+#include <queue>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <variant>
 export module Core.SpeechSystem;
-import Core.App;
 import Core.BuiltInSpeechEngine;
 import Core.Encoding;
 import Core.Logger;
 import Core.Singleton;
 import Core.Speech;
-import Core.UnicodeData;
 
 export using SpeechEngineVariant = std::variant<std::monostate, BuiltInSpeechEngine /*, CSpeechEngineRuntime*/>;
 
+struct SSpeechMessage final {
+	std::string_view message;
+	bool interrupt{false}, ssml{false};
+	unsigned char rate, volume, pitch, pitch_range;
+};
+
+using SpeechMessageQueue = std::queue<SSpeechMessage>;
+
 export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
 	SpeechEngineVariant m_variant;
+	SpeechMessageQueue m_queue;
+	std::mutex m_mutex;
+	std::condition_variable m_cv;
+	std::jthread m_thread;
 
-public:
-	explicit SpeechSystem() { m_variant.emplace<BuiltInSpeechEngine>(); }
-
-	~SpeechSystem() = default;
-
-	template <typename F> decltype(auto) WithEngine(F&& func) {
+	template <typename Result = void> auto WithEngine(auto&& func) -> SpeechEngineResult<Result> {
 		return std::visit(
-			[&](auto&& eng) -> decltype(auto) {
+			[&](auto&& eng) -> SpeechEngineResult<Result> {
 				using T = std::decay_t<decltype(eng)>;
 				if constexpr (!std::is_same_v<T, std::monostate>) {
 					return func(eng);
 				}
+				else
+					return std::unexpected(ESpeechEngineError::DEFUNCT);
 			},
 			m_variant);
 	}
 
-	[[nodiscard]] inline auto SpeakIfHasParameter(ESpeechEngineParameter parameter, auto&& on_success, auto&& on_fail)
-		-> SpeechSystem& {
-		WithEngine([&](auto& engine) {
-			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-			if (info.supported_parameters[std::to_underlying(parameter)]) {
-				engine.SetParameter(ESpeechEngineParameter::SSML, true);
-				engine.Speak(on_success());
-			}
-			else
-				engine.Speak(on_fail());
-		});
-		return *this;
+	inline auto EngineSpeak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
+		return WithEngine<SpeechMessage>([message](auto&& engine) { return engine.Speak(message); });
 	}
 
-	inline auto Speak(std::string_view message,
-		bool interrupt = false,
-		bool ssml = ScreenReaderApp::GetInstance().GetSettings().speech.ssml) -> SpeechSystem& {
-		WithEngine([&](auto& engine) {
-			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-			if (info.supported_parameters[std::to_underlying(ESpeechEngineParameter::SSML)]) {
-				engine.SetParameter(ESpeechEngineParameter::SSML, ssml);
-			}
-
-			if (interrupt) {
-				engine.Stop();
-				engine.Cancel();
-			}
-			engine.Speak(message);
-		});
-		return *this;
-	}
-
-	inline auto Spell(std::string_view message, bool interrupt = false, bool ssml = false) -> SpeechSystem& {
-		WithEngine([&](auto& engine) {
-			SSpeechEngineInfo info = engine.GetInfo().value_or({});
-			/*TODOPITCH			if (info.supported_parameters & SpeechEngineParameter::SSML) {
-							engine.SetParameter(SpeechEngineParameter::SSML, ssml);
-			}DOTOPITCH*/
-
-			if (interrupt) {
-				engine.Stop();
-				engine.Cancel();
-			}
-
-			CUtf8View message_view(message);
-
-			for (uint32_t c : message_view) {
-				if (IsPunctuation(c)) {
-					engine.Speak(PunctuationToName(static_cast<char32_t>(c)));
-				}
-
-				else {
-					auto result = EncodeUtf8(c);
-					std::string_view character_data(result.bytes, result.size);
-					engine.Speak(character_data);
-				}
-			}
-		});
-		return *this;
-	}
-
-	inline auto Stop() -> SpeechSystem& {
-		WithEngine([&](auto& engine) {
+	void EngineStop() {
+		WithEngine<>([](auto&& engine) {
 			engine.Stop();
-			engine.Cancel();
+			return SpeechEngineResult<>();
 		});
-		return *this;
 	}
+
+public:
+	explicit SpeechSystem() { m_variant.emplace<BuiltInSpeechEngine>(); }
+
+	~SpeechSystem() { Stop(); }
+
+	void Start();
+	void Stop();
+
+	void Speak(std::string_view message, bool interrupt = false, bool ssml = false);
+	void Interrupt();
 };

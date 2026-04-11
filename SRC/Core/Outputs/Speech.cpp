@@ -7,7 +7,7 @@ import Core.SpeechSystem;
 import Core.Text;
 
 void COutputSpeech::Stop() {
-	SpeechSystem::GetInstance().Stop();
+	SpeechSystem::GetInstance().Interrupt();
 }
 
 // Various Announcers
