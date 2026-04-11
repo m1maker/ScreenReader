@@ -1,6 +1,6 @@
 module;
 #include <array>
-#include <bitset>
+#include <atomic>
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
@@ -32,6 +32,8 @@ using AudioDataQueue = std::queue<SAudioChunk>;
 
 export using AudioDataVector = std::vector<AudioSample>;
 
+using AudioChannelAtomicMask = std::array<std::atomic<unsigned char>, cAudioSystemMaxChannels>;
+
 export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<AudioSystem> {
 	AudioEngineVariant m_variant;
 	AudioDataQueue m_queue;
@@ -40,7 +42,7 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	std::jthread m_thread;
 	SAudioParameters m_parameters;
 
-	std::bitset<cAudioSystemMaxChannels> m_channelsShouldStop{};
+	AudioChannelAtomicMask m_channelsShouldStop{};
 
 	int m_bytesPerSample{0};
 	int m_bytesPerFrame{0};
