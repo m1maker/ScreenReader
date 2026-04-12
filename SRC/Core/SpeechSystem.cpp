@@ -3,6 +3,7 @@ module;
 #include <stop_token>
 #include <thread>
 module Core.SpeechSystem;
+import Core.AudioSystem;
 import Core.Speech;
 
 void SpeechSystem::Start() {
@@ -47,4 +48,5 @@ void SpeechSystem::Interrupt() {
 	SSpeechMessage message{.interrupt = true};
 	std::scoped_lock _(m_mutex);
 	m_queue.push(std::move(message));
+	AudioSystem::GetInstance().Stop(0);
 }
