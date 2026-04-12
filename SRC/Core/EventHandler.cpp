@@ -110,18 +110,15 @@ void EventHandler::Handle(CEvent&& event) {
 				break;
 			}
 			switch (keyboard_event.value().type) {
-			case CKeyboardEvent::KEY_PRESSED: {
-				std::scoped_lock _(keyboard_handler.m_keysMutex);
-				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = true;
-				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
-			}
+			case CKeyboardEvent::KEY_PRESSED:
+				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode].store(1);
+				keyboard_handler.m_modifiers.store(keyboard_event.value().hotkey.modifiers);
 				keyboard_handler.Handle(keyboard_event.value());
 				break;
-			case CKeyboardEvent::KEY_RELEASED: {
-				std::scoped_lock _(keyboard_handler.m_keysMutex);
-				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode] = false;
-				keyboard_handler.m_modifiers = keyboard_event.value().hotkey.modifiers;
-			} break;
+			case CKeyboardEvent::KEY_RELEASED:
+				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode].store(false);
+				keyboard_handler.m_modifiers.store(keyboard_event.value().hotkey.modifiers);
+				break;
 			default:
 				break;
 			}
@@ -130,6 +127,7 @@ void EventHandler::Handle(CEvent&& event) {
 			break;
 		}
 	}
+
 	catch (const std::exception& standard_exception) {
 		LogException(standard_exception);
 	}

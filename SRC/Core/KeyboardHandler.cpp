@@ -21,12 +21,9 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 
 void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto hotkey = event.hotkey;
-	{
-		std::scoped_lock _(m_keysMutex);
-		if (hotkey.modifiers & m_hookedModifiers) {
-			hotkey.modifiers &= ~m_hookedModifiers;
-			hotkey.modifiers |= MODIFIER_SCREEN_READER;
-		}
+	if (hotkey.modifiers & m_hookedModifiers) {
+		hotkey.modifiers &= ~m_hookedModifiers;
+		hotkey.modifiers |= MODIFIER_SCREEN_READER;
 	}
 
 	std::scoped_lock _(m_actionsMutex);
@@ -43,30 +40,24 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 [[nodiscard]] auto KeyboardHandler::IsKeyDown(EKeycode keycode) const -> bool {
-	std::scoped_lock _(m_keysMutex);
-	auto it = m_keysDown.find(keycode);
-	if (it != m_keysDown.end())
-		return it->second;
-	return false;
+	return m_keysDown[keycode].load();
 }
 
 void KeyboardHandler::ResetState() {
-	std::scoped_lock _(m_keysMutex);
-	m_keysDown.clear();
-	m_modifiers = 0;
+	for (auto&& keycode : m_keysDown) {
+		keycode.store(0);
+	}
+	m_modifiers.store(0);
 }
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
-	{
-		std::scoped_lock _(m_keysMutex);
-		if (hotkey.modifiers & m_hookedModifiers) {
-			if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
-				m_hookedModifiersTimer.Restart();
-				return true;
-			}
-
-			return false;
+	if (hotkey.modifiers & m_hookedModifiers) {
+		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
+			m_hookedModifiersTimer.Restart();
+			return true;
 		}
+
+		return false;
 	}
 
 	std::scoped_lock _(m_actionsMutex);
