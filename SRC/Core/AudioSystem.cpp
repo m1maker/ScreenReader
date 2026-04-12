@@ -69,4 +69,15 @@ void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
 
 void AudioSystem::Stop(unsigned char channel) {
 	m_channelsShouldStop[channel].store(1);
+	std::scoped_lock _(m_mutex);
+
+	AudioDataQueue new_queue;
+	while (!m_queue.empty()) {
+		auto chunk = std::move(m_queue.front());
+		if (chunk.channel != channel) {
+			new_queue.push(std::move(chunk));
+		}
+		m_queue.pop();
+	}
+	m_queue = std::move(new_queue);
 }
