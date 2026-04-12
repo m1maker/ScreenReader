@@ -16,5 +16,6 @@ public:
 	void Grab(int device_to_grab);
 	void Post(uint16_t type, uint16_t code, int32_t value);
 
+	void ResetKeys();
 	[[nodiscard]] inline auto GetFd() const -> int { return m_devFd; }
 };

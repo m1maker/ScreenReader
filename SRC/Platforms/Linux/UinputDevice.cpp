@@ -35,6 +35,7 @@ void CUinputDevice::SetupVirtualDevice() {
 
 	ioctl(m_uinputFd, UI_SET_EVBIT, EV_KEY);
 	ioctl(m_uinputFd, UI_SET_EVBIT, EV_SYN);
+	ioctl(m_uinputFd, UI_SET_EVBIT, EV_REP);
 
 	for (int i = 0; i < KEY_MAX; ++i) {
 		ioctl(m_uinputFd, UI_SET_KEYBIT, i);
@@ -42,7 +43,7 @@ void CUinputDevice::SetupVirtualDevice() {
 
 	struct uinput_setup usetup{};
 	memset(&usetup, 0, sizeof(usetup));
-	usetup.id.bustype = BUS_USB;
+	usetup.id.bustype = BUS_VIRTUAL;
 	usetup.id.vendor = 0x1323;
 	usetup.id.product = 0x1523;
 	strcpy(usetup.name, "MMADESR-Virtual-Keyboard");
@@ -51,6 +52,8 @@ void CUinputDevice::SetupVirtualDevice() {
 		throw std::runtime_error("UI_DEV_SETUP failed");
 	if (ioctl(m_uinputFd, UI_DEV_CREATE) < 0)
 		throw std::runtime_error("UI_DEV_CREATE failed");
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab) {
@@ -86,6 +89,12 @@ void CUinputDevice::Post(uint16_t type, uint16_t code, int32_t value) {
 	if (m_uinputFd < 0)
 		return;
 
+	static bool is_first_post{true};
+	if (is_first_post) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		is_first_post = false;
+	}
+
 	struct input_event ev{};
 	memset(&ev, 0, sizeof(ev));
 	ev.type = type;
@@ -97,5 +106,21 @@ void CUinputDevice::Post(uint16_t type, uint16_t code, int32_t value) {
 	ev.type = EV_SYN;
 	ev.code = SYN_REPORT;
 	ev.value = 0;
+	write(m_uinputFd, &ev, sizeof(ev));
+}
+
+void CUinputDevice::ResetKeys() {
+	if (m_uinputFd < 0)
+		return;
+	struct input_event ev{};
+	memset(&ev, 0, sizeof(ev));
+
+	ev.value = 0;
+	ev.type = EV_KEY;
+	for (int i = 0; i < KEY_MAX; ++i) {
+		ev.code = i;
+		write(m_uinputFd, &ev, sizeof(ev));
+	}
+	ev.code = SYN_REPORT;
 	write(m_uinputFd, &ev, sizeof(ev));
 }
