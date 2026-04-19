@@ -28,8 +28,8 @@ void SpeechSystem::Start() {
 }
 
 void SpeechSystem::Stop() {
-	m_cv.notify_all();
 	m_thread.request_stop();
+	m_cv.notify_all();
 }
 
 void SpeechSystem::Speak(std::string_view message, bool interrupt, bool ssml) {
