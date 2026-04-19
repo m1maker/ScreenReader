@@ -100,7 +100,6 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
-	m_listenKeyboard.store(true);
 	m_keyboardListenerThread = std::jthread([this](const std::stop_token& stop_token) -> void {
 		struct input_event ev{};
 
@@ -112,7 +111,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			}
 
 			auto fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
-			if (fd == -1) {
+			if (fd < 0) {
 				std::this_thread::sleep_for(std::chrono::seconds(2));
 				continue;
 			}
@@ -124,7 +123,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 				while (!stop_token.stop_requested()) {
 					ssize_t n = read(fd, &ev, sizeof(ev));
 
-					if (n == -1) {
+					if (n < 0) {
 						if (errno == EAGAIN || errno == EWOULDBLOCK) {
 							std::this_thread::sleep_for(std::chrono::milliseconds(10));
 							continue;
@@ -167,22 +166,23 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			catch (const std::exception& standard_exception) {
 				LogException(standard_exception);
 			}
-			close(fd);
+			if (fd > 0)
+				close(fd);
 		}
 	});
-
-	m_keyboardListenerThread.detach();
 }
 
 void CEventListenerAtspi::StopEvdevWatcher() {
-	m_listenKeyboard.store(false);
 	m_keyboardListenerThread.request_stop();
 }
 
 void CEventListenerAtspi::do_ListenDevice(EDeviceType device, bool listen) {
 	switch (device) {
 	case EDeviceType::KEYBOARD:
-		listen ? StartEvdevWatcher() : StopEvdevWatcher();
+		if (listen)
+			StartEvdevWatcher();
+		else
+			StopEvdevWatcher();
 		break;
 	default:
 		break;
@@ -225,7 +225,6 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 
 		g_object_unref(m_objectEventListener);
 	}
-	StopEvdevWatcher();
 
 	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
 }

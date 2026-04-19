@@ -380,11 +380,9 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 }
 
 export class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi>, TModule<"EventListenerAtspi"> {
-	friend class CUinputDevice;
 	AtspiEventListener* m_objectEventListener{nullptr};
 
 	std::jthread m_keyboardListenerThread;
-	std::atomic<bool> m_listenKeyboard{false};
 	void StartEvdevWatcher();
 	void StopEvdevWatcher();
 

@@ -29,9 +29,11 @@ export class EventHandler final : TModule<"EventHandler">, public TSingleton<Eve
 
 public:
 	explicit EventHandler();
+	~EventHandler() { Stop(); }
+
 	void Handle(CEvent&& event);
 
 	void Start();
-
+	void Stop();
 	inline auto GetListener() -> CEventListener* { return &m_listener; }
 };

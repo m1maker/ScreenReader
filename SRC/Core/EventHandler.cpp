@@ -3,6 +3,7 @@ module;
 
 #include <expected>
 #include <mutex>
+#include <stop_token>
 #include <thread>
 module Core.EventHandler;
 import Core.Action;
@@ -18,7 +19,6 @@ import Core.SpeechSystem;
 EventHandler::EventHandler()
 	: m_focusManager(FocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
 	  m_outputManager(OutputManager::GetInstance()) {
-	m_listener.ListenDevice(EDeviceType::KEYBOARD);
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
 
 	bool success{false};
@@ -30,8 +30,9 @@ EventHandler::EventHandler()
 }
 
 void EventHandler::Start() {
-	m_thread = std::jthread([this]() -> void {
-		while (g_running.load()) {
+	m_thread = std::jthread([this](const std::stop_token& stop_token) -> void {
+		m_listener.ListenDevice(EDeviceType::KEYBOARD);
+		while (!stop_token.stop_requested()) {
 			auto event = m_eventQueue.Pop();
 			if (event) [[likely]] {
 				switch (event.value().GetType()) {
@@ -72,7 +73,13 @@ void EventHandler::Start() {
 				}
 			}
 		}
+
+		m_listener.ListenDevice(EDeviceType::KEYBOARD, false);
 	});
+}
+
+void EventHandler::Stop() {
+	m_thread.request_stop();
 }
 
 /*
