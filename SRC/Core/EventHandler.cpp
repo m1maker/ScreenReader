@@ -80,6 +80,7 @@ void EventHandler::Start() {
 
 void EventHandler::Stop() {
 	m_thread.request_stop();
+	m_eventQueue.Stop();
 }
 
 /*
