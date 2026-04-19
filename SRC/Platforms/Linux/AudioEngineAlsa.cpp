@@ -59,6 +59,10 @@ void CAudioEngineAlsa::Uninitialize() {
 	if (!m_handle)
 		return std::unexpected(EAudioEngineError::DEFUNCT);
 
+	else if (!buffer || frames <= 0) [[unlikely]] {
+		return std::unexpected(EAudioEngineError::INVALID_ARGUMENTS);
+	}
+
 	auto result = snd_pcm_writei(m_handle, buffer, frames);
 	if (result == -EPIPE) {
 		snd_pcm_prepare(m_handle);
