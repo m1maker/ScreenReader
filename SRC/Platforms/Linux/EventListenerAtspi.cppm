@@ -389,8 +389,6 @@ export class CEventListenerAtspi final : public TEventListener<CEventListenerAts
 	void StopEvdevWatcher();
 
 	[[nodiscard]] static auto FindKeyboardDevice() -> std::string;
-
-	[[nodiscard]] static auto ElevatePrivileges() -> bool;
 	static void OnObjectEventCallback(AtspiEvent* event, void* user_data);
 
 public:

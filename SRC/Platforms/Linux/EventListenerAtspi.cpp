@@ -112,19 +112,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			}
 
 			auto fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
-
-			if (fd == -1) {
-				if (errno == EACCES) {
-					SpeechSystem::GetInstance().Speak("Please authenticate to allow keyboard intercepting.", true);
-
-					if (ElevatePrivileges()) {
-						std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-						fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
-					}
-				}
-			}
-
 			if (fd == -1) {
 				std::this_thread::sleep_for(std::chrono::seconds(2));
 				continue;
@@ -241,32 +228,6 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 	StopEvdevWatcher();
 
 	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
-}
-
-[[nodiscard]] auto CEventListenerAtspi::ElevatePrivileges() -> bool {
-	static unsigned char counter{0};
-	if (counter > 1)
-		return false;
-	++counter;
-
-	const auto display = std::getenv("DISPLAY");
-	const auto wayland_display = std::getenv("WAYLAND_DISPLAY");
-	const bool has_gui = (display != nullptr || wayland_display != nullptr);
-
-	const auto user = std::getenv("USER");
-	std::string username = user ? user : "root";
-
-	std::string rule =
-		"printf '"
-		"KERNEL==%bevent*%b, SUBSYSTEM==%binput%b, TAG+=%buaccess%b\\n"
-		"KERNEL==%buinput%b, SUBSYSTEM==%bmisc%b, MODE==%b0666%b\\n"
-		"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' '\"' > /etc/udev/rules.d/10-mmadesr.rules";
-
-	std::string final_cmd = std::string(has_gui ? "pkexec" : "sudo") + " sh -c \"" + rule +
-		" && setfacl -m u:" + username + ":rw /dev/input/event* " +
-		" && udevadm control --reload-rules && udevadm trigger && chmod 666 /dev/uinput\"";
-
-	return std::system(final_cmd.c_str()) == 0;
 }
 
 struct SInvocationContext final {

@@ -10,26 +10,20 @@ module;
 #include <thread>
 #include <unistd.h>
 module Platforms.Linux.UinputDevice;
-import Platforms.Linux.EventListener;
 
 void CUinputDevice::SetupVirtualDevice() {
 	m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
 	if (m_uinputFd < 0) {
-		if (CEventListenerAtspi::ElevatePrivileges()) {
-			for (int i = 0; i < 10; ++i) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-				m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-				if (m_uinputFd >= 0)
-					break;
-			}
-
-			if (m_uinputFd < 0) {
-				throw std::runtime_error("Failed to open /dev/uinput after elevation: " + std::string(strerror(errno)));
-			}
+		for (int i = 0; i < 10; ++i) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			m_uinputFd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+			if (m_uinputFd >= 0)
+				break;
 		}
-		else {
-			throw std::runtime_error("Privilege elevation failed");
+
+		if (m_uinputFd < 0) {
+			throw std::runtime_error("Failed to open /dev/uinput: " + std::string(strerror(errno)));
 		}
 	}
 
