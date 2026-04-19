@@ -37,8 +37,8 @@ void AudioSystem::Start() {
 }
 
 void AudioSystem::Stop(void) {
-	m_cv.notify_all();
 	m_thread.request_stop();
+	m_cv.notify_all();
 	Uninitialize();
 }
 
