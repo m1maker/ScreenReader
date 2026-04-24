@@ -26,6 +26,7 @@ target_sources(${PROJECT_NAME}
         KeyboardHandler.cppm
         KeyInfo.cppm
         Logger.cppm
+        Message.cppm
         MessageBuilder.cppm
         Object.cppm
         OutputManager.cppm

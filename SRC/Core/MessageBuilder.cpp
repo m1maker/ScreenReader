@@ -155,7 +155,7 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 
 	if (auto state = obj.GetState()) {
 		message.ApplyUtteranceParameters(m_speechParameters.state);
-		GetObjectStateNames(message.m_content, *type, *state);
+		GetObjectStateNames(message.GetBuffer(), *type, *state);
 	}
 }
 
