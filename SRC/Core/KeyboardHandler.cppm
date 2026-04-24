@@ -21,8 +21,6 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 		bool hook{false};
 	};
 
-	friend class EventHandler;
-
 	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
 	mutable std::mutex m_actionsMutex;
 

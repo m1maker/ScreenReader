@@ -117,19 +117,7 @@ void EventHandler::Handle(CEvent&& event) {
 				Log(WARNING, "A keyboard event received, but it could not be unpacked from the variant");
 				break;
 			}
-			switch (keyboard_event.value().type) {
-			case CKeyboardEvent::KEY_PRESSED:
-				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode].store(1);
-				keyboard_handler.m_modifiers.store(keyboard_event.value().hotkey.modifiers);
-				keyboard_handler.Handle(keyboard_event.value());
-				break;
-			case CKeyboardEvent::KEY_RELEASED:
-				keyboard_handler.m_keysDown[keyboard_event.value().hotkey.keycode].store(false);
-				keyboard_handler.m_modifiers.store(keyboard_event.value().hotkey.modifiers);
-				break;
-			default:
-				break;
-			}
+			keyboard_handler.Handle(keyboard_event.value());
 		}
 		default:
 			break;

@@ -20,22 +20,37 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 }
 
 void KeyboardHandler::Handle(CKeyboardEvent& event) {
+	auto type = event.type;
 	auto hotkey = event.hotkey;
-	if (hotkey.modifiers & m_hookedModifiers) {
-		hotkey.modifiers &= ~m_hookedModifiers;
-		hotkey.modifiers |= MODIFIER_SCREEN_READER;
-	}
+	switch (type) {
+	case CKeyboardEvent::KEY_PRESSED:
+		m_keysDown[hotkey.keycode].store(1);
+		m_modifiers.store(hotkey.modifiers);
+		{
+			if (hotkey.modifiers & m_hookedModifiers) {
+				hotkey.modifiers &= ~m_hookedModifiers;
+				hotkey.modifiers |= MODIFIER_SCREEN_READER;
+			}
 
-	std::scoped_lock _(m_actionsMutex);
-	auto it = m_actions.find(hotkey);
-	if (it == m_actions.end()) {
-		it = m_actions.find(SHotkeyInfo::GetAny());
-		if (it == m_actions.end())
-			return;
-	}
+			std::scoped_lock _(m_actionsMutex);
+			auto it = m_actions.find(hotkey);
+			if (it == m_actions.end()) {
+				it = m_actions.find(SHotkeyInfo::GetAny());
+				if (it == m_actions.end())
+					return;
+			}
 
-	if (it->second.executable) {
-		it->second.executable(event.hotkey);
+			if (it->second.executable) {
+				it->second.executable(event.hotkey);
+			}
+		}
+		break;
+	case CKeyboardEvent::KEY_RELEASED:
+		m_keysDown[hotkey.keycode].store(false);
+		m_modifiers.store(hotkey.modifiers);
+		break;
+	default:
+		break;
 	}
 }
 
