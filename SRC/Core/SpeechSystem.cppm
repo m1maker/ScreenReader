@@ -3,6 +3,7 @@ module;
 #include <condition_variable>
 #include <cstdint>
 #include <expected>
+#include <memory_resource>
 #include <mutex>
 #include <queue>
 #include <string_view>
@@ -13,13 +14,14 @@ export module Core.SpeechSystem;
 import Core.BuiltInSpeechEngine;
 import Core.Encoding;
 import Core.Logger;
+import Core.MessageBuilder;
 import Core.Singleton;
 import Core.Speech;
 
 export using SpeechEngineVariant = std::variant<std::monostate, BuiltInSpeechEngine /*, CSpeechEngineRuntime*/>;
 
 struct SSpeechMessage final {
-	std::string_view message;
+	std::pmr::string message;
 	bool interrupt{false}, ssml{false};
 	unsigned char rate, volume, pitch, pitch_range;
 };
@@ -27,6 +29,7 @@ struct SSpeechMessage final {
 using SpeechMessageQueue = std::queue<SSpeechMessage>;
 
 export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
+	std::pmr::memory_resource* m_pool{nullptr};
 	SpeechEngineVariant m_variant;
 	SpeechMessageQueue m_queue;
 	std::mutex m_mutex;
@@ -58,7 +61,9 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 	}
 
 public:
-	explicit SpeechSystem() { m_variant.emplace<BuiltInSpeechEngine>(); }
+	explicit SpeechSystem() : m_pool(MessageBuilder::GetInstance().GetPool()) {
+		m_variant.emplace<BuiltInSpeechEngine>();
+	}
 
 	~SpeechSystem() { Stop(); }
 

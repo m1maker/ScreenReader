@@ -50,5 +50,5 @@ public:
 		m_cv.notify_all();
 	}
 
-	[[nodiscard]] auto GetPool() -> std::pmr::synchronized_pool_resource* { return &m_pool; }
+	[[nodiscard]] auto GetPool() -> std::pmr::memory_resource* { return &m_pool; }
 };

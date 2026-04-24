@@ -27,6 +27,8 @@ export class MessageBuilder final : TModule<"MessageBuilder">, public TSingleton
 public:
 	MessageBuilder();
 
+	[[nodiscard]] auto GetPool() -> std::pmr::memory_resource* { return &m_pool; }
+
 	void FindAnnouncementInHierarchy(
 		CMessage& message, CObjectProxy obj, bool recursive = true, bool collect_all_labels = true);
 	void FindAnnouncementOfCursorPosition(

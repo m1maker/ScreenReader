@@ -36,7 +36,8 @@ void SpeechSystem::Speak(std::string_view message, bool interrupt, bool ssml) {
 	if (message.empty()) [[unlikely]]
 		return;
 
-	SSpeechMessage queued_message{.message = message, .interrupt = interrupt, .ssml = ssml};
+	SSpeechMessage queued_message{.interrupt = interrupt, .ssml = ssml};
+	queued_message.message = std::pmr::string(message, m_pool);
 	{
 		std::scoped_lock _(m_mutex);
 		m_queue.push(std::move(queued_message));
