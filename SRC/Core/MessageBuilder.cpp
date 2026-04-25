@@ -8,6 +8,7 @@ import Core.Event;
 import Core.KeyboardHandler;
 import Core.KeyInfo;
 import Core.Object;
+import Core.ObjectMeta;
 import Core.Text;
 import Proxies.Object;
 
@@ -124,7 +125,7 @@ void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj,
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 	message.Separate();
 	message.ApplyUtteranceParameters(m_speechParameters.role);
-	message.Append("{}", GetObjectTypeName(type, require_all));
+	message.Append("{}", GetObjectTypeName(type));
 	message.Separate();
 	BuildStateAnnouncement(message, obj, require_all);
 

@@ -540,3 +540,11 @@ using ObjectMetaArray = std::array<SObjectMeta, std::to_underlying(EObjectType::
 }
 
 static constexpr ObjectMetaArray cObjectMetadata = InitializeMetaArray();
+
+export [[nodiscard]] constexpr auto GetObjectTypeName(EObjectType type) -> std::string_view {
+	auto index = static_cast<size_t>(type);
+	if (index < 0 || index > cObjectMetadata.size()) [[unlikely]]
+		return "unknown";
+
+	return cObjectMetadata[index].speech_name;
+}

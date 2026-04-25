@@ -441,7 +441,6 @@ export [[nodiscard]] constexpr inline auto IsObjectValue(EObjectType type) -> bo
 	}
 }
 
-export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
 export void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all = false);
 
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
