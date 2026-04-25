@@ -95,7 +95,7 @@ void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates s
 		out += " invalid";
 	if (states[std::to_underlying(EObjectState::REQUIRED)]) {
 		// Only announce "required" for input types unless logging all.
-		if (IsObjectInput(type) || require_all) {
+		if (IsObjectInGroup(type, EObjectGroup::INPUT) || require_all) {
 			out += " required";
 		}
 	}

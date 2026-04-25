@@ -7,6 +7,7 @@ export module Core.FocusManager;
 import Core.Environment;
 import Core.Logger;
 import Core.Object;
+import Core.ObjectMeta;
 import Core.Singleton;
 import Proxies.Object;
 
@@ -26,7 +27,7 @@ export class FocusManager final : TModule<"FocusManager">, public TSingleton<Foc
 			m_contextChain.push_back(*current);
 
 			auto type = current->GetType().value_or(EObjectType::UNKNOWN);
-			if (IsObjectParent(type)) {
+			if (IsObjectInGroup(type, EObjectGroup::PARENT)) {
 				break;
 			}
 			current = current->GetParent();

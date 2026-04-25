@@ -65,7 +65,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
 
-	if ((!IsObjectContainer(type) && !IsObjectParent(type)) && collect_all_labels) {
+	if ((!IsObjectInGroup(type, EObjectGroup::CONTAINER) && !IsObjectInGroup(type, EObjectGroup::PARENT)) &&
+		collect_all_labels) {
 		collect_labels_recursive(collect_labels_recursive, obj);
 	}
 
@@ -129,7 +130,8 @@ void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj,
 	message.Separate();
 	BuildStateAnnouncement(message, obj, require_all);
 
-	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count && IsObjectDataElement(type)) {
+	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count &&
+		IsObjectInGroup(type, EObjectGroup::DATA_ELIMENT)) {
 		auto index = obj.GetIndex().value_or(0) + 1;
 		auto parent = obj.GetParent();
 		if (parent || parent->IsValid()) {

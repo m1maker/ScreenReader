@@ -6,7 +6,7 @@ module;
 export module Core.ObjectMeta;
 import Core.Object;
 
-enum class EObjectGroup : unsigned char {
+export enum class EObjectGroup : unsigned char {
 	UNKNOWN = 0,
 	PARENT,
 	CONTAINER,
@@ -547,4 +547,12 @@ export [[nodiscard]] constexpr auto GetObjectTypeName(EObjectType type) -> std::
 		return "unknown";
 
 	return cObjectMetadata[index].speech_name;
+}
+
+export [[nodiscard]] constexpr auto IsObjectInGroup(EObjectType type, EObjectGroup group) -> bool {
+	auto index = static_cast<size_t>(type);
+	if (index < 0 || index > cObjectMetadata.size()) [[unlikely]]
+		return false;
+
+	return cObjectMetadata[index].group_flags.test(std::to_underlying(group));
 }
