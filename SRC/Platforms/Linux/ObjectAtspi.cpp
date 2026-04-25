@@ -130,8 +130,10 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		return std::unexpected(EObjectError::DEFUNCT);
 
 	m_data->ResetLastError();
-	if (m_data->app_name)
+	if (m_data->app_name) {
 		g_free(m_data->app_name);
+		m_data->app_name = nullptr;
+	}
 	m_data->app_name = atspi_accessible_get_toolkit_name(m_accessible, &m_data->last_error);
 	return m_data->app_name;
 }
@@ -141,8 +143,10 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		return std::unexpected(EObjectError::DEFUNCT);
 
 	m_data->ResetLastError();
-	if (m_data->name)
+	if (m_data->name) {
 		g_free(m_data->name);
+		m_data->name = nullptr;
+	}
 	m_data->name = atspi_accessible_get_name(m_accessible, &m_data->last_error);
 	return m_data->name;
 }
@@ -153,8 +157,10 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 
 	m_data->ResetLastError();
 
-	if (m_data->description)
+	if (m_data->description) {
 		g_free(m_data->description);
+		m_data->description = nullptr;
+	}
 	m_data->description = atspi_accessible_get_description(m_accessible, &m_data->last_error);
 	return m_data->description;
 }
@@ -182,10 +188,18 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 
 	m_data->ResetLastError();
 
+	if (m_data->last_text) {
+		g_free(m_data->last_text);
+		m_data->last_text = nullptr;
+	}
+
 	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(
 		text_interface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_data->last_error);
 	if (!pTextRange)
 		return std::unexpected(EObjectError::FAIL);
+
+	m_data->last_text = pTextRange->content;
+
 	auto text_range = GetTextRangeFromAtspiRange<AtspiTextRange>(*pTextRange);
 	g_free(pTextRange);
 	return text_range;
@@ -201,12 +215,18 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 
 	m_data->ResetLastError();
 
+	if (m_data->last_text) {
+		g_free(m_data->last_text);
+		m_data->last_text = nullptr;
+	}
+
 	AtspiRange* pRange = atspi_text_get_selection(text_interface, 0, &m_data->last_error);
 	if (!pRange)
 		return std::unexpected(EObjectError::FAIL);
 
 	m_data->ResetLastError();
 	gchar* pText = atspi_text_get_text(text_interface, pRange->start_offset, pRange->end_offset, &m_data->last_error);
+	m_data->last_text = pText;
 	STextRange text_range = {.start = pRange->start_offset, .end = pRange->end_offset, .text = pText};
 	g_free(pRange);
 	return text_range;

@@ -391,6 +391,8 @@ export struct SObjectAtspiData final {
 	gchar* app_name{nullptr};
 	gchar* name{nullptr};
 	gchar* description{nullptr};
+	gchar* last_text{nullptr};
+
 	mutable GError* last_error{nullptr};
 	uint32_t interfaces_mask{0};
 
@@ -409,5 +411,11 @@ export struct SObjectAtspiData final {
 			g_free(name);
 		if (description)
 			g_free(description);
+		if (last_text)
+			g_free(last_text);
+		app_name = nullptr;
+		name = nullptr;
+		description = nullptr;
+		last_text = nullptr;
 	}
 };
