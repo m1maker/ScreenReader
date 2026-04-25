@@ -157,6 +157,7 @@ export enum class EObjectType : unsigned char {
 	VIEWPORT,
 	WEB_VIEW,
 	WINDOW,
+	COUNT
 };
 
 export enum class EObjectState : unsigned char {
@@ -274,9 +275,6 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 			   "accessibility API.";
 	}
 }
-
-export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
-export void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all = false);
 
 export [[nodiscard]] constexpr inline auto IsObjectParent(EObjectType type) -> bool {
 	switch (type) {
@@ -442,6 +440,9 @@ export [[nodiscard]] constexpr inline auto IsObjectValue(EObjectType type) -> bo
 		return false;
 	}
 }
+
+export [[nodiscard]] auto GetObjectTypeName(EObjectType type, bool require_all = false) -> std::string_view;
+export void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all = false);
 
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
 	std::pmr::unsynchronized_pool_resource m_pool;

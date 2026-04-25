@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME}
         MessageBuilder.cppm
         Object.cppm
         ObjectHandler.cppm
+        ObjectMeta.cppm
         OutputManager.cppm
         Outputs.cppm
         PlatformError.cppm
