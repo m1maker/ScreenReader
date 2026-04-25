@@ -7,9 +7,7 @@ module;
 export module Core.EventHandler;
 import Core.Event;
 import Core.EventQueue;
-import Core.FocusManager;
 import Core.Logger;
-import Core.OutputManager;
 import Core.Singleton;
 #if SR_LINUX
 import Platforms.Linux.EventListener;
@@ -21,9 +19,7 @@ export class EventHandler final : TModule<"EventHandler">, public TSingleton<Eve
 	Event. Then this event handler then queries the queue of these events.
 	*/
 	CEventListener m_listener;
-	FocusManager& m_focusManager;
 	EventQueue& m_eventQueue;
-	OutputManager& m_outputManager;
 
 	std::jthread m_thread;
 

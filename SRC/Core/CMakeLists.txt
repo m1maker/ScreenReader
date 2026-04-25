@@ -6,6 +6,7 @@ target_sources(${PROJECT_NAME}
         MessageBuilder.cpp
         main.cpp
         Object.cpp
+        ObjectHandler.cpp
         SpeechEngineEspeakNg.cpp
         SpeechSystem.cpp
         Utterance.cpp
@@ -29,6 +30,7 @@ target_sources(${PROJECT_NAME}
         Message.cppm
         MessageBuilder.cppm
         Object.cppm
+        ObjectHandler.cppm
         OutputManager.cppm
         Outputs.cppm
         PlatformError.cppm

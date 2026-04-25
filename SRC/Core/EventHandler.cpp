@@ -14,19 +14,16 @@ import Core.Event;
 import Core.KeyboardHandler;
 import Core.KeyInfo;
 import Core.Object;
+import Core.ObjectHandler;
 import Core.SpeechSystem;
 
-EventHandler::EventHandler()
-	: m_focusManager(FocusManager::GetInstance()), m_eventQueue(EventQueue::GetInstance()),
-	  m_outputManager(OutputManager::GetInstance()) {
+EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
 
 	bool success{false};
 	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = keyboard_handler.RegisterAction(
 		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS), true);
-
-	m_outputManager.WhereAmI();
 }
 
 void EventHandler::Start() {
@@ -96,18 +93,9 @@ void EventHandler::Handle(CEvent&& event) {
 				Log(WARNING, "An object event received, but it could not be unpacked from the variant");
 				break;
 			}
-			auto evt = object_event.value();
-			auto& _ = ScreenReaderApp::GetInstance().GetSettings();
-			if (evt.type == EObjectEventType::FOCUS_GAINED) {
-				if (m_focusManager.GetFocus() == evt.object)
-					return;
-				m_outputManager.Stop();
-				m_focusManager.SetFocus(evt.object);
-				m_outputManager.WhereAmI();
-			}
-			else if (m_focusManager.GetFocus() == evt.object)
-				m_outputManager.Stop();
-			m_outputManager.Output(evt);
+			auto& object_handler = ObjectHandler::GetInstance();
+			object_handler.Handle(object_event.value());
+			break;
 		}
 
 		case CEvent::KEYBOARD: {
@@ -118,6 +106,7 @@ void EventHandler::Handle(CEvent&& event) {
 				break;
 			}
 			keyboard_handler.Handle(keyboard_event.value());
+			break;
 		}
 		default:
 			break;
