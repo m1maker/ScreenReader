@@ -28,7 +28,7 @@ struct SObjectMeta final {
 	ObjectGroupMask group_flags;
 };
 
-[[nodiscard]] static constexpr auto InitializeMeta(EObjectType type) -> SObjectMeta {
+[[nodiscard]] static consteval auto InitializeMeta(EObjectType type) -> SObjectMeta {
 	SObjectMeta meta;
 
 	switch (type) {
