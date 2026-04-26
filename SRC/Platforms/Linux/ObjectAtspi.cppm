@@ -298,11 +298,24 @@ export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole 
 export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
 	using enum EObjectState;
 	switch (state) {
+	case ATSPI_STATE_INVALID:
+	case ATSPI_STATE_SHOWING:
+	case ATSPI_STATE_SINGLE_LINE:
+	case ATSPI_STATE_STALE:
+	case ATSPI_STATE_LAST_DEFINED:
+	case ATSPI_STATE_ICONIFIED:
+	case ATSPI_STATE_MANAGES_DESCENDANTS:
+		return NO;
 	case ATSPI_STATE_ACTIVE:
 		return ACTIVE;
+	case ATSPI_STATE_ARMED:
+		return HOVERED;
 	case ATSPI_STATE_ANIMATED:
 		return ANIMATED;
+	case ATSPI_STATE_SUPPORTS_AUTOCOMPLETION:
+		return AUTO_FILL_AVAILABLE;
 	case ATSPI_STATE_BUSY:
+	case ATSPI_STATE_TRANSIENT:
 		return BUSY;
 	case ATSPI_STATE_CHECKABLE:
 		return CHECKABLE;
@@ -310,6 +323,8 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 		return CHECKED;
 	case ATSPI_STATE_COLLAPSED:
 		return COLLAPSED;
+	case ATSPI_STATE_DEFUNCT:
+		return DEFUNCT;
 	case ATSPI_STATE_EDITABLE:
 		return EDITABLE;
 	case ATSPI_STATE_ENABLED:
@@ -322,6 +337,8 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 		return FOCUSABLE;
 	case ATSPI_STATE_FOCUSED:
 		return FOCUSED;
+	case ATSPI_STATE_OPAQUE:
+		return HIDDEN;
 	case ATSPI_STATE_HAS_POPUP:
 		return HAS_POPUP;
 	case ATSPI_STATE_HAS_TOOLTIP:
@@ -331,6 +348,7 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 	case ATSPI_STATE_INDETERMINATE:
 		return INDETERMINATE;
 	case ATSPI_STATE_INVALID_ENTRY:
+	case ATSPI_STATE_TRUNCATED:
 		return INVALID;
 	case ATSPI_STATE_IS_DEFAULT:
 		return DEFAULT;
@@ -349,6 +367,7 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 	case ATSPI_STATE_RESIZABLE:
 		return RESIZABLE;
 	case ATSPI_STATE_SELECTABLE:
+	case ATSPI_STATE_SELECTABLE_TEXT:
 		return SELECTABLE;
 	case ATSPI_STATE_SELECTED:
 		return SELECTED;
@@ -360,9 +379,8 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 		return VISIBLE;
 	case ATSPI_STATE_VISITED:
 		return VISITED;
-	default:
-		return NO;
 	}
+	return NO;
 }
 
 export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* state_set) -> ObjectStates {

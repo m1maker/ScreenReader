@@ -168,6 +168,7 @@ export enum class EObjectState : unsigned char {
 	CHECKED,
 	COLLAPSED,
 	DEFAULT,
+	DEFUNCT,
 	DRAGGING,
 	ENABLED,
 	EXPANDED,
