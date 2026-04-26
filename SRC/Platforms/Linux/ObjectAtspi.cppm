@@ -29,6 +29,10 @@ template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_converti
 export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
 	using enum EObjectType;
 	switch (role) {
+	case ATSPI_ROLE_INVALID:
+	case ATSPI_ROLE_UNKNOWN:
+	case ATSPI_ROLE_LAST_DEFINED:
+		return UNKNOWN;
 	case ATSPI_ROLE_ACCELERATOR_LABEL:
 		return LABEL;
 	case ATSPI_ROLE_ALERT:
@@ -199,9 +203,96 @@ export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole 
 		return VIEWPORT;
 	case ATSPI_ROLE_WINDOW:
 		return WINDOW;
-	default:
+	case ATSPI_ROLE_ARROW:
 		return UNKNOWN;
+	case ATSPI_ROLE_CALENDAR:
+		return DATE_PICKER;
+	case ATSPI_ROLE_DATE_EDITOR:
+		return DATE_PICKER;
+	case ATSPI_ROLE_DESKTOP_ICON:
+		return UNKNOWN;
+	case ATSPI_ROLE_DESKTOP_FRAME:
+		return WINDOW;
+	case ATSPI_ROLE_DIAL:
+		return SPIN_BUTTON;
+	case ATSPI_ROLE_DIRECTORY_PANE:
+		return LIST;
+	case ATSPI_ROLE_DRAWING_AREA:
+		return CANVAS;
+	case ATSPI_ROLE_FILLER:
+		return SEPARATOR;
+	case ATSPI_ROLE_FOCUS_TRAVERSABLE:
+		return UNKNOWN;
+	case ATSPI_ROLE_FONT_CHOOSER:
+		return COLOR_WELL;
+	case ATSPI_ROLE_FRAME:
+		return WINDOW;
+	case ATSPI_ROLE_GLASS_PANE:
+		return PANEL;
+	case ATSPI_ROLE_HTML_CONTAINER:
+		return EMBEDDED_OBJECT;
+	case ATSPI_ROLE_ICON:
+		return IMAGE;
+	case ATSPI_ROLE_INTERNAL_FRAME:
+		return WINDOW;
+	case ATSPI_ROLE_LAYERED_PANE:
+		return PANEL;
+	case ATSPI_ROLE_OPTION_PANE:
+		return DIALOG;
+	case ATSPI_ROLE_POPUP_MENU:
+		return MENU;
+	case ATSPI_ROLE_ROOT_PANE:
+		return PANEL;
+	case ATSPI_ROLE_SCROLL_PANE:
+		return SCROLL_VIEW;
+	case ATSPI_ROLE_TABLE_COLUMN_HEADER:
+		return COLUMN_HEADER;
+	case ATSPI_ROLE_TABLE_ROW_HEADER:
+		return ROW_HEADER;
+	case ATSPI_ROLE_TEAROFF_MENU_ITEM:
+		return MENU_ITEM;
+	case ATSPI_ROLE_TREE_TABLE:
+		return TREE_GRID;
+	case ATSPI_ROLE_EXTENDED:
+		return UNKNOWN;
+	case ATSPI_ROLE_RULER:
+		return UNKNOWN;
+	case ATSPI_ROLE_PAGE:
+		return TAB;
+	case ATSPI_ROLE_REDUNDANT_OBJECT:
+		return UNKNOWN;
+	case ATSPI_ROLE_INPUT_METHOD_WINDOW:
+		return WINDOW;
+	case ATSPI_ROLE_DOCUMENT_SPREADSHEET:
+		return TABLE;
+	case ATSPI_ROLE_DOCUMENT_PRESENTATION:
+		return DOCUMENT;
+	case ATSPI_ROLE_DOCUMENT_TEXT:
+		return DOCUMENT;
+	case ATSPI_ROLE_DOCUMENT_EMAIL:
+		return DOCUMENT;
+	case ATSPI_ROLE_INFO_BAR:
+		return STATUS;
+	case ATSPI_ROLE_LEVEL_BAR:
+		return PROGRESS_BAR;
+	case ATSPI_ROLE_VIDEO:
+		return VIDEO;
+	case ATSPI_ROLE_LANDMARK:
+		return REGION;
+	case ATSPI_ROLE_STATIC:
+		return LABEL;
+	case ATSPI_ROLE_DESCRIPTION_TERM:
+		return DEFINITION;
+	case ATSPI_ROLE_DESCRIPTION_VALUE:
+		return DEFINITION;
+	case ATSPI_ROLE_FOOTNOTE:
+		return NOTE;
+	case ATSPI_ROLE_SUGGESTION:
+		return CONTENT_INSERTION;
+	case ATSPI_ROLE_PUSH_BUTTON_MENU:
+		return BUTTON;
 	}
+	return UNKNOWN;
 }
 
 export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
