@@ -18,7 +18,7 @@ import Core.Environment;
 import Core.Logger;
 import Core.Singleton;
 
-constexpr size_t cAudioChunkSize = 2;
+constexpr size_t cAudioChunkSize = 256;
 constexpr size_t cAudioSystemMaxChannels = 255;
 
 using AudioDataChunk = std::array<AudioSample, cAudioChunkSize>;
@@ -27,6 +27,9 @@ struct SAudioChunk final {
 	unsigned char channel{0};
 	AudioDataChunk data;
 };
+
+using AudioChunkArray = std::array<SAudioChunk, cAudioSystemMaxChannels>;
+using AudioChunkSamplesArray = std::array<size_t, cAudioSystemMaxChannels>;
 
 using AudioDataQueue = std::queue<SAudioChunk>;
 
@@ -43,6 +46,8 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	SAudioParameters m_parameters;
 
 	AudioChannelAtomicMask m_channelsShouldStop{};
+	AudioChunkArray m_partialChunks;
+	AudioChunkSamplesArray m_partialChunkSamples{};
 
 	int m_bytesPerSample{0};
 	int m_bytesPerFrame{0};

@@ -43,27 +43,35 @@ void AudioSystem::Stop(void) {
 }
 
 void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
-	if (data.empty()) [[unlikely]]
+	if (data.empty())
 		return;
 
 	m_channelsShouldStop[channel].store(0);
-	size_t sample{0};
-	SAudioChunk chunk{.channel = channel};
-	for (size_t i = 0; i < data.size(); ++i) {
-		std::scoped_lock _(m_mutex);
 
-		if (sample < cAudioChunkSize) {
-			chunk.data[sample] = data[i];
-			++sample;
-		}
-		else {
-			m_queue.push(chunk);
+	std::scoped_lock _(m_mutex);
+
+	auto chunk = std::move(m_partialChunks[channel]);
+	if (chunk.data.empty()) {
+		chunk.channel = channel;
+		chunk.data.fill(0);
+	}
+	auto sample = m_partialChunkSamples[channel];
+
+	for (size_t i = 0; i < data.size(); ++i) {
+		chunk.data[sample++] = data[i];
+
+		if (sample >= cAudioChunkSize) {
+			m_queue.push(std::move(chunk));
 			sample = 0;
-			chunk.data = {};
-			chunk.data[sample] = data[i];
-			++sample;
+			chunk = {};
+			chunk.channel = channel;
+			chunk.data.fill(0);
 		}
 	}
+
+	m_partialChunks[channel] = std::move(chunk);
+	m_partialChunkSamples[channel] = sample;
+
 	m_cv.notify_all();
 }
 
