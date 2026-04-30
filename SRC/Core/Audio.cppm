@@ -43,6 +43,7 @@ export enum class EAudioEngineError : unsigned char {
 	INVALID_ARGUMENTS,
 	INVALID_FORMAT,
 	BUFFER_FULL,
+	DEVICE_UNAVAILABLE,
 	TIMEOUT,
 	FAIL
 };
