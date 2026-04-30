@@ -21,6 +21,41 @@ module Platforms.Linux.AudioEngine;
 	}
 }
 
+[[nodiscard]] static constexpr auto GetAudioEngineErrorFromAlsaError(int error) -> EAudioEngineError {
+	using enum EAudioEngineError;
+	switch (error) {
+	case 0:
+		return SUCCESS;
+	case -ENODEV:
+	case -ENXIO:
+	case -ENOTTY:
+	case -EBADF:
+		return DEFUNCT;
+	case -ENOSYS:
+	case -ENOTSUP:
+		return NOT_SUPPORTED;
+	case -EACCES:
+	case -EPERM:
+		return ACCESS_DENIED;
+	case -EINVAL:
+	case -EFAULT:
+		return INVALID_ARGUMENTS;
+	case -EPIPE:
+		return INVALID_FORMAT;
+	case -ENOBUFS:
+	case -ENOMEM:
+		return BUFFER_FULL;
+	case -EBUSY:
+	case -EAGAIN:
+		return DEVICE_UNAVAILABLE;
+	case -ETIMEDOUT:
+	case -ETIME:
+		return TIMEOUT;
+	default:
+		return FAIL;
+	}
+}
+
 CAudioEngineAlsa::~CAudioEngineAlsa() {
 	Uninitialize();
 }
@@ -31,7 +66,7 @@ CAudioEngineAlsa::~CAudioEngineAlsa() {
 
 	auto result = snd_pcm_open(&m_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
 	if (result < 0)
-		return std::unexpected(EAudioEngineError::FAIL);
+		return std::unexpected(GetAudioEngineErrorFromAlsaError(result));
 
 	result = snd_pcm_set_params(m_handle,
 		GetSndPcmFormatFromAudioFormat(parameters.format),
@@ -41,7 +76,7 @@ CAudioEngineAlsa::~CAudioEngineAlsa() {
 		0,
 		parameters.period_size);
 	if (result < 0)
-		return std::unexpected(EAudioEngineError::FAIL);
+		return std::unexpected(GetAudioEngineErrorFromAlsaError(result));
 
 	return AudioEngineResult<>();
 }
@@ -68,7 +103,7 @@ void CAudioEngineAlsa::Uninitialize() {
 		snd_pcm_prepare(m_handle);
 		result = snd_pcm_writei(m_handle, buffer, frames);
 	}
-	return AudioEngineResult<>();
+	return result > 0 ? AudioEngineResult<>() : std::unexpected(GetAudioEngineErrorFromAlsaError(result));
 }
 
 void CAudioEngineAlsa::Wait() {
