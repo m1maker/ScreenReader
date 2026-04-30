@@ -31,6 +31,7 @@ void AudioSystem::Start() {
 			auto frames = chunk.data.size() / m_bytesPerFrame * 2;
 			auto result = Write(chunk.data.data(), frames);
 			if (!result) {
+				Log(ERROR, "Failed to write the audio data. {}", AudioEngineErrorToString(result.error()));
 			}
 		}
 	});
