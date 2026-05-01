@@ -202,8 +202,6 @@ Each singleton is globally accessible but carefully controlled to prevent race c
 
 The core uses a consistent error handling approach across all components:
 
-**Platform errors** are converted from platform-specific error codes to a unified error enum. When a platform error occurs, it is pushed to a central error handler that decides whether to log, retry, or exit.
-
 **Object errors** use an expected/result pattern, returning either a valid value or an error code. Common object errors include:
 - Object no longer exists (defunct)
 - Operation not supported by this object type

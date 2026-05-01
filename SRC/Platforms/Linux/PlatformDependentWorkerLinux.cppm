@@ -8,13 +8,11 @@ module;
 export module Platforms.Linux.Worker;
 import Core.AppState;
 import Core.PlatformError;
-import Traits.PlatformDependentWorker;
 
 /*
 We will also handle signals here to ensure safe exit.
 */
-export class CPlatformDependentWorkerLinux final
-	: public TPlatformDependentWorker<CPlatformDependentWorkerLinux, GError> {
+export class CPlatformDependentWorkerLinux final {
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {
@@ -140,7 +138,7 @@ public:
 			atspi_exit();
 	}
 
-	void do_Loop() {
+	void Loop() {
 		if (m_atspiInitialized) {
 			atspi_event_main();
 			auto* context = g_main_context_default();
@@ -154,13 +152,4 @@ public:
 			}
 		}
 	}
-
-	void do_Throw(const GError* pError) noexcept {
-		if (!pError)
-			return;
-		auto result = GerrorToPlatformError(pError);
-		PushError(result);
-	}
 };
-
-export using CPlatformDependentWorker = CPlatformDependentWorkerLinux;

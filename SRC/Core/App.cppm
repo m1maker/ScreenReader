@@ -10,13 +10,11 @@ export module Core.App;
 import Core.AppState;
 import Core.AudioSystem;
 import Core.Config;
+import Core.Environment;
 import Core.EventHandler;
 import Core.Logger;
 import Core.Singleton;
 import Core.SpeechSystem;
-#if SR_LINUX
-import Platforms.Linux.Worker;
-#endif
 
 // Define different screen reader startup options, command line and configuration.
 struct SScreenReaderAppOptions final {
@@ -32,7 +30,7 @@ export class ScreenReaderApp final : TModule<"Application">, public TSingleton<S
 	On Linux, it's an AT-SPI event loop; on Windows, I think it's some kind of GetMessage/DispatchMessage (windows-like
 	loops).
 	*/
-	CPlatformDependentWorker m_worker;
+	DefaultPlatformDependentWorker m_worker;
 	unsigned int m_loopRestartAttempts{0};
 
 public:
