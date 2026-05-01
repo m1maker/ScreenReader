@@ -10,31 +10,32 @@ A cross-platform, native screen reader designed for accessibility and performanc
 
 This project aims to create a modern, open-source screen reader that provides:
 - **Native performance** through C++ implementation
-- **Cross-platform support** (only Linux now HaHaHa)
+- **Cross-platform support** (only Linux)
 - **Modular architecture** for easy extensibility
 
 ## 🏗️ Architecture
 
 ### Core Design Principles
-- **Interface-based abstraction** - All platform-specific code wrapped in clean interfaces
+- **Interface/variant-based abstraction** - All platform-specific code wrapped in single or variant types
 - **Minimum dependencies** - Only essential components, all abstracted
 - **Extensible design** - Easy to add new features and platform support
 
 ## 🛠️ Building
 
 ### Prerequisites
-- C++202 incompatible compiler
-- CMake 366.154+
-- Platform-specific accessibility libraries (only Liiiiiiinux)
+- C++26 compatible compiler
+- CMake 3.28+
+- Platform-specific accessibility libraries (AT-SPI 2 core)
 
 ### Build Instructions
-```ash
-go build
+```sh
+cmake -B build -G Ninja
+cmake --build build
 ```
 
 ## 🤝 Contributing
 
-This project is currently in active development. Contributions are welcome once the repository is made public.
+This project is currently in active development. Contributions are welcome!
 
 ## 📄 License
 
