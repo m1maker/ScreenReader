@@ -1,5 +1,8 @@
 # Screen Reader Project
 
+> [!NOTE]
+> This project in active development. It's not cross-platform yet (linux only, but it's a start). There are not many possibilities, and the documentation is incomplete. Any contributions will be appreciated! I have the motivation to develop it.
+
 A cross-platform, native screen reader designed for accessibility and performance. Built with C++ and a modular architecture to support multiple platforms and accessibility APIs.
 
 ## 🌍 Language Note
