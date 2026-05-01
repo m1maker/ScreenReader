@@ -43,5 +43,4 @@ This project is currently in active development. Contributions are welcome!
 
 ## 📄 License
 
-[License will be specified when repository is made public]
-
+GPL-3.0
