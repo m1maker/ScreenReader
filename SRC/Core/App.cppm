@@ -3,6 +3,7 @@ module;
 #include "Environment.h"
 
 #include <atomic>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,6 +37,23 @@ export class ScreenReaderApp final : TModule<"Application">, public TSingleton<S
 public:
 	void Run() {
 		g_running.store(true);
+		/*
+		We are trying to change the working directory to the executable directory, because we need to read some data,
+		such as built-in espeak voice/language data.
+		*/
+		try {
+			auto executable_path = m_worker.GetExecutablePath();
+			auto working_directory = executable_path.parent_path();
+			Log(DEBUG, "Switching directory to {}", working_directory.string());
+			std::filesystem::current_path(working_directory);
+		}
+		catch (const std::filesystem::filesystem_error& filesystem_error) {
+			LogException(filesystem_error);
+			g_running.store(false);
+		}
+
+		SpeechSystem::GetInstance().Speak("ScreenReader");
+
 		EventHandler::GetInstance().Start();
 		AudioSystem::GetInstance().Start();
 		SpeechSystem::GetInstance().Start();

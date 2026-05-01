@@ -3,6 +3,7 @@ module;
 #include <atspi/atspi.h>
 #include <chrono>
 #include <csignal>
+#include <filesystem>
 #include <thread>
 #include <unistd.h>
 export module Platforms.Linux.Worker;
@@ -151,5 +152,11 @@ public:
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 		}
+	}
+
+	[[nodiscard]] auto GetExecutablePath() -> std::filesystem::path {
+		char buffer[PATH_MAX];
+		readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+		return std::filesystem::path(buffer);
 	}
 };

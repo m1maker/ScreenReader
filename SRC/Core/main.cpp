@@ -2,7 +2,6 @@
 import Core.App;
 import Core.AppState;
 import Core.Logger;
-import Core.SpeechSystem;
 
 #include <Version.h>
 #include <exception>
@@ -15,7 +14,6 @@ auto main(signed int argc, char** argv) -> signed int {
 	We'll simply log anything we don't handle in other parts of the application.
 	*/
 	try {
-		SpeechSystem::GetInstance().Speak("Screenreader");
 		ScreenReaderApp::GetInstance().Run();
 	}
 	catch (const std::exception& standard_exception) {
