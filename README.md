@@ -26,8 +26,9 @@ This project aims to create a modern, open-source screen reader that provides:
 ## 🛠️ Building
 
 ### Prerequisites
-- C++26 compatible compiler
+- C++26 compatible compiler (only LLVM/clang supported)
 - CMake 3.28+
+- Ninja
 - Platform-specific accessibility libraries (AT-SPI 2 core)
 
 ### Build Instructions
