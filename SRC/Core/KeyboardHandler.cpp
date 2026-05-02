@@ -67,7 +67,7 @@ void KeyboardHandler::ResetState() {
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
 	if (hotkey.modifiers & m_hookedModifiers) {
-		if (m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
+		if (hotkey.keycode == KEYCODE_NONE && m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
 			m_hookedModifiersTimer.Restart();
 			return true;
 		}
