@@ -23,7 +23,7 @@ This project aims to create a modern, open-source screen reader that provides:
 - **Minimum dependencies** - Only essential components, all abstracted
 - **Extensible design** - Easy to add new features and platform support
 
-## 🛠️ Building
+## 🛠️ Building and running
 
 ### Prerequisites
 - C++26 compatible compiler (only LLVM/clang supported)
@@ -33,8 +33,23 @@ This project aims to create a modern, open-source screen reader that provides:
 
 ### Build Instructions
 ```sh
+git clone https://github.com/m1maker/ScreenReader.git
+cd ScreenReader
 cmake -B build -G Ninja
 cmake --build build
+```
+
+### Run Instructions
+
+At the moment, you need to copy/move the espeak-ng data folder into build directory to make the built-in synthesizer work.
+Then, on Linux, you need to add udev rules so that SR can intercept/handle the keyboard. To do this, you need to run this code as root.
+```sh
+Scripts/install-linux.sh
+```
+
+And then run the ScreenReader
+```sh
+build/screenreader
 ```
 
 ## 🤝 Contributing
