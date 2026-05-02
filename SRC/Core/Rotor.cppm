@@ -60,7 +60,7 @@ public:
 				--m_category;
 		}
 		else if constexpr (Direction == ERotorSpinDirection::RIGHT) {
-			if (m_category < m_categories.size())
+			if (m_category < m_categories.size() - 1)
 				++m_category;
 			else
 				m_category = 0;
