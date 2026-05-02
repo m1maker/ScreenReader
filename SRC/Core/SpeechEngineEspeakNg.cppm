@@ -25,8 +25,6 @@ public:
 	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void Stop();
 
-	void Pause(bool pause = true);
-
 	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
 	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
