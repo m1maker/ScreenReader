@@ -47,7 +47,7 @@ CSpeechEngineEspeakNg::~CSpeechEngineEspeakNg() {
 	info.name = "espeak-ng";
 	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
 	using enum ESpeechEngineParameter;
-	SetBits(info.supported_parameters, VOLUME, RATE, PITCH, VOICE_INDEX, VOICE_COUNT, SSML);
+	SetBits(info.supported_parameters, VOLUME, RATE, PITCH, PITCH_RANGE, VOICE_INDEX, VOICE_COUNT, SSML);
 	return info;
 }
 
