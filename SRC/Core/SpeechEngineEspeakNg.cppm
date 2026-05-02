@@ -16,6 +16,8 @@ import Core.Speech;
 		return RATE;
 	case espeakPITCH:
 		return PITCH;
+	case espeakRANGE:
+		return PITCH_RANGE;
 	default:
 		return NONE;
 	}
