@@ -68,6 +68,10 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 		});
 	}
 
+	inline auto EngineSetParameter(ESpeechEngineParameter parameter, auto&& value) -> SpeechEngineResult<> {
+		return WithEngine<>([parameter, value](auto&& engine) { return engine.SetParameter(parameter, value); });
+	}
+
 public:
 	explicit SpeechSystem() : m_pool(MessageBuilder::GetInstance().GetPool()) {
 		m_variant.emplace<BuiltInSpeechEngine>();
