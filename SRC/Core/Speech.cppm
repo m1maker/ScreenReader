@@ -25,12 +25,10 @@ export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVI
 
 export enum class ESpeechEngineSyncMode : unsigned char { SYNC = 0, ASYNC };
 
-export constexpr unsigned char cSpeechEngineMinRate = 0;
-export constexpr unsigned char cSpeechEngineMaxRate = 255;
-export constexpr unsigned char cSpeechEngineMinPitch = 0;
-export constexpr unsigned char cSpeechEngineMaxPitch = 255;
-export constexpr unsigned char cSpeechEngineMinVolume = 0;
-export constexpr unsigned char cSpeechEngineMaxVolume = 255;
+// For rate, pitch, pitch range, volume etc...
+export constexpr unsigned char cSpeechEngineMinValue = 0;
+export constexpr unsigned char cSpeechEngineMaxValue = 100;
+export constexpr unsigned char cSpeechEngineNormalValue = 50;
 
 export enum class ESpeechEngineError : unsigned char {
 	SUCCESS = 0,

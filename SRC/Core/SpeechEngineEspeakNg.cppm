@@ -8,7 +8,12 @@ module;
 export module Core.BuiltInSpeechEngine;
 import Core.Speech;
 
-[[nodiscard]] static constexpr auto GetSpeechEngineParameterFromEspeakParameter(espeak_PARAMETER parameter)
+template <typename From, typename To>
+[[nodiscard]] static auto MapRange(From value, From from_low, From from_high, To to_low, To to_high) -> To {
+	return to_low + (value - from_low) * (to_high - to_low) / (from_high - from_low);
+}
+
+[[nodiscard]] constexpr auto GetSpeechEngineParameterFromEspeakParameter(espeak_PARAMETER parameter)
 	-> ESpeechEngineParameter {
 	using enum ESpeechEngineParameter;
 	switch (parameter) {
@@ -20,6 +25,21 @@ import Core.Speech;
 		return PITCH_RANGE;
 	default:
 		return NONE;
+	}
+}
+
+[[nodiscard]] constexpr auto GetEspeakParameterFromSpeechEngineParameter(ESpeechEngineParameter parameter)
+	-> espeak_PARAMETER {
+	using enum ESpeechEngineParameter;
+	switch (parameter) {
+	case RATE:
+		return espeakRATE;
+	case PITCH:
+		return espeakPITCH;
+	case PITCH_RANGE:
+		return espeakRANGE;
+	default:
+		return espeakSILENCE;
 	}
 }
 
@@ -49,6 +69,18 @@ public:
 
 template <typename T>
 auto CSpeechEngineEspeakNg::SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<> {
+	if (!m_initialized) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+
+	auto espeak_parameter = GetEspeakParameterFromSpeechEngineParameter(parameter);
+	if (espeak_parameter == espeakSILENCE)
+		return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
+
+	auto espeak_value = parameter == ESpeechEngineParameter::RATE
+		? MapRange(value, cSpeechEngineMinValue, cSpeechEngineMaxValue, 80, 450)
+		: value;
+
+	auto _ = espeak_SetParameter(espeak_parameter, espeak_value, 0);
 	return SpeechEngineResult<>();
 }
 
