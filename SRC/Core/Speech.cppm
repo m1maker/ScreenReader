@@ -11,6 +11,7 @@ export enum class ESpeechEngineParameter : unsigned char {
 	RATE,
 	VOLUME,
 	PITCH,
+	PITCH_RANGE,
 	SPELLING,
 	VOICE_INDEX,
 	VOICE_COUNT,
