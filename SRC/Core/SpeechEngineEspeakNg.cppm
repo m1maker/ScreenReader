@@ -24,7 +24,6 @@ public:
 
 	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
 	void Stop();
-	void Cancel();
 
 	void Pause(bool pause = true);
 

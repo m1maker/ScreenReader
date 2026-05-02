@@ -71,7 +71,3 @@ void CSpeechEngineEspeakNg::Stop() {
 	AudioSystem::GetInstance().Stop(0);
 	espeak_Cancel();
 }
-
-void CSpeechEngineEspeakNg::Cancel() {
-	Stop();
-}
