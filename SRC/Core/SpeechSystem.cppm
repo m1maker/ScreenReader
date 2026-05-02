@@ -53,6 +53,10 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 		return WithEngine<SSpeechEngineInfo>([](auto&& engine) { return engine.GetInfo(); });
 	}
 
+	inline auto EngineTest() const -> SpeechEngineResult<> {
+		return WithEngine<>([](auto&& engine) { return engine.Test(); });
+	}
+
 	inline auto EngineSpeak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
 		return WithEngine<SpeechMessage>([message](auto&& engine) { return engine.Speak(message); });
 	}
