@@ -17,7 +17,10 @@ void ObjectHandler::Handle(CObjectEvent& event) {
 		m_focusManager.SetFocus(event.object);
 		m_outputManager.WhereAmI();
 	}
-	else if (m_focusManager.GetFocus() == event.object)
+	else if (m_focusManager.GetFocus() == event.object) {
 		m_outputManager.Stop();
+	}
+	else
+		return;
 	m_outputManager.Output(event);
 }
