@@ -8,6 +8,19 @@ module;
 export module Core.BuiltInSpeechEngine;
 import Core.Speech;
 
+[[nodiscard]] static constexpr auto GetSpeechEngineParameterFromEspeakParameter(espeak_PARAMETER parameter)
+	-> ESpeechEngineParameter {
+	using enum ESpeechEngineParameter;
+	switch (parameter) {
+	case espeakRATE:
+		return RATE;
+	case espeakPITCH:
+		return PITCH;
+	default:
+		return NONE;
+	}
+}
+
 export class CSpeechEngineEspeakNg final {
 	static std::atomic<bool> s_stopping;
 	bool m_initialized{false};
