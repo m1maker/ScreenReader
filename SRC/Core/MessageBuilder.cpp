@@ -41,6 +41,11 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		}
 	}
 
+	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
+
+	if (IsObjectInGroup(type, EObjectGroup::CONTAINER) || IsObjectInGroup(type, EObjectGroup::PARENT))
+		return;
+
 	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
 		if (!current.IsValid())
 			return;
@@ -63,10 +68,7 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		}
 	};
 
-	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-
-	if ((!IsObjectInGroup(type, EObjectGroup::CONTAINER) && !IsObjectInGroup(type, EObjectGroup::PARENT)) &&
-		collect_all_labels) {
+	if (collect_all_labels) {
 		collect_labels_recursive(collect_labels_recursive, obj);
 	}
 
