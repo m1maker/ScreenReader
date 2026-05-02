@@ -36,6 +36,7 @@ target_sources(${PROJECT_NAME}
         Outputs.cppm
         PlatformError.cppm
         Rect.cppm
+        Rotor.cppm
         Singleton.cppm
         Speech.cppm
         SpeechEngineEspeakNg.cppm

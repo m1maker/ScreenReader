@@ -24,6 +24,10 @@ EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
 	success = keyboard_handler.RegisterAction(
 		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_LEFT, static_cast<uint32_t>(EAction::SPIN_ROTOR_LEFT), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_RIGHT, static_cast<uint32_t>(EAction::SPIN_ROTOR_RIGHT), true);
 }
 
 void EventHandler::Start() {
