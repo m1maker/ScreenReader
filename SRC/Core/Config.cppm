@@ -14,6 +14,7 @@ module;
 	}
 
 export module Core.Config;
+import Core.Speech;
 import Core.Utterance;
 
 export struct SScreenReaderAppSettings final {
@@ -22,6 +23,8 @@ export struct SScreenReaderAppSettings final {
 		bool read_unfocused_object_changes = true;
 	} object_presentation;
 	struct SSpeechParameters final {
+		unsigned char rate = cSpeechEngineNormalValue, volume = cSpeechEngineMaxValue, pitch = cSpeechEngineNormalValue,
+					  pitch_range = cSpeechEngineNormalValue;
 		bool ssml = true;
 		struct SUtteranceParameters final {
 			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,

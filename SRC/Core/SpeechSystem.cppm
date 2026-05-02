@@ -12,6 +12,7 @@ module;
 #include <variant>
 export module Core.SpeechSystem;
 import Core.BuiltInSpeechEngine;
+import Core.Config;
 import Core.Encoding;
 import Core.Logger;
 import Core.MessageBuilder;
@@ -29,12 +30,15 @@ struct SSpeechMessage final {
 using SpeechMessageQueue = std::queue<SSpeechMessage>;
 
 export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
+	unsigned char m_rate, m_volume, m_pitch, m_pitchRange;
 	std::pmr::memory_resource* m_pool{nullptr};
 	SpeechEngineVariant m_variant;
 	SpeechMessageQueue m_queue;
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	std::jthread m_thread;
+
+	void ApplySpeechParameters(SpeechParameters parameters);
 
 	template <typename Result = void> auto WithEngine(this auto&& self, auto&& func) -> SpeechEngineResult<Result> {
 		return std::visit(

@@ -3,8 +3,16 @@ module;
 #include <stop_token>
 #include <thread>
 module Core.SpeechSystem;
+import Core.App;
 import Core.AudioSystem;
 import Core.Speech;
+
+void SpeechSystem::ApplySpeechParameters(SpeechParameters parameters) {
+	m_rate = parameters.rate;
+	m_volume = parameters.volume;
+	m_pitch = parameters.pitch;
+	m_pitchRange = parameters.pitch_range;
+}
 
 void SpeechSystem::Start() {
 	m_thread = std::jthread([this](const std::stop_token& stop_token) -> void {
@@ -20,6 +28,10 @@ void SpeechSystem::Start() {
 			if (message.interrupt)
 				EngineStop();
 
+			EngineSetParameter(ESpeechEngineParameter::RATE, message.rate);
+			EngineSetParameter(ESpeechEngineParameter::VOLUME, message.volume);
+			EngineSetParameter(ESpeechEngineParameter::PITCH, message.pitch);
+			EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, message.pitch_range);
 			auto result = EngineSpeak(message.message);
 			if (!result) {
 			}
@@ -36,7 +48,14 @@ void SpeechSystem::Speak(std::string_view message, bool interrupt, bool ssml) {
 	if (message.empty()) [[unlikely]]
 		return;
 
-	SSpeechMessage queued_message{.interrupt = interrupt, .ssml = ssml};
+	ApplySpeechParameters(ScreenReaderApp::GetInstance().GetSettings().speech);
+
+	SSpeechMessage queued_message{.interrupt = interrupt,
+		.ssml = ssml,
+		.rate = m_rate,
+		.volume = m_volume,
+		.pitch = m_pitch,
+		.pitch_range = m_pitchRange};
 	queued_message.message = std::pmr::string(message, m_pool);
 	{
 		std::scoped_lock _(m_mutex);
