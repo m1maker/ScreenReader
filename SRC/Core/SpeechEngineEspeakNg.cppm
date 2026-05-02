@@ -87,7 +87,18 @@ auto CSpeechEngineEspeakNg::SetParameter(ESpeechEngineParameter parameter, T val
 template <typename T>
 [[nodiscard]] auto CSpeechEngineEspeakNg::GetParameter(ESpeechEngineParameter parameter) const
 	-> SpeechEngineResult<T> {
-	return std::unexpected(ESpeechEngineError::FAIL);
+	if (!m_initialized) [[unlikely]]
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
+
+	auto espeak_parameter = GetEspeakParameterFromSpeechEngineParameter(parameter);
+	if (espeak_parameter == espeakSILENCE)
+		return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
+
+	auto espeak_value = espeak_GetParameter(espeak_parameter, 1);
+	if (parameter == ESpeechEngineParameter::RATE) {
+		espeak_value = MapRange(espeak_value, 80, 450, cSpeechEngineMinValue, cSpeechEngineMaxValue);
+	}
+	return espeak_value;
 }
 
 export using BuiltInSpeechEngine = CSpeechEngineEspeakNg;
