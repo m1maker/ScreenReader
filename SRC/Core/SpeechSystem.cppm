@@ -36,7 +36,7 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 	std::condition_variable m_cv;
 	std::jthread m_thread;
 
-	template <typename Result = void> auto WithEngine(auto&& func) -> SpeechEngineResult<Result> {
+	template <typename Result = void> auto WithEngine(this auto&& self, auto&& func) -> SpeechEngineResult<Result> {
 		return std::visit(
 			[&](auto&& eng) -> SpeechEngineResult<Result> {
 				using T = std::decay_t<decltype(eng)>;
@@ -46,7 +46,11 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 				else
 					return std::unexpected(ESpeechEngineError::DEFUNCT);
 			},
-			m_variant);
+			self.m_variant);
+	}
+
+	inline auto EngineGetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
+		return WithEngine<SSpeechEngineInfo>([](auto&& engine) { return engine.GetInfo(); });
 	}
 
 	inline auto EngineSpeak(std::string_view message) -> SpeechEngineResult<SpeechMessage> {
