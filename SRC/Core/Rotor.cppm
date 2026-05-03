@@ -1,16 +1,20 @@
 module;
 #include <array>
+#include <expected>
+#include <format>
+#include <string>
 #include <string_view>
 export module Core.Rotor;
 import Core.App;
 import Core.Config;
 import Core.Logger;
 import Core.Singleton;
+import Core.Speech;
 import Core.SpeechSystem;
 
 enum class ERotorCategory : unsigned char { ACTIONS, SPEECH_RATE, SPEECH_VOLUME, COUNT };
 
-enum class ERotorAdjustmentResult : unsigned char { WALL, ADJUSTED };
+enum class ERotorAdjustmentError : unsigned char { ADJUSTED = 0, WALL };
 
 export enum class ERotorSpinDirection : unsigned char { LEFT, RIGHT };
 
@@ -30,15 +34,70 @@ enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
 	}
 }
 
-template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = ERotorAdjustmentResult (*)();
+template <typename T = std::string> using RotorAdjustmentResult = std::expected<T, ERotorAdjustmentError>;
+
+template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = RotorAdjustmentResult<> (*)();
 
 struct SRotorCategoryMeta final {
-	ERotorCategory category{ERotorCategory::ACTIONS};
 	bool contextual{false};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up;
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down;
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate;
 };
+
+[[nodiscard]] static consteval auto InitializeMeta(ERotorCategory category) -> SRotorCategoryMeta {
+	SRotorCategoryMeta meta;
+
+	switch (category) {
+	case ERotorCategory::ACTIONS:
+		meta.contextual = true;
+		break;
+	case ERotorCategory::SPEECH_RATE:
+		meta.contextual = false;
+		meta.adjust_up = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.rate;
+			if (value == cSpeechEngineMaxValue)
+				return std::unexpected(ERotorAdjustmentError::WALL);
+			++value;
+			return std::format("{}", value);
+		};
+		meta.adjust_down = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.rate;
+			if (value == cSpeechEngineMinValue)
+				return std::unexpected(ERotorAdjustmentError::WALL);
+			--value;
+			return std::format("{}", value);
+		};
+		break;
+
+	case ERotorCategory::SPEECH_VOLUME:
+		meta.contextual = false;
+		meta.adjust_up = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.volume;
+			if (value == cSpeechEngineMaxValue)
+				return std::unexpected(ERotorAdjustmentError::WALL);
+			++value;
+			return std::format("{}", value);
+		};
+		meta.adjust_down = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.volume;
+			if (value == cSpeechEngineMinValue)
+				return std::unexpected(ERotorAdjustmentError::WALL);
+			--value;
+			return std::format("{}", value);
+		};
+		break;
+
+	case ERotorCategory::COUNT:
+		break;
+	}
+
+	return meta;
+}
 
 using RotorCategoryMetaArray = std::array<SRotorCategoryMeta, static_cast<size_t>(ERotorCategory::COUNT)>;
 
