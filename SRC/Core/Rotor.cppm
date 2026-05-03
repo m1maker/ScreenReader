@@ -27,7 +27,9 @@ template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = RotorAdjust
 struct SRotorCategoryMeta final {
 	std::string_view speech_name;
 	bool contextual{false};
-	RotorAdjustmentCallback<ERotorAdjustmentDirection::CURRENT> adjust_current{nullptr};
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::CURRENT> adjust_current = []() -> RotorAdjustmentResult<> {
+		return "Unavailable";
+	};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up{nullptr};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down{nullptr};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate{nullptr};
