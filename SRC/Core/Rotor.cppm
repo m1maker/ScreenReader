@@ -30,6 +30,18 @@ enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
 	}
 }
 
+template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = ERotorAdjustmentResult (*)();
+
+struct SRotorCategoryMeta final {
+	ERotorCategory category{ERotorCategory::ACTIONS};
+	bool contextual{false};
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up;
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down;
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate;
+};
+
+using RotorCategoryMetaArray = std::array<SRotorCategoryMeta, static_cast<size_t>(ERotorCategory::COUNT)>;
+
 using RotorCategoryArray = std::array<ERotorCategory, static_cast<size_t>(ERotorCategory::COUNT)>;
 
 export class Rotor : TModule<"Rotor">, public TSingleton<Rotor> {
