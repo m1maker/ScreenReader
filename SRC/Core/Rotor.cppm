@@ -18,7 +18,7 @@ enum class ERotorAdjustmentError : unsigned char { ADJUSTED = 0, WALL };
 
 export enum class ERotorSpinDirection : unsigned char { LEFT, RIGHT };
 
-export enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
+export enum class ERotorAdjustmentDirection : unsigned char { CURRENT = 0, UP, DOWN, ACTIVATE };
 
 template <typename T = std::string> using RotorAdjustmentResult = std::expected<T, ERotorAdjustmentError>;
 
@@ -27,6 +27,7 @@ template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = RotorAdjust
 struct SRotorCategoryMeta final {
 	std::string_view speech_name;
 	bool contextual{false};
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::CURRENT> adjust_current{nullptr};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up{nullptr};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down{nullptr};
 	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate{nullptr};
@@ -43,6 +44,11 @@ struct SRotorCategoryMeta final {
 	case ERotorCategory::SPEECH_RATE:
 		meta.speech_name = "Speech rate";
 		meta.contextual = false;
+		meta.adjust_current = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.rate;
+			return std::to_string(value);
+		};
 		meta.adjust_up = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 			auto& value = settings.speech.rate;
@@ -64,6 +70,11 @@ struct SRotorCategoryMeta final {
 	case ERotorCategory::SPEECH_VOLUME:
 		meta.speech_name = "Speech volume";
 		meta.contextual = false;
+		meta.adjust_current = []() -> RotorAdjustmentResult<> {
+			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
+			auto& value = settings.speech.volume;
+			return std::to_string(value);
+		};
 		meta.adjust_up = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
 			auto& value = settings.speech.volume;
@@ -117,7 +128,9 @@ template <ERotorAdjustmentDirection Direction>
 	if (index < 0 || index > cRotorCategoryMetadata.size()) [[unlikely]]
 		return nullptr;
 
-	if constexpr (Direction == ERotorAdjustmentDirection::UP)
+	if constexpr (Direction == ERotorAdjustmentDirection::CURRENT)
+		return cRotorCategoryMetadata[index].adjust_current;
+	else if constexpr (Direction == ERotorAdjustmentDirection::UP)
 		return cRotorCategoryMetadata[index].adjust_up;
 	else if constexpr (Direction == ERotorAdjustmentDirection::DOWN)
 		return cRotorCategoryMetadata[index].adjust_down;
@@ -168,7 +181,9 @@ public:
 		}
 		m_categoryAnnounced = false;
 		m_adjustmentAnnounced = false;
-		Output();
+		Adjust<ERotorAdjustmentDirection::CURRENT>();
+		if (!m_categoryAnnounced)
+			Output();
 	}
 
 	template <ERotorAdjustmentDirection Direction> void Adjust() {
@@ -178,8 +193,10 @@ public:
 		auto adjustment_result = adjuster();
 		if (adjustment_result) {
 			m_lastValue = *adjustment_result;
+			Output();
 			m_adjustmentAnnounced = false;
 		}
-		Output();
+		else
+			m_lastValue = {};
 	}
 };
