@@ -30,9 +30,9 @@ export struct SScreenReaderAppSettings final {
 			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,
 							 volume = CUtterance::cVolumeDefault, pause_before = "", pause_after = "";
 		} name, description = {.pause_before = "150ms"},
-				role = {.pitch = CUtterance::cPitchXlow, .pause_before = "40ms"},
+				role = {.pitch = CUtterance::cPitchXlow, .pause_before = "5ms"},
 				state = {.rate = CUtterance::cRateXfast, .pitch = CUtterance::cPitchXlow, .pause_before = "15ms"},
-				text = {.pitch = CUtterance::cPitchXhigh, .pause_before = "110ms"};
+				text = {.pitch = CUtterance::cPitchXhigh, .pause_before = "60ms"};
 
 	} speech;
 };
