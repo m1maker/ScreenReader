@@ -102,12 +102,28 @@ using RotorCategoryMetaArray = std::array<SRotorCategoryMeta, static_cast<size_t
 
 static constexpr RotorCategoryMetaArray cRotorCategoryMetadata = InitializeMetaArray();
 
-export [[nodiscard]] constexpr auto GetRotorCategoryName(ERotorCategory category) -> std::string_view {
+[[nodiscard]] static constexpr auto GetRotorCategoryName(ERotorCategory category) -> std::string_view {
 	auto index = static_cast<size_t>(category);
 	if (index < 0 || index > cRotorCategoryMetadata.size()) [[unlikely]]
 		return "unknown";
 
 	return cRotorCategoryMetadata[index].speech_name;
+}
+
+template <ERotorAdjustmentDirection Direction>
+[[nodiscard]] static constexpr auto GetRotorCategoryAdjuster(ERotorCategory category)
+	-> RotorAdjustmentCallback<Direction> {
+	auto index = static_cast<size_t>(category);
+	if (index < 0 || index > cRotorCategoryMetadata.size()) [[unlikely]]
+		return nullptr;
+
+	if constexpr (Direction == ERotorAdjustmentDirection::UP)
+		return cRotorCategoryMetadata[index].adjust_up;
+	else if constexpr (Direction == ERotorAdjustmentDirection::DOWN)
+		return cRotorCategoryMetadata[index].adjust_down;
+	else if constexpr (Direction == ERotorAdjustmentDirection::ACTIVATE)
+		return cRotorCategoryMetadata[index].adjust_activate;
+	return nullptr;
 }
 
 using RotorCategoryArray = std::array<ERotorCategory, static_cast<size_t>(ERotorCategory::COUNT)>;
