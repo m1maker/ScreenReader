@@ -151,12 +151,14 @@ export class Rotor : TModule<"Rotor">, public TSingleton<Rotor> {
 		if (!m_categoryAnnounced) {
 			SpeechSystem::GetInstance().Interrupt();
 			SpeechSystem::GetInstance().Speak(GetRotorCategoryName(m_categories[m_category]));
-			m_categoryAnnounced = true;
 		}
 		if (!m_adjustmentAnnounced) {
+			if (m_categoryAnnounced)
+				SpeechSystem::GetInstance().Interrupt();
 			SpeechSystem::GetInstance().Speak(m_lastValue);
-			m_adjustmentAnnounced = true;
 		}
+		m_categoryAnnounced = true;
+		m_adjustmentAnnounced = true;
 	}
 
 public:
