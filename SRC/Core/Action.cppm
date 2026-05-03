@@ -14,6 +14,9 @@ export enum class EAction : uint32_t {
 	STOP_KEYBOARD_HOOKS,
 	SPIN_ROTOR_LEFT,
 	SPIN_ROTOR_RIGHT,
+	ADJUST_ROTOR_UP,
+	ADJUST_ROTOR_DOWN,
+	ADJUST_ROTOR_ACTIVATE,
 	USER
 };
 
@@ -50,6 +53,19 @@ export template <typename Event> struct TActions final {
 		return EActionHandleResult::HANDLED;
 	}
 
+	static auto AdjustRotorUp(const Event&) -> EActionHandleResult {
+		Rotor::GetInstance().Adjust<ERotorAdjustmentDirection::UP>();
+		return EActionHandleResult::HANDLED;
+	}
+	static auto AdjustRotorDown(const Event&) -> EActionHandleResult {
+		Rotor::GetInstance().Adjust<ERotorAdjustmentDirection::DOWN>();
+		return EActionHandleResult::HANDLED;
+	}
+	static auto AdjustRotorActivate(const Event&) -> EActionHandleResult {
+		Rotor::GetInstance().Adjust<ERotorAdjustmentDirection::ACTIVATE>();
+		return EActionHandleResult::HANDLED;
+	}
+
 	[[nodiscard]] static auto GetStaticExecutable(uint32_t type) -> ActionCallback<Event> {
 		switch (static_cast<EAction>(type)) {
 		case EAction::STOP_SPEECH:
@@ -58,6 +74,12 @@ export template <typename Event> struct TActions final {
 			return &SpinRotorLeft;
 		case EAction::SPIN_ROTOR_RIGHT:
 			return &SpinRotorRight;
+		case EAction::ADJUST_ROTOR_UP:
+			return &AdjustRotorUp;
+		case EAction::ADJUST_ROTOR_DOWN:
+			return &AdjustRotorDown;
+		case EAction::ADJUST_ROTOR_ACTIVATE:
+			return &AdjustRotorActivate;
 
 		case EAction::STOP_KEYBOARD_HOOKS:
 			return &StopKeyboardHooks;

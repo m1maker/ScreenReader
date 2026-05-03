@@ -28,6 +28,12 @@ EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 		MODIFIER_SCREEN_READER + KEYCODE_LEFT, static_cast<uint32_t>(EAction::SPIN_ROTOR_LEFT), true);
 	success = keyboard_handler.RegisterAction(
 		MODIFIER_SCREEN_READER + KEYCODE_RIGHT, static_cast<uint32_t>(EAction::SPIN_ROTOR_RIGHT), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_UP, static_cast<uint32_t>(EAction::ADJUST_ROTOR_UP), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_DOWN, static_cast<uint32_t>(EAction::ADJUST_ROTOR_DOWN), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_ENTER, static_cast<uint32_t>(EAction::ADJUST_ROTOR_ACTIVATE), true);
 }
 
 void EventHandler::Start() {

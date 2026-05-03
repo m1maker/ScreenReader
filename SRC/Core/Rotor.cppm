@@ -18,7 +18,7 @@ enum class ERotorAdjustmentError : unsigned char { ADJUSTED = 0, WALL };
 
 export enum class ERotorSpinDirection : unsigned char { LEFT, RIGHT };
 
-enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
+export enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
 
 template <typename T = std::string> using RotorAdjustmentResult = std::expected<T, ERotorAdjustmentError>;
 
