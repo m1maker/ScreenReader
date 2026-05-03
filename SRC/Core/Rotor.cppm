@@ -132,12 +132,17 @@ export class Rotor : TModule<"Rotor">, public TSingleton<Rotor> {
 	RotorCategoryArray m_categories;
 	size_t m_category{0};
 	bool m_categoryAnnounced{false}, m_adjustmentAnnounced{false};
+	std::string m_lastValue{};
 
 	void Output() {
 		if (!m_categoryAnnounced) {
 			SpeechSystem::GetInstance().Interrupt();
 			SpeechSystem::GetInstance().Speak(GetRotorCategoryName(m_categories[m_category]));
 			m_categoryAnnounced = true;
+		}
+		if (!m_adjustmentAnnounced) {
+			SpeechSystem::GetInstance().Speak(m_lastValue);
+			m_adjustmentAnnounced = true;
 		}
 	}
 
@@ -163,6 +168,18 @@ public:
 		}
 		m_categoryAnnounced = false;
 		m_adjustmentAnnounced = false;
+		Output();
+	}
+
+	template <ERotorAdjustmentDirection Direction> void Adjust() {
+		auto adjuster = GetRotorCategoryAdjuster<Direction>(static_cast<ERotorCategory>(m_category));
+		if (!adjuster)
+			return;
+		auto adjustment_result = adjuster();
+		if (adjustment_result) {
+			m_lastValue = *adjustment_result;
+			m_adjustmentAnnounced = false;
+		}
 		Output();
 	}
 };
