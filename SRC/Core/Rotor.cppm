@@ -20,29 +20,16 @@ export enum class ERotorSpinDirection : unsigned char { LEFT, RIGHT };
 
 enum class ERotorAdjustmentDirection : unsigned char { UP, DOWN, ACTIVATE };
 
-[[nodiscard]] static constexpr inline auto GetRotorCategoryName(ERotorCategory category) -> std::string_view {
-	using enum ERotorCategory;
-	switch (category) {
-	case ACTIONS:
-		return "Actions";
-	case SPEECH_RATE:
-		return "Speech rate";
-	case SPEECH_VOLUME:
-		return "Speech volume";
-	case COUNT:
-		return "";
-	}
-}
-
 template <typename T = std::string> using RotorAdjustmentResult = std::expected<T, ERotorAdjustmentError>;
 
 template <ERotorAdjustmentDirection> using RotorAdjustmentCallback = RotorAdjustmentResult<> (*)();
 
 struct SRotorCategoryMeta final {
+	std::string_view speech_name;
 	bool contextual{false};
-	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up;
-	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down;
-	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate;
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::UP> adjust_up{nullptr};
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::DOWN> adjust_down{nullptr};
+	RotorAdjustmentCallback<ERotorAdjustmentDirection::ACTIVATE> adjust_activate{nullptr};
 };
 
 [[nodiscard]] static consteval auto InitializeMeta(ERotorCategory category) -> SRotorCategoryMeta {
@@ -50,9 +37,11 @@ struct SRotorCategoryMeta final {
 
 	switch (category) {
 	case ERotorCategory::ACTIONS:
+		meta.speech_name = "Actions";
 		meta.contextual = true;
 		break;
 	case ERotorCategory::SPEECH_RATE:
+		meta.speech_name = "Speech rate";
 		meta.contextual = false;
 		meta.adjust_up = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
@@ -60,7 +49,7 @@ struct SRotorCategoryMeta final {
 			if (value == cSpeechEngineMaxValue)
 				return std::unexpected(ERotorAdjustmentError::WALL);
 			++value;
-			return std::format("{}", value);
+			return std::to_string(value);
 		};
 		meta.adjust_down = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
@@ -68,11 +57,12 @@ struct SRotorCategoryMeta final {
 			if (value == cSpeechEngineMinValue)
 				return std::unexpected(ERotorAdjustmentError::WALL);
 			--value;
-			return std::format("{}", value);
+			return std::to_string(value);
 		};
 		break;
 
 	case ERotorCategory::SPEECH_VOLUME:
+		meta.speech_name = "Speech volume";
 		meta.contextual = false;
 		meta.adjust_up = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
@@ -80,7 +70,7 @@ struct SRotorCategoryMeta final {
 			if (value == cSpeechEngineMaxValue)
 				return std::unexpected(ERotorAdjustmentError::WALL);
 			++value;
-			return std::format("{}", value);
+			return std::to_string(value);
 		};
 		meta.adjust_down = []() -> RotorAdjustmentResult<> {
 			auto& settings = ScreenReaderApp::GetInstance().GetSettings();
@@ -88,7 +78,7 @@ struct SRotorCategoryMeta final {
 			if (value == cSpeechEngineMinValue)
 				return std::unexpected(ERotorAdjustmentError::WALL);
 			--value;
-			return std::format("{}", value);
+			return std::to_string(value);
 		};
 		break;
 
@@ -100,6 +90,25 @@ struct SRotorCategoryMeta final {
 }
 
 using RotorCategoryMetaArray = std::array<SRotorCategoryMeta, static_cast<size_t>(ERotorCategory::COUNT)>;
+
+[[nodiscard]] static consteval auto InitializeMetaArray() -> RotorCategoryMetaArray {
+	RotorCategoryMetaArray array;
+	for (size_t i = 0; i < static_cast<size_t>(ERotorCategory::COUNT); ++i) {
+		auto meta = InitializeMeta(static_cast<ERotorCategory>(i));
+		array[i] = meta;
+	}
+	return array;
+}
+
+static constexpr RotorCategoryMetaArray cRotorCategoryMetadata = InitializeMetaArray();
+
+export [[nodiscard]] constexpr auto GetRotorCategoryName(ERotorCategory category) -> std::string_view {
+	auto index = static_cast<size_t>(category);
+	if (index < 0 || index > cRotorCategoryMetadata.size()) [[unlikely]]
+		return "unknown";
+
+	return cRotorCategoryMetadata[index].speech_name;
+}
 
 using RotorCategoryArray = std::array<ERotorCategory, static_cast<size_t>(ERotorCategory::COUNT)>;
 
