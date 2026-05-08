@@ -297,3 +297,44 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 
 	return atspi_value_get_current_value(value_interface, &m_data->last_error);
 }
+
+[[nodiscard]] auto CObjectAtspi::GetActionType(int number) const -> ObjectResult<EObjectAction> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
+	if (!action_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+	m_data->ResetLastError();
+
+	return std::unexpected(EObjectError::NOT_SUPPORTED);
+}
+
+[[nodiscard]] auto CObjectAtspi::GetActionName(int number) const -> ObjectResult<std::string_view> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
+	if (!action_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+	m_data->ResetLastError();
+
+	if (m_data->action_name)
+		g_free(m_data->action_name);
+
+	m_data->action_name = atspi_action_get_action_name(action_interface, number, &m_data->last_error);
+	return m_data->action_name;
+}
+
+[[nodiscard]] auto CObjectAtspi::DoAction(int number) -> ObjectResult<> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
+	if (!action_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+	m_data->ResetLastError();
+
+	auto _ = atspi_action_do_action(action_interface, number, &m_data->last_error);
+	return ObjectResult<>();
+}
