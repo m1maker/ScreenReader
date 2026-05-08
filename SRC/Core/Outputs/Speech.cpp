@@ -1,6 +1,5 @@
 // Event to speech.
 module Core.Outputs.Speech;
-import Core.FocusManager;
 import Core.MessageBuilder;
 import Core.Object;
 import Core.SpeechSystem;

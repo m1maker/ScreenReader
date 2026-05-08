@@ -5,22 +5,22 @@ import Core.FocusManager;
 import Core.Object;
 import Core.OutputManager;
 
-ObjectHandler::ObjectHandler()
-	: m_focusManager(FocusManager::GetInstance()), m_outputManager(OutputManager::GetInstance()) {}
-
 void ObjectHandler::Handle(CObjectEvent& event) {
 	auto& _ = ScreenReaderApp::GetInstance().GetSettings();
+	auto& focus_manager = FocusManager::GetInstance();
+	auto& output_manager = OutputManager::GetInstance();
+
 	if (event.type == EObjectEventType::FOCUS_GAINED) {
-		if (m_focusManager.GetFocus() == event.object)
+		if (focus_manager.GetFocus() == event.object)
 			return;
-		m_outputManager.Stop();
-		m_focusManager.SetFocus(event.object);
-		m_outputManager.WhereAmI();
+		output_manager.Stop();
+		focus_manager.SetFocus(event.object);
+		output_manager.WhereAmI();
 	}
-	else if (m_focusManager.GetFocus() == event.object) {
-		m_outputManager.Stop();
+	else if (focus_manager.GetFocus() == event.object) {
+		output_manager.Stop();
 	}
 	else
 		return;
-	m_outputManager.Output(event);
+	output_manager.Output(event);
 }

@@ -8,6 +8,7 @@ import Core.Environment;
 import Core.Logger;
 import Core.Object;
 import Core.ObjectMeta;
+import Core.ObjectNavigator;
 import Core.Rotor;
 import Core.Singleton;
 import Proxies.Object;
