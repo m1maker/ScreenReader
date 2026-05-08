@@ -8,6 +8,7 @@ import Core.Environment;
 import Core.Logger;
 import Core.Object;
 import Core.ObjectMeta;
+import Core.Rotor;
 import Core.Singleton;
 import Proxies.Object;
 
@@ -44,6 +45,7 @@ public:
 
 		m_objectInFocus = obj;
 		UpdateContextChain();
+		Rotor::GetInstance().SetContext(obj);
 	}
 
 	[[nodiscard]] auto GetContext() const { return m_contextChain; }

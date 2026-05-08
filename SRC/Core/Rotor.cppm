@@ -11,6 +11,7 @@ import Core.Logger;
 import Core.Singleton;
 import Core.Speech;
 import Core.SpeechSystem;
+import Proxies.Object;
 
 enum class ERotorCategory : unsigned char { ACTIONS, SPEECH_RATE, SPEECH_VOLUME, COUNT };
 
@@ -145,9 +146,11 @@ using RotorCategoryArray = std::array<ERotorCategory, static_cast<size_t>(ERotor
 
 export class Rotor : TModule<"Rotor">, public TSingleton<Rotor> {
 	RotorCategoryArray m_categories;
-	size_t m_category{0};
+	size_t m_category{0}, m_lastCategoryOutOfContext{0};
 	bool m_categoryAnnounced{false}, m_adjustmentAnnounced{false};
 	std::string m_lastValue{};
+
+	CObjectProxy m_objectInContext;
 
 	void Output() {
 		if (!m_categoryAnnounced) {
@@ -202,5 +205,19 @@ public:
 		}
 		else
 			m_lastValue = {};
+	}
+
+	void SetContext(CObjectProxy obj) {
+		if (!obj.IsValid()) [[unlikely]]
+			return;
+
+		/*
+		For now, we will only reset the announced category and value flags, but in the future, we will need to determine
+		whether it is possible to change the rotor category for a contextual object and return it to the previous
+		non-contextual category when the object does not have any actions or adjusters associated with the object.
+		*/
+
+		m_categoryAnnounced = false;
+		m_adjustmentAnnounced = false;
 	}
 };
