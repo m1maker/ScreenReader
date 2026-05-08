@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME}
         main.cpp
         Object.cpp
         ObjectHandler.cpp
+        OutputManager.cpp
         SpeechEngineEspeakNg.cpp
         SpeechSystem.cpp
         Utterance.cpp
