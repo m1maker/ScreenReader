@@ -28,7 +28,20 @@ export class ObjectNavigator : TModule<"ObjectNavigator">, public TSingleton<Obj
 public:
 	explicit ObjectNavigator() = default;
 
-	template <EObjectNavigatorStepDirection Direction> void Step() {}
+	template <EObjectNavigatorStepDirection Direction> void Step() {
+		if constexpr (Direction == EObjectNavigatorStepDirection::UP) {
+			auto parent = m_objectInFocus.GetParent();
+			if (parent)
+				m_objectInFocus = *parent;
+		}
+		else if constexpr (Direction == EObjectNavigatorStepDirection::DOWN) {
+			auto children = m_objectInFocus.GetChildAt(0);
+			if (children)
+				m_objectInFocus = *children;
+		}
+
+		Output();
+	}
 
 	void SetFocus(CObjectProxy obj) {
 		if (!obj.IsValid()) [[unlikely]]

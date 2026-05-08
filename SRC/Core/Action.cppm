@@ -5,6 +5,7 @@ module;
 export module Core.Action;
 import Core.Device;
 import Core.EventHandler;
+import Core.ObjectNavigator;
 import Core.Rotor;
 import Core.SpeechSystem;
 
@@ -17,6 +18,8 @@ export enum class EAction : uint32_t {
 	ADJUST_ROTOR_UP,
 	ADJUST_ROTOR_DOWN,
 	ADJUST_ROTOR_ACTIVATE,
+	MOVE_OBJECT_NAVIGATOR_UP,
+	MOVE_OBJECT_NAVIGATOR_DOWN,
 	USER
 };
 
@@ -66,6 +69,15 @@ export template <typename Event> struct TActions final {
 		return EActionHandleResult::HANDLED;
 	}
 
+	static auto MoveObjectNavigatorUp(const Event&) -> EActionHandleResult {
+		ObjectNavigator::GetInstance().Step<EObjectNavigatorStepDirection::UP>();
+		return EActionHandleResult::HANDLED;
+	}
+	static auto MoveObjectNavigatorDown(const Event&) -> EActionHandleResult {
+		ObjectNavigator::GetInstance().Step<EObjectNavigatorStepDirection::DOWN>();
+		return EActionHandleResult::HANDLED;
+	}
+
 	[[nodiscard]] static auto GetStaticExecutable(uint32_t type) -> ActionCallback<Event> {
 		switch (static_cast<EAction>(type)) {
 		case EAction::STOP_SPEECH:
@@ -80,6 +92,11 @@ export template <typename Event> struct TActions final {
 			return &AdjustRotorDown;
 		case EAction::ADJUST_ROTOR_ACTIVATE:
 			return &AdjustRotorActivate;
+
+		case EAction::MOVE_OBJECT_NAVIGATOR_UP:
+			return &MoveObjectNavigatorUp;
+		case EAction::MOVE_OBJECT_NAVIGATOR_DOWN:
+			return &MoveObjectNavigatorDown;
 
 		case EAction::STOP_KEYBOARD_HOOKS:
 			return &StopKeyboardHooks;
