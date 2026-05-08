@@ -47,6 +47,7 @@ public:
 		m_objectInFocus = obj;
 		UpdateContextChain();
 		Rotor::GetInstance().SetContext(obj);
+		ObjectNavigator::GetInstance().SetFocus(obj);
 	}
 
 	[[nodiscard]] auto GetContext() const { return m_contextChain; }
