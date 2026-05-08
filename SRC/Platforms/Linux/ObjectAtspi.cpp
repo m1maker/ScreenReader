@@ -298,6 +298,18 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return atspi_value_get_current_value(value_interface, &m_data->last_error);
 }
 
+[[nodiscard]] auto CObjectAtspi::GetActionCount() const -> ObjectResult<int> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
+	if (!action_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+	m_data->ResetLastError();
+
+	return atspi_action_get_n_actions(action_interface, &m_data->last_error);
+}
+
 [[nodiscard]] auto CObjectAtspi::GetActionType(int number) const -> ObjectResult<EObjectAction> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);

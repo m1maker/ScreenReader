@@ -495,6 +495,8 @@ public:
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double>;
 
+	[[nodiscard]] auto GetActionCount() const -> ObjectResult<int>;
+
 	[[nodiscard]] auto GetActionType(int number) const -> ObjectResult<EObjectAction>;
 	[[nodiscard]] auto GetActionName(int number) const -> ObjectResult<std::string_view>;
 	[[nodiscard]] auto DoAction(int number) -> ObjectResult<>;
