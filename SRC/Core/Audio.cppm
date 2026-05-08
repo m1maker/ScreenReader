@@ -32,7 +32,7 @@ export struct SAudioParameters final {
 	unsigned long int period_size{0};
 
 	[[nodiscard]] static constexpr auto GetDefault() -> SAudioParameters {
-		return SAudioParameters{.channels = 1, .sample_rate = 22500, .format = EAudioFormat::S16, .period_size = 60};
+		return SAudioParameters{.channels = 1, .sample_rate = 22050, .format = EAudioFormat::S16, .period_size = 60};
 	}
 };
 
