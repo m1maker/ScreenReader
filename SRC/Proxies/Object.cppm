@@ -155,6 +155,10 @@ public:
 	explicit CActionProviderProxy(ActionProviderVariant provider) : TUnknownProxy(provider) {}
 	~CActionProviderProxy() = default;
 
+	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
+		return With<int>([](auto&& obj) { return obj.GetActionCount(); });
+	}
+
 	[[nodiscard]] inline auto GetType(int number) const -> ObjectResult<EObjectAction> {
 		return With<EObjectAction>([number](auto&& obj) { return obj.GetActionType(number); });
 	}
