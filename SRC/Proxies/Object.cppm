@@ -16,7 +16,7 @@ protected:
 	explicit TUnknownProxy(Variant variant) : m_variant(variant) {}
 
 public:
-	template <typename Result = void> auto With(auto&& func) const /*final*/ -> ObjectResult<Result> {
+	template <typename Result = void> auto With(this auto&& self, auto&& func) /*final*/ -> ObjectResult<Result> {
 		return std::visit(
 			[&](auto&& obj) -> ObjectResult<Result> {
 				using T = std::decay_t<decltype(obj)>;
@@ -26,7 +26,7 @@ public:
 				else
 					return std::unexpected(EObjectError::DEFUNCT);
 			},
-			m_variant);
+			self.m_variant);
 	}
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(m_variant); }
@@ -147,5 +147,21 @@ public:
 	}
 	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
 		return With<double>([](auto&& obj) { return obj.GetCurrentValue(); });
+	}
+};
+
+export class CActionProviderProxy final : public TUnknownProxy<ActionProviderVariant> {
+public:
+	explicit CActionProviderProxy(ActionProviderVariant provider) : TUnknownProxy(provider) {}
+	~CActionProviderProxy() = default;
+
+	[[nodiscard]] inline auto GetType(int number) const -> ObjectResult<EObjectAction> {
+		return With<EObjectAction>([number](auto&& obj) { return obj.GetActionType(number); });
+	}
+	[[nodiscard]] inline auto GetName(int number) const -> ObjectResult<std::string_view> {
+		return With<std::string_view>([number](auto&& obj) { return obj.GetActionName(number); });
+	}
+	[[nodiscard]] inline auto Do(int number) -> ObjectResult<> {
+		return With<>([number](auto&& obj) { return obj.DoAction(number); });
 	}
 };

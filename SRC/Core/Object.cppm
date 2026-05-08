@@ -220,6 +220,19 @@ export enum class EObjectState : unsigned char {
 
 export using ObjectStates = std::bitset<std::to_underlying(EObjectState::COUNT)>;
 
+export enum class EObjectAction : unsigned char {
+	UNKNOWN = 0,
+	ACTIVATE,
+	FOCUS,
+	TOGGLE,
+	COLLAPSE,
+	EXPAND,
+	INCREMENT,
+	DECREMENT,
+	SHOW_CONTEXT_MENU,
+	CUSTOM
+};
+
 export enum class EObjectError : unsigned char {
 	SUCCESS = 0,
 	DEFUNCT,
@@ -230,7 +243,7 @@ export enum class EObjectError : unsigned char {
 	FAIL
 };
 
-export template <typename T> using ObjectResult = std::expected<T, EObjectError>;
+export template <typename T = void> using ObjectResult = std::expected<T, EObjectError>;
 
 export enum class EObjectEventType : unsigned char {
 	NONE = 0,

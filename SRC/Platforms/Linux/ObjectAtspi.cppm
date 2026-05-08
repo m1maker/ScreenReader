@@ -494,6 +494,10 @@ public:
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetMaxValue() const -> ObjectResult<double>;
 	[[nodiscard]] auto GetCurrentValue() const -> ObjectResult<double>;
+
+	[[nodiscard]] auto GetActionType(int number) const -> ObjectResult<EObjectAction>;
+	[[nodiscard]] auto GetActionName(int number) const -> ObjectResult<std::string_view>;
+	[[nodiscard]] auto DoAction(int number) -> ObjectResult<>;
 };
 
 export struct SObjectAtspiData final {
@@ -501,6 +505,7 @@ export struct SObjectAtspiData final {
 	gchar* name{nullptr};
 	gchar* description{nullptr};
 	gchar* last_text{nullptr};
+	gchar* action_name{nullptr};
 
 	mutable GError* last_error{nullptr};
 	uint32_t interfaces_mask{0};
@@ -522,9 +527,12 @@ export struct SObjectAtspiData final {
 			g_free(description);
 		if (last_text)
 			g_free(last_text);
+		if (action_name)
+			g_free(action_name);
 		app_name = nullptr;
 		name = nullptr;
 		description = nullptr;
 		last_text = nullptr;
+		action_name = nullptr;
 	}
 };
