@@ -9,16 +9,21 @@ import Core.OutputManager;
 import Core.Singleton;
 import Proxies.Object;
 
-enum class EObjectNavigatorError : unsigned char { MOVED = 0, NO_NEXT, NO_PREVIOUS, NO_CHILDREN, NO_PARENT, NO_VALID };
-
-template <typename T = void> using ObjectNavigatorResult = std::expected<T, EObjectNavigatorError>;
+enum class EObjectNavigatorStatus : unsigned char { MOVED = 0, NO_NEXT, NO_PREVIOUS, NO_CHILDREN, NO_PARENT, NO_VALID };
 
 export enum class EObjectNavigatorStepDirection : unsigned char { LEFT, RIGHT, UP, DOWN };
 
 export class ObjectNavigator : TModule<"ObjectNavigator">, public TSingleton<ObjectNavigator> {
 	CObjectProxy m_objectInFocus;
 
+	EObjectNavigatorStatus m_lastStatus{EObjectNavigatorStatus::NO_VALID};
+
 	void Output() {
+		if (m_lastStatus != EObjectNavigatorStatus::MOVED) {
+			// Announce status
+			m_lastStatus = EObjectNavigatorStatus::NO_VALID;
+		}
+
 		auto& output_manager = OutputManager::GetInstance();
 		output_manager.Stop();
 		CObjectEvent object_event{.type = EObjectEventType::FOCUS_GAINED, .object = m_objectInFocus};
@@ -33,11 +38,15 @@ public:
 			auto parent = m_objectInFocus.GetParent();
 			if (parent)
 				m_objectInFocus = *parent;
+			else
+				m_lastStatus = EObjectNavigatorStatus::NO_PARENT;
 		}
 		else if constexpr (Direction == EObjectNavigatorStepDirection::DOWN) {
 			auto children = m_objectInFocus.GetChildAt(0);
 			if (children)
 				m_objectInFocus = *children;
+			else
+				m_lastStatus = EObjectNavigatorStatus::NO_CHILDREN;
 		}
 
 		Output();
