@@ -28,10 +28,15 @@ void SpeechSystem::Start() {
 			if (message.interrupt)
 				EngineStop();
 
-			EngineSetParameter(ESpeechEngineParameter::RATE, message.rate);
-			EngineSetParameter(ESpeechEngineParameter::VOLUME, message.volume);
-			EngineSetParameter(ESpeechEngineParameter::PITCH, message.pitch);
-			EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, message.pitch_range);
+			auto set_parameter_result = EngineSetParameter(ESpeechEngineParameter::RATE, message.rate);
+			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::VOLUME, message.volume);
+			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH, message.pitch);
+			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, message.pitch_range);
+			if (!set_parameter_result) {
+				Log(WARNING,
+					"Failed to set one or more speech engine parameters. {}",
+					SpeechEngineErrorToString(set_parameter_result.error()));
+			}
 			auto result = EngineSpeak(message.message);
 			if (!result) {
 			}
