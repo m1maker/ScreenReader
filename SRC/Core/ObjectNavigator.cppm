@@ -36,15 +36,19 @@ public:
 	template <EObjectNavigatorStepDirection Direction> void Step() {
 		if constexpr (Direction == EObjectNavigatorStepDirection::UP) {
 			auto parent = m_objectInFocus.GetParent();
-			if (parent)
+			if (parent) {
 				m_objectInFocus = *parent;
+				m_lastStatus = EObjectNavigatorStatus::MOVED;
+			}
 			else
 				m_lastStatus = EObjectNavigatorStatus::NO_PARENT;
 		}
 		else if constexpr (Direction == EObjectNavigatorStepDirection::DOWN) {
 			auto children = m_objectInFocus.GetChildAt(0);
-			if (children)
+			if (children) {
 				m_objectInFocus = *children;
+				m_lastStatus = EObjectNavigatorStatus::MOVED;
+			}
 			else
 				m_lastStatus = EObjectNavigatorStatus::NO_CHILDREN;
 		}
