@@ -52,6 +52,38 @@ public:
 			else
 				m_lastStatus = EObjectNavigatorStatus::NO_CHILDREN;
 		}
+		else if constexpr (Direction == EObjectNavigatorStepDirection::LEFT) {
+			auto parent = m_objectInFocus.GetParent();
+			auto current_index_in_parent = m_objectInFocus.GetIndex();
+			if (parent && current_index_in_parent && *current_index_in_parent > 0) {
+				auto previous_object = parent->GetChildAt((*current_index_in_parent) - 1);
+				if (previous_object) {
+					m_objectInFocus = *previous_object;
+					m_lastStatus = EObjectNavigatorStatus::MOVED;
+				}
+				else
+					m_lastStatus = EObjectNavigatorStatus::NO_PREVIOUS;
+			}
+			else
+				m_lastStatus = EObjectNavigatorStatus::NO_PREVIOUS;
+		}
+		else if constexpr (Direction == EObjectNavigatorStepDirection::RIGHT) {
+			auto parent = m_objectInFocus.GetParent();
+			auto children_count_in_parent = parent->GetChildrenCount();
+			auto current_index_in_parent = m_objectInFocus.GetIndex();
+			if (parent && children_count_in_parent && current_index_in_parent &&
+				*current_index_in_parent < *children_count_in_parent) {
+				auto next_object = parent->GetChildAt((*current_index_in_parent) + 1);
+				if (next_object) {
+					m_objectInFocus = *next_object;
+					m_lastStatus = EObjectNavigatorStatus::MOVED;
+				}
+				else
+					m_lastStatus = EObjectNavigatorStatus::NO_NEXT;
+			}
+			else
+				m_lastStatus = EObjectNavigatorStatus::NO_NEXT;
+		}
 
 		Output();
 	}
