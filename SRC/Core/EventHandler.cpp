@@ -39,6 +39,10 @@ EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_8, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_UP), true);
 	success = keyboard_handler.RegisterAction(
 		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_2, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_DOWN), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_4, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_LEFT), true);
+	success = keyboard_handler.RegisterAction(
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_6, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_RIGHT), true);
 }
 
 void EventHandler::Start() {

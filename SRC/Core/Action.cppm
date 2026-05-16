@@ -20,6 +20,8 @@ export enum class EAction : uint32_t {
 	ADJUST_ROTOR_ACTIVATE,
 	MOVE_OBJECT_NAVIGATOR_UP,
 	MOVE_OBJECT_NAVIGATOR_DOWN,
+	MOVE_OBJECT_NAVIGATOR_LEFT,
+	MOVE_OBJECT_NAVIGATOR_RIGHT,
 	USER
 };
 
@@ -78,6 +80,15 @@ export template <typename Event> struct TActions final {
 		return EActionHandleResult::HANDLED;
 	}
 
+	static auto MoveObjectNavigatorLeft(const Event&) -> EActionHandleResult {
+		ObjectNavigator::GetInstance().Step<EObjectNavigatorStepDirection::LEFT>();
+		return EActionHandleResult::HANDLED;
+	}
+	static auto MoveObjectNavigatorRight(const Event&) -> EActionHandleResult {
+		ObjectNavigator::GetInstance().Step<EObjectNavigatorStepDirection::RIGHT>();
+		return EActionHandleResult::HANDLED;
+	}
+
 	[[nodiscard]] static auto GetStaticExecutable(uint32_t type) -> ActionCallback<Event> {
 		switch (static_cast<EAction>(type)) {
 		case EAction::STOP_SPEECH:
@@ -97,6 +108,11 @@ export template <typename Event> struct TActions final {
 			return &MoveObjectNavigatorUp;
 		case EAction::MOVE_OBJECT_NAVIGATOR_DOWN:
 			return &MoveObjectNavigatorDown;
+
+		case EAction::MOVE_OBJECT_NAVIGATOR_LEFT:
+			return &MoveObjectNavigatorLeft;
+		case EAction::MOVE_OBJECT_NAVIGATOR_RIGHT:
+			return &MoveObjectNavigatorRight;
 
 		case EAction::STOP_KEYBOARD_HOOKS:
 			return &StopKeyboardHooks;
