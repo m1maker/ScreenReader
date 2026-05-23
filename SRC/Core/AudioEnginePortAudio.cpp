@@ -21,38 +21,48 @@ module Core.AudioEngine;
 	}
 }
 
-[[nodiscard]] static constexpr auto GetAudioEngineErrorFromPaError(PaError error) -> EAudioEngineError {
+[[nodiscard]] static constexpr auto GetAudioEngineErrorFromPaError(PaErrorCode error) -> EAudioEngineError {
 	using enum EAudioEngineError;
-	/*
 	switch (error) {
-	case 0:
+	case paNoError:
 		return SUCCESS;
-	case -ENODEV:
-	case -ENXIO:
-	case -ENOTTY:
-	case -EBADF:
+	case paNotInitialized:
+	case paUnanticipatedHostError:
+	case paInternalError:
 		return DEFUNCT;
-	case -ENOSYS:
-	case -ENOTSUP:
+	case paSampleFormatNotSupported:
+	case paIncompatibleHostApiSpecificStreamInfo:
+	case paIncompatibleStreamHostApi:
+	case paHostApiNotFound:
+	case paInvalidHostApi:
 		return NOT_SUPPORTED;
-	case -EACCES:
-	case -EPERM:
-		return ACCESS_DENIED;
-	case -EINVAL:
-	case -EFAULT:
-		return INVALID_ARGUMENTS;
-	case -EPIPE:
-		return INVALID_FORMAT;
-	case -ENOBUFS:
-	case -ENOMEM:
-		return BUFFER_FULL;
-	case -EBUSY:
-	case -EAGAIN:
+	case paInvalidDevice:
+	case paDeviceUnavailable:
+	case paBadIODeviceCombination:
 		return DEVICE_UNAVAILABLE;
-	case -ETIMEDOUT:
-	case -ETIME:
+	case paInvalidChannelCount:
+	case paInvalidSampleRate:
+	case paInvalidFlag:
+	case paBadStreamPtr:
+	case paBadBufferPtr:
+	case paNullCallback:
+	case paStreamIsStopped:
+	case paStreamIsNotStopped:
+	case paCanNotReadFromACallbackStream:
+	case paCanNotWriteToACallbackStream:
+	case paCanNotReadFromAnOutputOnlyStream:
+	case paCanNotWriteToAnInputOnlyStream:
+		return INVALID_ARGUMENTS;
+	case paBufferTooBig:
+	case paBufferTooSmall:
+		return BUFFER_FULL;
+	case paTimedOut:
 		return TIMEOUT;
-*/
+	case paInputOverflowed:
+	case paOutputUnderflowed:
+	case paInsufficientMemory:
+		return FAIL;
+	}
 	return FAIL;
 }
 
@@ -90,11 +100,9 @@ void CAudioEnginePortAudio::Uninitialize() {
 void CAudioEnginePortAudio::Wait() {
 	if (!m_handle)
 		return;
-
 }
 
 void CAudioEnginePortAudio::Drop() {
 	if (!m_handle)
 		return;
-
 }
