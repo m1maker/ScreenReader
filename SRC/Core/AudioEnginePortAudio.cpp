@@ -21,7 +21,7 @@ module Core.AudioEngine;
 	}
 }
 
-[[nodiscard]] static constexpr auto GetAudioEngineErrorFromPaError(PaErrorCode error) -> EAudioEngineError {
+[[nodiscard]] static constexpr auto GetAudioEngineErrorFromPaError(PaError error) -> EAudioEngineError {
 	using enum EAudioEngineError;
 	switch (error) {
 	case paNoError:
@@ -74,6 +74,27 @@ CAudioEnginePortAudio::~CAudioEnginePortAudio() {
 	if (m_handle)
 		return AudioEngineResult<>();
 
+	auto result = Pa_Initialize();
+	if (result != paNoError) {
+		return std::unexpected(GetAudioEngineErrorFromPaError(result));
+	}
+
+	result = Pa_OpenDefaultStream(&m_handle,
+		0,
+		parameters.channels,
+		GetPaSampleFormatFromAudioFormat(parameters.format),
+		parameters.sample_rate,
+		parameters.period_size,
+		nullptr,
+		nullptr);
+	if (result != paNoError) {
+		return std::unexpected(GetAudioEngineErrorFromPaError(result));
+	}
+
+	result = Pa_StartStream(m_handle);
+	if (result != paNoError) {
+		return std::unexpected(GetAudioEngineErrorFromPaError(result));
+	}
 	return AudioEngineResult<>();
 }
 
@@ -84,6 +105,7 @@ void CAudioEnginePortAudio::Uninitialize() {
 	Pa_StopStream(m_handle);
 	Pa_CloseStream(m_handle);
 	m_handle = nullptr;
+	Pa_Terminate();
 }
 
 [[nodiscard]] auto CAudioEnginePortAudio::Write(const signed short int* buffer, unsigned long long frames)
@@ -93,6 +115,11 @@ void CAudioEnginePortAudio::Uninitialize() {
 
 	else if (!buffer || frames <= 0) [[unlikely]] {
 		return std::unexpected(EAudioEngineError::INVALID_ARGUMENTS);
+	}
+
+	auto result = Pa_WriteStream(m_handle, buffer, frames);
+	if (result != paNoError) {
+		return std::unexpected(GetAudioEngineErrorFromPaError(result));
 	}
 	return AudioEngineResult<>();
 }
@@ -105,4 +132,6 @@ void CAudioEnginePortAudio::Wait() {
 void CAudioEnginePortAudio::Drop() {
 	if (!m_handle)
 		return;
+
+	Pa_AbortStream(m_handle);
 }
