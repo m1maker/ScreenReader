@@ -37,6 +37,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(espeak-ng)
 
+FetchContent_Declare(
+  portaudio
+  GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
+  GIT_TAG master
+  GIT_SHALLOW ON
+  SYSTEM
+)
+FetchContent_MakeAvailable(portaudio)
+
 file(GLOB_RECURSE ALL_CXX_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/SRC/*.h"

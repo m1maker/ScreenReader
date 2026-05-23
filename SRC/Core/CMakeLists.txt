@@ -1,5 +1,6 @@
 target_sources(${PROJECT_NAME}
     PRIVATE
+        AudioEnginePortAudio.cpp
         AudioSystem.cpp
         EventHandler.cpp
         KeyboardHandler.cpp
@@ -16,6 +17,7 @@ target_sources(${PROJECT_NAME}
         App.cppm
         AppState.cppm
         Audio.cppm
+        AudioEnginePortAudio.cppm
         AudioSystem.cppm
         Config.cppm
         Device.cppm
