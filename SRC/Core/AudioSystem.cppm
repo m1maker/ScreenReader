@@ -18,7 +18,7 @@ import Core.AudioEngine;
 import Core.Logger;
 import Core.Singleton;
 
-export using AudioEngineVariant = std::variant<std::monostate, BuiltInAudioEngine/*, CAudioEngineRuntime*/>;
+export using AudioEngineVariant = std::variant<std::monostate, BuiltInAudioEngine /*, CAudioEngineRuntime*/>;
 
 constexpr size_t cAudioChunkSize = 256;
 constexpr size_t cAudioSystemMaxChannels = 255;
