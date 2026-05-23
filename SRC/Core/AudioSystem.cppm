@@ -14,9 +14,11 @@ module;
 #include <vector>
 export module Core.AudioSystem;
 import Core.Audio;
-import Core.Environment;
+import Core.AudioEngine;
 import Core.Logger;
 import Core.Singleton;
+
+export using AudioEngineVariant = std::variant<std::monostate, BuiltInAudioEngine/*, CAudioEngineRuntime*/>;
 
 constexpr size_t cAudioChunkSize = 256;
 constexpr size_t cAudioSystemMaxChannels = 255;
@@ -93,7 +95,7 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	}
 
 public:
-	explicit AudioSystem() { m_variant.emplace<DefaultAudioEngine>(); }
+	explicit AudioSystem() { m_variant.emplace<BuiltInAudioEngine>(); }
 
 	~AudioSystem() { Stop(); }
 

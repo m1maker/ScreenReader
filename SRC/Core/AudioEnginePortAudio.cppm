@@ -17,3 +17,5 @@ public:
 	void Wait();
 	void Drop();
 };
+
+export using BuiltInAudioEngine = CAudioEnginePortAudio;

@@ -140,7 +140,7 @@ if(LINUX)
     )
 endif()
 
-set(libraries espeak-ng)
+set(libraries espeak-ng portaudio)
 
 if(LINUX)
     list(APPEND libraries
