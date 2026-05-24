@@ -207,6 +207,31 @@ export [[nodiscard]] constexpr auto operator+(EKeycode key, unsigned char mods) 
 	return SHotkeyInfo(key, mods);
 }
 
+export [[nodiscard]] constexpr auto GetModifierFromKeycode(EKeycode keycode) -> EModifier {
+	switch (keycode) {
+	case KEYCODE_LEFT_SHIFT:
+	case KEYCODE_RIGHT_SHIFT:
+		return MODIFIER_SHIFT;
+	case KEYCODE_LEFT_CTRL:
+	case KEYCODE_RIGHT_CTRL:
+		return MODIFIER_CTRL;
+	case KEYCODE_LEFT_ALT:
+	case KEYCODE_RIGHT_ALT:
+		return MODIFIER_ALT;
+	case KEYCODE_LEFT_SUPER:
+	case KEYCODE_RIGHT_SUPER:
+		return MODIFIER_SUPER;
+	case KEYCODE_CAPS_LOCK:
+		return MODIFIER_CAPS_LOCK;
+	case KEYCODE_NUM_LOCK:
+		return MODIFIER_NUM_LOCK;
+	case KEYCODE_INSERT:
+		return MODIFIER_INSERT;
+	default:
+		return MODIFIER_NONE;
+	}
+}
+
 export [[nodiscard]] constexpr inline auto GetKeycodeName(EKeycode keycode) -> std::string_view {
 	switch (keycode) {
 	case KEYCODE_A:
