@@ -137,7 +137,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						CKeyboardEvent keyboard_event;
 						keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
 
-						auto modifier = LinuxModifierToKeyboardEventModifier(ev.code);
+						auto modifier = GetModifierFromKeycode(keyboard_event.hotkey.keycode);
 						if (ev.value == 1)
 							modifiers |= modifier;
 						else if (ev.value == 0)

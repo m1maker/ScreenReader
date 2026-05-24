@@ -347,38 +347,6 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	}
 }
 
-[[nodiscard]] constexpr inline auto LinuxModifierToKeyboardEventModifier(uint16_t linux_keycode) -> EModifier {
-	switch (linux_keycode) {
-	case KEY_LEFTSHIFT:
-	case KEY_RIGHTSHIFT:
-		return MODIFIER_SHIFT;
-
-	case KEY_LEFTCTRL:
-	case KEY_RIGHTCTRL:
-		return MODIFIER_CTRL;
-
-	case KEY_LEFTALT:
-	case KEY_RIGHTALT:
-		return MODIFIER_ALT;
-
-	case KEY_LEFTMETA:
-	case KEY_RIGHTMETA:
-		return MODIFIER_SUPER;
-
-	case KEY_CAPSLOCK:
-		return MODIFIER_CAPS_LOCK;
-
-	case KEY_NUMLOCK:
-		return MODIFIER_NUM_LOCK;
-
-	case KEY_INSERT:
-		return MODIFIER_INSERT;
-
-	default:
-		return MODIFIER_NONE;
-	}
-}
-
 export class CEventListenerAtspi final : public TEventListener<CEventListenerAtspi>, TModule<"EventListenerAtspi"> {
 	AtspiEventListener* m_objectEventListener{nullptr};
 
