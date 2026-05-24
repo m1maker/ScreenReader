@@ -67,19 +67,14 @@ void KeyboardHandler::ResetState() {
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
 	if (hotkey.modifiers & m_hookedModifiers) {
-		if (hotkey.keycode == KEYCODE_NONE && m_hookedModifiersTimer.Elapsed() > cHookedModifierPressTimeMs) {
-			m_hookedModifiersTimer.Restart();
+		auto modifier = GetModifierFromKeycode(hotkey.keycode);
+		if (modifier == MODIFIER_NONE)
 			return true;
+		else if (modifier & m_hookedModifiers && m_hookedModifiersTimer.Elapsed() < cHookedModifierPressTimeMs) {
+			m_hookedModifiersTimer.Restart();
+			return false;
 		}
-
-		return false;
 	}
 
-	std::scoped_lock _(m_actionsMutex);
-	auto it = m_actions.find(hotkey);
-	if (it == m_actions.end()) {
-		return false;
-	}
-
-	return it->second.hook;
+	return false;
 }
