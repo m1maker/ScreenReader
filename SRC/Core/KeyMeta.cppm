@@ -664,70 +664,91 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_VOLUME_MUTE:
 		meta.name = "VolumeMute";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_VOLUME_DOWN:
 		meta.name = "VolumeDown";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_VOLUME_UP:
 		meta.name = "VolumeUp";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_MEDIA_NEXT:
 		meta.name = "MediaNext";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_MEDIA_PREV:
 		meta.name = "MediaPrev";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_MEDIA_STOP:
 		meta.name = "MediaStop";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 	case EKeycode::KEYCODE_MEDIA_PLAY_PAUSE:
 		meta.name = "MediaPlayPause";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MEDIA));
 		break;
 
 	case EKeycode::KEYCODE_BROWSER_BACK:
 		meta.name = "BrowserBack";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_BROWSER_FORWARD:
 		meta.name = "BrowserForward";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_BROWSER_REFRESH:
 		meta.name = "BrowserRefresh";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 	case EKeycode::KEYCODE_BROWSER_STOP:
 		meta.name = "BrowserStop";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 	case EKeycode::KEYCODE_BROWSER_SEARCH:
 		meta.name = "BrowserSearch";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_BROWSER_FAVORITES:
 		meta.name = "BrowserFavorites";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_BROWSER_HOME:
 		meta.name = "BrowserHome";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 
 	case EKeycode::KEYCODE_LAUNCH_MAIL:
 		meta.name = "LaunchMail";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 	case EKeycode::KEYCODE_LAUNCH_MEDIA_SELECT:
 		meta.name = "LaunchMediaSelect";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 	case EKeycode::KEYCODE_LAUNCH_APP1:
 		meta.name = "LaunchApp1";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 	case EKeycode::KEYCODE_LAUNCH_APP2:
 		meta.name = "LaunchApp2";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 
 	case EKeycode::KEYCODE_NONE:
+	case EKeycode::KEYCODE_COUNT:
 		meta.name = "None";
 		break;
 	case EKeycode::KEYCODE_ANY:
 		meta.name = "Any";
-		break;
-
-	default:
-		meta.name = "Unknown";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::UNPREDICTABLE));
 		break;
 	}
 
