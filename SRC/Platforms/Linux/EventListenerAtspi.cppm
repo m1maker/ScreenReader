@@ -331,17 +331,6 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	case KEY_MEDIA:
 		return KEYCODE_LAUNCH_MEDIA_SELECT;
 
-	case BTN_LEFT:
-		return KEYCODE_MOUSE_LEFT;
-	case BTN_RIGHT:
-		return KEYCODE_MOUSE_RIGHT;
-	case BTN_MIDDLE:
-		return KEYCODE_MOUSE_MIDDLE;
-	case BTN_SIDE:
-		return KEYCODE_MOUSE_X1;
-	case BTN_EXTRA:
-		return KEYCODE_MOUSE_X2;
-
 	default:
 		return KEYCODE_NONE;
 	}
