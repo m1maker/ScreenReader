@@ -19,6 +19,7 @@ export enum class EKeyGroup : unsigned char {
 	EDITING,
 	NUMPAD,
 	MODIFIER,
+	LOCKABLE,
 	MEDIA,
 	APPLICATION,
 	COUNT
@@ -352,177 +353,313 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_UP:
 		meta.name = "Up";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_DOWN:
 		meta.name = "Down";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_LEFT:
 		meta.name = "Left";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_RIGHT:
 		meta.name = "Right";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_HOME:
 		meta.name = "Home";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_END:
 		meta.name = "End";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_PAGE_UP:
 		meta.name = "PageUp";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_PAGE_DOWN:
 		meta.name = "PageDown";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 
 	case EKeycode::KEYCODE_INSERT:
 		meta.name = "Insert";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::EDITING));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
 		break;
 	case EKeycode::KEYCODE_DELETE:
 		meta.name = "Delete";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::EDITING));
 		break;
 	case EKeycode::KEYCODE_BACKSPACE:
 		meta.name = "Backspace";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::EDITING));
 		break;
 
 	case EKeycode::KEYCODE_ESCAPE:
 		meta.name = "Escape";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_TAB:
 		meta.name = "Tab";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
 		break;
 	case EKeycode::KEYCODE_CAPS_LOCK:
 		meta.name = "CapsLock";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
 		break;
 	case EKeycode::KEYCODE_SPACE:
 		meta.name = "Space";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 	case EKeycode::KEYCODE_ENTER:
 		meta.name = "Enter";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 
 	case EKeycode::KEYCODE_LEFT_SHIFT:
 		meta.name = "LeftShift";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_RIGHT_SHIFT:
 		meta.name = "RightShift";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_LEFT_CTRL:
 		meta.name = "LeftCtrl";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_RIGHT_CTRL:
 		meta.name = "RightCtrl";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_LEFT_ALT:
 		meta.name = "LeftAlt";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_RIGHT_ALT:
 		meta.name = "RightAlt";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_LEFT_SUPER:
 		meta.name = "LeftSuper";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_RIGHT_SUPER:
 		meta.name = "RightSuper";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		break;
 	case EKeycode::KEYCODE_MENU:
 		meta.name = "Menu";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 
 	case EKeycode::KEYCODE_NUMPAD_0:
 		meta.name = "Numpad0";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_1:
 		meta.name = "Numpad1";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_2:
 		meta.name = "Numpad2";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_3:
 		meta.name = "Numpad3";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_4:
 		meta.name = "Numpad4";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_5:
 		meta.name = "Numpad5";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_6:
 		meta.name = "Numpad6";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_7:
 		meta.name = "Numpad7";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_8:
 		meta.name = "Numpad8";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_9:
 		meta.name = "Numpad9";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_MULTIPLY:
 		meta.name = "Numpad*";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_ADD:
 		meta.name = "Numpad+";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_SEPARATOR:
 		meta.name = "NumpadSeparator";
+		//.... What?
 		break;
 	case EKeycode::KEYCODE_NUMPAD_SUBTRACT:
 		meta.name = "Numpad-";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_DECIMAL:
 		meta.name = "Numpad.";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_DIVIDE:
 		meta.name = "Numpad/";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_NUMPAD_ENTER:
 		meta.name = "NumpadEnter";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::NAVIGATIONAL));
 		break;
 
 	case EKeycode::KEYCODE_SCROLL_LOCK:
 		meta.name = "ScrollLock";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
 		break;
 	case EKeycode::KEYCODE_NUM_LOCK:
 		meta.name = "NumLock";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
 		break;
 	case EKeycode::KEYCODE_PAUSE:
 		meta.name = "Pause";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::APPLICATION));
 		break;
 
 	case EKeycode::KEYCODE_GRAVE:
 		meta.name = "`";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_MINUS:
 		meta.name = "-";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_EQUALS:
 		meta.name = "=";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_LEFT_BRACKET:
 		meta.name = "[";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_RIGHT_BRACKET:
 		meta.name = "]";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_BACKSLASH:
 		meta.name = "\\";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_SEMICOLON:
 		meta.name = ";";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_APOSTROPHE:
 		meta.name = "'";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_COMMA:
 		meta.name = ",";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_PERIOD:
 		meta.name = ".";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 	case EKeycode::KEYCODE_SLASH:
 		meta.name = "/";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::PUNCTUATION));
 		break;
 
 	case EKeycode::KEYCODE_VOLUME_MUTE:
