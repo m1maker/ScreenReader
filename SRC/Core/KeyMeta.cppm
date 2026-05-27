@@ -37,188 +37,317 @@ struct SKeyMeta final {
 	switch (keycode) {
 	case EKeycode::KEYCODE_A:
 		meta.name = "A";
-		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
-
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_B:
 		meta.name = "B";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_C:
 		meta.name = "C";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_D:
 		meta.name = "D";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_E:
 		meta.name = "E";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_F:
 		meta.name = "F";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_G:
 		meta.name = "G";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_H:
 		meta.name = "H";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_I:
 		meta.name = "I";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_J:
 		meta.name = "J";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_K:
 		meta.name = "K";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_L:
 		meta.name = "L";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_M:
 		meta.name = "M";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_N:
 		meta.name = "N";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_O:
 		meta.name = "O";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_P:
 		meta.name = "P";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_Q:
 		meta.name = "Q";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_R:
 		meta.name = "R";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_S:
 		meta.name = "S";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_T:
 		meta.name = "T";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_U:
 		meta.name = "U";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_V:
 		meta.name = "V";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_W:
 		meta.name = "W";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_X:
 		meta.name = "X";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_Y:
 		meta.name = "Y";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 	case EKeycode::KEYCODE_Z:
 		meta.name = "Z";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::ALPHABET));
 		break;
 
 	case EKeycode::KEYCODE_0:
 		meta.name = "0";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_1:
 		meta.name = "1";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_2:
 		meta.name = "2";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_3:
 		meta.name = "3";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_4:
 		meta.name = "4";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_5:
 		meta.name = "5";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_6:
 		meta.name = "6";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_7:
 		meta.name = "7";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_8:
 		meta.name = "8";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 	case EKeycode::KEYCODE_9:
 		meta.name = "9";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
 		break;
 
 	case EKeycode::KEYCODE_F1:
 		meta.name = "F1";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F2:
 		meta.name = "F2";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F3:
 		meta.name = "F3";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F4:
 		meta.name = "F4";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F5:
 		meta.name = "F5";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F6:
 		meta.name = "F6";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F7:
 		meta.name = "F7";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F8:
 		meta.name = "F8";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F9:
 		meta.name = "F9";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F10:
 		meta.name = "F10";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F11:
 		meta.name = "F11";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F12:
 		meta.name = "F12";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F13:
 		meta.name = "F13";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F14:
 		meta.name = "F14";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F15:
 		meta.name = "F15";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F16:
 		meta.name = "F16";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F17:
 		meta.name = "F17";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F18:
 		meta.name = "F18";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F19:
 		meta.name = "F19";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F20:
 		meta.name = "F20";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F21:
 		meta.name = "F21";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F22:
 		meta.name = "F22";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F23:
 		meta.name = "F23";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 	case EKeycode::KEYCODE_F24:
 		meta.name = "F24";
+		meta.group_flags.set(std::to_underlying(EKeyGroup::FUNCTIONAL));
 		break;
 
 	case EKeycode::KEYCODE_UP:
