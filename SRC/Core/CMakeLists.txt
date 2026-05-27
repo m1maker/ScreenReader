@@ -29,6 +29,7 @@ target_sources(${PROJECT_NAME}
         FocusManager.cppm
         KeyboardHandler.cppm
         KeyInfo.cppm
+        KeyMeta.cppm
         Logger.cppm
         Message.cppm
         MessageBuilder.cppm
