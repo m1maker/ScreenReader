@@ -50,6 +50,11 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 		}
 		{
 			auto modifiers = GetModifiers();
+			for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
+				if (modifiers[i] && m_hookedModifiers[i]) {
+					modifiers[i] = false;
+				}
+			}
 			SHotkeyInfo hotkey(keycode, modifiers);
 			std::scoped_lock _(m_actionsMutex);
 			auto it = m_actions.find(hotkey);

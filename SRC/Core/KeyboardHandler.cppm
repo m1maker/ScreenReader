@@ -32,7 +32,7 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 
 	Let's set a timer that, when user quickly press one of these modifiers, should let it pass to the OS.
 	*/
-	unsigned char m_hookedModifiers{MODIFIER_INSERT | MODIFIER_CAPS_LOCK};
+	ModifierMask m_hookedModifiers{EModifier::MODIFIER_INSERT + EModifier::MODIFIER_CAPS_LOCK};
 	mutable CTimer m_hookedModifiersTimer;
 	static constexpr uint64_t cHookedModifierPressTimeMs = 300;
 
