@@ -25,10 +25,12 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 
 	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
 		auto keycode = static_cast<EKeycode>(i);
-		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER)) continue;
+		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
+			continue;
 		else if (m_keysDown[keycode].load() > 0) {
 			auto modifier = GetModifierFromKeycode(static_cast<EKeycode>(i));
-			if (modifier != MODIFIER_NONE) modifiers |= modifier;
+			if (modifier != MODIFIER_NONE)
+				modifiers |= modifier;
 		}
 	}
 
