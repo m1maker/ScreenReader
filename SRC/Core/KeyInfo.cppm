@@ -1,6 +1,8 @@
 module;
+#include <bitset>
 #include <cstdint>
 #include <string_view>
+#include <utility>
 export module Core.KeyInfo;
 
 export enum EKeycode : unsigned char {
@@ -156,49 +158,57 @@ export enum EKeycode : unsigned char {
 	KEYCODE_COUNT
 };
 
+export using KeycodeMask = std::bitset<std::to_underlying(KEYCODE_COUNT)>;
+
 export enum EModifier : unsigned char {
 	MODIFIER_NONE = 0,
-	MODIFIER_SHIFT = 1 << 0,
-	MODIFIER_CTRL = 1 << 1,
-	MODIFIER_ALT = 1 << 2,
-	MODIFIER_SUPER = 1 << 3,
-	MODIFIER_CAPS_LOCK = 1 << 4,
-	MODIFIER_NUM_LOCK = 1 << 5,
-	MODIFIER_INSERT = 1 << 6,
-	MODIFIER_SCREEN_READER = 1 << 7
+	MODIFIER_SHIFT,
+	MODIFIER_CTRL,
+	MODIFIER_ALT,
+	MODIFIER_SUPER,
+	MODIFIER_CAPS_LOCK,
+	MODIFIER_NUM_LOCK,
+	MODIFIER_INSERT,
+	MODIFIER_SCREEN_READER,
+	MODIFIER_COUNT
 };
+
+export using ModifierMask = std::bitset<std::to_underlying(MODIFIER_COUNT)>;
 
 export struct SHotkeyInfo final {
 	EKeycode keycode;
-	unsigned char modifiers;
+	ModifierMask modifiers;
 
-	explicit constexpr SHotkeyInfo(EKeycode keycode = KEYCODE_NONE, unsigned char modifiers = MODIFIER_NONE)
-		: keycode(keycode), modifiers(modifiers) {}
-
-	static constexpr auto GetAny() -> SHotkeyInfo { return SHotkeyInfo(KEYCODE_ANY, MODIFIER_NONE); }
+	static constexpr auto GetAny() -> SHotkeyInfo { return SHotkeyInfo{KEYCODE_ANY}; }
 
 	[[nodiscard]] constexpr auto Pack() const noexcept -> uint32_t {
-		return (static_cast<uint32_t>(keycode) << 8) | modifiers;
+		return (static_cast<uint32_t>(keycode) << 8) | modifiers.to_ulong();
 	}
 
 	constexpr auto operator==(const SHotkeyInfo& info) const -> bool { return Pack() == info.Pack(); }
 };
 
 // Allow operator+ to generate key bindings.
-export [[nodiscard]] constexpr auto operator+(EModifier a, EModifier b) -> unsigned char {
-	return static_cast<unsigned char>(a) | static_cast<unsigned char>(b);
+export [[nodiscard]] constexpr auto operator+(EModifier a, EModifier b) -> ModifierMask {
+	ModifierMask mask;
+	mask[std::to_underlying(a)] = true;
+	mask[std::to_underlying(b)] = true;
+	return mask;
 }
 
-export [[nodiscard]] constexpr auto operator+(unsigned char a, EModifier b) -> unsigned char {
-	return a | static_cast<unsigned char>(b);
+export [[nodiscard]] constexpr auto operator+(ModifierMask a, EModifier b) -> ModifierMask {
+	a[std::to_underlying(b)] = true;
+	return a;
 }
 
-export [[nodiscard]] constexpr auto operator+(unsigned char mods, EKeycode key) -> SHotkeyInfo {
-	return SHotkeyInfo(key, mods);
+export [[nodiscard]] constexpr auto operator+(EModifier mod, EKeycode key) -> SHotkeyInfo {
+	ModifierMask mask;
+	mask[std::to_underlying(mod)] = true;
+	return SHotkeyInfo{.keycode = key, .modifiers = mask};
 }
 
-export [[nodiscard]] constexpr auto operator+(EKeycode key, unsigned char mods) -> SHotkeyInfo {
-	return SHotkeyInfo(key, mods);
+export [[nodiscard]] constexpr auto operator+(ModifierMask mods, EKeycode key) -> SHotkeyInfo {
+	return SHotkeyInfo{.keycode = key, .modifiers = mods};
 }
 
 export [[nodiscard]] constexpr auto GetModifierFromKeycode(EKeycode keycode) -> EModifier {

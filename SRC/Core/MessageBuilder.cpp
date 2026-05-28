@@ -1,6 +1,7 @@
 module;
 #include <cmath>
 #include <sstream>
+#include <utility>
 module Core.MessageBuilder;
 import Core.App;
 import Core.Config;
@@ -103,7 +104,7 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 		keys_down[KEYCODE_UP] || keys_down[KEYCODE_DOWN] || keys_down[KEYCODE_PAGE_UP] || keys_down[KEYCODE_PAGE_DOWN];
 	bool horizontal_keys_down =
 		keys_down[KEYCODE_RIGHT] || keys_down[KEYCODE_LEFT] || keys_down[KEYCODE_HOME] || keys_down[KEYCODE_END];
-	bool control_down = keyboard_handler.GetModifiers() & MODIFIER_CTRL;
+	bool control_down = keyboard_handler.GetModifiers()[std::to_underlying(MODIFIER_CTRL)];
 
 	bool typable_keys_down{false};
 	bool editing_keys_down{false};

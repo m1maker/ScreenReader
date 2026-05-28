@@ -1,7 +1,6 @@
 module;
 #include <array>
 #include <atomic>
-#include <bitset>
 #include <mutex>
 #include <unordered_map>
 #include <utility>
@@ -14,8 +13,6 @@ import Core.Singleton;
 import Core.Timer;
 
 using KeycodeArray = std::array<std::atomic<unsigned char>, KEYCODE_COUNT>;
-
-export using KeycodeMask = std::bitset<std::to_underlying(KEYCODE_COUNT)>;
 
 export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSingleton<KeyboardHandler> {
 	struct SActionInfo final {
@@ -48,7 +45,7 @@ public:
 	void Handle(CKeyboardEvent& event);
 
 	[[nodiscard]] auto GetKeysDown() const -> KeycodeMask;
-	[[nodiscard]] auto GetModifiers() const -> unsigned char;
+	[[nodiscard]] auto GetModifiers() const -> ModifierMask;
 
 	void ResetState();
 };

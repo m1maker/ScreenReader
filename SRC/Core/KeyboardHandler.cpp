@@ -1,5 +1,6 @@
 module;
 #include <mutex>
+#include <utility>
 module Core.KeyboardHandler;
 import Core.KeyMeta;
 
@@ -20,8 +21,8 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 	m_actions.erase(action);
 }
 
-[[nodiscard]] auto KeyboardHandler::GetModifiers() const -> unsigned char {
-	unsigned char modifiers;
+[[nodiscard]] auto KeyboardHandler::GetModifiers() const -> ModifierMask {
+	ModifierMask mask;
 
 	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
 		auto keycode = static_cast<EKeycode>(i);
@@ -30,11 +31,11 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 		else if (m_keysDown[keycode].load() > 0) {
 			auto modifier = GetModifierFromKeycode(static_cast<EKeycode>(i));
 			if (modifier != MODIFIER_NONE)
-				modifiers |= modifier;
+				mask[std::to_underlying(modifier)] = true;
 		}
 	}
 
-	return modifiers;
+	return mask;
 }
 
 void KeyboardHandler::Handle(CKeyboardEvent& event) {
@@ -49,11 +50,6 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 		}
 		{
 			auto modifiers = GetModifiers();
-			if (modifiers & m_hookedModifiers) {
-				modifiers &= ~m_hookedModifiers;
-				modifiers |= MODIFIER_SCREEN_READER;
-			}
-
 			SHotkeyInfo hotkey(keycode, modifiers);
 			std::scoped_lock _(m_actionsMutex);
 			auto it = m_actions.find(hotkey);
