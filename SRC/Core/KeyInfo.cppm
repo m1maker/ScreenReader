@@ -182,7 +182,7 @@ export struct SHotkeyInfo final {
 	static constexpr auto GetAny() -> SHotkeyInfo { return SHotkeyInfo{KEYCODE_ANY}; }
 
 	[[nodiscard]] constexpr auto Pack() const noexcept -> uint32_t {
-		return (static_cast<uint32_t>(keycode) << 8) | modifiers.to_ulong();
+		return (static_cast<uint32_t>(keycode) + modifiers.to_ulong());
 	}
 
 	constexpr auto operator==(const SHotkeyInfo& info) const -> bool { return Pack() == info.Pack(); }
