@@ -24,7 +24,9 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 	unsigned char modifiers;
 
 	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
-		if (m_keysDown[i].load() > 0) {
+		auto keycode = static_cast<EKeycode>(i);
+		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER)) continue;
+		else if (m_keysDown[keycode].load() > 0) {
 			auto modifier = GetModifierFromKeycode(static_cast<EKeycode>(i));
 			if (modifier != MODIFIER_NONE) modifiers |= modifier;
 		}
