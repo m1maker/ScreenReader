@@ -12,7 +12,6 @@ import Core.Singleton;
 import Core.Timer;
 
 using KeycodeArray = std::array<std::atomic<unsigned char>, KEYCODE_COUNT>;
-using KeyModifierMask = std::atomic<unsigned char>;
 
 export using KeysDownArray = std::array<bool, KEYCODE_COUNT>;
 
@@ -27,7 +26,6 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 	mutable std::mutex m_actionsMutex;
 
 	KeycodeArray m_keysDown;
-	KeyModifierMask m_modifiers{};
 
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.
@@ -35,7 +33,7 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 
 	Let's set a timer that, when user quickly press one of these modifiers, should let it pass to the OS.
 	*/
-	KeyModifierMask m_hookedModifiers{MODIFIER_INSERT | MODIFIER_CAPS_LOCK};
+	unsigned char m_hookedModifiers{MODIFIER_INSERT | MODIFIER_CAPS_LOCK};
 	mutable CTimer m_hookedModifiersTimer;
 	static constexpr uint64_t cHookedModifierPressTimeMs = 300;
 
@@ -48,7 +46,7 @@ public:
 	void Handle(CKeyboardEvent& event);
 
 	[[nodiscard]] auto GetKeysDown() const -> KeysDownArray;
-	[[nodiscard]] auto GetModifiers() const -> unsigned char { return m_modifiers; }
+	[[nodiscard]] auto GetModifiers() const -> unsigned char;
 
 	void ResetState();
 };

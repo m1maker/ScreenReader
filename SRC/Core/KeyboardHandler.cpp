@@ -1,6 +1,7 @@
 module;
 #include <mutex>
 module Core.KeyboardHandler;
+import Core.KeyMeta;
 
 auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
 	std::scoped_lock _(m_actionsMutex);
@@ -19,19 +20,37 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 	m_actions.erase(action);
 }
 
+[[nodiscard]] auto KeyboardHandler::GetModifiers() const -> unsigned char {
+	unsigned char modifiers;
+
+	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
+		if (m_keysDown[i].load() > 0) {
+			auto modifier = GetModifierFromKeycode(static_cast<EKeycode>(i));
+			if (modifier != MODIFIER_NONE) modifiers |= modifier;
+		}
+	}
+
+	return modifiers;
+}
+
 void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto type = event.type;
-	auto hotkey = event.hotkey;
+	auto keycode = event.keycode;
 	switch (type) {
 	case CKeyboardEvent::KEY_PRESSED:
-		m_keysDown[hotkey.keycode].store(1);
-		m_modifiers.store(hotkey.modifiers);
+		m_keysDown[keycode].store(1);
+		if (IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER)) {
+			// Stop now because actions can only be registered with keycodes.
+			return;
+		}
 		{
-			if (hotkey.modifiers & m_hookedModifiers) {
-				hotkey.modifiers &= ~m_hookedModifiers;
-				hotkey.modifiers |= MODIFIER_SCREEN_READER;
+			auto modifiers = GetModifiers();
+			if (modifiers & m_hookedModifiers) {
+				modifiers &= ~m_hookedModifiers;
+				modifiers |= MODIFIER_SCREEN_READER;
 			}
 
+			SHotkeyInfo hotkey(keycode, modifiers);
 			std::scoped_lock _(m_actionsMutex);
 			auto it = m_actions.find(hotkey);
 			if (it == m_actions.end()) {
@@ -41,13 +60,12 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 			}
 
 			if (it->second.executable) {
-				it->second.executable(event.hotkey);
+				it->second.executable(hotkey);
 			}
 		}
 		break;
 	case CKeyboardEvent::KEY_RELEASED:
-		m_keysDown[hotkey.keycode].store(false);
-		m_modifiers.store(hotkey.modifiers);
+		m_keysDown[keycode].store(0);
 		break;
 	default:
 		break;
@@ -68,19 +86,8 @@ void KeyboardHandler::ResetState() {
 	for (auto&& keycode : m_keysDown) {
 		keycode.store(0);
 	}
-	m_modifiers.store(0);
 }
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
-	if (hotkey.modifiers & m_hookedModifiers) {
-		auto modifier = GetModifierFromKeycode(hotkey.keycode);
-		if (modifier == MODIFIER_NONE)
-			return true;
-		else if (modifier & m_hookedModifiers && m_hookedModifiersTimer.Elapsed() < cHookedModifierPressTimeMs) {
-			m_hookedModifiersTimer.Restart();
-			return false;
-		}
-	}
-
 	return false;
 }

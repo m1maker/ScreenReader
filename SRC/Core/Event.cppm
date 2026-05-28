@@ -1,4 +1,4 @@
-// An interface for abstracting event types. Categories are implemented here.
+// A variant for abstracting event types. Categories are declared here.
 module;
 #include <memory>
 #include <memory_resource>
@@ -31,7 +31,7 @@ export class CKeyboardEvent final {
 public:
 	enum eKeyboardEventType : unsigned char { NONE = 0, KEY_PRESSED, KEY_RELEASED } type;
 
-	SHotkeyInfo hotkey;
+	EKeycode keycode;
 };
 
 namespace std {

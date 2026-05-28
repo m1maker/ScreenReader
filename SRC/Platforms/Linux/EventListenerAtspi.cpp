@@ -118,7 +118,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 			try {
 				CUinputDevice virtual_device(fd);
-				unsigned char modifiers{0};
 				virtual_device.ResetKeys();
 				while (!stop_token.stop_requested()) {
 					ssize_t n = read(fd, &ev, sizeof(ev));
@@ -128,24 +127,15 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 							std::this_thread::sleep_for(std::chrono::milliseconds(10));
 							continue;
 						}
-						modifiers = 0;
 						break;
 					}
 
 					if (n == sizeof(ev) && ev.type == EV_KEY) {
 
 						CKeyboardEvent keyboard_event;
-						keyboard_event.hotkey.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
+						keyboard_event.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
 
-						auto modifier = GetModifierFromKeycode(keyboard_event.hotkey.keycode);
-						if (ev.value == 1)
-							modifiers |= modifier;
-						else if (ev.value == 0)
-							modifiers &= ~modifier;
-						keyboard_event.hotkey.modifiers = modifiers;
-						if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.hotkey)) {
-							virtual_device.Post(ev.type, ev.code, ev.value);
-						}
+						virtual_device.Post(ev.type, ev.code, ev.value);
 						switch (ev.value) {
 						case 1:
 							keyboard_event.type = CKeyboardEvent::KEY_PRESSED;
