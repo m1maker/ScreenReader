@@ -168,6 +168,7 @@ export enum EModifier : unsigned char {
 	MODIFIER_SUPER,
 	MODIFIER_CAPS_LOCK,
 	MODIFIER_NUM_LOCK,
+	MODIFIER_SCROLL_LOCK,
 	MODIFIER_INSERT,
 	MODIFIER_SCREEN_READER,
 	MODIFIER_COUNT
@@ -209,29 +210,4 @@ export [[nodiscard]] constexpr auto operator+(EModifier mod, EKeycode key) -> SH
 
 export [[nodiscard]] constexpr auto operator+(ModifierMask mods, EKeycode key) -> SHotkeyInfo {
 	return SHotkeyInfo{.keycode = key, .modifiers = mods};
-}
-
-export [[nodiscard]] constexpr auto GetModifierFromKeycode(EKeycode keycode) -> EModifier {
-	switch (keycode) {
-	case KEYCODE_LEFT_SHIFT:
-	case KEYCODE_RIGHT_SHIFT:
-		return MODIFIER_SHIFT;
-	case KEYCODE_LEFT_CTRL:
-	case KEYCODE_RIGHT_CTRL:
-		return MODIFIER_CTRL;
-	case KEYCODE_LEFT_ALT:
-	case KEYCODE_RIGHT_ALT:
-		return MODIFIER_ALT;
-	case KEYCODE_LEFT_SUPER:
-	case KEYCODE_RIGHT_SUPER:
-		return MODIFIER_SUPER;
-	case KEYCODE_CAPS_LOCK:
-		return MODIFIER_CAPS_LOCK;
-	case KEYCODE_NUM_LOCK:
-		return MODIFIER_NUM_LOCK;
-	case KEYCODE_INSERT:
-		return MODIFIER_INSERT;
-	default:
-		return MODIFIER_NONE;
-	}
 }

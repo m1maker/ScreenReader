@@ -28,8 +28,9 @@ export enum class EKeyGroup : unsigned char {
 using KeyGroupMask = std::bitset<std::to_underlying(EKeyGroup::COUNT)>;
 
 struct SKeyMeta final {
-	std::string_view name;
+	std::string_view name{}, modifier_name{};
 	KeyGroupMask group_flags;
+	EModifier modifier{EModifier::MODIFIER_NONE};
 };
 
 [[nodiscard]] static consteval auto InitializeMeta(EKeycode keycode) -> SKeyMeta {
@@ -386,9 +387,11 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_INSERT:
 		meta.name = "Insert";
+		meta.modifier_name = "Insert";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::EDITING));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
+		meta.modifier = EModifier::MODIFIER_INSERT;
 		break;
 	case EKeycode::KEYCODE_DELETE:
 		meta.name = "Delete";
@@ -411,8 +414,10 @@ struct SKeyMeta final {
 		break;
 	case EKeycode::KEYCODE_CAPS_LOCK:
 		meta.name = "CapsLock";
+		meta.modifier_name = "CapsLock";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
+		meta.modifier = EModifier::MODIFIER_CAPS_LOCK;
 		break;
 	case EKeycode::KEYCODE_SPACE:
 		meta.name = "Space";
@@ -429,35 +434,51 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_LEFT_SHIFT:
 		meta.name = "LeftShift";
+		meta.modifier_name = "Shift";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_SHIFT;
 		break;
 	case EKeycode::KEYCODE_RIGHT_SHIFT:
 		meta.name = "RightShift";
+		meta.modifier_name = "Shift";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_SHIFT;
 		break;
 	case EKeycode::KEYCODE_LEFT_CTRL:
 		meta.name = "LeftCtrl";
+		meta.modifier_name = "Ctrl";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_CTRL;
 		break;
 	case EKeycode::KEYCODE_RIGHT_CTRL:
 		meta.name = "RightCtrl";
+		meta.modifier_name = "Ctrl";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_CTRL;
 		break;
 	case EKeycode::KEYCODE_LEFT_ALT:
 		meta.name = "LeftAlt";
+		meta.modifier_name = "Alt";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_ALT;
 		break;
 	case EKeycode::KEYCODE_RIGHT_ALT:
 		meta.name = "RightAlt";
+		meta.modifier_name = "Alt";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_ALT;
 		break;
 	case EKeycode::KEYCODE_LEFT_SUPER:
 		meta.name = "LeftSuper";
+		meta.modifier_name = "Super";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_SUPER;
 		break;
 	case EKeycode::KEYCODE_RIGHT_SUPER:
 		meta.name = "RightSuper";
+		meta.modifier_name = "Super";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.modifier = EModifier::MODIFIER_SUPER;
 		break;
 	case EKeycode::KEYCODE_MENU:
 		meta.name = "Menu";
@@ -467,10 +488,14 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_NUMPAD_0:
 		meta.name = "Numpad0";
+		meta.modifier_name = "Insert";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::NUMPAD));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::TYPABLE));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::CHARACTER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::DIGIT));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
+		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
+		meta.modifier = MODIFIER_INSERT;
 		break;
 	case EKeycode::KEYCODE_NUMPAD_1:
 		meta.name = "Numpad1";
@@ -582,13 +607,17 @@ struct SKeyMeta final {
 
 	case EKeycode::KEYCODE_SCROLL_LOCK:
 		meta.name = "ScrollLock";
+		meta.modifier_name = "ScrollLock";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
+		meta.modifier = EModifier::MODIFIER_SCROLL_LOCK;
 		break;
 	case EKeycode::KEYCODE_NUM_LOCK:
 		meta.name = "NumLock";
+		meta.modifier_name = "NumLock";
 		meta.group_flags.set(std::to_underlying(EKeyGroup::MODIFIER));
 		meta.group_flags.set(std::to_underlying(EKeyGroup::LOCKABLE));
+		meta.modifier = EModifier::MODIFIER_NUM_LOCK;
 		break;
 	case EKeycode::KEYCODE_PAUSE:
 		meta.name = "Pause";
@@ -776,10 +805,26 @@ export [[nodiscard]] constexpr auto GetKeycodeName(EKeycode keycode) -> std::str
 	return cKeyMetadata[index].name;
 }
 
+export [[nodiscard]] constexpr auto GetModifierName(EKeycode keycode) -> std::string_view {
+	auto index = static_cast<size_t>(keycode);
+	if (index < 0 || index > cKeyMetadata.size()) [[unlikely]]
+		return "unknown";
+
+	return cKeyMetadata[index].modifier_name;
+}
+
 export [[nodiscard]] constexpr auto IsKeycodeInGroup(EKeycode keycode, EKeyGroup group) -> bool {
 	auto index = static_cast<size_t>(keycode);
 	if (index < 0 || index > cKeyMetadata.size()) [[unlikely]]
 		return false;
 
 	return cKeyMetadata[index].group_flags.test(std::to_underlying(group));
+}
+
+export [[nodiscard]] constexpr auto GetModifierFromKeycode(EKeycode keycode) -> EModifier {
+	auto index = static_cast<size_t>(keycode);
+	if (index < 0 || index > cKeyMetadata.size()) [[unlikely]]
+		return EModifier::MODIFIER_NONE;
+
+	return cKeyMetadata[index].modifier;
 }
