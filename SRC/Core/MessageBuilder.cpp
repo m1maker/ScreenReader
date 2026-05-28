@@ -97,10 +97,11 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 	}
 
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
-	bool vertical_keys_down = keyboard_handler.IsKeyDown(KEYCODE_UP) || keyboard_handler.IsKeyDown(KEYCODE_DOWN) ||
-		keyboard_handler.IsKeyDown(KEYCODE_PAGE_UP) || keyboard_handler.IsKeyDown(KEYCODE_PAGE_DOWN);
-	bool horizontal_keys_down = keyboard_handler.IsKeyDown(KEYCODE_RIGHT) || keyboard_handler.IsKeyDown(KEYCODE_LEFT) ||
-		keyboard_handler.IsKeyDown(KEYCODE_HOME) || keyboard_handler.IsKeyDown(KEYCODE_END);
+	auto keys_down = keyboard_handler.GetKeysDown();
+	bool vertical_keys_down =
+		keys_down[KEYCODE_UP] || keys_down[KEYCODE_DOWN] || keys_down[KEYCODE_PAGE_UP] || keys_down[KEYCODE_PAGE_DOWN];
+	bool horizontal_keys_down =
+		keys_down[KEYCODE_RIGHT] || keys_down[KEYCODE_LEFT] || keys_down[KEYCODE_HOME] || keys_down[KEYCODE_END];
 	bool control_down = keyboard_handler.GetModifiers() & MODIFIER_CTRL;
 
 	if (vertical_keys_down)

@@ -54,8 +54,14 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	}
 }
 
-[[nodiscard]] auto KeyboardHandler::IsKeyDown(EKeycode keycode) const -> bool {
-	return m_keysDown[keycode].load();
+[[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeysDownArray {
+	KeysDownArray array;
+
+	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
+		array[i] = m_keysDown[i].load();
+	}
+
+	return array;
 }
 
 void KeyboardHandler::ResetState() {

@@ -14,6 +14,8 @@ import Core.Timer;
 using KeycodeArray = std::array<std::atomic<unsigned char>, KEYCODE_COUNT>;
 using KeyModifierMask = std::atomic<unsigned char>;
 
+export using KeysDownArray = std::array<bool, KEYCODE_COUNT>;
+
 export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSingleton<KeyboardHandler> {
 	struct SActionInfo final {
 		uint32_t id{0};
@@ -45,7 +47,7 @@ public:
 
 	void Handle(CKeyboardEvent& event);
 
-	[[nodiscard]] auto IsKeyDown(EKeycode keycode) const -> bool;
+	[[nodiscard]] auto GetKeysDown() const -> KeysDownArray;
 	[[nodiscard]] auto GetModifiers() const -> unsigned char { return m_modifiers; }
 
 	void ResetState();
