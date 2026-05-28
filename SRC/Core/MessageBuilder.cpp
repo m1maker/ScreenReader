@@ -7,6 +7,7 @@ import Core.Config;
 import Core.Event;
 import Core.KeyboardHandler;
 import Core.KeyInfo;
+import Core.KeyMeta;
 import Core.Object;
 import Core.ObjectMeta;
 import Core.Text;
@@ -104,14 +105,31 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 		keys_down[KEYCODE_RIGHT] || keys_down[KEYCODE_LEFT] || keys_down[KEYCODE_HOME] || keys_down[KEYCODE_END];
 	bool control_down = keyboard_handler.GetModifiers() & MODIFIER_CTRL;
 
+	bool typable_keys_down{false};
+	bool editing_keys_down{false};
+	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
+		if (keys_down[i]) {
+			if (IsKeycodeInGroup(static_cast<EKeycode>(i), EKeyGroup::TYPABLE)) {
+				typable_keys_down = true;
+				break;
+			}
+			else if (IsKeycodeInGroup(static_cast<EKeycode>(i), EKeyGroup::EDITING)) {
+				editing_keys_down = true;
+				break;
+			}
+		}
+	}
+
 	if (vertical_keys_down)
 		granularity = ETextGranularity::LINE;
 	else if (horizontal_keys_down) {
 		granularity = control_down ? ETextGranularity::WORD : ETextGranularity::CHARACTER;
 	}
-	else if (auto range = provider.GetText((*current_cursor) - 1, ETextGranularity::CHARACTER)) {
-		message.Append("{}", range->text);
-		return;
+	else if (typable_keys_down) {
+		if (auto range = provider.GetText((*current_cursor) - 1, ETextGranularity::CHARACTER)) {
+			message.Append("{}", range->text);
+			return;
+		}
 	}
 
 	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
