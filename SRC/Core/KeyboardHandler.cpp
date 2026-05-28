@@ -76,14 +76,14 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	}
 }
 
-[[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeysDownArray {
-	KeysDownArray array;
+[[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeycodeMask {
+	KeycodeMask mask;
 
 	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
-		array[i] = m_keysDown[i].load();
+		mask[i] = m_keysDown[i].load();
 	}
 
-	return array;
+	return mask;
 }
 
 void KeyboardHandler::ResetState() {
