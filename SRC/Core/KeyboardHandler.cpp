@@ -29,7 +29,7 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
 			continue;
 		else if (m_keysDown[keycode].load() > 0) {
-			auto modifier = GetModifierFromKeycode(static_cast<EKeycode>(i));
+			auto modifier = GetModifierFromKeycode(keycode);
 			if (modifier != MODIFIER_NONE)
 				mask[std::to_underlying(modifier)] = true;
 		}
@@ -44,15 +44,13 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	switch (type) {
 	case CKeyboardEvent::KEY_PRESSED:
 		m_keysDown[keycode].store(1);
-		if (IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER)) {
-			// Stop now because actions can only be registered with keycodes.
-			return;
-		}
 		{
 			auto modifiers = GetModifiers();
 			for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
 				if (modifiers[i] && m_hookedModifiers[i]) {
 					modifiers[i] = false;
+					modifiers[std::to_underlying(MODIFIER_SCREEN_READER)] = true;
+					break;
 				}
 			}
 			SHotkeyInfo hotkey(keycode, modifiers);
