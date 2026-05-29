@@ -134,8 +134,10 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 
 						CKeyboardEvent keyboard_event;
 						keyboard_event.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
+						if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.keycode)) {
+							virtual_device.Post(ev.type, ev.code, ev.value);
+						}
 
-						virtual_device.Post(ev.type, ev.code, ev.value);
 						switch (ev.value) {
 						case 1:
 							keyboard_event.type = CKeyboardEvent::KEY_PRESSED;

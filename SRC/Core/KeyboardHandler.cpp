@@ -91,6 +91,18 @@ void KeyboardHandler::ResetState() {
 	}
 }
 
-[[nodiscard]] auto KeyboardHandler::IsHooked(SHotkeyInfo hotkey) const -> bool {
+[[nodiscard]] auto KeyboardHandler::IsHooked(EKeycode keycode) const -> bool {
+	auto modifier = GetModifierFromKeycode(keycode);
+	if (modifier != MODIFIER_NONE && m_hookedModifiers[std::to_underlying(modifier)]) {
+		return true;
+	}
+
+	auto modifiers = GetModifiers();
+	for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
+		if (modifiers[i] && m_hookedModifiers[i]) {
+			return true;
+		}
+	}
+
 	return false;
 }

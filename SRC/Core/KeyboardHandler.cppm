@@ -40,7 +40,7 @@ public:
 	[[nodiscard]] auto RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook = false) -> bool;
 	void UnregisterAction(SHotkeyInfo action);
 
-	[[nodiscard]] auto IsHooked(SHotkeyInfo hotkey) const -> bool;
+	[[nodiscard]] auto IsHooked(EKeycode keycode) const -> bool;
 
 	void Handle(CKeyboardEvent& event);
 
