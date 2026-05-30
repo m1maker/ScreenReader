@@ -28,8 +28,30 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
+	std::string_view label_before{};
+	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
+	auto is_container = IsObjectInGroup(type, EObjectGroup::CONTAINER) || IsObjectInGroup(type, EObjectGroup::PARENT);
+	auto should_search_for_label =
+		is_container || (IsObjectInGroup(type, EObjectGroup::INPUT) || IsObjectInGroup(type, EObjectGroup::VALUE));
+	if (should_search_for_label) {
+		auto parent = obj.GetParent();
+		auto index = obj.GetIndex();
+		if (parent && index && *index > 0) {
+			auto previous_index = (*index) - 1;
+			auto previous_object = parent->GetChildAt(previous_index);
+			if (previous_object) {
+				auto previous_object_type = previous_object->GetType();
+				if (previous_object_type && *previous_object_type == EObjectType::LABEL) {
+					label_before = previous_object->GetName().value_or({});
+					if (!label_before.empty())
+						message.Append("{}", label_before);
+				}
+			}
+		}
+	}
+
 	if (auto name = obj.GetName()) {
-		if (!name->empty()) {
+		if (!name->empty() && *name != label_before) {
 			message.Append("{}", *name);
 			return;
 		}
@@ -43,9 +65,7 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		}
 	}
 
-	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-
-	if (IsObjectInGroup(type, EObjectGroup::CONTAINER) || IsObjectInGroup(type, EObjectGroup::PARENT))
+	if (is_container)
 		return;
 
 	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
