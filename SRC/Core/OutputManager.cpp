@@ -1,7 +1,7 @@
 module;
 #include <algorithm>
 #include <cstdint>
-#include <string>
+#include <string_view>
 module Core.OutputManager;
 import Core.FocusManager;
 import Proxies.Output;
@@ -31,7 +31,7 @@ auto OutputManager::WhereAmI() -> bool {
 		return false;
 	}
 
-	std::string last_name{};
+	std::string_view last_name{};
 	m_isWhereAmIOperation = true;
 	for (size_t i = diff_index; i < chain.size(); ++i) {
 		const auto current_object = chain[i];
