@@ -26,7 +26,7 @@ export class FocusManager final : TModule<"FocusManager">, public TSingleton<Foc
 
 		auto current = m_objectInFocus.GetParent();
 		while (current && current->IsValid()) {
-			m_contextChain.push_back(*current);
+			m_contextChain.insert(m_contextChain.begin(), *current);
 
 			auto type = current->GetType().value_or(EObjectType::UNKNOWN);
 			if (IsObjectInGroup(type, EObjectGroup::PARENT)) {
