@@ -30,7 +30,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 
 	std::string_view label_before{};
 	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-	auto is_container = IsObjectInGroup(type, EObjectGroup::CONTAINER) || IsObjectInGroup(type, EObjectGroup::PARENT);
+	auto is_container = IsObjectInGroup(type, EObjectGroup::CONTAINER);
+	auto is_feedback = IsObjectInGroup(type, EObjectGroup::FEEDBACK);
 	auto should_search_for_label =
 		is_container || (IsObjectInGroup(type, EObjectGroup::INPUT) || IsObjectInGroup(type, EObjectGroup::VALUE));
 	if (should_search_for_label) {
@@ -53,7 +54,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	if (auto name = obj.GetName()) {
 		if (!name->empty() && *name != label_before) {
 			message.Append("{}", *name);
-			return;
+			if (is_container && !is_feedback)
+				return;
 		}
 	}
 
