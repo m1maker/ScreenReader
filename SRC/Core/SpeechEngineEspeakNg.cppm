@@ -47,6 +47,8 @@ export class CSpeechEngineEspeakNg final {
 	static std::atomic<bool> s_stopping;
 	bool m_initialized{false};
 
+	unsigned int m_flags{espeakCHARS_UTF8};
+
 	static int SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events);
 
 public:
@@ -73,15 +75,29 @@ auto CSpeechEngineEspeakNg::SetParameter(ESpeechEngineParameter parameter, T val
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
 	auto espeak_parameter = GetEspeakParameterFromSpeechEngineParameter(parameter);
-	if (espeak_parameter == espeakSILENCE)
-		return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
+	if (espeak_parameter == espeakSILENCE) {
+		using enum ESpeechEngineParameter;
+		switch (parameter) {
+		case SSML:
+			if (value)
+				m_flags |= espeakSSML;
+			else
+				m_flags &= ~espeakSSML;
+			return SpeechEngineResult<>();
+		[[unlikely]] default:
+			return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
+		}
+	}
 
-	auto espeak_value = parameter == ESpeechEngineParameter::RATE
-		? MapRange(value, cSpeechEngineMinValue, cSpeechEngineMaxValue, 80, 450)
-		: value;
+	if constexpr (!std::is_same_v<decltype(value), bool>) {
+		auto espeak_value = parameter == ESpeechEngineParameter::RATE
+			? MapRange(value, cSpeechEngineMinValue, cSpeechEngineMaxValue, 80, 450)
+			: value;
 
-	auto _ = espeak_SetParameter(espeak_parameter, espeak_value, 0);
-	return SpeechEngineResult<>();
+		auto _ = espeak_SetParameter(espeak_parameter, espeak_value, 0);
+		return SpeechEngineResult<>();
+	}
+	return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
 }
 
 template <typename T>
@@ -91,9 +107,15 @@ template <typename T>
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
 	auto espeak_parameter = GetEspeakParameterFromSpeechEngineParameter(parameter);
-	if (espeak_parameter == espeakSILENCE)
-		return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
-
+	if (espeak_parameter == espeakSILENCE) {
+		using enum ESpeechEngineParameter;
+		switch (parameter) {
+		case SSML:
+			return m_flags & espeakSSML;
+		[[unlikely]] default:
+			return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
+		}
+	}
 	auto espeak_value = espeak_GetParameter(espeak_parameter, 1);
 	if (parameter == ESpeechEngineParameter::RATE) {
 		espeak_value = MapRange(espeak_value, 80, 450, cSpeechEngineMinValue, cSpeechEngineMaxValue);

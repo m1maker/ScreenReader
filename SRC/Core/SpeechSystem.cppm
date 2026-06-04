@@ -31,6 +31,7 @@ using SpeechMessageQueue = std::queue<SSpeechMessage>;
 
 export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
 	unsigned char m_rate, m_volume, m_pitch, m_pitchRange;
+	bool m_ssml{false};
 	std::pmr::memory_resource* m_pool{nullptr};
 	SpeechEngineVariant m_variant;
 	SpeechMessageQueue m_queue;
@@ -95,6 +96,6 @@ public:
 	void Start();
 	void Stop();
 
-	void Speak(std::string_view message, bool interrupt = false, bool ssml = false);
+	void Speak(std::string_view message, bool interrupt = false);
 	void Interrupt();
 };

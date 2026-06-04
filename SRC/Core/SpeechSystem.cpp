@@ -12,6 +12,7 @@ void SpeechSystem::ApplySpeechParameters(SpeechParameters parameters) {
 	m_volume = parameters.volume;
 	m_pitch = parameters.pitch;
 	m_pitchRange = parameters.pitch_range;
+	m_ssml = parameters.ssml;
 }
 
 void SpeechSystem::Start() {
@@ -32,6 +33,7 @@ void SpeechSystem::Start() {
 			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::VOLUME, message.volume);
 			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH, message.pitch);
 			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, message.pitch_range);
+			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::SSML, message.ssml);
 			if (!set_parameter_result) {
 				Log(WARNING,
 					"Failed to set one or more speech engine parameters. {}",
@@ -49,14 +51,14 @@ void SpeechSystem::Stop() {
 	m_cv.notify_all();
 }
 
-void SpeechSystem::Speak(std::string_view message, bool interrupt, bool ssml) {
+void SpeechSystem::Speak(std::string_view message, bool interrupt) {
 	if (message.empty()) [[unlikely]]
 		return;
 
 	ApplySpeechParameters(ScreenReaderApp::GetInstance().GetSettings().speech);
 
 	SSpeechMessage queued_message{.interrupt = interrupt,
-		.ssml = ssml,
+		.ssml = m_ssml,
 		.rate = m_rate,
 		.volume = m_volume,
 		.pitch = m_pitch,

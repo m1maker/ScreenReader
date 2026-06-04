@@ -57,8 +57,8 @@ auto CSpeechEngineEspeakNg::Speak(std::string_view message) -> SpeechEngineResul
 
 	s_stopping.store(false);
 	unsigned int message_id{0};
-	auto result = espeak_Synth(
-		message.data(), message.length() + 1, 0, POS_CHARACTER, 0, espeakCHARS_UTF8 | espeakSSML, &message_id, nullptr);
+	auto result =
+		espeak_Synth(message.data(), message.length() + 1, 0, POS_CHARACTER, 0, m_flags, &message_id, nullptr);
 	if (result == EE_OK)
 		return message_id;
 	return std::unexpected(ESpeechEngineError::FAIL);
