@@ -45,7 +45,7 @@ CSpeechEngineEspeakNg::~CSpeechEngineEspeakNg() {
 [[nodiscard]] auto CSpeechEngineEspeakNg::GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo> {
 	SSpeechEngineInfo info;
 	info.name = "espeak-ng";
-	info.output_mode = ESpeechEngineOutputMode::AUDIO_DEVICE;
+	info.output_mode = ESpeechEngineOutputMode::CALLBACK_FUNCTION;
 	using enum ESpeechEngineParameter;
 	SetBits(info.supported_parameters, VOLUME, RATE, PITCH, PITCH_RANGE, VOICE_INDEX, VOICE_COUNT, SSML);
 	return info;

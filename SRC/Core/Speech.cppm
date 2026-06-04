@@ -21,7 +21,7 @@ export enum class ESpeechEngineParameter : unsigned char {
 
 export using SpeechEngineParameters = std::bitset<std::to_underlying(ESpeechEngineParameter::COUNT)>;
 
-export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVICE, PCM_BUFFER };
+export enum class ESpeechEngineOutputMode : unsigned char { VOID = 0, AUDIO_DEVICE, PCM_BUFFER, CALLBACK_FUNCTION };
 
 export enum class ESpeechEngineSyncMode : unsigned char { SYNC = 0, ASYNC };
 
