@@ -2,13 +2,10 @@ module;
 #include <array>
 #include <atomic>
 #include <cctype>
-#include <condition_variable>
 #include <cstdint>
 #include <expected>
 #include <mutex>
 #include <queue>
-#include <stop_token>
-#include <thread>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -28,6 +25,7 @@ using AudioDataChunk = std::array<AudioSample, cAudioChunkSize>;
 struct SAudioChunk final {
 	unsigned char channel{0};
 	AudioDataChunk data;
+	size_t read_offset{0};
 };
 
 using AudioChunkArray = std::array<SAudioChunk, cAudioSystemMaxChannels>;
@@ -43,8 +41,6 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	AudioEngineVariant m_variant;
 	AudioDataQueue m_queue;
 	std::mutex m_mutex;
-	std::condition_variable m_cv;
-	std::jthread m_thread;
 	SAudioParameters m_parameters;
 
 	AudioChannelAtomicMask m_channelsShouldStop{};
@@ -77,23 +73,6 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 		});
 	}
 
-	[[nodiscard]] auto Write(const signed short int* buffer, unsigned long long frames) -> AudioEngineResult<> {
-		return WithEngine<>([buffer, frames](auto&& engine) { return engine.Write(buffer, frames); });
-	}
-
-	inline void Wait() {
-		WithEngine<>([](auto&& engine) {
-			engine.Wait();
-			return AudioEngineResult<>();
-		});
-	}
-	inline void Drop() {
-		WithEngine<>([](auto&& engine) {
-			engine.Drop();
-			return AudioEngineResult<>();
-		});
-	}
-
 public:
 	explicit AudioSystem() { m_variant.emplace<BuiltInAudioEngine>(); }
 
@@ -104,4 +83,6 @@ public:
 	void Stop(unsigned char channel);
 
 	void PushData(unsigned char channel, const AudioDataVector& data);
+
+	void Read(signed short int* buffer, unsigned long long int frames);
 };

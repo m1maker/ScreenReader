@@ -1,7 +1,9 @@
 module;
 #include <expected>
+#include <mutex>
 #include <portaudio.h>
 module Core.AudioEngine;
+import Core.AudioSystem;
 
 [[nodiscard]] static constexpr auto GetPaSampleFormatFromAudioFormat(EAudioFormat format) -> PaSampleFormat {
 	using enum EAudioFormat;
@@ -85,8 +87,8 @@ CAudioEnginePortAudio::~CAudioEnginePortAudio() {
 		GetPaSampleFormatFromAudioFormat(parameters.format),
 		parameters.sample_rate,
 		parameters.period_size,
-		nullptr,
-		nullptr);
+		&CAudioEnginePortAudio::PaCallback,
+		this);
 	if (result != paNoError) {
 		return std::unexpected(GetAudioEngineErrorFromPaError(result));
 	}
@@ -108,30 +110,22 @@ void CAudioEnginePortAudio::Uninitialize() {
 	Pa_Terminate();
 }
 
-[[nodiscard]] auto CAudioEnginePortAudio::Write(const signed short int* buffer, unsigned long long frames)
-	-> AudioEngineResult<> {
-	if (!m_handle)
-		return std::unexpected(EAudioEngineError::DEFUNCT);
-
-	else if (!buffer || frames <= 0) [[unlikely]] {
-		return std::unexpected(EAudioEngineError::INVALID_ARGUMENTS);
-	}
-
-	auto result = Pa_WriteStream(m_handle, buffer, frames);
-	if (result != paNoError) {
-		return std::unexpected(GetAudioEngineErrorFromPaError(result));
-	}
-	return AudioEngineResult<>();
+int CAudioEnginePortAudio::PaCallback([[maybe_unused]] const void* pInput,
+	void* pOutput,
+	unsigned long int frames_per_buffer,
+	[[maybe_unused]] const PaStreamCallbackTimeInfo* pTimeInfo,
+	[[maybe_unused]] PaStreamCallbackFlags status_flags,
+	void* pUserData) {
+	auto engine = static_cast<CAudioEnginePortAudio*>(pUserData);
+	if (!engine) [[unlikely]]
+		return paContinue;
+	return engine->AudioCallback(static_cast<signed short int*>(pOutput), frames_per_buffer);
 }
 
-void CAudioEnginePortAudio::Wait() {
-	if (!m_handle)
-		return;
-}
-
-void CAudioEnginePortAudio::Drop() {
-	if (!m_handle)
-		return;
-
-	Pa_AbortStream(m_handle);
+[[nodiscard]] auto CAudioEnginePortAudio::AudioCallback(signed short int* buffer, unsigned long long int frames)
+	-> int {
+	std::scoped_lock _(m_callbackMutex);
+	auto& audio_system = AudioSystem::GetInstance();
+	audio_system.Read(buffer, frames);
+	return paContinue;
 }

@@ -1,7 +1,7 @@
 module;
+#include <algorithm>
+#include <cstring>
 #include <mutex>
-#include <stop_token>
-#include <thread>
 module Core.AudioSystem;
 import Core.Audio;
 
@@ -15,31 +15,9 @@ void AudioSystem::Start() {
 
 	m_bytesPerSample = TAudioFormatSize</*m_parameters.format*/ EAudioFormat::S16>::value;
 	m_bytesPerFrame = m_parameters.channels * m_bytesPerSample;
-
-	m_thread = std::jthread([this](const std::stop_token& stop_token) -> void {
-		while (!stop_token.stop_requested()) {
-			std::unique_lock lock(m_mutex);
-			m_cv.wait(lock, [this, stop_token] -> bool { return !m_queue.empty() || stop_token.stop_requested(); });
-			if (stop_token.stop_requested())
-				break;
-
-			auto chunk = std::move(m_queue.front());
-			m_queue.pop();
-			lock.unlock();
-			if (m_channelsShouldStop[chunk.channel].load())
-				continue;
-			auto frames = chunk.data.size() / m_bytesPerFrame * 2;
-			auto result = Write(chunk.data.data(), frames);
-			if (!result) {
-				Log(ERROR, "Failed to write the audio data. {}", AudioEngineErrorToString(result.error()));
-			}
-		}
-	});
 }
 
 void AudioSystem::Stop(void) {
-	m_thread.request_stop();
-	m_cv.notify_all();
 	Uninitialize();
 }
 
@@ -72,8 +50,6 @@ void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
 
 	m_partialChunks[channel] = std::move(chunk);
 	m_partialChunkSamples[channel] = sample;
-
-	m_cv.notify_all();
 }
 
 void AudioSystem::Stop(unsigned char channel) {
@@ -89,4 +65,37 @@ void AudioSystem::Stop(unsigned char channel) {
 		m_queue.pop();
 	}
 	m_queue = std::move(new_queue);
+}
+
+void AudioSystem::Read(signed short int* buffer, unsigned long long frames) {
+	memset(buffer, 0, frames * m_parameters.channels * sizeof(signed short int));
+
+	std::scoped_lock _(m_mutex);
+
+	size_t frames_written{0};
+	size_t buffer_offset{0};
+
+	while (frames_written < frames && !m_queue.empty()) {
+		auto& chunk = m_queue.front();
+
+		auto remaining_in_chunk = cAudioChunkSize - chunk.read_offset;
+		auto frames_to_copy = std::min(static_cast<unsigned long long>(frames - frames_written),
+			static_cast<unsigned long long>(remaining_in_chunk));
+
+		for (auto frame = 0; frame < frames_to_copy; ++frame) {
+			auto chunk_frame = chunk.read_offset + frame;
+			for (auto channel = 0; channel < m_parameters.channels; ++channel) {
+				buffer[buffer_offset + frame * m_parameters.channels + channel] =
+					chunk.data[chunk_frame * m_parameters.channels + channel];
+			}
+		}
+
+		chunk.read_offset += frames_to_copy;
+		frames_written += frames_to_copy;
+		buffer_offset += frames_to_copy * m_parameters.channels;
+
+		if (chunk.read_offset >= cAudioChunkSize) {
+			m_queue.pop();
+		}
+	}
 }
