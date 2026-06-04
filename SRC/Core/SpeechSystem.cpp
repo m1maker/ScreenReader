@@ -64,6 +64,9 @@ void SpeechSystem::Speak(std::string_view message, bool interrupt) {
 		.pitch = m_pitch,
 		.pitch_range = m_pitchRange};
 	queued_message.message = std::pmr::string(message, m_pool);
+
+	m_shouldAbort.clear(std::memory_order_release);
+
 	{
 		std::scoped_lock _(m_mutex);
 		m_queue.push(std::move(queued_message));
@@ -72,8 +75,9 @@ void SpeechSystem::Speak(std::string_view message, bool interrupt) {
 }
 
 void SpeechSystem::Interrupt() {
+	m_shouldAbort.test_and_set(std::memory_order_acquire);
+	AudioSystem::GetInstance().Stop(0);
 	SSpeechMessage message{.interrupt = true};
 	std::scoped_lock _(m_mutex);
 	m_queue.push(std::move(message));
-	AudioSystem::GetInstance().Stop(0);
 }

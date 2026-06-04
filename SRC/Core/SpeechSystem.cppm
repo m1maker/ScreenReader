@@ -1,4 +1,5 @@
 module;
+#include <atomic>
 #include <cctype>
 #include <condition_variable>
 #include <cstdint>
@@ -38,6 +39,8 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	std::jthread m_thread;
+
+	std::atomic_flag m_shouldAbort{ATOMIC_FLAG_INIT}; // Speech engine with the callback function must request it.
 
 	void ApplySpeechParameters(SpeechParameters parameters);
 
@@ -98,4 +101,6 @@ public:
 
 	void Speak(std::string_view message, bool interrupt = false);
 	void Interrupt();
+
+	[[nodiscard]] auto ShouldAbort() const noexcept -> bool { return m_shouldAbort.test(std::memory_order_release); }
 };

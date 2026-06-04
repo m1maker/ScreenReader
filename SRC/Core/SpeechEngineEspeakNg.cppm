@@ -44,7 +44,7 @@ template <typename From, typename To>
 }
 
 export class CSpeechEngineEspeakNg final {
-	static std::atomic<bool> s_stopping;
+	static std::atomic_flag s_stopping;
 	bool m_initialized{false};
 
 	unsigned int m_flags{espeakCHARS_UTF8};
