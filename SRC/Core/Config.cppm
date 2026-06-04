@@ -1,21 +1,21 @@
 /*
-* This file is part of the Screen Reader project.
-*
-* Copyright (C) 2025-2026  Georgiy Bondarenko (M_maker / m1maker) <georgijbondarenko248@gmail.com>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * This file is part of the Screen Reader project.
+ *
+ * Copyright (C) 2025-2026  Georgiy Bondarenko (M_maker / m1maker) <georgijbondarenko248@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 module;
 
@@ -44,14 +44,13 @@ export struct SScreenReaderAppSettings final {
 	struct SSpeechParameters final {
 		unsigned char rate = cSpeechEngineNormalValue, volume = cSpeechEngineMaxValue, pitch = cSpeechEngineNormalValue,
 					  pitch_range = cSpeechEngineNormalValue;
-		bool ssml = true;
+		bool ssml = false;
 		struct SUtteranceParameters final {
-			std::string_view rate = CUtterance::cRateDefault, pitch = CUtterance::cPitchDefault,
-							 volume = CUtterance::cVolumeDefault, pause_before = "", pause_after = "";
-		} name, description = {.pause_before = "150ms"},
-				role = {.pitch = CUtterance::cPitchXlow, .pause_before = "5ms"},
-				state = {.rate = CUtterance::cRateXfast, .pitch = CUtterance::cPitchXlow, .pause_before = "15ms"},
-				text = {.pitch = CUtterance::cPitchXhigh, .pause_before = "60ms"};
+			std::string_view rate = "default", pitch = "default", volume = "default", pause_before = "",
+							 pause_after = "";
+		} name, description = {.pause_before = "150ms"}, role = {.pitch = "x-low", .pause_before = "5ms"},
+				state = {.rate = "x-fast", .pitch = "x-low", .pause_before = "15ms"},
+				text = {.pitch = "x-high", .pause_before = "60ms"};
 
 	} speech;
 };
