@@ -46,11 +46,13 @@ export struct SScreenReaderAppSettings final {
 					  pitch_range = cSpeechEngineNormalValue;
 		bool ssml = false;
 		struct SUtteranceParameters final {
-			std::string_view rate = "default", pitch = "default", volume = "default", pause_before = "",
-							 pause_after = "";
-		} name, description = {.pause_before = "150ms"}, role = {.pitch = "x-low", .pause_before = "5ms"},
-				state = {.rate = "x-fast", .pitch = "x-low", .pause_before = "15ms"},
-				text = {.pitch = "x-high", .pause_before = "60ms"};
+			unsigned char rate = +EUtteranceRateValue::DEFAULT, pitch = +EUtterancePitchValue::DEFAULT,
+						  volume = +EUtteranceVolumeValue::DEFAULT;
+			unsigned long long pause_before = 0, pause_after = 0;
+		} name,
+			description = {.pause_before = 150}, role = {.pitch = +EUtterancePitchValue::X_LOW, .pause_before = 5},
+			state = {.rate = +EUtteranceRateValue::X_FAST, .pitch = +EUtterancePitchValue::X_LOW, .pause_before = 15},
+			text = {.pitch = +EUtterancePitchValue::X_HIGH, .pause_before = 60};
 
 	} speech;
 };

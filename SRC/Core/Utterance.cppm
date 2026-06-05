@@ -44,12 +44,79 @@ export enum class EUtteranceVolumeValue : unsigned char {
 	X_LOUD
 };
 
-using ValueVariant =
-	std::variant<std::monostate, std::string, EUtterancePitchValue, EUtteranceRateValue, EUtteranceVolumeValue, size_t>;
+export [[nodiscard]] constexpr auto operator+(EUtterancePitchValue pitch) noexcept -> unsigned char {
+	using enum EUtterancePitchValue;
+	switch (pitch) {
+	case UNKNOWN:
+		return 0;
+	case X_LOW:
+		return 20;
+	case LOW:
+		return 35;
+	case MEDIUM:
+	case DEFAULT:
+		return 50;
+	case HIGH:
+		return 75;
+	case X_HIGH:
+		return 100;
+	}
+	return 50;
+}
+
+export [[nodiscard]] constexpr auto operator+(EUtteranceRateValue rate) noexcept -> unsigned char {
+	using enum EUtteranceRateValue;
+	switch (rate) {
+	case UNKNOWN:
+		return 0;
+	case X_SLOW:
+		return 20;
+	case SLOW:
+		return 35;
+	case MEDIUM:
+	case DEFAULT:
+		return 50;
+	case FAST:
+		return 75;
+	case X_FAST:
+		return 100;
+	}
+	return 50;
+}
+
+export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noexcept -> unsigned char {
+	using enum EUtteranceVolumeValue;
+	switch (volume) {
+	case UNKNOWN:
+	case SILENT:
+		return 0;
+	case X_SOFT:
+		return 20;
+	case SOFT:
+		return 35;
+	case MEDIUM:
+		return 50;
+	case LOUD:
+		return 75;
+	case X_LOUD:
+	case DEFAULT:
+		return 100;
+	}
+	return 100;
+}
+
+using ValueVariant = std::variant<std::monostate,
+	std::string,
+	EUtterancePitchValue,
+	EUtteranceRateValue,
+	EUtteranceVolumeValue,
+	unsigned char,
+	unsigned long long>;
 
 struct SUtteranceCommand final {
 	EUtteranceCommandType type{EUtteranceCommandType::UNKNOWN};
 	ValueVariant value;
+	bool relative{false};
 };
 
 export using UtteranceCommandQueue = std::queue<SUtteranceCommand>;
@@ -61,13 +128,13 @@ export class CUtterance final {
 public:
 	void Begin();
 	auto Text(std::string_view text) -> CUtterance&;
-	auto Break(std::string_view time = "500ms") -> CUtterance&;
+	auto Break(unsigned long long time) -> CUtterance&;
 
 	auto Mark(std::string_view name) -> CUtterance&;
 
-	auto Pitch(std::string_view pitch) -> CUtterance&;
-	auto Rate(std::string_view rate) -> CUtterance&;
-	auto Volume(std::string_view volume) -> CUtterance&;
+	auto Pitch(unsigned char pitch, bool relative = false) -> CUtterance&;
+	auto Rate(unsigned char rate, bool relative = false) -> CUtterance&;
+	auto Volume(unsigned char volume, bool relative = false) -> CUtterance&;
 
 	auto Voice(std::string_view voice) -> CUtterance&;
 

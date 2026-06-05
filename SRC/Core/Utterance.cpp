@@ -39,11 +39,8 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 	return *this;
 }
 
-auto CUtterance::Break(std::string_view time) -> CUtterance& {
-	if (time == "0ms" || time.empty())
-		return *this;
-
-	SUtteranceCommand command{.type = EUtteranceCommandType::BREAK, .value = std::string(time)};
+auto CUtterance::Break(unsigned long long time) -> CUtterance& {
+	SUtteranceCommand command{.type = EUtteranceCommandType::BREAK, .value = time};
 	m_commands.push(std::move(command));
 
 	return *this;
@@ -55,21 +52,21 @@ auto CUtterance::Mark(std::string_view name) -> CUtterance& {
 	return *this;
 }
 
-auto CUtterance::Pitch(std::string_view pitch) -> CUtterance& {
-	SUtteranceCommand command{.type = EUtteranceCommandType::PITCH, .value = std::string(pitch)};
+auto CUtterance::Pitch(unsigned char pitch, bool relative) -> CUtterance& {
+	SUtteranceCommand command{.type = EUtteranceCommandType::PITCH, .value = pitch, .relative = relative};
 	m_commands.push(std::move(command));
 	return *this;
 }
 
-auto CUtterance::Rate(std::string_view rate) -> CUtterance& {
-	SUtteranceCommand command{.type = EUtteranceCommandType::RATE, .value = std::string(rate)};
+auto CUtterance::Rate(unsigned char rate, bool relative) -> CUtterance& {
+	SUtteranceCommand command{.type = EUtteranceCommandType::RATE, .value = rate, .relative = relative};
 	m_commands.push(std::move(command));
 
 	return *this;
 }
 
-auto CUtterance::Volume(std::string_view volume) -> CUtterance& {
-	SUtteranceCommand command{.type = EUtteranceCommandType::VOLUME, .value = std::string(volume)};
+auto CUtterance::Volume(unsigned char volume, bool relative) -> CUtterance& {
+	SUtteranceCommand command{.type = EUtteranceCommandType::VOLUME, .value = volume, .relative = relative};
 	m_commands.push(std::move(command));
 	return *this;
 }
