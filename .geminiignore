@@ -1,0 +1,13 @@
+build/
+Docs/
+Install/
+Scripts/
+asan.supp
+.clang-format
+LICENSE
+out
+
+SRC/Core/Encoding.cppm
+SRC/Core/Environment*
+SRC/Core/UnicodeData.cppm
+SRC/Core/*Meta*
