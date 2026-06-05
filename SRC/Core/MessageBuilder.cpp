@@ -215,13 +215,15 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	auto type = obj.GetType();
-	if (!type)
-		return;
-
 	if (auto state = obj.GetState()) {
 		message.ApplyUtteranceParameters(m_speechParameters.state);
-		GetObjectStateNames(message.GetBuffer(), *type, *state);
+
+		for (unsigned char i = 1; i < std::to_underlying(EObjectState::COUNT); ++i) {
+			if (state->test(i)) {
+				message.Separate();
+				message.Append("{}", GetObjectStateName(static_cast<EObjectState>(i)));
+			}
+		}
 	}
 }
 

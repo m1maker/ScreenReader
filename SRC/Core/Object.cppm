@@ -309,7 +309,116 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 	}
 }
 
-export void GetObjectStateNames(std::pmr::string& out, EObjectType type, ObjectStates states, bool require_all = false);
+export [[nodiscard]] constexpr auto GetObjectStateName(EObjectState state) -> std::string_view {
+	using enum EObjectState;
+	switch (state) {
+	case NO:
+		return "no";
+	case ACTIVE:
+		return "active";
+	case BUSY:
+		return "busy";
+	case CHECKED:
+		return "checked";
+	case COLLAPSED:
+		return "collapsed";
+	case DEFAULT:
+		return "default";
+	case DEFUNCT:
+		return "defunct";
+	case DRAGGING:
+		return "dragging";
+	case ENABLED:
+		return "enabled";
+	case EXPANDED:
+		return "expanded";
+	case FOCUSED:
+		return "focused";
+	case HOVERED:
+		return "hovered";
+	case INDETERMINATE:
+		return "indeterminate";
+	case INVALID:
+		return "invalid";
+	case LINKED:
+		return "linked";
+	case LOADING:
+		return "loading";
+	case MODAL:
+		return "modal";
+	case OFFSCREEN:
+		return "offscreen";
+	case PRESSED:
+		return "pressed";
+	case READONLY:
+		return "readonly";
+	case REQUIRED:
+		return "required";
+	case SELECTED:
+		return "selected";
+	case VISITED:
+		return "visited";
+	case VISIBLE:
+		return "visible";
+	case ANIMATED:
+		return "animated";
+	case AUTO_FILL_AVAILABLE:
+		return "auto fill available";
+	case CHECKABLE:
+		return "checkable";
+	case CLICKABLE:
+		return "clickable";
+	case DRAGGABLE:
+		return "draggable";
+	case EDITABLE:
+		return "editable";
+	case EXPANDABLE:
+		return "expandable";
+	case FOCUSABLE:
+		return "focusable";
+	case HAS_POPUP:
+		return "has popup";
+	case HORIZONTAL:
+		return "horizontal";
+	case MAPPABLE:
+		return "mappable";
+	case MULTI_LINE:
+		return "multi line";
+	case MULTI_SELECTABLE:
+		return "multi selectable";
+	case MOVEABLE:
+		return "moveable";
+	case PINNED:
+		return "pinned";
+	case RESIZABLE:
+		return "resizable";
+	case SELECTABLE:
+		return "selectable";
+	case SECURE:
+		return "secure";
+	case SORTABLE:
+		return "sortable";
+	case TOUCH_OPTIMIZED:
+		return "touch optimized";
+	case VERTICAL:
+		return "vertical";
+	case CLIPPED:
+		return "clipped";
+	case HAS_TOOLTIP:
+		return "has tooltip";
+	case HIDDEN:
+		return "hidden";
+	case LIVE_REGION:
+		return "live region";
+	case PROTECTED:
+		return "protected";
+	case SENSITIVE:
+		return "sensitive";
+	case COUNT:
+		return "count";
+	}
+	return "no";
+}
 
 export template <class NativeHandle, typename ObjectData> class CObjectCache final {
 	std::pmr::unsynchronized_pool_resource m_pool;
