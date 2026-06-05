@@ -28,36 +28,9 @@ module;
 #include <variant>
 module Core.Utterance;
 
-void CUtterance::AddAndEscapeXml(std::string_view text) {
-	for (char c : text) {
-		switch (c) {
-		case '&':
-			m_ssmlContent += "&amp;";
-			break;
-		case '<':
-			m_ssmlContent += "&lt;";
-			break;
-		case '>':
-			m_ssmlContent += "&gt;";
-			break;
-		case '"':
-			m_ssmlContent += "&quot;";
-			break;
-		case '\'':
-			m_ssmlContent += "&apos;";
-			break;
-		default:
-			m_ssmlContent += c;
-			break;
-		}
-	}
-}
+CUtterance::CUtterance([[maybe_unused]] std::pmr::string& ssml) {};
 
-CUtterance::CUtterance(std::pmr::string& ssml)
-	: m_currentPitch("default"), m_currentRate("default"), m_currentVolume("default"), m_ssmlContent(ssml) {}
-
-void CUtterance::Begin() {
-}
+void CUtterance::Begin() {}
 
 auto CUtterance::Text(std::string_view text) -> CUtterance& {
 	if (text.empty()) [[unlikely]]
@@ -65,7 +38,7 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 
 	if (!m_commands.empty()) {
 		auto& last_command = m_commands.back();
-		if (last_command.type == ECommandType::TEXT) {
+		if (last_command.type == EUtteranceCommandType::TEXT) {
 			std::visit(
 				[text](auto&& value) {
 					using T = std::decay_t<decltype(value)>;
@@ -78,7 +51,7 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 		}
 	}
 
-	SCommand command{.type = ECommandType::TEXT, .value = std::string(text)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::TEXT, .value = std::string(text)};
 	m_commands.push_back(command);
 	return *this;
 }
@@ -87,48 +60,41 @@ auto CUtterance::Break(std::string_view time) -> CUtterance& {
 	if (time == "0ms" || time.empty())
 		return *this;
 
-	SCommand command{.type = ECommandType::BREAK, .value = std::string(time)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::BREAK, .value = std::string(time)};
 	m_commands.push_back(command);
 
 	return *this;
 }
 
 auto CUtterance::Mark(std::string_view name) -> CUtterance& {
-	SCommand command{.type = ECommandType::MARK, .value = std::string(name)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::MARK, .value = std::string(name)};
 	m_commands.push_back(command);
 	return *this;
 }
 
 auto CUtterance::Pitch(std::string_view pitch) -> CUtterance& {
-	SCommand command{.type = ECommandType::PITCH, .value = std::string(pitch)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::PITCH, .value = std::string(pitch)};
 	m_commands.push_back(command);
 	return *this;
 }
 
 auto CUtterance::Rate(std::string_view rate) -> CUtterance& {
-	SCommand command{.type = ECommandType::RATE, .value = std::string(rate)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::RATE, .value = std::string(rate)};
 	m_commands.push_back(command);
 
 	return *this;
 }
 
 auto CUtterance::Volume(std::string_view volume) -> CUtterance& {
-	SCommand command{.type = ECommandType::VOLUME, .value = std::string(volume)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::VOLUME, .value = std::string(volume)};
 	m_commands.push_back(command);
 	return *this;
 }
 
 auto CUtterance::Voice(std::string_view voice) -> CUtterance& {
-	SCommand command{.type = ECommandType::VOICE, .value = std::string(voice)};
+	SUtteranceCommand command{.type = EUtteranceCommandType::VOICE, .value = std::string(voice)};
 	m_commands.push_back(command);
 	return *this;
 }
 
-void CUtterance::End() {
-}
-
-void CUtterance::StartProsodyIfNeeded() {
-}
-
-void CUtterance::EndProsodyIfNeeded() {
-}
+void CUtterance::End() {}

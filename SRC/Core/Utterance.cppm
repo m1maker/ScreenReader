@@ -27,32 +27,33 @@ module;
 #include <vector>
 export module Core.Utterance;
 
-enum class ECommandType : unsigned char { UNKNOWN = 0, TEXT, BREAK, MARK, PITCH, RATE, VOLUME, VOICE };
+export enum class EUtteranceCommandType : unsigned char { UNKNOWN = 0, TEXT, BREAK, MARK, PITCH, RATE, VOLUME, VOICE };
 
-enum class EPitchValue : unsigned char { UNKNOWN = 0, DEFAULT, X_LOW, LOW, MEDIUM, HIGH, X_HIGH };
+export enum class EUtterancePitchValue : unsigned char { UNKNOWN = 0, DEFAULT, X_LOW, LOW, MEDIUM, HIGH, X_HIGH };
 
-enum class ERateValue : unsigned char { UNKNOWN = 0, DEFAULT, X_SLOW, SLOW, MEDIUM, FAST, X_FAST };
+export enum class EUtteranceRateValue : unsigned char { UNKNOWN = 0, DEFAULT, X_SLOW, SLOW, MEDIUM, FAST, X_FAST };
 
-enum class EVolumeValue : unsigned char { UNKNOWN = 0, DEFAULT, SILENT, X_SOFT, SOFT, MEDIUM, LOUD, X_LOUD };
+export enum class EUtteranceVolumeValue : unsigned char {
+	UNKNOWN = 0,
+	DEFAULT,
+	SILENT,
+	X_SOFT,
+	SOFT,
+	MEDIUM,
+	LOUD,
+	X_LOUD
+};
 
-using ValueVariant = std::variant<std::monostate, std::string, EPitchValue, ERateValue, EVolumeValue, size_t>;
+using ValueVariant =
+	std::variant<std::monostate, std::string, EUtterancePitchValue, EUtteranceRateValue, EUtteranceVolumeValue, size_t>;
 
-struct SCommand final {
-	ECommandType type{ECommandType::UNKNOWN};
+struct SUtteranceCommand final {
+	EUtteranceCommandType type{EUtteranceCommandType::UNKNOWN};
 	ValueVariant value;
 };
 
 export class CUtterance final {
-	std::pmr::string& m_ssmlContent;
-	std::vector<SCommand> m_commands;
-	std::string_view m_currentPitch;
-	std::string_view m_currentRate;
-	std::string_view m_currentVolume;
-	std::string_view m_currentVoice;
-	bool m_inProsody{false};
-
-	void StartProsodyIfNeeded();
-	void EndProsodyIfNeeded();
+	std::vector<SUtteranceCommand> m_commands;
 	void AddAndEscapeXml(std::string_view text);
 
 public:
