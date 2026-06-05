@@ -38,13 +38,13 @@ import Core.Logger;
 import Core.MessageBuilder;
 import Core.Singleton;
 import Core.Speech;
+import Core.Utterance;
 
 export using SpeechEngineVariant = std::variant<std::monostate, BuiltInSpeechEngine /*, CSpeechEngineRuntime*/>;
 
 struct SSpeechMessage final {
-	std::pmr::string message;
+	UtteranceCommandQueue command_queue;
 	bool interrupt{false}, ssml{false};
-	unsigned char rate, volume, pitch, pitch_range;
 };
 
 using SpeechMessageQueue = std::queue<SSpeechMessage>;
@@ -118,7 +118,14 @@ public:
 	void Start();
 	void Stop();
 
-	void Speak(std::string_view message, bool interrupt = false);
+	void Speak(UtteranceCommandQueue&& utterance_commands, bool interrupt = false);
+
+	inline void Speak(std::string_view text, bool interrupt = false) {
+		CUtterance utterance;
+		utterance.Text(text);
+		Speak(std::move(utterance.GetQueue()), interrupt);
+	}
+
 	void Interrupt();
 
 	[[nodiscard]] auto ShouldAbort() const noexcept -> bool { return m_shouldAbort.test(std::memory_order_release); }

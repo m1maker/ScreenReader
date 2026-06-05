@@ -28,31 +28,14 @@ module;
 #include <variant>
 module Core.Utterance;
 
-CUtterance::CUtterance([[maybe_unused]] std::pmr::string& ssml) {};
-
 void CUtterance::Begin() {}
 
 auto CUtterance::Text(std::string_view text) -> CUtterance& {
 	if (text.empty()) [[unlikely]]
 		return *this;
 
-	if (!m_commands.empty()) {
-		auto& last_command = m_commands.back();
-		if (last_command.type == EUtteranceCommandType::TEXT) {
-			std::visit(
-				[text](auto&& value) {
-					using T = std::decay_t<decltype(value)>;
-					if constexpr (std::is_same_v<T, std::string>) {
-						value.append(text);
-					}
-				},
-				last_command.value);
-			return *this;
-		}
-	}
-
 	SUtteranceCommand command{.type = EUtteranceCommandType::TEXT, .value = std::string(text)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 	return *this;
 }
 
@@ -61,39 +44,39 @@ auto CUtterance::Break(std::string_view time) -> CUtterance& {
 		return *this;
 
 	SUtteranceCommand command{.type = EUtteranceCommandType::BREAK, .value = std::string(time)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 
 	return *this;
 }
 
 auto CUtterance::Mark(std::string_view name) -> CUtterance& {
 	SUtteranceCommand command{.type = EUtteranceCommandType::MARK, .value = std::string(name)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 	return *this;
 }
 
 auto CUtterance::Pitch(std::string_view pitch) -> CUtterance& {
 	SUtteranceCommand command{.type = EUtteranceCommandType::PITCH, .value = std::string(pitch)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 	return *this;
 }
 
 auto CUtterance::Rate(std::string_view rate) -> CUtterance& {
 	SUtteranceCommand command{.type = EUtteranceCommandType::RATE, .value = std::string(rate)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 
 	return *this;
 }
 
 auto CUtterance::Volume(std::string_view volume) -> CUtterance& {
 	SUtteranceCommand command{.type = EUtteranceCommandType::VOLUME, .value = std::string(volume)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 	return *this;
 }
 
 auto CUtterance::Voice(std::string_view voice) -> CUtterance& {
 	SUtteranceCommand command{.type = EUtteranceCommandType::VOICE, .value = std::string(voice)};
-	m_commands.push_back(command);
+	m_commands.push(std::move(command));
 	return *this;
 }
 

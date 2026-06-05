@@ -21,10 +21,10 @@ module;
 #include <map>
 #include <memory>
 #include <memory_resource>
+#include <queue>
 #include <string>
 #include <string_view>
 #include <variant>
-#include <vector>
 export module Core.Utterance;
 
 export enum class EUtteranceCommandType : unsigned char { UNKNOWN = 0, TEXT, BREAK, MARK, PITCH, RATE, VOLUME, VOICE };
@@ -52,13 +52,13 @@ struct SUtteranceCommand final {
 	ValueVariant value;
 };
 
+export using UtteranceCommandQueue = std::queue<SUtteranceCommand>;
+
 export class CUtterance final {
-	std::vector<SUtteranceCommand> m_commands;
+	UtteranceCommandQueue m_commands;
 	void AddAndEscapeXml(std::string_view text);
 
 public:
-	explicit CUtterance(std::pmr::string& ssml);
-
 	void Begin();
 	auto Text(std::string_view text) -> CUtterance&;
 	auto Break(std::string_view time = "500ms") -> CUtterance&;
@@ -72,4 +72,6 @@ public:
 	auto Voice(std::string_view voice) -> CUtterance&;
 
 	void End();
+
+	[[nodiscard]] auto GetQueue() const noexcept -> UtteranceCommandQueue { return std::move(m_commands); }
 };

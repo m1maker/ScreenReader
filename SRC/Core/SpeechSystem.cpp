@@ -21,6 +21,7 @@ module;
 #include <mutex>
 #include <stop_token>
 #include <thread>
+#include <variant>
 module Core.SpeechSystem;
 import Core.App;
 import Core.AudioSystem;
@@ -48,18 +49,28 @@ void SpeechSystem::Start() {
 			if (message.interrupt)
 				EngineStop();
 
-			auto set_parameter_result = EngineSetParameter(ESpeechEngineParameter::RATE, message.rate);
-			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::VOLUME, message.volume);
-			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH, message.pitch);
-			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, message.pitch_range);
-			set_parameter_result = EngineSetParameter(ESpeechEngineParameter::SSML, message.ssml);
-			if (!set_parameter_result) {
-				Log(WARNING,
-					"Failed to set one or more speech engine parameters. {}",
-					SpeechEngineErrorToString(set_parameter_result.error()));
-			}
-			auto result = EngineSpeak(message.message);
-			if (!result) {
+			while (!message.command_queue.empty()) {
+				auto command = std::move(message.command_queue.front());
+				message.command_queue.pop();
+				using enum EUtteranceCommandType;
+				switch (command.type) {
+				case TEXT: {
+					auto text = std::visit(
+						[](auto&& value) -> std::string {
+							using T = std::decay_t<decltype(value)>;
+							if constexpr (std::is_same_v<T, std::string>)
+								return std::move(value);
+							return "";
+						},
+						std::move(command.value));
+					auto result = EngineSpeak(text);
+					if (!result) {
+					}
+					break;
+				}
+				default:
+					break;
+				}
 			}
 		}
 	});
@@ -70,19 +81,14 @@ void SpeechSystem::Stop() {
 	m_cv.notify_all();
 }
 
-void SpeechSystem::Speak(std::string_view message, bool interrupt) {
-	if (message.empty()) [[unlikely]]
-		return;
-
+void SpeechSystem::Speak(UtteranceCommandQueue&& utterance_commands, bool interrupt) {
 	ApplySpeechParameters(ScreenReaderApp::GetInstance().GetSettings().speech);
 
-	SSpeechMessage queued_message{.interrupt = interrupt,
+	SSpeechMessage queued_message{
+		.command_queue = std::move(utterance_commands),
+		.interrupt = interrupt,
 		.ssml = m_ssml,
-		.rate = m_rate,
-		.volume = m_volume,
-		.pitch = m_pitch,
-		.pitch_range = m_pitchRange};
-	queued_message.message = std::pmr::string(message, m_pool);
+	};
 
 	m_shouldAbort.clear(std::memory_order_release);
 
