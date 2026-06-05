@@ -85,6 +85,8 @@ void SpeechSystem::Start() {
 						},
 						std::move(command.value));
 
+					if (pitch == 0)
+						continue;
 					unsigned char current_value{0};
 					auto result = EngineGetParameter(ESpeechEngineParameter::PITCH, current_value);
 					unsigned char absolute_value{+EUtterancePitchValue::DEFAULT};
@@ -111,6 +113,8 @@ void SpeechSystem::Start() {
 							return +EUtteranceRateValue::DEFAULT;
 						},
 						std::move(command.value));
+					if (rate == 0)
+						continue;
 
 					unsigned char current_value{0};
 					auto result = EngineGetParameter(ESpeechEngineParameter::RATE, current_value);

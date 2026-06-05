@@ -48,40 +48,40 @@ export [[nodiscard]] constexpr auto operator+(EUtterancePitchValue pitch) noexce
 	using enum EUtterancePitchValue;
 	switch (pitch) {
 	case UNKNOWN:
+	case DEFAULT:
 		return 0;
 	case X_LOW:
 		return 20;
 	case LOW:
 		return 35;
 	case MEDIUM:
-	case DEFAULT:
 		return 50;
 	case HIGH:
 		return 75;
 	case X_HIGH:
 		return 100;
 	}
-	return 50;
+	return 0;
 }
 
 export [[nodiscard]] constexpr auto operator+(EUtteranceRateValue rate) noexcept -> unsigned char {
 	using enum EUtteranceRateValue;
 	switch (rate) {
 	case UNKNOWN:
+	case DEFAULT:
 		return 0;
 	case X_SLOW:
 		return 20;
 	case SLOW:
 		return 35;
 	case MEDIUM:
-	case DEFAULT:
 		return 50;
 	case FAST:
 		return 75;
 	case X_FAST:
 		return 100;
 	}
-	return 50;
+	return 0;
 }
 
 export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noexcept -> unsigned char {
@@ -89,6 +89,7 @@ export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noex
 	switch (volume) {
 	case UNKNOWN:
 	case SILENT:
+	case DEFAULT:
 		return 0;
 	case X_SOFT:
 		return 20;
@@ -99,10 +100,9 @@ export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noex
 	case LOUD:
 		return 75;
 	case X_LOUD:
-	case DEFAULT:
 		return 100;
 	}
-	return 100;
+	return 0;
 }
 
 using ValueVariant = std::variant<std::monostate,
