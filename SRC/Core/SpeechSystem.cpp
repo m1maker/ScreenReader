@@ -94,6 +94,32 @@ void SpeechSystem::Start() {
 					break;
 				}
 
+				case RATE: {
+					auto rate = std::visit(
+						[](auto&& value) -> unsigned char {
+							using T = std::decay_t<decltype(value)>;
+							if constexpr (std::is_same_v<T, unsigned char>)
+								return std::move(value);
+							return +EUtteranceRateValue::DEFAULT;
+						},
+						std::move(command.value));
+
+					unsigned char current_value{0};
+					auto result = EngineGetParameter(ESpeechEngineParameter::RATE, current_value);
+					unsigned char absolute_value{+EUtteranceRateValue::DEFAULT};
+					if (result) {
+						absolute_value =
+							std::clamp(static_cast<unsigned char>(command.relative ? (current_value + rate) : (rate)),
+								cSpeechEngineMinValue,
+								cSpeechEngineMaxValue);
+					}
+
+					result = EngineSetParameter(ESpeechEngineParameter::RATE, absolute_value);
+					if (!result) {
+					}
+					break;
+				}
+
 				default:
 					break;
 				}
