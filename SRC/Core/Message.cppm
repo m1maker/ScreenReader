@@ -41,9 +41,9 @@ public:
 	void Separate() { Append(" "); }
 	inline void ApplyUtteranceParameters(UtteranceParameters parameters) {
 		m_utterance.Break(parameters.pause_before)
-			.Rate(parameters.rate)
-			.Pitch(parameters.pitch)
-			.Volume(parameters.volume);
+			.Rate(parameters.rate, true)
+			.Pitch(parameters.pitch, true)
+			.Volume(parameters.volume, true);
 	}
 
 	[[nodiscard]] auto GetBuffer() -> std::pmr::string& { return m_content; }

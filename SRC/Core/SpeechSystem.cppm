@@ -50,7 +50,7 @@ struct SSpeechMessage final {
 using SpeechMessageQueue = std::queue<SSpeechMessage>;
 
 export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<SpeechSystem> {
-	unsigned char m_rate, m_volume, m_pitch, m_pitchRange;
+	std::atomic<unsigned char> m_rate{0}, m_volume{0}, m_pitch{0}, m_pitchRange{0};
 	bool m_ssml{false};
 	std::pmr::memory_resource* m_pool{nullptr};
 	SpeechEngineVariant m_variant;

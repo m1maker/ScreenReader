@@ -28,10 +28,10 @@ import Core.AudioSystem;
 import Core.Speech;
 
 void SpeechSystem::ApplySpeechParameters(SpeechParameters parameters) {
-	m_rate = parameters.rate;
-	m_volume = parameters.volume;
-	m_pitch = parameters.pitch;
-	m_pitchRange = parameters.pitch_range;
+	m_rate.store(parameters.rate);
+	m_volume.store(parameters.volume);
+	m_pitch.store(parameters.pitch);
+	m_pitchRange.store(parameters.pitch_range);
 	m_ssml = parameters.ssml;
 }
 
@@ -48,6 +48,13 @@ void SpeechSystem::Start() {
 			lock.unlock();
 			if (message.interrupt)
 				EngineStop();
+
+			auto  result = EngineSetParameter(ESpeechEngineParameter::RATE, m_rate.load());
+			result = EngineSetParameter(ESpeechEngineParameter::PITCH, m_pitch.load());
+			result = EngineSetParameter(ESpeechEngineParameter::VOLUME, m_volume.load());
+			result = EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, m_pitchRange.load());
+			if (!result) {
+			}
 
 			while (!message.command_queue.empty()) {
 				auto command = std::move(message.command_queue.front());
@@ -82,8 +89,9 @@ void SpeechSystem::Start() {
 					auto result = EngineGetParameter(ESpeechEngineParameter::PITCH, current_value);
 					unsigned char absolute_value{+EUtterancePitchValue::DEFAULT};
 					if (result) {
+						signed char offset = cSpeechEngineNormalValue - current_value;
 						absolute_value =
-							std::clamp(static_cast<unsigned char>(command.relative ? (current_value + pitch) : (pitch)),
+							std::clamp(static_cast<unsigned char>(command.relative ? (pitch + offset) : (pitch)),
 								cSpeechEngineMinValue,
 								cSpeechEngineMaxValue);
 					}
@@ -108,8 +116,9 @@ void SpeechSystem::Start() {
 					auto result = EngineGetParameter(ESpeechEngineParameter::RATE, current_value);
 					unsigned char absolute_value{+EUtteranceRateValue::DEFAULT};
 					if (result) {
+						signed char offset = cSpeechEngineNormalValue - current_value;
 						absolute_value =
-							std::clamp(static_cast<unsigned char>(command.relative ? (current_value + rate) : (rate)),
+							std::clamp(static_cast<unsigned char>(command.relative ? (rate + offset) : (rate)),
 								cSpeechEngineMinValue,
 								cSpeechEngineMaxValue);
 					}
