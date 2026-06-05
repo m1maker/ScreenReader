@@ -40,8 +40,6 @@ public:
 
 	void Separate() { Append(" "); }
 	inline void ApplyUtteranceParameters(UtteranceParameters parameters) {
-		if (!m_ssml)
-			return;
 		m_utterance.Break(parameters.pause_before)
 			.Rate(parameters.rate)
 			.Pitch(parameters.pitch)

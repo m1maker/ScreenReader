@@ -83,7 +83,7 @@ public:
 
 	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>
-	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<T>;
+	[[nodiscard]] auto GetParameter(ESpeechEngineParameter parameter, T& value) -> SpeechEngineResult<>;
 
 	[[nodiscard]] auto GetVoiceInfo(unsigned long long index) const -> SpeechEngineResult<SVoiceInfo>;
 };
@@ -120,8 +120,8 @@ auto CSpeechEngineEspeakNg::SetParameter(ESpeechEngineParameter parameter, T val
 }
 
 template <typename T>
-[[nodiscard]] auto CSpeechEngineEspeakNg::GetParameter(ESpeechEngineParameter parameter) const
-	-> SpeechEngineResult<T> {
+[[nodiscard]] auto CSpeechEngineEspeakNg::GetParameter(ESpeechEngineParameter parameter, T& value)
+	-> SpeechEngineResult<> {
 	if (!m_initialized) [[unlikely]]
 		return std::unexpected(ESpeechEngineError::DEFUNCT);
 
@@ -130,7 +130,8 @@ template <typename T>
 		using enum ESpeechEngineParameter;
 		switch (parameter) {
 		case SSML:
-			return m_flags & espeakSSML;
+			value = m_flags & espeakSSML;
+			break;
 		[[unlikely]] default:
 			return std::unexpected(ESpeechEngineError::NOT_SUPPORTED);
 		}
@@ -139,7 +140,8 @@ template <typename T>
 	if (parameter == ESpeechEngineParameter::RATE) {
 		espeak_value = MapRange(espeak_value, 80, 450, cSpeechEngineMinValue, cSpeechEngineMaxValue);
 	}
-	return espeak_value;
+	value = espeak_value;
+	return SpeechEngineResult<>();
 }
 
 export using BuiltInSpeechEngine = CSpeechEngineEspeakNg;

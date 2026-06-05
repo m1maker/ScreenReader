@@ -100,8 +100,9 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 	}
 
 	template <typename Value>
-	[[nodiscard]] inline auto EngineGetParameter(ESpeechEngineParameter parameter) const -> SpeechEngineResult<Value> {
-		return WithEngine<Value>([parameter](auto&& engine) { return engine.GetParameter(parameter); });
+	[[nodiscard]] inline auto EngineGetParameter(ESpeechEngineParameter parameter, Value& value)
+		-> SpeechEngineResult<> {
+		return WithEngine<>([parameter, &value](auto&& engine) { return engine.GetParameter(parameter, value); });
 	}
 
 	[[nodiscard]] inline auto EngineGetVoiceInfo(unsigned long long int index) const -> SpeechEngineResult<SVoiceInfo> {

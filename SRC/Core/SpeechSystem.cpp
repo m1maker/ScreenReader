@@ -68,6 +68,32 @@ void SpeechSystem::Start() {
 					}
 					break;
 				}
+				case PITCH: {
+					auto pitch = std::visit(
+						[](auto&& value) -> unsigned char {
+							using T = std::decay_t<decltype(value)>;
+							if constexpr (std::is_same_v<T, unsigned char>)
+								return std::move(value);
+							return +EUtterancePitchValue::DEFAULT;
+						},
+						std::move(command.value));
+
+					unsigned char current_value{0};
+					auto result = EngineGetParameter(ESpeechEngineParameter::PITCH, current_value);
+					unsigned char absolute_value{+EUtterancePitchValue::DEFAULT};
+					if (result) {
+						absolute_value =
+							std::clamp(static_cast<unsigned char>(command.relative ? (current_value + pitch) : (pitch)),
+								cSpeechEngineMinValue,
+								cSpeechEngineMaxValue);
+					}
+
+					result = EngineSetParameter(ESpeechEngineParameter::PITCH, absolute_value);
+					if (!result) {
+					}
+					break;
+				}
+
 				default:
 					break;
 				}
