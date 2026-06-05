@@ -49,7 +49,7 @@ void SpeechSystem::Start() {
 			if (message.interrupt)
 				EngineStop();
 
-			auto  result = EngineSetParameter(ESpeechEngineParameter::RATE, m_rate.load());
+			auto result = EngineSetParameter(ESpeechEngineParameter::RATE, m_rate.load());
 			result = EngineSetParameter(ESpeechEngineParameter::PITCH, m_pitch.load());
 			result = EngineSetParameter(ESpeechEngineParameter::VOLUME, m_volume.load());
 			result = EngineSetParameter(ESpeechEngineParameter::PITCH_RANGE, m_pitchRange.load());
