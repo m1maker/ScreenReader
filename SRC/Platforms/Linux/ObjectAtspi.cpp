@@ -85,9 +85,9 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	auto state_set = atspi_accessible_get_state_set(m_accessible);
 	if (!state_set)
 		return std::unexpected(EObjectError::FAIL);
-	auto state = GetObjectStateFromAtspiStates(state_set);
+	auto merged_state = GetMergedObjectStateFromAtspiStates(state_set);
 	g_object_unref(state_set);
-	return state;
+	return merged_state.states;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<CObjectAtspi> {

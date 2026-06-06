@@ -27,6 +27,7 @@ module;
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 export module Platforms.Linux.Object;
 import Core.Object;
@@ -314,8 +315,20 @@ export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole 
 	return UNKNOWN;
 }
 
-export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiStateType state) -> EObjectState {
-	using enum EObjectState;
+/*
+AT-SPI has a problem: it mixes the capabilities of an object and its states into one entity (enum, function).
+In order not to call the same function a bunch of times, first to convert it to capabilities, and then states, we will
+create a variant for holding both types and a structure for merging (when we get it through array).
+*/
+
+using StateVariant = std::variant<std::monostate, EObjectState, EObjectCapability>;
+
+struct SMergedState final {
+	ObjectStateMask states;
+	ObjectCapabilityMask capabilities;
+};
+
+export [[nodiscard]] constexpr inline auto GetStateVariantFromAtspiState(AtspiStateType state) -> StateVariant {
 	switch (state) {
 	case ATSPI_STATE_INVALID:
 	case ATSPI_STATE_SHOWING:
@@ -324,68 +337,107 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 	case ATSPI_STATE_LAST_DEFINED:
 	case ATSPI_STATE_ICONIFIED:
 	case ATSPI_STATE_MANAGES_DESCENDANTS:
-		return NO;
+		return {};
 	case ATSPI_STATE_ACTIVE:
-		return ACTIVE;
+		return EObjectState::ACTIVE;
 	case ATSPI_STATE_ARMED:
-		return HOVERED;
+		return EObjectState::HOVERED;
+	case ATSPI_STATE_ANIMATED:
+		return EObjectCapability::ANIMATED;
+	case ATSPI_STATE_SUPPORTS_AUTOCOMPLETION:
+		return EObjectCapability::AUTO_FILL_AVAILABLE;
 	case ATSPI_STATE_BUSY:
 	case ATSPI_STATE_TRANSIENT:
-		return BUSY;
+		return EObjectState::BUSY;
+	case ATSPI_STATE_CHECKABLE:
+		return EObjectCapability::CHECKABLE;
 	case ATSPI_STATE_CHECKED:
-		return CHECKED;
+		return EObjectState::CHECKED;
 	case ATSPI_STATE_COLLAPSED:
-		return COLLAPSED;
+		return EObjectState::COLLAPSED;
 	case ATSPI_STATE_DEFUNCT:
-		return DEFUNCT;
+		return EObjectState::DEFUNCT;
+	case ATSPI_STATE_EDITABLE:
+		return EObjectCapability::EDITABLE;
 	case ATSPI_STATE_ENABLED:
-		return ENABLED;
+		return EObjectState::ENABLED;
+	case ATSPI_STATE_EXPANDABLE:
+		return EObjectCapability::EXPANDABLE;
 	case ATSPI_STATE_EXPANDED:
-		return EXPANDED;
+		return EObjectState::EXPANDED;
+	case ATSPI_STATE_FOCUSABLE:
+		return EObjectCapability::FOCUSABLE;
 	case ATSPI_STATE_FOCUSED:
-		return FOCUSED;
+		return EObjectState::FOCUSED;
 	case ATSPI_STATE_OPAQUE:
-		return HIDDEN;
+		return EObjectState::HIDDEN;
+	case ATSPI_STATE_HAS_POPUP:
+		return EObjectCapability::HAS_POPUP;
+	case ATSPI_STATE_HAS_TOOLTIP:
+		return EObjectCapability::HAS_TOOLTIP;
+	case ATSPI_STATE_HORIZONTAL:
+		return EObjectCapability::HORIZONTAL;
 	case ATSPI_STATE_INDETERMINATE:
-		return INDETERMINATE;
+		return EObjectState::INDETERMINATE;
 	case ATSPI_STATE_INVALID_ENTRY:
 	case ATSPI_STATE_TRUNCATED:
-		return INVALID;
+		return EObjectState::INVALID;
 	case ATSPI_STATE_IS_DEFAULT:
-		return DEFAULT;
+		return EObjectState::DEFAULT;
 	case ATSPI_STATE_MODAL:
-		return MODAL;
+		return EObjectState::MODAL;
+	case ATSPI_STATE_MULTI_LINE:
+		return EObjectCapability::MULTI_LINE;
+	case ATSPI_STATE_MULTISELECTABLE:
+		return EObjectCapability::MULTI_SELECTABLE;
 	case ATSPI_STATE_PRESSED:
-		return PRESSED;
+		return EObjectState::PRESSED;
 	case ATSPI_STATE_READ_ONLY:
-		return READONLY;
+		return EObjectState::READONLY;
 	case ATSPI_STATE_REQUIRED:
-		return REQUIRED;
+		return EObjectState::REQUIRED;
+	case ATSPI_STATE_RESIZABLE:
+		return EObjectCapability::RESIZABLE;
+	case ATSPI_STATE_SELECTABLE:
+	case ATSPI_STATE_SELECTABLE_TEXT:
+		return EObjectCapability::SELECTABLE;
 	case ATSPI_STATE_SELECTED:
-		return SELECTED;
+		return EObjectState::SELECTED;
+	case ATSPI_STATE_SENSITIVE:
+		return EObjectCapability::SENSITIVE;
+	case ATSPI_STATE_VERTICAL:
+		return EObjectCapability::VERTICAL;
 	case ATSPI_STATE_VISIBLE:
-		return VISIBLE;
+		return EObjectState::VISIBLE;
 	case ATSPI_STATE_VISITED:
-		return VISITED;
+		return EObjectState::VISITED;
 	}
-	return NO;
+	return {};
 }
 
-export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* state_set) -> ObjectStateMask {
+export [[nodiscard]] inline auto GetMergedObjectStateFromAtspiStates(AtspiStateSet* state_set) -> SMergedState {
 	GArray* array = atspi_state_set_get_states(state_set);
 	if (!array) [[unlikely]] {
-		return 0;
+		return {};
 	}
 
-	ObjectStateMask states{};
+	SMergedState state{};
 	for (int i = 0; std::cmp_less(i, array->len); ++i) {
 		auto atspi_state = g_array_index(array, AtspiStateType, i);
-		auto state = GetObjectStateFromAtspiState(atspi_state);
-		states[std::to_underlying(state)] = true;
+		auto state_variant = GetStateVariantFromAtspiState(atspi_state);
+		std::visit(
+			[&state](auto&& value) {
+				using T = std::decay_t<decltype(value)>;
+				if constexpr (std::is_same_v<T, EObjectState>)
+					state.states[std::to_underlying(value)] = true;
+				else if constexpr (std::is_same_v<T, EObjectCapability>)
+					state.capabilities[std::to_underlying(value)] = true;
+			},
+			state_variant);
 	}
 
 	g_array_free(array, TRUE);
-	return states;
+	return state;
 }
 
 export [[nodiscard]] constexpr inline auto GetAtspiTextGranularityFromTextGranularity(ETextGranularity granularity)
