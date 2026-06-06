@@ -179,6 +179,41 @@ export enum class EObjectType : unsigned char {
 	COUNT
 };
 
+export enum class EObjectCapability : unsigned char {
+	NO = 0,
+
+	ANIMATED,
+	AUTO_FILL_AVAILABLE,
+	CHECKABLE,
+	CLICKABLE,
+	DRAGGABLE,
+	EDITABLE,
+	EXPANDABLE,
+	FOCUSABLE,
+	HAS_POPUP,
+	HORIZONTAL,
+	MAPPABLE,
+	MULTI_LINE,
+	MULTI_SELECTABLE,
+	MOVEABLE,
+	PINNABLE,
+	RESIZABLE,
+	SELECTABLE,
+	SECURE,
+	SORTABLE,
+	TOUCH_OPTIMIZED,
+	VERTICAL,
+
+	HAS_TOOLTIP,
+	LIVE_REGION,
+	PROTECTED,
+	SENSITIVE,
+
+	COUNT
+};
+
+export using ObjectCapabilityMask = std::bitset<std::to_underlying(EObjectCapability::COUNT)>;
+
 export enum class EObjectState : unsigned char {
 	NO = 0,
 
@@ -206,38 +241,13 @@ export enum class EObjectState : unsigned char {
 	VISITED,
 	VISIBLE,
 
-	ANIMATED,
-	AUTO_FILL_AVAILABLE,
-	CHECKABLE,
-	CLICKABLE,
-	DRAGGABLE,
-	EDITABLE,
-	EXPANDABLE,
-	FOCUSABLE,
-	HAS_POPUP,
-	HORIZONTAL,
-	MAPPABLE,
-	MULTI_LINE,
-	MULTI_SELECTABLE,
-	MOVEABLE,
-	PINNED,
-	RESIZABLE,
-	SELECTABLE,
-	SECURE,
-	SORTABLE,
-	TOUCH_OPTIMIZED,
-	VERTICAL,
-
 	CLIPPED,
-	HAS_TOOLTIP,
 	HIDDEN,
-	LIVE_REGION,
-	PROTECTED,
-	SENSITIVE,
+
 	COUNT
 };
 
-export using ObjectStates = std::bitset<std::to_underlying(EObjectState::COUNT)>;
+export using ObjectStateMask = std::bitset<std::to_underlying(EObjectState::COUNT)>;
 
 export enum class EObjectAction : unsigned char {
 	UNKNOWN = 0,
@@ -360,60 +370,61 @@ export [[nodiscard]] constexpr auto GetObjectStateName(EObjectState state) -> st
 		return "visited";
 	case VISIBLE:
 		return "visible";
-	case ANIMATED:
-		return "animated";
-	case AUTO_FILL_AVAILABLE:
-		return "auto fill available";
-	case CHECKABLE:
-		return "checkable";
-	case CLICKABLE:
-		return "clickable";
-	case DRAGGABLE:
-		return "draggable";
-	case EDITABLE:
-		return "editable";
-	case EXPANDABLE:
-		return "expandable";
-	case FOCUSABLE:
-		return "focusable";
-	case HAS_POPUP:
-		return "has popup";
-	case HORIZONTAL:
-		return "horizontal";
-	case MAPPABLE:
-		return "mappable";
-	case MULTI_LINE:
-		return "multi line";
-	case MULTI_SELECTABLE:
-		return "multi selectable";
-	case MOVEABLE:
-		return "moveable";
-	case PINNED:
-		return "pinned";
-	case RESIZABLE:
-		return "resizable";
-	case SELECTABLE:
-		return "selectable";
-	case SECURE:
-		return "secure";
-	case SORTABLE:
-		return "sortable";
-	case TOUCH_OPTIMIZED:
-		return "touch optimized";
-	case VERTICAL:
-		return "vertical";
-	case CLIPPED:
-		return "clipped";
-	case HAS_TOOLTIP:
-		return "has tooltip";
-	case HIDDEN:
-		return "hidden";
-	case LIVE_REGION:
-		return "live region";
-	case PROTECTED:
-		return "protected";
-	case SENSITIVE:
-		return "sensitive";
+	/*	case ANIMATED:
+			return "animated";
+		case AUTO_FILL_AVAILABLE:
+			return "auto fill available";
+		case CHECKABLE:
+			return "checkable";
+		case CLICKABLE:
+			return "clickable";
+		case DRAGGABLE:
+			return "draggable";
+		case EDITABLE:
+			return "editable";
+		case EXPANDABLE:
+			return "expandable";
+		case FOCUSABLE:
+			return "focusable";
+		case HAS_POPUP:
+			return "has popup";
+		case HORIZONTAL:
+			return "horizontal";
+		case MAPPABLE:
+			return "mappable";
+		case MULTI_LINE:
+			return "multi line";
+		case MULTI_SELECTABLE:
+			return "multi selectable";
+		case MOVEABLE:
+			return "moveable";
+		case PINNED:
+			return "pinned";
+		case RESIZABLE:
+			return "resizable";
+		case SELECTABLE:
+			return "selectable";
+		case SECURE:
+			return "secure";
+		case SORTABLE:
+			return "sortable";
+		case TOUCH_OPTIMIZED:
+			return "touch optimized";
+		case VERTICAL:
+			return "vertical";
+		case CLIPPED:
+			return "clipped";
+		case HAS_TOOLTIP:
+			return "has tooltip";
+		case HIDDEN:
+			return "hidden";
+		case LIVE_REGION:
+			return "live region";
+		case PROTECTED:
+			return "protected";
+		case SENSITIVE:
+			return "sensitive";
+	*/
 	case COUNT:
 		return "count";
 	}

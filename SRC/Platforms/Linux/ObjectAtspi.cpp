@@ -78,7 +78,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return GetObjectTypeFromAtspiRole(role);
 }
 
-[[nodiscard]] auto CObjectAtspi::GetState() const -> ObjectResult<ObjectStates> {
+[[nodiscard]] auto CObjectAtspi::GetState() const -> ObjectResult<ObjectStateMask> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 

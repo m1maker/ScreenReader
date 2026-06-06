@@ -329,41 +329,23 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 		return ACTIVE;
 	case ATSPI_STATE_ARMED:
 		return HOVERED;
-	case ATSPI_STATE_ANIMATED:
-		return ANIMATED;
-	case ATSPI_STATE_SUPPORTS_AUTOCOMPLETION:
-		return AUTO_FILL_AVAILABLE;
 	case ATSPI_STATE_BUSY:
 	case ATSPI_STATE_TRANSIENT:
 		return BUSY;
-	case ATSPI_STATE_CHECKABLE:
-		return CHECKABLE;
 	case ATSPI_STATE_CHECKED:
 		return CHECKED;
 	case ATSPI_STATE_COLLAPSED:
 		return COLLAPSED;
 	case ATSPI_STATE_DEFUNCT:
 		return DEFUNCT;
-	case ATSPI_STATE_EDITABLE:
-		return EDITABLE;
 	case ATSPI_STATE_ENABLED:
 		return ENABLED;
-	case ATSPI_STATE_EXPANDABLE:
-		return EXPANDABLE;
 	case ATSPI_STATE_EXPANDED:
 		return EXPANDED;
-	case ATSPI_STATE_FOCUSABLE:
-		return FOCUSABLE;
 	case ATSPI_STATE_FOCUSED:
 		return FOCUSED;
 	case ATSPI_STATE_OPAQUE:
 		return HIDDEN;
-	case ATSPI_STATE_HAS_POPUP:
-		return HAS_POPUP;
-	case ATSPI_STATE_HAS_TOOLTIP:
-		return HAS_TOOLTIP;
-	case ATSPI_STATE_HORIZONTAL:
-		return HORIZONTAL;
 	case ATSPI_STATE_INDETERMINATE:
 		return INDETERMINATE;
 	case ATSPI_STATE_INVALID_ENTRY:
@@ -373,27 +355,14 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 		return DEFAULT;
 	case ATSPI_STATE_MODAL:
 		return MODAL;
-	case ATSPI_STATE_MULTI_LINE:
-		return MULTI_LINE;
-	case ATSPI_STATE_MULTISELECTABLE:
-		return MULTI_SELECTABLE;
 	case ATSPI_STATE_PRESSED:
 		return PRESSED;
 	case ATSPI_STATE_READ_ONLY:
 		return READONLY;
 	case ATSPI_STATE_REQUIRED:
 		return REQUIRED;
-	case ATSPI_STATE_RESIZABLE:
-		return RESIZABLE;
-	case ATSPI_STATE_SELECTABLE:
-	case ATSPI_STATE_SELECTABLE_TEXT:
-		return SELECTABLE;
 	case ATSPI_STATE_SELECTED:
 		return SELECTED;
-	case ATSPI_STATE_SENSITIVE:
-		return SENSITIVE;
-	case ATSPI_STATE_VERTICAL:
-		return VERTICAL;
 	case ATSPI_STATE_VISIBLE:
 		return VISIBLE;
 	case ATSPI_STATE_VISITED:
@@ -402,13 +371,13 @@ export [[nodiscard]] constexpr inline auto GetObjectStateFromAtspiState(AtspiSta
 	return NO;
 }
 
-export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* state_set) -> ObjectStates {
+export [[nodiscard]] inline auto GetObjectStateFromAtspiStates(AtspiStateSet* state_set) -> ObjectStateMask {
 	GArray* array = atspi_state_set_get_states(state_set);
 	if (!array) [[unlikely]] {
 		return 0;
 	}
 
-	ObjectStates states{};
+	ObjectStateMask states{};
 	for (int i = 0; std::cmp_less(i, array->len); ++i) {
 		auto atspi_state = g_array_index(array, AtspiStateType, i);
 		auto state = GetObjectStateFromAtspiState(atspi_state);
@@ -484,7 +453,7 @@ public:
 
 	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType>;
 
-	[[nodiscard]] auto GetState() const -> ObjectResult<ObjectStates>;
+	[[nodiscard]] auto GetState() const -> ObjectResult<ObjectStateMask>;
 
 	[[nodiscard]] auto GetParent() const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
