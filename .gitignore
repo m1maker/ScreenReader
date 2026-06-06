@@ -3,6 +3,3 @@ build/
 out
 out/
 
-
-.gemini/
-gha-creds-*.json
