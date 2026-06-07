@@ -80,6 +80,9 @@ public:
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
 		return With<ObjectStateMask>([](auto&& obj) { return obj.GetState(); });
 	}
+	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
+		return With<ObjectCapabilityMask>([](auto&& obj) { return obj.GetCapabilities(); });
+	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
 		ObjectResult<ObjectVariant> variant =
