@@ -28,7 +28,7 @@ export module Core.BuiltInSpeechEngine;
 import Core.Speech;
 
 template <typename From, typename To>
-[[nodiscard]] static auto MapRange(From value, From from_low, From from_high, To to_low, To to_high) -> To {
+[[nodiscard]] auto MapRange(From value, From from_low, From from_high, To to_low, To to_high) -> To {
 	return to_low + (value - from_low) * (to_high - to_low) / (from_high - from_low);
 }
 
