@@ -222,3 +222,11 @@ export [[nodiscard]] constexpr auto GetObjectStateName(EObjectState state) -> st
 
 	return cStateMetadata[index].speech_name;
 }
+
+export [[nodiscard]] constexpr auto ShouldObjectStateBeAnnounced(EObjectState state) -> bool {
+	auto index = static_cast<size_t>(state);
+	if (index < 0 || index > cStateMetadata.size()) [[unlikely]]
+		return false;
+
+	return cStateMetadata[index].always_announce;
+}

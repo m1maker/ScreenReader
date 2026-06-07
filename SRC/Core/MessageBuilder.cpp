@@ -220,7 +220,7 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 		message.ApplyUtteranceParameters(m_speechParameters.state);
 
 		for (unsigned char i = 1; i < std::to_underlying(EObjectState::COUNT); ++i) {
-			if (state->test(i)) {
+			if (state->test(i) && ShouldObjectStateBeAnnounced(static_cast<EObjectState>(i))) {
 				message.Separate();
 				message.Append("{}", GetObjectStateName(static_cast<EObjectState>(i)));
 			}
