@@ -90,6 +90,18 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 	return merged_state.states;
 }
 
+[[nodiscard]] auto CObjectAtspi::GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	auto state_set = atspi_accessible_get_state_set(m_accessible);
+	if (!state_set)
+		return std::unexpected(EObjectError::FAIL);
+	auto merged_state = GetMergedObjectStateFromAtspiStates(state_set);
+	g_object_unref(state_set);
+	return merged_state.capabilities;
+}
+
 [[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<CObjectAtspi> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);

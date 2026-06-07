@@ -506,6 +506,7 @@ public:
 	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType>;
 
 	[[nodiscard]] auto GetState() const -> ObjectResult<ObjectStateMask>;
+	[[nodiscard]] auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask>;
 
 	[[nodiscard]] auto GetParent() const -> ObjectResult<CObjectAtspi>;
 	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
