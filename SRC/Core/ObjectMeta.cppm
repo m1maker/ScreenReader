@@ -568,10 +568,14 @@ export [[nodiscard]] constexpr auto GetObjectTypeName(EObjectType type) -> std::
 	return cObjectMetadata[index].speech_name;
 }
 
-export [[nodiscard]] constexpr auto IsObjectInGroup(EObjectType type, EObjectGroup group) -> bool {
+export [[nodiscard]] constexpr inline auto GetObjectGroups(EObjectType type) -> ObjectGroupMask {
 	auto index = static_cast<size_t>(type);
 	if (index < 0 || index > cObjectMetadata.size()) [[unlikely]]
-		return false;
+		return {};
 
-	return cObjectMetadata[index].group_flags.test(std::to_underlying(group));
+	return cObjectMetadata[index].group_flags;
+}
+
+export [[nodiscard]] constexpr auto IsObjectInGroup(EObjectType type, EObjectGroup group) -> bool {
+	return GetObjectGroups(type).test(std::to_underlying(group));
 }
