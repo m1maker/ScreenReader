@@ -65,6 +65,7 @@ target_sources(${PROJECT_NAME}
         Speech.cppm
         SpeechEngineEspeakNg.cppm
         SpeechSystem.cppm
+        StateMeta.cppm
         Text.cppm
         Timer.cppm
         UnicodeData.cppm

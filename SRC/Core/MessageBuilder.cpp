@@ -30,6 +30,7 @@ import Core.KeyInfo;
 import Core.KeyMeta;
 import Core.Object;
 import Core.ObjectMeta;
+import Core.StateMeta;
 import Core.Text;
 import Proxies.Object;
 
