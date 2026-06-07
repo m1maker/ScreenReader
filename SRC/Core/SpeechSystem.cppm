@@ -59,7 +59,7 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 	std::condition_variable m_cv;
 	std::jthread m_thread;
 
-	std::atomic_flag m_shouldAbort{ATOMIC_FLAG_INIT}; // Speech engine with the callback function must request it.
+	std::atomic_flag m_shouldAbort; // Speech engine with the callback function must request it.
 
 	void ApplySpeechParameters(SpeechParameters parameters);
 

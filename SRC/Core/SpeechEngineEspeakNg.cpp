@@ -29,7 +29,7 @@ module Core.BuiltInSpeechEngine;
 import Core.AudioSystem;
 import Core.SpeechSystem;
 
-std::atomic_flag CSpeechEngineEspeakNg::s_stopping{ATOMIC_FLAG_INIT};
+std::atomic_flag CSpeechEngineEspeakNg::s_stopping = ATOMIC_FLAG_INIT;
 
 template <std::size_t N, typename... Indices> static inline void SetBits(std::bitset<N>& bs, Indices... indices) {
 	(bs.set(std::to_underlying(indices)), ...);
