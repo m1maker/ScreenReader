@@ -832,12 +832,16 @@ export [[nodiscard]] constexpr auto GetModifierName(EKeycode keycode) -> std::st
 	return cKeyMetadata[index].modifier_name;
 }
 
-export [[nodiscard]] constexpr auto IsKeycodeInGroup(EKeycode keycode, EKeyGroup group) -> bool {
+export [[nodiscard]] constexpr auto GetKeycodeGroups(EKeycode keycode) -> KeyGroupMask {
 	auto index = static_cast<size_t>(keycode);
 	if (index < 0 || index > cKeyMetadata.size()) [[unlikely]]
-		return false;
+		return {};
 
-	return cKeyMetadata[index].group_flags.test(std::to_underlying(group));
+	return cKeyMetadata[index].group_flags;
+}
+
+export [[nodiscard]] constexpr inline auto IsKeycodeInGroup(EKeycode keycode, EKeyGroup group) -> bool {
+	return GetKeycodeGroups(keycode).test(std::to_underlying(group));
 }
 
 export [[nodiscard]] constexpr auto GetModifierFromKeycode(EKeycode keycode) -> EModifier {
