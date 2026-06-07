@@ -83,8 +83,9 @@ auto CSpeechEngineEspeakNg::Speak(std::string_view message) -> SpeechEngineResul
 	return std::unexpected(ESpeechEngineError::FAIL);
 }
 
-void CSpeechEngineEspeakNg::Stop() {
+auto CSpeechEngineEspeakNg::Stop() -> SpeechEngineResult<> {
 	if (!m_initialized) [[unlikely]]
-		return;
+		return std::unexpected(ESpeechEngineError::DEFUNCT);
 	s_stopping.test_and_set(std::memory_order_acquire);
+	return SpeechEngineResult<>();
 }

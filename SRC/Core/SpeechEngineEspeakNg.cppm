@@ -79,7 +79,7 @@ public:
 	[[nodiscard]] auto GetInfo() const -> SpeechEngineResult<SSpeechEngineInfo>;
 
 	auto Speak(std::string_view message) -> SpeechEngineResult<SpeechMessage>;
-	void Stop();
+	auto Stop() -> SpeechEngineResult<>;
 
 	template <typename T> auto SetParameter(ESpeechEngineParameter parameter, T value) -> SpeechEngineResult<>;
 	template <typename T>

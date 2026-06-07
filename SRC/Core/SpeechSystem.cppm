@@ -88,11 +88,8 @@ export class SpeechSystem final : TModule<"SpeechSystem">, public TSingleton<Spe
 		return WithEngine<SpeechMessage>([message](auto&& engine) { return engine.Speak(message); });
 	}
 
-	void EngineStop() {
-		WithEngine<>([](auto&& engine) {
-			engine.Stop();
-			return SpeechEngineResult<>();
-		});
+	inline auto EngineStop() -> SpeechEngineResult<> {
+		return WithEngine<>([](auto&& engine) { return engine.Stop(); });
 	}
 
 	inline auto EngineSetParameter(ESpeechEngineParameter parameter, auto&& value) -> SpeechEngineResult<> {

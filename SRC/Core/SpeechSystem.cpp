@@ -46,8 +46,12 @@ void SpeechSystem::Start() {
 			auto message = std::move(m_queue.front());
 			m_queue.pop();
 			lock.unlock();
-			if (message.interrupt)
-				EngineStop();
+			if (message.interrupt) {
+				auto stop_result = EngineStop();
+				if (!stop_result) {
+					Log(ERROR, "Failed to interrupt the speaker. {}", SpeechEngineErrorToString(stop_result.error()));
+				}
+			}
 
 			auto result = EngineSetParameter(ESpeechEngineParameter::RATE, m_rate.load());
 			result = EngineSetParameter(ESpeechEngineParameter::PITCH, m_pitch.load());
