@@ -36,9 +36,7 @@ void AudioSystem::Start() {
 	m_bytesPerFrame = m_parameters.channels * m_bytesPerSample;
 }
 
-void AudioSystem::Stop(void) {
-	Uninitialize();
-}
+void AudioSystem::Stop(void) {}
 
 void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
 	if (data.empty())

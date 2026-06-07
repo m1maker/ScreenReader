@@ -85,12 +85,6 @@ export class AudioSystem final : TModule<"AudioSystem">, public TSingleton<Audio
 	[[nodiscard]] inline auto Initialize(SAudioParameters parameters) -> AudioEngineResult<> {
 		return WithEngine<>([parameters](auto&& engine) { return engine.Initialize(parameters); });
 	}
-	inline void Uninitialize() {
-		WithEngine<>([](auto&& engine) {
-			engine.Uninitialize();
-			return AudioEngineResult<>();
-		});
-	}
 
 public:
 	explicit AudioSystem() { m_variant.emplace<BuiltInAudioEngine>(); }

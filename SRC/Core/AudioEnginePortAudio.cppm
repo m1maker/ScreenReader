@@ -37,11 +37,12 @@ export class CAudioEnginePortAudio final {
 
 	[[nodiscard]] auto AudioCallback(signed short int* buffer, unsigned long long int frames) -> int;
 
+	void Uninitialize();
+
 public:
 	~CAudioEnginePortAudio();
 
 	[[nodiscard]] auto Initialize(SAudioParameters parameters) -> AudioEngineResult<>;
-	void Uninitialize();
 };
 
 export using BuiltInAudioEngine = CAudioEnginePortAudio;
