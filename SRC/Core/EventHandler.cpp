@@ -24,6 +24,7 @@ module;
 #include <mutex>
 #include <stop_token>
 #include <thread>
+#include <utility>
 module Core.EventHandler;
 import Core.Action;
 import Core.App;
@@ -40,28 +41,28 @@ EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
 
 	bool success{false};
-	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), static_cast<uint32_t>(EAction::STOP_SPEECH));
+	success = keyboard_handler.RegisterAction(SHotkeyInfo::GetAny(), std::to_underlying(EAction::STOP_SPEECH));
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, static_cast<uint32_t>(EAction::STOP_KEYBOARD_HOOKS), true);
+		MODIFIER_SCREEN_READER + MODIFIER_CTRL + KEYCODE_K, std::to_underlying(EAction::STOP_KEYBOARD_HOOKS), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_LEFT, static_cast<uint32_t>(EAction::SPIN_ROTOR_LEFT), true);
+		MODIFIER_SCREEN_READER + KEYCODE_LEFT, std::to_underlying(EAction::SPIN_ROTOR_LEFT), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_RIGHT, static_cast<uint32_t>(EAction::SPIN_ROTOR_RIGHT), true);
+		MODIFIER_SCREEN_READER + KEYCODE_RIGHT, std::to_underlying(EAction::SPIN_ROTOR_RIGHT), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_UP, static_cast<uint32_t>(EAction::ADJUST_ROTOR_UP), true);
+		MODIFIER_SCREEN_READER + KEYCODE_UP, std::to_underlying(EAction::ADJUST_ROTOR_UP), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_DOWN, static_cast<uint32_t>(EAction::ADJUST_ROTOR_DOWN), true);
+		MODIFIER_SCREEN_READER + KEYCODE_DOWN, std::to_underlying(EAction::ADJUST_ROTOR_DOWN), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_ENTER, static_cast<uint32_t>(EAction::ADJUST_ROTOR_ACTIVATE), true);
+		MODIFIER_SCREEN_READER + KEYCODE_ENTER, std::to_underlying(EAction::ADJUST_ROTOR_ACTIVATE), true);
 
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_8, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_UP), true);
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_8, std::to_underlying(EAction::MOVE_OBJECT_NAVIGATOR_UP), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_2, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_DOWN), true);
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_2, std::to_underlying(EAction::MOVE_OBJECT_NAVIGATOR_DOWN), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_4, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_LEFT), true);
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_4, std::to_underlying(EAction::MOVE_OBJECT_NAVIGATOR_LEFT), true);
 	success = keyboard_handler.RegisterAction(
-		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_6, static_cast<uint32_t>(EAction::MOVE_OBJECT_NAVIGATOR_RIGHT), true);
+		MODIFIER_SCREEN_READER + KEYCODE_NUMPAD_6, std::to_underlying(EAction::MOVE_OBJECT_NAVIGATOR_RIGHT), true);
 }
 
 void EventHandler::Start() {
