@@ -142,61 +142,6 @@ struct SStateMeta final {
 		meta.speech_name = "hidden";
 		meta.always_announce = true;
 		break;
-		/*	case ANIMATED:
-				return "animated";
-			case AUTO_FILL_AVAILABLE:
-				return "auto fill available";
-			case CHECKABLE:
-				return "checkable";
-			case CLICKABLE:
-				return "clickable";
-			case DRAGGABLE:
-				return "draggable";
-			case EDITABLE:
-				return "editable";
-			case EXPANDABLE:
-				return "expandable";
-			case FOCUSABLE:
-				return "focusable";
-			case HAS_POPUP:
-				return "has popup";
-			case HORIZONTAL:
-				return "horizontal";
-			case MAPPABLE:
-				return "mappable";
-			case MULTI_LINE:
-				return "multi line";
-			case MULTI_SELECTABLE:
-				return "multi selectable";
-			case MOVEABLE:
-				return "moveable";
-			case PINNED:
-				return "pinned";
-			case RESIZABLE:
-				return "resizable";
-			case SELECTABLE:
-				return "selectable";
-			case SECURE:
-				return "secure";
-			case SORTABLE:
-				return "sortable";
-			case TOUCH_OPTIMIZED:
-				return "touch optimized";
-			case VERTICAL:
-				return "vertical";
-			case CLIPPED:
-				return "clipped";
-			case HAS_TOOLTIP:
-				return "has tooltip";
-			case HIDDEN:
-				return "hidden";
-			case LIVE_REGION:
-				return "live region";
-			case PROTECTED:
-				return "protected";
-			case SENSITIVE:
-				return "sensitive";
-		*/
 	}
 
 	return meta;
