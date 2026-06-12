@@ -46,8 +46,8 @@ export struct SScreenReaderAppSettings final {
 					  pitch_range = cSpeechEngineNormalValue;
 		bool ssml = false;
 		struct SUtteranceParameters final {
-			unsigned char rate = +EUtteranceRateValue::DEFAULT, pitch = +EUtterancePitchValue::DEFAULT,
-						  volume = +EUtteranceVolumeValue::DEFAULT;
+			signed char rate = +EUtteranceRateValue::DEFAULT, pitch = +EUtterancePitchValue::DEFAULT,
+						volume = +EUtteranceVolumeValue::DEFAULT;
 			unsigned long long pause_before = 0, pause_after = 0;
 		} name,
 			description = {.pause_before = 150}, role = {.pitch = +EUtterancePitchValue::X_LOW, .pause_before = 5},

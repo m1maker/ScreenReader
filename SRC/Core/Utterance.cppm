@@ -44,47 +44,47 @@ export enum class EUtteranceVolumeValue : unsigned char {
 	X_LOUD
 };
 
-export [[nodiscard]] constexpr auto operator+(EUtterancePitchValue pitch) noexcept -> unsigned char {
+export [[nodiscard]] constexpr auto operator+(EUtterancePitchValue pitch) noexcept -> signed char {
 	using enum EUtterancePitchValue;
 	switch (pitch) {
 	case UNKNOWN:
 	case DEFAULT:
 		return 0;
 	case X_LOW:
-		return 20;
+		return -30;
 	case LOW:
-		return 35;
+		return -15;
 	case MEDIUM:
-		return 50;
+		return -5;
 	case HIGH:
-		return 75;
+		return 25;
 	case X_HIGH:
-		return 100;
+		return 50;
 	}
 	return 0;
 }
 
-export [[nodiscard]] constexpr auto operator+(EUtteranceRateValue rate) noexcept -> unsigned char {
+export [[nodiscard]] constexpr auto operator+(EUtteranceRateValue rate) noexcept -> signed char {
 	using enum EUtteranceRateValue;
 	switch (rate) {
 	case UNKNOWN:
 	case DEFAULT:
 		return 0;
 	case X_SLOW:
-		return 20;
+		return -30;
 	case SLOW:
-		return 35;
+		return -15;
 	case MEDIUM:
-		return 50;
+		return -5;
 	case FAST:
-		return 75;
+		return 25;
 	case X_FAST:
-		return 100;
+		return 50;
 	}
 	return 0;
 }
 
-export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noexcept -> unsigned char {
+export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noexcept -> signed char {
 	using enum EUtteranceVolumeValue;
 	switch (volume) {
 	case UNKNOWN:
@@ -92,15 +92,15 @@ export [[nodiscard]] constexpr auto operator+(EUtteranceVolumeValue volume) noex
 	case DEFAULT:
 		return 0;
 	case X_SOFT:
-		return 20;
+		return -30;
 	case SOFT:
-		return 35;
+		return -15;
 	case MEDIUM:
-		return 50;
+		return -5;
 	case LOUD:
-		return 75;
+		return 25;
 	case X_LOUD:
-		return 100;
+		return 50;
 	}
 	return 0;
 }

@@ -95,9 +95,9 @@ void SpeechSystem::Start() {
 					auto result = EngineGetParameter(ESpeechEngineParameter::PITCH, current_value);
 					unsigned char absolute_value{+EUtterancePitchValue::DEFAULT};
 					if (result) {
-						signed char offset = cSpeechEngineNormalValue - current_value;
+						unsigned char relative_value = static_cast<unsigned char>(pitch + current_value);
 						absolute_value =
-							std::clamp(static_cast<unsigned char>(command.relative ? (pitch + offset) : (pitch)),
+							std::clamp(static_cast<unsigned char>(command.relative ? (relative_value) : (pitch)),
 								cSpeechEngineMinValue,
 								cSpeechEngineMaxValue);
 					}
@@ -124,9 +124,9 @@ void SpeechSystem::Start() {
 					auto result = EngineGetParameter(ESpeechEngineParameter::RATE, current_value);
 					unsigned char absolute_value{+EUtteranceRateValue::DEFAULT};
 					if (result) {
-						signed char offset = cSpeechEngineNormalValue - current_value;
+						unsigned char relative_value = static_cast<unsigned char>(rate + current_value);
 						absolute_value =
-							std::clamp(static_cast<unsigned char>(command.relative ? (rate + offset) : (rate)),
+							std::clamp(static_cast<unsigned char>(command.relative ? (relative_value) : (rate)),
 								cSpeechEngineMinValue,
 								cSpeechEngineMaxValue);
 					}
