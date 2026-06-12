@@ -23,6 +23,7 @@ module;
 #include <utility>
 module Core.MessageBuilder;
 import Core.App;
+import Core.CapabilityMeta;
 import Core.Config;
 import Core.Event;
 import Core.KeyboardHandler;
@@ -223,6 +224,22 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 			if (state->test(i) && ShouldObjectStateBeAnnounced(static_cast<EObjectState>(i))) {
 				message.Separate();
 				message.Append("{}", GetObjectStateName(static_cast<EObjectState>(i)));
+			}
+		}
+	}
+}
+
+void MessageBuilder::BuildCapabilityAnnouncement(CMessage& message, CObjectProxy obj, bool require_all) {
+	if (!obj.IsValid()) [[unlikely]]
+		return;
+
+	if (auto capabilities = obj.GetCapabilities()) {
+		message.ApplyUtteranceParameters(m_speechParameters.state);
+
+		for (unsigned char i = 1; i < std::to_underlying(EObjectCapability::COUNT); ++i) {
+			if (capabilities->test(i) && ShouldObjectCapabilityBeAnnounced(static_cast<EObjectCapability>(i))) {
+				message.Separate();
+				message.Append("{}", GetObjectCapabilityName(static_cast<EObjectCapability>(i)));
 			}
 		}
 	}
