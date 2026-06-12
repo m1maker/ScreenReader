@@ -25,6 +25,7 @@ module;
 #include <stop_token>
 #include <thread>
 #include <utility>
+#include <variant>
 module Core.EventHandler;
 import Core.Action;
 import Core.App;
@@ -71,14 +72,13 @@ void EventHandler::Start() {
 		while (!stop_token.stop_requested()) {
 			auto event = m_eventQueue.Pop();
 			if (event) [[likely]] {
-				switch (event.value().GetType()) {
-				case CEvent::OBJECT: {
+				if (std::holds_alternative<CObjectEvent>(event.value().operator EventVariant())) {
 					auto pool = m_eventQueue.GetPool();
 					if (!pool) [[unlikely]] {
 						Log(ERROR,
 							"Failed to get memory resource from event queue. It is not possible to allocate data to "
 							"move the object event for handling to the main thread");
-						break;
+						continue;
 					}
 					auto raw = pool->allocate(sizeof(CEvent));
 					auto raw_event = new (raw) CEvent(std::move(event.value()));
@@ -97,15 +97,9 @@ void EventHandler::Start() {
 							pool->deallocate(pData, sizeof(CEvent));
 						},
 						raw_event);
-					break;
 				}
-
-				case CEvent::KEYBOARD:
+				else {
 					Handle(std::move(event.value()));
-					break;
-				[[unlikely]] default:
-					Log(WARNING, "Unknown event received");
-					break;
 				}
 			}
 		}
@@ -125,31 +119,21 @@ dispatched with the desired event type category.
 */
 void EventHandler::Handle(CEvent&& event) {
 	try {
-		switch (event.GetType()) {
-		case CEvent::OBJECT: {
-			auto object_event = event.GetAs<CObjectEvent>();
-			if (!object_event.has_value()) {
-				Log(WARNING, "An object event received, but it could not be unpacked from the variant");
-				break;
-			}
-			auto& object_handler = ObjectHandler::GetInstance();
-			object_handler.Handle(object_event.value());
-			break;
-		}
-
-		case CEvent::KEYBOARD: {
-			auto& keyboard_handler = KeyboardHandler::GetInstance();
-			auto keyboard_event = event.GetAs<CKeyboardEvent>();
-			if (!keyboard_event.has_value()) {
-				Log(WARNING, "A keyboard event received, but it could not be unpacked from the variant");
-				break;
-			}
-			keyboard_handler.Handle(keyboard_event.value());
-			break;
-		}
-		default:
-			break;
-		}
+		std::visit(
+			[this](auto&& unpacked_event) {
+				using T = std::decay_t<decltype(unpacked_event)>;
+				if constexpr (std::is_same_v<T, CObjectEvent>) {
+					auto& object_handler = ObjectHandler::GetInstance();
+					object_handler.Handle(unpacked_event);
+				}
+				else if constexpr (std::is_same_v<T, CKeyboardEvent>) {
+					auto& keyboard_handler = KeyboardHandler::GetInstance();
+					keyboard_handler.Handle(unpacked_event);
+				}
+				else if constexpr (std::is_same_v<T, std::monostate>)
+					Log(ERROR, "Failed to dispatch the event because unknown or empty data received");
+			},
+			event.operator EventVariant());
 	}
 
 	catch (const std::exception& standard_exception) {
