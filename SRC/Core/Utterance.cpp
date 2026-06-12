@@ -34,6 +34,29 @@ auto CUtterance::Text(std::string_view text) -> CUtterance& {
 	if (text.empty()) [[unlikely]]
 		return *this;
 
+	if (!m_commands.empty()) {
+		auto& last_command = m_commands.back();
+		if (last_command.type == EUtteranceCommandType::TEXT) {
+			auto appended = std::visit(
+				[text](auto&& value) -> bool {
+					using T = std::decay_t<decltype(value)>;
+					if constexpr (std::is_same_v<T, std::string>) {
+						try {
+							value.append(text);
+							return true;
+						}
+						catch (...) {
+							return false;
+						}
+					}
+					return false;
+				},
+				last_command.value);
+			if (appended)
+				return *this;
+		}
+	}
+
 	SUtteranceCommand command{.type = EUtteranceCommandType::TEXT, .value = std::string(text)};
 	m_commands.push(std::move(command));
 	return *this;
