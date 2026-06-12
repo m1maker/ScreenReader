@@ -194,6 +194,8 @@ void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj,
 	message.Append("{}", GetObjectTypeName(type));
 	message.Separate();
 	BuildStateAnnouncement(message, obj, require_all);
+	message.Separate();
+	BuildCapabilityAnnouncement(message, obj, require_all);
 
 	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count &&
 		IsObjectInGroup(type, EObjectGroup::DATA_ELIMENT)) {
