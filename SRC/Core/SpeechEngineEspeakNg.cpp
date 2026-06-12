@@ -43,7 +43,7 @@ int CSpeechEngineEspeakNg::SpeakCallback(signed short int* samples, signed int s
 		return 1;
 	}
 
-	AudioDataVector data(samples, samples + sample_count);
+	AudioDataView data(samples, sample_count);
 	AudioSystem::GetInstance().PushData(0, data);
 
 	return 0;

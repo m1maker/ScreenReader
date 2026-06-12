@@ -25,6 +25,7 @@ module;
 #include <expected>
 #include <mutex>
 #include <queue>
+#include <span>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -52,7 +53,7 @@ using AudioChunkSamplesArray = std::array<size_t, cAudioSystemMaxChannels>;
 
 using AudioDataQueue = std::queue<SAudioChunk>;
 
-export using AudioDataVector = std::vector<AudioSample>;
+export using AudioDataView = std::span<AudioSample>;
 
 using AudioChannelAtomicMask = std::array<std::atomic<unsigned char>, cAudioSystemMaxChannels>;
 
@@ -95,7 +96,7 @@ public:
 	void Stop(void);
 	void Stop(unsigned char channel);
 
-	void PushData(unsigned char channel, const AudioDataVector& data);
+	void PushData(unsigned char channel, AudioDataView data);
 
 	void Read(signed short int* buffer, unsigned long long int frames);
 };

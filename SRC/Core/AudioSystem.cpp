@@ -38,7 +38,7 @@ void AudioSystem::Start() {
 
 void AudioSystem::Stop(void) {}
 
-void AudioSystem::PushData(unsigned char channel, const AudioDataVector& data) {
+void AudioSystem::PushData(unsigned char channel, AudioDataView data) {
 	if (data.empty())
 		return;
 
