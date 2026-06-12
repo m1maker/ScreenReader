@@ -38,6 +38,7 @@ target_sources(${PROJECT_NAME}
         Audio.cppm
         AudioEnginePortAudio.cppm
         AudioSystem.cppm
+        CapabilityMeta.cppm
         Config.cppm
         Device.cppm
         Encoding.cppm
