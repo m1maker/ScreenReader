@@ -36,7 +36,7 @@ template <std::size_t N, typename... Indices> static inline void SetBits(std::bi
 }
 
 int CSpeechEngineEspeakNg::SpeakCallback(signed short int* samples, signed int sample_count, espeak_EVENT* events) {
-	if (s_stopping.test(std::memory_order_release) || SpeechSystem::GetInstance().ShouldAbort()) {
+	if (s_stopping.test(std::memory_order_acquire) || SpeechSystem::GetInstance().ShouldAbort()) {
 		return 1;
 	}
 	if (!samples || !events) {

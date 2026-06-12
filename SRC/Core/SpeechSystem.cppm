@@ -126,5 +126,5 @@ public:
 
 	void Interrupt();
 
-	[[nodiscard]] auto ShouldAbort() const noexcept -> bool { return m_shouldAbort.test(std::memory_order_release); }
+	[[nodiscard]] auto ShouldAbort() const noexcept -> bool { return m_shouldAbort.test(std::memory_order_acquire); }
 };
