@@ -24,8 +24,9 @@ struct epoll_event;
 #include <string_view>
 #include <vector>
 export module Platforms.Linux.DescriptorManager;
+import Core.Logger;
 
-export class CDescriptorManager final {
+export class CDescriptorManager final : TModule<"DescriptorManager"> {
 	int m_inotifyFd{-1}, m_watchWd{-1}, m_epollFd{-1};
 
 	static constexpr auto cEpollMaxEvents = 128;

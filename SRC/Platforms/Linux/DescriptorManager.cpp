@@ -70,11 +70,16 @@ module Platforms.Linux.DescriptorManager;
 CDescriptorManager::CDescriptorManager(std::string_view directory) : m_currentDirectory(directory) {
 	m_inotifyFd = inotify_init1(IN_NONBLOCK);
 	if (m_inotifyFd >= 0) {
+		Log(DEBUG, "Initialized inotify with descriptor {}", m_inotifyFd);
 		m_watchWd = inotify_add_watch(m_inotifyFd, m_currentDirectory.data(), IN_CREATE | IN_DELETE);
+		if (m_watchWd >= 0) {
+			Log(DEBUG, "Initialized inotify watchdog with descriptor {}", m_watchWd);
+		}
 	}
 
 	m_epollFd = epoll_create1(0);
 	if (m_epollFd >= 0 && m_inotifyFd >= 0) {
+		Log(DEBUG, "Initialized epoll with descriptor {}", m_epollFd);
 		struct epoll_event ev{};
 		ev.events = EPOLLIN;
 		ev.data.fd = m_inotifyFd;
@@ -140,16 +145,21 @@ void CDescriptorManager::Update() {
 
 void CDescriptorManager::ScanCurrentDirectory() {
 	auto directory = opendir(m_currentDirectory.data());
-	if (!directory) [[unlikely]]
+	if (!directory) [[unlikely]] {
+		Log(ERROR, "Failed to open {}", m_currentDirectory);
 		return;
+	}
+
 	while (auto entry = readdir(directory)) {
 		std::string_view name = entry->d_name;
 		if (!name.starts_with("event"))
 			continue;
 		auto path = std::format("{}/{}", m_currentDirectory, name);
+		Log(DEBUG, "Found candidate device event {}", path);
 		auto descriptor = open(path.c_str(), O_RDONLY | O_NONBLOCK);
-		if (descriptor > 0) {
+		if (descriptor >= 0) {
 			if (!IsPhysicalKeyboard(descriptor)) {
+				Log(DEBUG, "Device {} is not a physical keyboard", path);
 				close(descriptor);
 				continue;
 			}
