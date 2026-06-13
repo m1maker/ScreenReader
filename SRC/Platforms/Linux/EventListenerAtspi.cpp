@@ -34,51 +34,11 @@ import Core.EventQueue;
 import Core.KeyboardHandler;
 import Core.Object;
 import Core.SpeechSystem;
+import Core.Timer;
+import Platforms.Linux.DescriptorManager;
 import Platforms.Linux.Object;
 import Platforms.Linux.UinputDevice;
 import Proxies.Object;
-
-/*
-We won't be tied to AT-SPI device listeners, as it's unreliable. And Evdev will work even on TTY.
-*/
-[[nodiscard]] auto CEventListenerAtspi::FindKeyboardDevice() -> std::string {
-	std::ifstream file("/proc/bus/input/devices");
-	if (!file.is_open())
-		return "";
-
-	std::string line;
-	std::string current_event{""};
-	bool is_candidate{false};
-
-	while (std::getline(file, line)) {
-		if (line.empty() || line.length() < 2) {
-			is_candidate = false;
-			current_event = "";
-			continue;
-		}
-
-		if (line.find("H: Handlers=") != std::string::npos) {
-			if (line.find("kbd") != std::string::npos) {
-				size_t pos = line.find("event");
-				if (pos != std::string::npos) {
-					std::stringstream ss(line.substr(pos));
-					ss >> current_event;
-					is_candidate = true;
-				}
-			}
-		}
-
-		if (is_candidate && line.find("B: KEY=") != std::string::npos) {
-			std::string mask = line.substr(line.find('=') + 1);
-
-			if (mask.length() > 30) {
-				return "/dev/input/" + current_event;
-			}
-		}
-	}
-
-	return "";
-}
 
 /*
 AT-SPI has a listener where you need to register the required events one by one and then process them with a callback.
@@ -120,42 +80,30 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 
 void CEventListenerAtspi::StartEvdevWatcher() {
 	m_keyboardListenerThread = std::jthread([this](const std::stop_token& stop_token) -> void {
-		struct input_event ev{};
-
-		while (!stop_token.stop_requested()) {
-			auto dev = FindKeyboardDevice();
-			if (dev.empty()) {
-				std::this_thread::sleep_for(std::chrono::seconds(2));
-				continue;
-			}
-
-			auto fd = open(dev.c_str(), O_RDONLY | O_NONBLOCK);
-			if (fd < 0) {
-				std::this_thread::sleep_for(std::chrono::seconds(2));
-				continue;
-			}
-
-			try {
-				CUinputDevice virtual_device;
-				virtual_device.ResetKeys();
-				while (!stop_token.stop_requested()) {
+		try {
+			CUinputDevice virtual_device;
+			CDescriptorManager descriptor_manager("/dev/input");
+			CTimer update_timer;
+			descriptor_manager.Update();
+			virtual_device.ResetKeys();
+			while (!stop_token.stop_requested()) {
+				if (update_timer.Elapsed() > 500) {
+					descriptor_manager.Update();
+					update_timer.Restart();
+				}
+				for (int fd : descriptor_manager.GetAll()) {
+					struct input_event ev{};
 					ssize_t n = read(fd, &ev, sizeof(ev));
-
-					if (n < 0) {
-						if (errno == EAGAIN || errno == EWOULDBLOCK) {
-							std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					if (n == sizeof(ev)) {
+						if (ev.type != EV_KEY) {
+							virtual_device.Post(ev.type, ev.code, ev.value);
 							continue;
 						}
-						break;
-					}
-
-					if (n == sizeof(ev) && ev.type == EV_KEY) {
-
 						CKeyboardEvent keyboard_event;
 						keyboard_event.keycode = LinuxKeycodeToKeyboardEventKeycode(ev.code);
-						if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.keycode)) {
-							virtual_device.Post(ev.type, ev.code, ev.value);
-						}
+						//						if (!KeyboardHandler::GetInstance().IsHooked(keyboard_event.keycode)) {
+						virtual_device.Post(ev.type, ev.code, ev.value);
+						//						}
 
 						switch (ev.value) {
 						case 1:
@@ -169,16 +117,12 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						}
 						EventQueue::GetInstance().Push(std::move(keyboard_event));
 					}
-					else
-						virtual_device.Post(ev.type, ev.code, ev.value);
+					std::this_thread::sleep_for(std::chrono::milliseconds(5));
 				}
-				virtual_device.ResetKeys();
 			}
-			catch (const std::exception& standard_exception) {
-				LogException(standard_exception);
-			}
-			if (fd > 0)
-				close(fd);
+		}
+		catch (const std::exception& standard_exception) {
+			LogException(standard_exception);
 		}
 	});
 }
