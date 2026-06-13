@@ -22,11 +22,48 @@ module;
 #include <dirent.h>
 #include <fcntl.h>
 #include <format>
+#include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <string_view>
 #include <unistd.h>
 #include <vector>
+
+#define NBITS(x) ((((x) - 1) / (sizeof(long int) * 8)) + 1)
+#define test_bit(bit, array) (((array)[(bit) / (sizeof(long int) * 8)] >> ((bit) % (sizeof(long) * 8))) & 1)
 module Platforms.Linux.DescriptorManager;
+
+[[nodiscard]] auto CDescriptorManager::IsPhysicalKeyboard(int descriptor) noexcept -> bool {
+	struct input_id id;
+	if (ioctl(descriptor, EVIOCGID, &id) < 0) {
+		return false;
+	}
+
+	if (id.bustype == BUS_VIRTUAL) {
+		return false;
+	}
+
+	unsigned long int evbit[NBITS(EV_MAX)];
+	if (ioctl(descriptor, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) {
+		return false;
+	}
+
+	if (!test_bit(EV_KEY, evbit) || !test_bit(EV_REP, evbit)) {
+		return false;
+	}
+
+	unsigned long int keybit[NBITS(KEY_MAX)];
+	if (ioctl(descriptor, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) {
+		return false;
+	}
+
+	for (int i = KEY_ESC; i <= KEY_MICMUTE; ++i) {
+		if (test_bit(i, keybit)) {
+			return true;
+		}
+	}
+
+	return false;
+}
 
 void CDescriptorManager::PushBad(int descriptor) noexcept {
 	std::erase(m_descriptors, descriptor);
@@ -60,7 +97,12 @@ void CDescriptorManager::Update() {
 			continue;
 		auto path = std::format("{}/{}", m_currentDirectory, name);
 		auto descriptor = open(path.c_str(), O_RDONLY | O_NONBLOCK);
-		if (descriptor > 0)
+		if (descriptor > 0) {
+			if (!IsPhysicalKeyboard(descriptor)) {
+				close(descriptor);
+				continue;
+			}
 			PushGood(descriptor);
+		}
 	}
 }

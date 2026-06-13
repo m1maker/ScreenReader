@@ -31,6 +31,8 @@ export class CDescriptorManager final {
 
 	void PushGood(int descriptor);
 
+	[[nodiscard]] static auto IsPhysicalKeyboard(int descriptor) noexcept -> bool;
+
 public:
 	explicit CDescriptorManager(std::string_view directory) noexcept : m_currentDirectory(directory) {}
 	~CDescriptorManager() noexcept { CloseAll(); }
