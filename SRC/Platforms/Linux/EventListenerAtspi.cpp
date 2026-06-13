@@ -100,7 +100,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					}
 					if (n == sizeof(ev)) {
 						if (ev.type != EV_KEY) {
-							virtual_device.Post(ev.type, ev.code, ev.value);
 							continue;
 						}
 						CKeyboardEvent keyboard_event;
