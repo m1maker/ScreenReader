@@ -22,6 +22,7 @@ module;
 #include <dirent.h>
 #include <fcntl.h>
 #include <format>
+#include <linux/input.h>
 #include <string_view>
 #include <unistd.h>
 #include <vector>
@@ -33,6 +34,7 @@ void CDescriptorManager::PushBad(int descriptor) noexcept {
 
 void CDescriptorManager::CloseAll() {
 	for (int descriptor : m_descriptors) {
+		ioctl(descriptor, EVIOCGRAB, 0);
 		close(descriptor);
 	}
 
@@ -44,6 +46,7 @@ void CDescriptorManager::PushGood(int descriptor) {
 	if (it != m_descriptors.end())
 		return;
 
+	ioctl(descriptor, EVIOCGRAB, 1);
 	m_descriptors.push_back(descriptor);
 }
 

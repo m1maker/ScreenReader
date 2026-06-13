@@ -69,29 +69,11 @@ void CUinputDevice::SetupVirtualDevice() {
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
-CUinputDevice::CUinputDevice(int device_to_grab) : m_devFd(device_to_grab) {
+CUinputDevice::CUinputDevice() {
 	SetupVirtualDevice();
-	Grab(m_devFd);
-}
-
-void CUinputDevice::Grab(int device_to_grab) {
-	if (m_devFd >= 0) {
-		ioctl(m_devFd, EVIOCGRAB, 0);
-	}
-
-	if (device_to_grab == -1) {
-		m_devFd = -1;
-		return;
-	}
-	if (ioctl(device_to_grab, EVIOCGRAB, 1) < 0) {
-		throw std::runtime_error("Failed to grab device (EVIOCGRAB)");
-	}
-
-	m_devFd = device_to_grab;
 }
 
 CUinputDevice::~CUinputDevice() {
-	Grab(-1);
 	if (m_uinputFd >= 0) {
 		ioctl(m_uinputFd, UI_DEV_DESTROY);
 		close(m_uinputFd);

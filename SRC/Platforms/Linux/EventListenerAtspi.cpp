@@ -136,7 +136,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			}
 
 			try {
-				CUinputDevice virtual_device(fd);
+				CUinputDevice virtual_device;
 				virtual_device.ResetKeys();
 				while (!stop_token.stop_requested()) {
 					ssize_t n = read(fd, &ev, sizeof(ev));
