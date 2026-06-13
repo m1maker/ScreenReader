@@ -25,6 +25,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <string_view>
+#include <sys/epoll.h>
 #include <sys/inotify.h>
 #include <unistd.h>
 #include <vector>
@@ -71,14 +72,29 @@ CDescriptorManager::CDescriptorManager(std::string_view directory) : m_currentDi
 	if (m_inotifyFd >= 0) {
 		m_watchWd = inotify_add_watch(m_inotifyFd, m_currentDirectory.data(), IN_CREATE | IN_DELETE);
 	}
+
+	m_epollFd = epoll_create1(0);
+	if (m_epollFd >= 0 && m_inotifyFd >= 0) {
+		struct epoll_event ev{};
+		ev.events = EPOLLIN;
+		ev.data.fd = m_inotifyFd;
+		epoll_ctl(m_epollFd, EPOLL_CTL_ADD, m_inotifyFd, &ev);
+	}
+
 	ScanCurrentDirectory();
 }
 
 CDescriptorManager::~CDescriptorManager() noexcept {
 	if (m_watchWd >= 0)
 		inotify_rm_watch(m_inotifyFd, m_watchWd);
-	if (m_inotifyFd >= 0)
+	if (m_inotifyFd >= 0) {
+		if (m_epollFd >= 0)
+			epoll_ctl(m_epollFd, EPOLL_CTL_DEL, m_inotifyFd, nullptr);
 		close(m_inotifyFd);
+	}
+
+	if (m_epollFd >= 0)
+		close(m_epollFd);
 	CloseAll();
 }
 

@@ -25,8 +25,9 @@ module;
 export module Platforms.Linux.DescriptorManager;
 
 export class CDescriptorManager final {
-	int m_inotifyFd{-1};
-	int m_watchWd{-1};
+	int m_inotifyFd{-1}, m_watchWd{-1}, m_epollFd{-1};
+
+	static constexpr auto cEpollMaxEvents = 128;
 
 	std::vector<int> m_descriptors;
 
