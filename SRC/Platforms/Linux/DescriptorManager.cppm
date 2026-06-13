@@ -18,6 +18,7 @@
  */
 
 module;
+struct epoll_event;
 #include <cstdint>
 #include <span>
 #include <string_view>
@@ -46,6 +47,8 @@ public:
 	void CloseAll();
 
 	void Update();
+
+	[[nodiscard]] auto Poll() -> std::span<struct ::epoll_event>;
 
 	[[nodiscard]] auto GetAll() const noexcept -> std::span<const int> { return m_descriptors; }
 };

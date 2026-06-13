@@ -158,3 +158,9 @@ void CDescriptorManager::ScanCurrentDirectory() {
 	}
 	closedir(directory);
 }
+
+[[nodiscard]] auto CDescriptorManager::Poll() -> std::span<struct ::epoll_event> {
+	static struct epoll_event events[cEpollMaxEvents];
+	auto size = epoll_wait(m_epollFd, events, cEpollMaxEvents, 100);
+	return std::span<struct epoll_event>(events, size);
+}
