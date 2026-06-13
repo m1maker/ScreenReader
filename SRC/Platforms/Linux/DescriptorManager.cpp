@@ -92,10 +92,9 @@ CDescriptorManager::~CDescriptorManager() noexcept {
 			epoll_ctl(m_epollFd, EPOLL_CTL_DEL, m_inotifyFd, nullptr);
 		close(m_inotifyFd);
 	}
-
+	CloseAll();
 	if (m_epollFd >= 0)
 		close(m_epollFd);
-	CloseAll();
 }
 
 void CDescriptorManager::PushBad(int descriptor) noexcept {
@@ -105,6 +104,7 @@ void CDescriptorManager::PushBad(int descriptor) noexcept {
 void CDescriptorManager::CloseAll() {
 	for (int descriptor : m_descriptors) {
 		ioctl(descriptor, EVIOCGRAB, 0);
+		epoll_ctl(m_epollFd, EPOLL_CTL_DEL, descriptor, nullptr);
 		close(descriptor);
 	}
 
@@ -117,6 +117,11 @@ void CDescriptorManager::PushGood(int descriptor) {
 		return;
 
 	ioctl(descriptor, EVIOCGRAB, 1);
+	struct epoll_event ev{};
+	ev.events = EPOLLIN;
+	ev.data.fd = descriptor;
+	epoll_ctl(m_epollFd, EPOLL_CTL_ADD, descriptor, &ev);
+
 	m_descriptors.push_back(descriptor);
 }
 
