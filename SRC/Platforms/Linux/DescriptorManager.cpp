@@ -24,6 +24,7 @@ module;
 #include <format>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
+#include <string.h>
 #include <string_view>
 #include <sys/epoll.h>
 #include <sys/inotify.h>
@@ -146,7 +147,7 @@ void CDescriptorManager::Update() {
 void CDescriptorManager::ScanCurrentDirectory() {
 	auto directory = opendir(m_currentDirectory.data());
 	if (!directory) [[unlikely]] {
-		Log(ERROR, "Failed to open {}", m_currentDirectory);
+		Log(ERROR, "Failed to open {}^: {}", m_currentDirectory, strerror(errno));
 		return;
 	}
 
@@ -164,6 +165,9 @@ void CDescriptorManager::ScanCurrentDirectory() {
 				continue;
 			}
 			PushGood(descriptor);
+		}
+		else {
+			Log(ERROR, "Failed to open {}: {}", path, strerror(errno));
 		}
 	}
 	closedir(directory);
