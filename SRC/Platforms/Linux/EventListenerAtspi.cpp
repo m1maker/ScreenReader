@@ -94,6 +94,10 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 				for (int fd : descriptor_manager.GetAll()) {
 					struct input_event ev{};
 					ssize_t n = read(fd, &ev, sizeof(ev));
+					if (errno == EBADFD) {
+						descriptor_manager.PushBad(fd);
+						break;
+					}
 					if (n == sizeof(ev)) {
 						if (ev.type != EV_KEY) {
 							virtual_device.Post(ev.type, ev.code, ev.value);
