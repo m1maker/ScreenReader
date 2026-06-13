@@ -25,6 +25,7 @@ module;
 #include <fstream>
 #include <linux/input.h>
 #include <sstream>
+#include <sys/epoll.h>
 #include <thread>
 #include <unistd.h>
 module Platforms.Linux.EventListener;
@@ -90,7 +91,14 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					descriptor_manager.Update();
 					update_timer.Restart();
 				}
-				for (int fd : descriptor_manager.GetAll()) {
+
+				auto events = descriptor_manager.Poll();
+				if (events.empty()) {
+					std::this_thread::yield();
+					continue;
+				}
+				for (auto&& event : events) {
+					auto fd = event.data.fd;
 					struct input_event ev{};
 					ssize_t n = read(fd, &ev, sizeof(ev));
 					if (errno == EBADFD) {
@@ -120,7 +128,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 						EventQueue::GetInstance().Push(std::move(keyboard_event));
 					}
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 		}
 		catch (const std::exception& standard_exception) {
