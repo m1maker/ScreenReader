@@ -25,17 +25,21 @@ module;
 export module Platforms.Linux.DescriptorManager;
 
 export class CDescriptorManager final {
+	int m_inotifyFd{-1};
+	int m_watchWd{-1};
+
 	std::vector<int> m_descriptors;
 
 	std::string_view m_currentDirectory;
+	void ScanCurrentDirectory();
 
 	void PushGood(int descriptor);
 
 	[[nodiscard]] static auto IsPhysicalKeyboard(int descriptor) noexcept -> bool;
 
 public:
-	explicit CDescriptorManager(std::string_view directory) noexcept : m_currentDirectory(directory) {}
-	~CDescriptorManager() noexcept { CloseAll(); }
+	explicit CDescriptorManager(std::string_view directory);
+	~CDescriptorManager() noexcept;
 
 	void PushBad(int descriptor) noexcept;
 	void CloseAll();

@@ -25,6 +25,7 @@ module;
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <string_view>
+#include <sys/inotify.h>
 #include <unistd.h>
 #include <vector>
 
@@ -65,6 +66,22 @@ module Platforms.Linux.DescriptorManager;
 	return false;
 }
 
+CDescriptorManager::CDescriptorManager(std::string_view directory) : m_currentDirectory(directory) {
+	m_inotifyFd = inotify_init1(IN_NONBLOCK);
+	if (m_inotifyFd >= 0) {
+		m_watchWd = inotify_add_watch(m_inotifyFd, m_currentDirectory.data(), IN_CREATE | IN_DELETE);
+	}
+	ScanCurrentDirectory();
+}
+
+CDescriptorManager::~CDescriptorManager() noexcept {
+	if (m_watchWd >= 0)
+		inotify_rm_watch(m_inotifyFd, m_watchWd);
+	if (m_inotifyFd >= 0)
+		close(m_inotifyFd);
+	CloseAll();
+}
+
 void CDescriptorManager::PushBad(int descriptor) noexcept {
 	std::erase(m_descriptors, descriptor);
 }
@@ -88,6 +105,19 @@ void CDescriptorManager::PushGood(int descriptor) {
 }
 
 void CDescriptorManager::Update() {
+	if (m_inotifyFd < 0) {
+		ScanCurrentDirectory();
+		return;
+	}
+
+	char buffer[4096];
+	auto len = read(m_inotifyFd, buffer, sizeof(buffer));
+	if (len > 0) {
+		ScanCurrentDirectory();
+	}
+}
+
+void CDescriptorManager::ScanCurrentDirectory() {
 	auto directory = opendir(m_currentDirectory.data());
 	if (!directory) [[unlikely]]
 		return;
@@ -105,4 +135,5 @@ void CDescriptorManager::Update() {
 			PushGood(descriptor);
 		}
 	}
+	closedir(directory);
 }

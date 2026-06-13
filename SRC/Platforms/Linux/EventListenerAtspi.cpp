@@ -84,7 +84,6 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 			CUinputDevice virtual_device;
 			CDescriptorManager descriptor_manager("/dev/input");
 			CTimer update_timer;
-			descriptor_manager.Update();
 			virtual_device.ResetKeys();
 			while (!stop_token.stop_requested()) {
 				if (update_timer.Elapsed() > 500) {
