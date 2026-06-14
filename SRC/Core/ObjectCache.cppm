@@ -85,6 +85,7 @@ public:
 		LifecycleTrait<NativeHandle>::Release(native_handle);
 		using T = CObjectProxy::CacheType;
 		it->second.proxy_cache_memory->~T();
+		m_pool.deallocate(it->second.proxy_cache_memory, sizeof(T));
 		it->second.data->~ObjectData();
 		m_pool.deallocate(it->second.data, sizeof(ObjectData));
 		m_cache.erase(it);
