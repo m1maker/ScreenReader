@@ -94,6 +94,28 @@ public:
 
 	void SetCacheMemory(CacheType* memory) const noexcept { m_cache = memory; }
 
+	void InvalidateCacheByEvent(EObjectEventType event) const noexcept {
+		if (!m_cache) [[unlikely]]
+			return;
+		using enum EObjectEventType;
+		switch (event) {
+		case STATE_CHANGED:
+			m_cache->states.reset();
+			break;
+		case LAYOUT_UPDATED:
+			m_cache->index.reset();
+			break;
+		case NAME_CHANGED:
+			m_cache->name.reset();
+			break;
+		case DESCRIPTION_CHANGED:
+			m_cache->description.reset();
+			break;
+		default:
+			break;
+		}
+	}
+
 	CObjectProxy() = default;
 	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
 	~CObjectProxy() { m_cache = nullptr; }
