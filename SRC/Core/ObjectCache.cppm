@@ -28,7 +28,8 @@ import Core.Singleton;
 import Proxies.Object;
 import Traits.RefCountedObject;
 
-export template <class NativeHandle, typename ObjectData> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle, ObjectData>> {
+export template <class NativeHandle, typename ObjectData>
+class TObjectCache final : public TSingleton<TObjectCache<NativeHandle, ObjectData>> {
 	struct SCachedObject final {
 		ObjectData* data{nullptr};
 		CObjectProxy proxy;
@@ -36,6 +37,7 @@ export template <class NativeHandle, typename ObjectData> class TObjectCache fin
 
 	std::pmr::unsynchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle*, SCachedObject> m_cache;
+
 public:
 	TObjectCache() : m_cache(&m_pool) {}
 
@@ -68,8 +70,8 @@ public:
 		if (it == m_cache.end()) [[unlikely]]
 			return s_invalid;
 
-	return it->second.proxy;
-}
+		return it->second.proxy;
+	}
 
 	void Remove(NativeHandle* native_handle) {
 		auto it = m_cache.find(native_handle);
