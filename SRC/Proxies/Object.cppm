@@ -19,6 +19,7 @@
 
 module;
 #include <expected>
+#include <optional>
 #include <string_view>
 #include <variant>
 export module Proxies.Object;
@@ -69,26 +70,48 @@ public:
 };
 
 export class CObjectProxy final : public TUnknownProxy<ObjectVariant> {
+	mutable std::optional<EObjectType> m_cachedType;
+	mutable std::optional<ObjectStateMask> m_cachedStates;
+	mutable std::optional<ObjectCapabilityMask> m_cachedCapabilities;
+	mutable std::optional<int> m_cachedIndex;
+	mutable std::optional<std::string_view> m_cachedApplicationName, m_cachedName, m_cachedDescription;
+
 public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
 	~CObjectProxy() = default;
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-		return With<EObjectType>([](auto&& obj) { return obj.GetType(); });
+		if (m_cachedType)
+			return *m_cachedType;
+		auto result = With<EObjectType>([](auto&& obj) { return obj.GetType(); });
+		if (result)
+			m_cachedType = *result;
+		return result;
 	}
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
-		return With<ObjectStateMask>([](auto&& obj) { return obj.GetState(); });
+		if (m_cachedStates)
+			return *m_cachedStates;
+		auto result = With<ObjectStateMask>([](auto&& obj) { return obj.GetState(); });
+		if (result)
+			m_cachedStates = *result;
+		return result;
 	}
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		return With<ObjectCapabilityMask>([](auto&& obj) { return obj.GetCapabilities(); });
+		if (m_cachedCapabilities)
+			return *m_cachedCapabilities;
+		auto result = With<ObjectCapabilityMask>([](auto&& obj) { return obj.GetCapabilities(); });
+		if (result)
+			m_cachedCapabilities = *result;
+		return result;
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
 		ObjectResult<ObjectVariant> variant =
 			With<ObjectVariant>([](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetParent(); });
-		if (variant)
-			return ObjectResult<CObjectProxy>(variant.value());
+		if (variant) {
+			return CObjectProxy(variant.value());
+		}
 		return std::unexpected(variant.error());
 	}
 
@@ -104,7 +127,12 @@ public:
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		return With<int>([](auto&& obj) { return obj.GetIndex(); });
+		if (m_cachedIndex)
+			return *m_cachedIndex;
+		auto result = With<int>([](auto&& obj) { return obj.GetIndex(); });
+		if (result)
+			m_cachedIndex = *result;
+		return result;
 	}
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
@@ -112,13 +140,28 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-		return With<std::string_view>([](auto&& obj) { return obj.GetApplicationName(); });
+		if (m_cachedApplicationName)
+			return *m_cachedApplicationName;
+		auto result = With<std::string_view>([](auto&& obj) { return obj.GetApplicationName(); });
+		if (result)
+			m_cachedApplicationName = *result;
+		return result;
 	}
 	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
-		return With<std::string_view>([](auto&& obj) { return obj.GetName(); });
+		if (m_cachedName)
+			return *m_cachedName;
+		auto result = With<std::string_view>([](auto&& obj) { return obj.GetName(); });
+		if (result)
+			m_cachedName = *result;
+		return result;
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-		return With<std::string_view>([](auto&& obj) { return obj.GetDescription(); });
+		if (m_cachedDescription)
+			return *m_cachedDescription;
+		auto result = With<std::string_view>([](auto&& obj) { return obj.GetDescription(); });
+		if (result)
+			m_cachedDescription = *result;
+		return result;
 	}
 };
 
