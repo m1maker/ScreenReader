@@ -54,6 +54,7 @@ target_sources(${PROJECT_NAME}
         Message.cppm
         MessageBuilder.cppm
         Object.cppm
+        ObjectCache.cppm
         ObjectHandler.cppm
         ObjectMeta.cppm
         ObjectNavigator.cppm

@@ -34,6 +34,7 @@ import Core.Event;
 import Core.EventQueue;
 import Core.KeyboardHandler;
 import Core.Object;
+import Core.ObjectCache;
 import Core.SpeechSystem;
 import Core.Timer;
 import Platforms.Linux.DescriptorManager;
@@ -73,9 +74,9 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	object_event.type = type;
 	g_object_ref(event->source);
 	auto object =
-		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
+		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(event->source);
 	object.UpdateCacheByEvent(type);
-	object_event.object = CObjectProxy(object);
+	object_event.object = 	TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetProxy(event->source);
 	EventQueue::GetInstance().Push(std::move(object_event));
 	g_boxed_free(ATSPI_TYPE_EVENT, event);
 }
@@ -174,7 +175,7 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance();
+	TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance();
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -191,7 +192,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 		g_object_unref(m_objectEventListener);
 	}
 
-	CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
+	TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
 }
 
 struct SInvocationContext final {

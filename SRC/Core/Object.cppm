@@ -20,18 +20,11 @@
 module;
 #include <bitset>
 #include <expected>
-#include <map>
-#include <memory>
-#include <memory_resource>
-#include <mutex>
 #include <string_view>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 export module Core.Object;
 import Core.Rect;
 import Core.Text;
-import Traits.RefCountedObject;
 
 export enum class EObjectType : unsigned char {
 	UNKNOWN = 0,
@@ -318,57 +311,3 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 			   "accessibility API.";
 	}
 }
-
-export template <class NativeHandle, typename ObjectData> class CObjectCache final {
-	std::pmr::unsynchronized_pool_resource m_pool;
-	std::pmr::unordered_map<NativeHandle*, ObjectData*> m_cache;
-	explicit CObjectCache() : m_cache(&m_pool) {}
-
-public:
-	// template<class NativeHandle, typename ObjectData>
-	static auto& GetInstance() {
-		static CObjectCache<NativeHandle, ObjectData> instance;
-		return instance;
-	}
-
-	template <typename PlatformObject> [[nodiscard]] auto GetOrCreate(NativeHandle* native_handle) -> PlatformObject {
-		if (!native_handle)
-			return PlatformObject();
-
-		auto it = m_cache.find(native_handle);
-		if (it != m_cache.end()) {
-			if (auto existing = it->second) {
-				LifecycleTrait<NativeHandle>::Release(native_handle);
-				return PlatformObject(native_handle, existing, &m_pool);
-			}
-			Remove(native_handle);
-		}
-
-		auto raw = m_pool.allocate(sizeof(ObjectData));
-		auto object_data = new (raw) ObjectData();
-
-		auto new_object = PlatformObject(native_handle, object_data, &m_pool);
-		m_cache[native_handle] = object_data;
-
-		return new_object;
-	}
-
-	void Remove(NativeHandle* native_handle) {
-		auto it = m_cache.find(native_handle);
-		if (it == m_cache.end()) [[unlikely]]
-			return;
-
-		LifecycleTrait<NativeHandle>::Release(native_handle);
-		it->second->~ObjectData();
-		m_pool.deallocate(it->second, sizeof(ObjectData));
-		m_cache.erase(it);
-	}
-
-	void Clear() {
-		for (auto [handle, _] : m_cache) {
-			Remove(handle);
-		}
-
-		m_cache.clear();
-	}
-};

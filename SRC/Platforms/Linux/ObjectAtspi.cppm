@@ -478,7 +478,6 @@ export template <typename T> struct SAtspiIface final {
 
 export class CObjectAtspi final {
 	std::pmr::memory_resource* m_pool{nullptr};
-	friend class CObjectCache<AtspiAccessible, struct SObjectAtspiData>;
 
 	mutable AtspiAccessible* m_accessible{nullptr};
 

@@ -24,6 +24,7 @@ module;
 #include <string>
 #include <utility>
 module Platforms.Linux.Object;
+import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
@@ -113,7 +114,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		return std::unexpected(EObjectError::FAIL);
 
 	auto parent_object =
-		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_parent);
+		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_parent);
 	return parent_object;
 }
 
@@ -128,7 +129,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		return std::unexpected(EObjectError::FAIL);
 
 	auto child_object =
-		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_child);
+		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_child);
 	return child_object;
 }
 
@@ -277,7 +278,7 @@ void CObjectAtspi::UpdateCacheByEvent(EObjectEventType event) {
 		return std::unexpected(EObjectError::FAIL);
 
 	auto selected_child_object =
-		CObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_selected_child);
+		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_selected_child);
 	return selected_child_object;
 }
 
