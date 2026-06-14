@@ -81,39 +81,43 @@ public:
 };
 
 export class CObjectProxy final : public TUnknownProxy<ObjectVariant> {
-	mutable std::optional<EObjectType> m_cachedType;
-	mutable std::optional<ObjectStateMask> m_cachedStates;
-	mutable std::optional<ObjectCapabilityMask> m_cachedCapabilities;
-	mutable std::optional<int> m_cachedIndex;
-	mutable std::optional<std::string_view> m_cachedApplicationName, m_cachedName, m_cachedDescription;
+	mutable struct {
+		std::optional<EObjectType> type;
+		std::optional<ObjectStateMask> states;
+		std::optional<ObjectCapabilityMask> capabilities;
+		std::optional<int> index;
+		std::optional<std::string_view> application_name, name, description;
+	}* m_cache{nullptr};
 
 public:
+	using CacheType = std::decay_t<decltype(m_cache)>;
+
 	CObjectProxy() = default;
 	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
-	~CObjectProxy() = default;
+	~CObjectProxy() { m_cache = nullptr; }
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-		if (m_cachedType)
-			return *m_cachedType;
+		if (m_cache && m_cache->type)
+			return *m_cache->type;
 		auto result = With<EObjectType>([](auto&& obj) { return obj.GetType(); });
-		if (result)
-			m_cachedType = *result;
+		if (result && m_cache)
+			m_cache->type = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
-		if (m_cachedStates)
-			return *m_cachedStates;
+		if (m_cache && m_cache->states)
+			return *m_cache->states;
 		auto result = With<ObjectStateMask>([](auto&& obj) { return obj.GetState(); });
-		if (result)
-			m_cachedStates = *result;
+		if (result && m_cache)
+			m_cache->states = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		if (m_cachedCapabilities)
-			return *m_cachedCapabilities;
+		if (m_cache && m_cache->capabilities)
+			return *m_cache->capabilities;
 		auto result = With<ObjectCapabilityMask>([](auto&& obj) { return obj.GetCapabilities(); });
-		if (result)
-			m_cachedCapabilities = *result;
+		if (result && m_cache)
+			m_cache->capabilities = *result;
 		return result;
 	}
 
@@ -138,11 +142,11 @@ public:
 		return std::unexpected(variant.error());
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		if (m_cachedIndex)
-			return *m_cachedIndex;
+		if (m_cache && m_cache->index)
+			return *m_cache->index;
 		auto result = With<int>([](auto&& obj) { return obj.GetIndex(); });
-		if (result)
-			m_cachedIndex = *result;
+		if (result && m_cache)
+			m_cache->index = *result;
 		return result;
 	}
 
@@ -151,27 +155,27 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-		if (m_cachedApplicationName)
-			return *m_cachedApplicationName;
+		if (m_cache && m_cache->application_name)
+			return *m_cache->application_name;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetApplicationName(); });
-		if (result)
-			m_cachedApplicationName = *result;
+		if (result && m_cache)
+			m_cache->application_name = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
-		if (m_cachedName)
-			return *m_cachedName;
+		if (m_cache && m_cache->name)
+			return *m_cache->name;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetName(); });
-		if (result)
-			m_cachedName = *result;
+		if (result && m_cache)
+			m_cache->name = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-		if (m_cachedDescription)
-			return *m_cachedDescription;
+		if (m_cache && m_cache->description)
+			return *m_cache->description;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetDescription(); });
-		if (result)
-			m_cachedDescription = *result;
+		if (result && m_cache)
+			m_cache->description = *result;
 		return result;
 	}
 };
