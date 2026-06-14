@@ -48,6 +48,8 @@ struct SEventTypeMapEntry final {
 
 constexpr std::array cAtspiObjectEventTypeMap = {
 	SEventTypeMapEntry{"object:state-changed:focused", EObjectEventType::FOCUS_GAINED},
+	SEventTypeMapEntry{"window:activate", EObjectEventType::FOCUS_GAINED},
+	SEventTypeMapEntry{"focus:", EObjectEventType::FOCUS_GAINED},
 	SEventTypeMapEntry{"object:state-changed:checked", EObjectEventType::STATE_CHANGED},
 	SEventTypeMapEntry{"object:selection-changed", EObjectEventType::SELECTION_CHANGED},
 	SEventTypeMapEntry{"object:text-selection-changed", EObjectEventType::TEXT_SELECTION_CHANGED},
