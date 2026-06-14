@@ -77,6 +77,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	object.UpdateCacheByEvent(type);
 	object_event.object = CObjectProxy(object);
 	EventQueue::GetInstance().Push(std::move(object_event));
+	g_boxed_free(ATSPI_TYPE_EVENT, event);
 }
 
 void CEventListenerAtspi::StartEvdevWatcher() {
