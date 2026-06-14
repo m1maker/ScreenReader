@@ -47,11 +47,10 @@ public:
 
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
-			if (auto existing = it->second.data) {
-				LifecycleTrait<NativeHandle>::Release(native_handle);
-				return PlatformObject(native_handle, existing, &m_pool);
-			}
-			Remove(native_handle);
+			LifecycleTrait<NativeHandle>::Release(native_handle);
+
+			auto implementation = it->second.proxy.template GetImpl<PlatformObject>();
+			return implementation;
 		}
 
 		auto raw = m_pool.allocate(sizeof(ObjectData));

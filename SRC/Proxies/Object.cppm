@@ -51,6 +51,17 @@ public:
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(m_variant); }
 
+	template <typename Impl> [[nodiscard]] auto GetImpl() const noexcept -> Impl {
+		return std::visit(
+			[](auto&& obj) -> Impl {
+				using T = std::decay_t<decltype(obj)>;
+				if constexpr (std::is_same_v<T, Impl>)
+					return obj;
+				return Impl();
+			},
+			m_variant);
+	}
+
 	bool IsValid() const {
 		auto valid = std::visit(
 			[&](auto&& obj) -> bool {
