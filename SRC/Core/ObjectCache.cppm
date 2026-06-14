@@ -33,6 +33,7 @@ class TObjectCache final : public TSingleton<TObjectCache<NativeHandle, ObjectDa
 	struct SCachedObject final {
 		ObjectData* data{nullptr};
 		CObjectProxy proxy;
+		CObjectProxy::CacheType* proxy_cache_memory{nullptr};
 	};
 
 	std::pmr::unsynchronized_pool_resource m_pool;
@@ -57,7 +58,11 @@ public:
 		auto object_data = new (raw) ObjectData();
 
 		auto new_object = PlatformObject(native_handle, object_data, &m_pool);
-		SCachedObject cached_object{.data = object_data, .proxy = CObjectProxy(new_object)};
+		raw = m_pool.allocate(sizeof(CObjectProxy::CacheType));
+		auto proxy_cache_memory = new (raw) CObjectProxy::CacheType;
+		SCachedObject cached_object{
+			.data = object_data, .proxy = CObjectProxy(new_object), .proxy_cache_memory = proxy_cache_memory};
+		cached_object.proxy.SetCacheMemory(proxy_cache_memory);
 		m_cache[native_handle] = cached_object;
 
 		return new_object;
@@ -78,6 +83,8 @@ public:
 			return;
 
 		LifecycleTrait<NativeHandle>::Release(native_handle);
+		using T = CObjectProxy::CacheType;
+		it->second.proxy_cache_memory->~T();
 		it->second.data->~ObjectData();
 		m_pool.deallocate(it->second.data, sizeof(ObjectData));
 		m_cache.erase(it);

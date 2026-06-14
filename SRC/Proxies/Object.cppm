@@ -90,7 +90,9 @@ export class CObjectProxy final : public TUnknownProxy<ObjectVariant> {
 	}* m_cache{nullptr};
 
 public:
-	using CacheType = std::decay_t<decltype(m_cache)>;
+	using CacheType = std::remove_pointer_t<decltype(m_cache)>;
+
+	void SetCacheMemory(CacheType* memory) const noexcept { m_cache = memory; }
 
 	CObjectProxy() = default;
 	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
