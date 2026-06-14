@@ -416,14 +416,12 @@ export [[nodiscard]] constexpr inline auto GetStateVariantFromAtspiState(AtspiSt
 }
 
 export [[nodiscard]] inline auto GetMergedObjectStateFromAtspiStates(AtspiStateSet* state_set) -> SMergedState {
-	GArray* array = atspi_state_set_get_states(state_set);
-	if (!array) [[unlikely]] {
-		return {};
-	}
-
 	SMergedState state{};
-	for (int i = 0; std::cmp_less(i, array->len); ++i) {
-		auto atspi_state = g_array_index(array, AtspiStateType, i);
+	for (int i = ATSPI_STATE_INVALID; i < ATSPI_STATE_LAST_DEFINED; ++i) {
+		auto atspi_state = static_cast<AtspiStateType>(i);
+		auto enabled = atspi_state_set_contains(state_set, atspi_state);
+		if (!enabled)
+			continue;
 		auto state_variant = GetStateVariantFromAtspiState(atspi_state);
 		std::visit(
 			[&state](auto&& value) {
@@ -436,7 +434,6 @@ export [[nodiscard]] inline auto GetMergedObjectStateFromAtspiStates(AtspiStateS
 			state_variant);
 	}
 
-	g_array_free(array, TRUE);
 	return state;
 }
 
