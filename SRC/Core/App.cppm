@@ -36,14 +36,8 @@ import Core.Logger;
 import Core.Singleton;
 import Core.SpeechSystem;
 
-// Define different screen reader startup options, command line and configuration.
-struct SScreenReaderAppOptions final {
-	SScreenReaderAppSettings settings;
-};
-
 export class ScreenReaderApp final : TModule<"Application">, public TSingleton<ScreenReaderApp> {
-
-	SScreenReaderAppOptions m_options;
+	SScreenReaderAppSettings m_settings;
 
 	/*
 	A platform dependent worker is the screen reader's most basic and main loop.
@@ -89,5 +83,5 @@ public:
 		g_running.store(false);
 	}
 
-	[[nodiscard]] auto GetSettings() -> SScreenReaderAppSettings& { return m_options.settings; }
+	[[nodiscard]] auto GetSettings() -> SScreenReaderAppSettings& { return m_settings; }
 };
