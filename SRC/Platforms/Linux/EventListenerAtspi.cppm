@@ -70,6 +70,19 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	return EObjectEventType::NONE;
 }
 
+[[nodiscard]] constexpr inline auto AtspiLiveToObjectLive(AtspiLive live) {
+	using enum EObjectLive;
+	switch (live) {
+	case ATSPI_LIVE_POLITE:
+		return POLITE;
+	case ATSPI_LIVE_ASSERTIVE:
+		return ASSERTIVE;
+	case ATSPI_LIVE_NONE:
+		return UNKNOWN;
+	}
+	return UNKNOWN;
+}
+
 [[nodiscard]] constexpr inline auto LinuxKeycodeToKeyboardEventKeycode(uint16_t linux_keycode) -> EKeycode {
 	switch (linux_keycode) {
 	case KEY_A:
