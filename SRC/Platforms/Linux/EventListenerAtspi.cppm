@@ -56,7 +56,9 @@ constexpr std::array cAtspiObjectEventTypeMap = {
 	SEventTypeMapEntry{"object:property-change:accessible-name", EObjectEventType::NAME_CHANGED},
 	SEventTypeMapEntry{"object:property-change:accessible-description", EObjectEventType::DESCRIPTION_CHANGED},
 	SEventTypeMapEntry{"object:property-change:accessible-value", EObjectEventType::VALUE_CHANGED},
-	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED}};
+	SEventTypeMapEntry{"object:text-caret-moved", EObjectEventType::CURSOR_MOVED},
+	SEventTypeMapEntry{"object:announcement", EObjectEventType::NONE}, // Add an entry for registration
+};
 
 [[nodiscard]] constexpr inline auto GetEventTypeFromString(gchar* type) -> EObjectEventType {
 	if (!type) [[unlikely]]

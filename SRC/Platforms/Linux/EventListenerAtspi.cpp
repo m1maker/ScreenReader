@@ -61,6 +61,15 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 
 	auto type = GetEventTypeFromString(event->type); // The most important thing is to determine the event type.
 	if (type == EObjectEventType::NONE) {
+		if (strstr(event->type, "announcement") != nullptr) {
+			CAnnouncementEvent announcement_event;
+			announcement_event.text = g_value_get_string(&event->any_data);
+			announcement_event.live = AtspiLiveToObjectLive(static_cast<AtspiLive>(event->detail1));
+			EventQueue::GetInstance().Push(std::move(announcement_event));
+			// g_value_unset(&event->any_data);
+			g_boxed_free(ATSPI_TYPE_EVENT, event);
+			return;
+		}
 		return;
 	}
 
