@@ -9,4 +9,5 @@ export class COutputSpeech final : TModule<"SpeechOutput"> {
 public:
 	void Stop();
 	void Output(CObjectEvent event);
+	void Output(CAnnouncementEvent event);
 };

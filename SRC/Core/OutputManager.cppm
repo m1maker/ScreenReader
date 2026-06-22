@@ -32,7 +32,7 @@ import Proxies.Object;
 import Proxies.Output;
 
 export class OutputManager final : TModule<"OutputManager">, public TSingleton<OutputManager> {
-	using OutputProxyMethodEvent = void (COutputProxy::*)(CObjectEvent);
+	template <typename T> using OutputProxyMethodEvent = void (COutputProxy::*)(T);
 	using OutputProxyMethodVoid = void (COutputProxy::*)(void);
 
 	bool m_isWhereAmIOperation{false};
@@ -42,7 +42,10 @@ export class OutputManager final : TModule<"OutputManager">, public TSingleton<O
 	static constexpr size_t cOutputCount = 1;
 	std::array<COutputProxy, cOutputCount> m_outputs;
 
-	template <OutputProxyMethodEvent Method> inline void WithAll(CObjectEvent event) {
+	template <typename T, OutputProxyMethodEvent<T> Method>
+	inline void WithAll(T event)
+		requires TIsObjectEvent<T>::value
+	{
 		for (auto&& output : m_outputs) {
 			(output.*Method)(event);
 		}
@@ -62,5 +65,10 @@ public:
 
 	inline void Stop() { WithAll<&COutputProxy::Stop>(); }
 
-	inline void Output(CObjectEvent event) { WithAll<&COutputProxy::Output>(event); }
+	template <typename T>
+	inline void Output(T event)
+		requires TIsObjectEvent<T>::value
+	{
+		WithAll<T, &COutputProxy::Output>(event);
+	}
 };

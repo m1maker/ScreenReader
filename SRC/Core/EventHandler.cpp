@@ -36,7 +36,7 @@ import Core.KeyboardHandler;
 import Core.KeyInfo;
 import Core.Object;
 import Core.ObjectHandler;
-import Core.SpeechSystem;
+import Core.OutputManager;
 
 EventHandler::EventHandler() : m_eventQueue(EventQueue::GetInstance()) {
 	auto& keyboard_handler = KeyboardHandler::GetInstance();
@@ -125,6 +125,10 @@ void EventHandler::Handle(CEvent&& event) {
 				if constexpr (std::is_same_v<T, CObjectEvent>) {
 					auto& object_handler = ObjectHandler::GetInstance();
 					object_handler.Handle(unpacked_event);
+				}
+				else if constexpr (std::is_same_v<T, CAnnouncementEvent>) {
+					auto& output_manager = OutputManager::GetInstance();
+					output_manager.Output(unpacked_event);
 				}
 				else if constexpr (std::is_same_v<T, CKeyboardEvent>) {
 					auto& keyboard_handler = KeyboardHandler::GetInstance();

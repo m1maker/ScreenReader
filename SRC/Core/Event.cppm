@@ -42,6 +42,25 @@ public:
 	CObjectProxy object;
 };
 
+export class CAnnouncementEvent final {
+public:
+	EObjectLive live;
+	std::string text;
+	CObjectProxy source;
+};
+
+export template <typename T> struct TIsObjectEvent final {
+	static constexpr bool value = false;
+};
+
+template <> struct TIsObjectEvent<CObjectEvent> final {
+	static constexpr bool value = true;
+};
+
+template <> struct TIsObjectEvent<CAnnouncementEvent> final {
+	static constexpr bool value = true;
+};
+
 /*
 The keyboard event category.
 Key pressed and released events. always dispatch a CKeyboardEvent.
@@ -53,13 +72,21 @@ public:
 	EKeycode keycode;
 };
 
+export template <typename T> struct TIsDeviceEvent final {
+	static constexpr bool value = false;
+};
+
+template <> struct TIsDeviceEvent<CKeyboardEvent> final {
+	static constexpr bool value = true;
+};
+
 namespace std {
 export template <> struct hash<SHotkeyInfo> {
 	auto operator()(const SHotkeyInfo& k) const noexcept -> std::size_t { return std::hash<uint32_t>{}(k.Pack()); }
 };
 } // namespace std
 
-export using EventVariant = std::variant<std::monostate, CObjectEvent, CKeyboardEvent>;
+export using EventVariant = std::variant<std::monostate, CObjectEvent, CAnnouncementEvent, CKeyboardEvent>;
 
 export class CEvent final {
 	EventVariant m_variant;
@@ -71,6 +98,9 @@ public:
 	CEvent(CObjectEvent&& object_event, allocator_type alloc = {}) : m_variant(std::move(object_event)) {}
 
 	CEvent(CKeyboardEvent&& keyboard_event, allocator_type alloc = {}) : m_variant(std::move(keyboard_event)) {}
+
+	CEvent(CAnnouncementEvent&& announcement_event, allocator_type alloc = {})
+		: m_variant(std::move(announcement_event)) {}
 
 	CEvent(CEvent&& other, allocator_type alloc) : m_variant(std::move(other.m_variant)) {}
 

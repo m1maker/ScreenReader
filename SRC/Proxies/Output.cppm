@@ -53,7 +53,10 @@ public:
 		With([](auto&& out) { out.Stop(); });
 	}
 
-	void Output(CObjectEvent event) {
+	template <typename T>
+	void Output(T event)
+		requires TIsObjectEvent<T>::value
+	{
 		With([event](auto&& out) { out.Output(event); });
 	}
 };

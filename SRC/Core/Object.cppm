@@ -311,3 +311,5 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 			   "accessibility API.";
 	}
 }
+
+export enum class EObjectLive : unsigned char { UNKNOWN = 0, POLITE, ASSERTIVE };

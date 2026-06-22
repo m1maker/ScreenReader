@@ -46,3 +46,13 @@ void COutputSpeech::Output(CObjectEvent event) {
 	}
 	SpeechSystem::GetInstance().Speak(message);
 }
+
+void COutputSpeech::Output(CAnnouncementEvent event) {
+	if (event.text.empty()) [[unlikely]]
+		return;
+
+	if (event.live == EObjectLive::ASSERTIVE)
+		SpeechSystem::GetInstance().Stop();
+
+	SpeechSystem::GetInstance().Speak(event.text);
+}
