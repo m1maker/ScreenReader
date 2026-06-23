@@ -69,6 +69,7 @@ target_sources(${PROJECT_NAME}
         SpeechSystem.cppm
         StateMeta.cppm
         Text.cppm
+        TextComparer.cppm
         Timer.cppm
         UnicodeData.cppm
         Utterance.cppm
