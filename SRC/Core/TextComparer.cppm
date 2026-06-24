@@ -47,8 +47,8 @@ public:
 
 	void Commit(std::string_view text);
 
-	void ClearHistory() noexcept;
-	void ClearChanges() noexcept;
+	inline void ClearHistory() noexcept { m_history.clear(); }
+	inline void ClearChanges() noexcept { m_changes.clear(); }
 	inline void Clear() noexcept {
 		ClearChanges();
 		ClearHistory();
