@@ -52,7 +52,7 @@ void COutputSpeech::Output(CAnnouncementEvent event) {
 		return;
 
 	if (event.live == EObjectLive::ASSERTIVE)
-		SpeechSystem::GetInstance().Stop();
+		SpeechSystem::GetInstance().Interrupt();
 
 	SpeechSystem::GetInstance().Speak(event.text);
 }
