@@ -28,6 +28,7 @@ target_sources(${PROJECT_NAME}
         Object.cpp
         ObjectHandler.cpp
         OutputManager.cpp
+        RecursiveObjectIterator.cpp
         SpeechEngineEspeakNg.cpp
         SpeechSystem.cpp
         Utterance.cpp
@@ -62,6 +63,7 @@ target_sources(${PROJECT_NAME}
         Outputs.cppm
         PlatformError.cppm
         Rect.cppm
+        RecursiveObjectIterator.cppm
         Rotor.cppm
         Singleton.cppm
         Speech.cppm
