@@ -23,9 +23,9 @@ export module Core.RecursiveObjectIterator;
 import Core.Timer;
 import Proxies.Object;
 
-enum class ERecursiveObjectIteratorInstruction : unsigned char { CONTINUE = 0, BREAK };
+export enum class ERecursiveObjectIteratorInstruction : unsigned char { CONTINUE = 0, BREAK };
 
-class CRecursiveObjectIterator final {
+export class CRecursiveObjectIterator final {
 	std::atomic_flag m_shouldStop;
 	mutable CTimer m_timer;
 
