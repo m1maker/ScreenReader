@@ -31,6 +31,7 @@ import Core.KeyInfo;
 import Core.KeyMeta;
 import Core.Object;
 import Core.ObjectMeta;
+import Core.RecursiveObjectIterator;
 import Core.StateMeta;
 import Core.Text;
 import Proxies.Object;
@@ -91,10 +92,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	if (is_container)
 		return;
 
-	auto collect_labels_recursive = [&](auto& self, auto&& current) -> void {
-		if (!current.IsValid())
-			return;
-
+	CRecursiveObjectIterator iterator;
+	iterator.Iterate(obj, [&message](CObjectProxy current) -> ERecursiveObjectIteratorInstruction {
 		auto current_type = current.GetType().value_or(EObjectType::UNKNOWN);
 		if (current_type == EObjectType::LABEL) {
 			auto name = current.GetName().value_or("");
@@ -104,27 +103,8 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 			}
 		}
 
-		if (auto children_count = current.GetChildrenCount()) {
-			for (auto i = 0; i < *children_count; ++i) {
-				auto child = current.GetChildAt(i);
-				if (child)
-					self(self, *child);
-			}
-		}
-	};
-
-	if (collect_all_labels) {
-		collect_labels_recursive(collect_labels_recursive, obj);
-	}
-
-	if (recursive) {
-		if (auto children_count = obj.GetChildrenCount()) {
-			for (auto i = 0; i < *children_count; ++i) {
-				if (auto child = obj.GetChildAt(i))
-					FindAnnouncementInHierarchy(message, *child, true, collect_all_labels);
-			}
-		}
-	}
+		return ERecursiveObjectIteratorInstruction::CONTINUE;
+	});
 }
 
 /*

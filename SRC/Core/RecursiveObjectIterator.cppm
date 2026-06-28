@@ -40,3 +40,51 @@ public:
 
 	void Stop() noexcept { m_shouldStop.test_and_set(std::memory_order_acquire); }
 };
+
+auto CRecursiveObjectIterator::Step(
+	CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) const
+	-> ERecursiveObjectIteratorInstruction {
+	if (depth == 0)
+		return ERecursiveObjectIteratorInstruction::BREAK;
+	auto children_count = from_start.GetChildrenCount();
+	if (!children_count || *children_count == 0)
+		return ERecursiveObjectIteratorInstruction::CONTINUE;
+
+	for (auto i = 0; i < *children_count; ++i) {
+		if (m_timer.Elapsed() > timeout_ms)
+			return ERecursiveObjectIteratorInstruction::BREAK;
+		auto next = from_start.GetChildAt(i);
+		if (!next || !next->IsValid())
+			continue;
+		auto instruction = lambda(*next);
+		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
+			return instruction;
+		instruction = Step(*next, lambda, depth - 1, timeout_ms);
+		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
+			return instruction;
+	}
+	return ERecursiveObjectIteratorInstruction::CONTINUE;
+}
+
+void CRecursiveObjectIterator::Iterate(
+	CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) {
+	if (!from_start.IsValid()) [[unlikely]]
+		return;
+
+	m_shouldStop.clear(std::memory_order::release);
+	m_timer.Restart();
+
+	auto children_count = from_start.GetChildrenCount();
+	if (!children_count || *children_count == 0)
+		return;
+	for (auto i = 0; i < *children_count; ++i) {
+		if (m_timer.Elapsed() > timeout_ms)
+			break;
+		auto next = from_start.GetChildAt(i);
+		if (!next || !next->IsValid())
+			continue;
+		auto instruction = Step(*next, lambda, depth, timeout_ms);
+		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
+			break;
+	}
+}

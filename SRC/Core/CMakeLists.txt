@@ -28,7 +28,6 @@ target_sources(${PROJECT_NAME}
         Object.cpp
         ObjectHandler.cpp
         OutputManager.cpp
-        RecursiveObjectIterator.cpp
         SpeechEngineEspeakNg.cpp
         SpeechSystem.cpp
         Utterance.cpp
