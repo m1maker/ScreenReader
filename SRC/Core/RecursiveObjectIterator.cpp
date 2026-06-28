@@ -24,7 +24,7 @@ module Core.RecursiveObjectIterator;
 import Proxies.Object;
 
 auto CRecursiveObjectIterator::Step(
-	CObjectProxy from_start, Callback callback, unsigned char depth, uint64_t timeout_ms) const
+	CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) const
 	-> ERecursiveObjectIteratorInstruction {
 	if (depth == 0)
 		return ERecursiveObjectIteratorInstruction::BREAK;
@@ -38,10 +38,10 @@ auto CRecursiveObjectIterator::Step(
 		auto next = from_start.GetChildAt(i);
 		if (!next || !next->IsValid())
 			continue;
-		auto instruction = callback(*next);
+		auto instruction = lambda(*next);
 		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
 			return instruction;
-		instruction = Step(*next, callback, depth - 1, timeout_ms);
+		instruction = Step(*next, lambda, depth - 1, timeout_ms);
 		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
 			return instruction;
 	}
@@ -49,7 +49,7 @@ auto CRecursiveObjectIterator::Step(
 }
 
 void CRecursiveObjectIterator::Iterate(
-	CObjectProxy from_start, Callback callback, unsigned char depth, uint64_t timeout_ms) {
+	CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) {
 	if (!from_start.IsValid()) [[unlikely]]
 		return;
 
@@ -65,7 +65,7 @@ void CRecursiveObjectIterator::Iterate(
 		auto next = from_start.GetChildAt(i);
 		if (!next || !next->IsValid())
 			continue;
-		auto instruction = Step(*next, callback, depth, timeout_ms);
+		auto instruction = Step(*next, lambda, depth, timeout_ms);
 		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
 			break;
 	}

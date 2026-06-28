@@ -30,16 +30,13 @@ export class CRecursiveObjectIterator final {
 	mutable CTimer m_timer;
 
 public:
-	using Callback = ERecursiveObjectIteratorInstruction (*)(CObjectProxy);
-
-private:
-	auto Step(CObjectProxy from_start, Callback callback, unsigned char depth, uint64_t timeout_ms) const
+	auto Step(CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) const
 		-> ERecursiveObjectIteratorInstruction;
 
 public:
 	CRecursiveObjectIterator() = default;
 
-	void Iterate(CObjectProxy from_start, Callback callback, unsigned char depth = 30, uint64_t timeout_ms = 30);
+	void Iterate(CObjectProxy from_start, auto&& lambda, unsigned char depth = 30, uint64_t timeout_ms = 30);
 
 	void Stop() noexcept { m_shouldStop.test_and_set(std::memory_order_acquire); }
 };
