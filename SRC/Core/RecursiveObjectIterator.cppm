@@ -44,14 +44,15 @@ public:
 auto CRecursiveObjectIterator::Step(
 	CObjectProxy from_start, auto&& lambda, unsigned char depth, uint64_t timeout_ms) const
 	-> ERecursiveObjectIteratorInstruction {
-	if (depth == 0)
+	if (depth == 0 || m_shouldStop.test(std::memory_order_acquire))
 		return ERecursiveObjectIteratorInstruction::BREAK;
+
 	auto children_count = from_start.GetChildrenCount();
 	if (!children_count || *children_count == 0)
 		return ERecursiveObjectIteratorInstruction::CONTINUE;
 
 	for (auto i = 0; i < *children_count; ++i) {
-		if (m_timer.Elapsed() > timeout_ms)
+		if (m_timer.Elapsed() > timeout_ms || m_shouldStop.test(std::memory_order_acquire))
 			return ERecursiveObjectIteratorInstruction::BREAK;
 		auto next = from_start.GetChildAt(i);
 		if (!next || !next->IsValid())
