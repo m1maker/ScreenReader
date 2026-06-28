@@ -45,6 +45,7 @@ auto CRecursiveObjectIterator::Step(
 		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
 			return instruction;
 	}
+	return ERecursiveObjectIteratorInstruction::CONTINUE;
 }
 
 void CRecursiveObjectIterator::Iterate(

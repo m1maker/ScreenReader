@@ -23,7 +23,7 @@ export module Core.RecursiveObjectIterator;
 import Core.Timer;
 import Proxies.Object;
 
-enum ERecursiveObjectIteratorInstruction : unsigned char { CONTINUE = 0, BREAK };
+enum class ERecursiveObjectIteratorInstruction : unsigned char { CONTINUE = 0, BREAK };
 
 class CRecursiveObjectIterator final {
 	std::atomic_flag m_shouldStop;
