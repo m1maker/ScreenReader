@@ -481,12 +481,49 @@ export class CObjectAtspi final {
 
 	mutable AtspiAccessible* m_accessible{nullptr};
 
-	mutable struct SObjectAtspiData* m_data{nullptr};
+	mutable struct SData final {
+		gchar* app_name{nullptr};
+		gchar* name{nullptr};
+		gchar* description{nullptr};
+		gchar* last_text{nullptr};
+		gchar* action_name{nullptr};
+
+		mutable GError* last_error{nullptr};
+		uint32_t interfaces_mask{0};
+
+		inline void ResetLastError() const noexcept {
+			if (last_error) {
+				g_error_free(last_error);
+				last_error = nullptr;
+			}
+		}
+
+		~SData() {
+			ResetLastError();
+			if (app_name)
+				g_free(app_name);
+			if (name)
+				g_free(name);
+			if (description)
+				g_free(description);
+			if (last_text)
+				g_free(last_text);
+			if (action_name)
+				g_free(action_name);
+			app_name = nullptr;
+			name = nullptr;
+			description = nullptr;
+			last_text = nullptr;
+			action_name = nullptr;
+		}
+	}* m_data{nullptr};
 
 public:
 	using NativeHandle = AtspiAccessible*;
+	using Data = std::remove_pointer_t<decltype(m_data)>;
+
 	CObjectAtspi() = default;
-	explicit CObjectAtspi(AtspiAccessible* accessible, struct SObjectAtspiData* data, std::pmr::memory_resource* pool);
+	explicit CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool);
 
 	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
@@ -536,41 +573,4 @@ public:
 	[[nodiscard]] auto GetActionType(int number) const -> ObjectResult<EObjectAction>;
 	[[nodiscard]] auto GetActionName(int number) const -> ObjectResult<std::string_view>;
 	[[nodiscard]] auto DoAction(int number) -> ObjectResult<>;
-};
-
-export struct SObjectAtspiData final {
-	gchar* app_name{nullptr};
-	gchar* name{nullptr};
-	gchar* description{nullptr};
-	gchar* last_text{nullptr};
-	gchar* action_name{nullptr};
-
-	mutable GError* last_error{nullptr};
-	uint32_t interfaces_mask{0};
-
-	inline void ResetLastError() const noexcept {
-		if (last_error) {
-			g_error_free(last_error);
-			last_error = nullptr;
-		}
-	}
-
-	~SObjectAtspiData() {
-		ResetLastError();
-		if (app_name)
-			g_free(app_name);
-		if (name)
-			g_free(name);
-		if (description)
-			g_free(description);
-		if (last_text)
-			g_free(last_text);
-		if (action_name)
-			g_free(action_name);
-		app_name = nullptr;
-		name = nullptr;
-		description = nullptr;
-		last_text = nullptr;
-		action_name = nullptr;
-	}
 };

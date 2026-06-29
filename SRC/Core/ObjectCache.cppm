@@ -28,8 +28,9 @@ import Core.Singleton;
 import Proxies.Object;
 import Traits.RefCountedObject;
 
-export template <class NativeHandle, typename ObjectData>
-class TObjectCache final : public TSingleton<TObjectCache<NativeHandle, ObjectData>> {
+export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
+	using NativeHandle = PlatformObject::NativeHandle;
+	using ObjectData = PlatformObject::Data;
 	struct SCachedObject final {
 		ObjectData* data{nullptr};
 		CObjectProxy proxy;
@@ -37,18 +38,18 @@ class TObjectCache final : public TSingleton<TObjectCache<NativeHandle, ObjectDa
 	};
 
 	std::pmr::unsynchronized_pool_resource m_pool;
-	std::pmr::unordered_map<NativeHandle*, SCachedObject> m_cache;
+	std::pmr::unordered_map<NativeHandle, SCachedObject> m_cache;
 
 public:
 	TObjectCache() : m_cache(&m_pool) {}
 
-	template <typename PlatformObject> [[nodiscard]] auto GetOrCreate(NativeHandle* native_handle) -> PlatformObject {
+	[[nodiscard]] auto GetOrCreate(NativeHandle native_handle) -> PlatformObject {
 		if (!native_handle)
 			return PlatformObject();
 
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
-			LifecycleTrait<NativeHandle>::Release(native_handle);
+			LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
 
 			auto implementation = it->second.proxy.template GetImpl<PlatformObject>();
 			return implementation;
@@ -68,7 +69,7 @@ public:
 		return new_object;
 	}
 
-	[[nodiscard]] auto GetProxy(NativeHandle* native_handle) -> CObjectProxy& {
+	[[nodiscard]] auto GetProxy(NativeHandle native_handle) -> CObjectProxy& {
 		static CObjectProxy s_invalid;
 		auto it = m_cache.find(native_handle);
 		if (it == m_cache.end()) [[unlikely]]
@@ -77,12 +78,12 @@ public:
 		return it->second.proxy;
 	}
 
-	void Remove(NativeHandle* native_handle) {
+	void Remove(NativeHandle native_handle) {
 		auto it = m_cache.find(native_handle);
 		if (it == m_cache.end()) [[unlikely]]
 			return;
 
-		LifecycleTrait<NativeHandle>::Release(native_handle);
+		LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
 		using T = CObjectProxy::CacheType;
 		it->second.proxy_cache_memory->~T();
 		m_pool.deallocate(it->second.proxy_cache_memory, sizeof(T));

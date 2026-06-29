@@ -82,10 +82,10 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
-	auto& cache = TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance();
+	auto& cache = TObjectCache<CObjectAtspi>::GetInstance();
 	auto object_proxy = cache.GetProxy(event->source);
 	if (!object_proxy.IsValid()) {
-		auto _ = cache.GetOrCreate<CObjectAtspi>(event->source);
+		auto _ = cache.GetOrCreate(event->source);
 		object_proxy = cache.GetProxy(event->source);
 	}
 	object_event.object = object_proxy;
@@ -187,7 +187,7 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance();
+	TObjectCache<CObjectAtspi>::GetInstance();
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -204,7 +204,7 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 		g_object_unref(m_objectEventListener);
 	}
 
-	TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().Clear();
+	TObjectCache<CObjectAtspi>::GetInstance().Clear();
 }
 
 struct SInvocationContext final {

@@ -28,7 +28,7 @@ import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
-CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, std::pmr::memory_resource* pool)
+CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool)
 	: m_accessible(accessible), m_data(data), m_pool(pool) {
 	/*
 		if (atspi_accessible_is_text(m_accessible))
@@ -83,8 +83,7 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, 
 	if (!native_parent)
 		return std::unexpected(EObjectError::FAIL);
 
-	auto parent_object =
-		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_parent);
+	auto parent_object = TObjectCache<CObjectAtspi>::GetInstance().GetOrCreate(native_parent);
 	return parent_object;
 }
 
@@ -98,8 +97,7 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, 
 	if (!native_child)
 		return std::unexpected(EObjectError::FAIL);
 
-	auto child_object =
-		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_child);
+	auto child_object = TObjectCache<CObjectAtspi>::GetInstance().GetOrCreate(native_child);
 	return child_object;
 }
 
@@ -247,8 +245,7 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, SObjectAtspiData* data, 
 	if (!native_selected_child)
 		return std::unexpected(EObjectError::FAIL);
 
-	auto selected_child_object =
-		TObjectCache<AtspiAccessible, SObjectAtspiData>::GetInstance().GetOrCreate<CObjectAtspi>(native_selected_child);
+	auto selected_child_object = TObjectCache<CObjectAtspi>::GetInstance().GetOrCreate(native_selected_child);
 	return selected_child_object;
 }
 
