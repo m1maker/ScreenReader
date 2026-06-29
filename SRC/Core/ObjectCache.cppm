@@ -76,6 +76,22 @@ public:
 			return cached_object.proxy;
 	}
 
+	[[nodiscard]] auto GetProxy(PlatformObject platform_object) -> CObjectProxy {
+		if (!platform_object.IsValid()) [[unlikely]]
+			return CObjectProxy();
+
+		auto native_handle = platform_object.GetNativeHandle();
+		if (!native_handle || !*native_handle) [[unlikely]]
+			return CObjectProxy();
+
+		auto it = m_cache.find(*native_handle);
+		if (it != m_cache.end()) {
+			return it->second.proxy;
+		}
+
+		return CObjectProxy();
+	}
+
 	void Remove(NativeHandle native_handle) {
 		auto it = m_cache.find(native_handle);
 		if (it == m_cache.end()) [[unlikely]]
