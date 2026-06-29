@@ -313,3 +313,32 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 }
 
 export enum class EObjectLive : unsigned char { UNKNOWN = 0, POLITE, ASSERTIVE };
+
+export enum class EObjectRelationType : unsigned char {
+	NONE = 0,
+	UNKNOWN,
+	LABELLED_BY,
+	LABEL_FOR,
+	DESCRIBED_BY,
+	DESCRIPTION_FOR,
+	CONTROLLED_BY,
+	CONTROLLER_FOR,
+	MEMBER_OF,
+	FLOWS_TO,
+	FLOWS_FROM,
+	NODE_CHILD_OF,
+	NODE_PARENT_OF,
+	SUBWINDOW_OF,
+	PARENT_WINDOW_OF,
+	EMBEDS,
+	EMBEDDED_BY,
+	POPUP_FOR,
+	DETAILS,
+	DETAILS_FOR,
+	ERROR_MESSAGE,
+	ERROR_FOR,
+	OWNS,
+	TOOLTIP_FOR,
+	RADIO_GROUP,
+	EXTENDED,
+};
