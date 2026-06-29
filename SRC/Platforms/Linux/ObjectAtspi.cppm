@@ -484,6 +484,7 @@ export class CObjectAtspi final {
 	mutable struct SObjectAtspiData* m_data{nullptr};
 
 public:
+	using NativeHandle = AtspiAccessible*;
 	CObjectAtspi() = default;
 	explicit CObjectAtspi(AtspiAccessible* accessible, struct SObjectAtspiData* data, std::pmr::memory_resource* pool);
 
@@ -491,9 +492,7 @@ public:
 
 	//[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t ;
 
-	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<void*> {
-		return reinterpret_cast<void*>(m_accessible);
-	}
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<NativeHandle> { return m_accessible; }
 
 	[[nodiscard]] inline auto IsValid() const noexcept -> bool {
 		return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr;
