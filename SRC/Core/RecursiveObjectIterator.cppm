@@ -47,6 +47,10 @@ auto CRecursiveObjectIterator::Step(
 	if (depth == 0 || m_shouldStop.test(std::memory_order_acquire))
 		return ERecursiveObjectIteratorInstruction::BREAK;
 
+	auto instruction = lambda(from_start);
+	if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
+		return instruction;
+
 	auto children_count = from_start.GetChildrenCount();
 	if (!children_count || *children_count == 0)
 		return ERecursiveObjectIteratorInstruction::CONTINUE;
@@ -57,9 +61,6 @@ auto CRecursiveObjectIterator::Step(
 		auto next = from_start.GetChildAt(i);
 		if (!next || !next->IsValid())
 			continue;
-		auto instruction = lambda(*next);
-		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
-			return instruction;
 		instruction = Step(*next, lambda, depth - 1, timeout_ms);
 		if (instruction == ERecursiveObjectIteratorInstruction::BREAK)
 			return instruction;
