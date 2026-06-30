@@ -83,8 +83,8 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	object_event.type = type;
 	g_object_ref(event->source);
 	auto& cache = TObjectCache<CObjectAtspi>::GetInstance();
-	auto object_proxy = cache.GetOrCreate<CObjectProxy>(event->source);
-	object_event.object = object_proxy;
+	auto platform_object = cache.GetOrCreate(event->source);
+	object_event.object = CObjectProxy(platform_object);
 	EventQueue::GetInstance().Push(std::move(object_event));
 	g_boxed_free(ATSPI_TYPE_EVENT, event);
 }

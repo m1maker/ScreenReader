@@ -25,71 +25,37 @@ module;
 #include <utility>
 export module Core.ObjectCache;
 import Core.Singleton;
-import Proxies.Object;
 import Traits.RefCountedObject;
 
 export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
 	using NativeHandle = PlatformObject::NativeHandle;
 	using ObjectData = PlatformObject::Data;
-	struct SCachedObject final {
-		ObjectData* data{nullptr};
-		CObjectProxy proxy;
-		CObjectProxy::CacheType* proxy_cache_memory{nullptr};
-	};
 
 	std::pmr::unsynchronized_pool_resource m_pool;
-	std::pmr::unordered_map<NativeHandle, SCachedObject> m_cache;
+	std::pmr::unordered_map<NativeHandle, ObjectData*> m_cache;
 
 public:
 	TObjectCache() : m_cache(&m_pool) {}
 
-	template <typename T = PlatformObject> [[nodiscard]] auto GetOrCreate(NativeHandle native_handle) -> T {
+	[[nodiscard]] auto GetOrCreate(NativeHandle native_handle) -> PlatformObject {
 		if (!native_handle)
-			return T();
+			return PlatformObject();
 
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
 			LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
 
-			if constexpr (std::is_same_v<T, PlatformObject>) {
-				auto implementation = it->second.proxy.template GetImpl<PlatformObject>();
-				return implementation;
-			}
-			else if constexpr (std::is_same_v<T, CObjectProxy>)
-				return it->second.proxy;
+			auto existing_object = PlatformObject(native_handle, it->second, &m_pool);
+			return existing_object;
 		}
 
 		auto raw = m_pool.allocate(sizeof(ObjectData));
 		auto object_data = new (raw) ObjectData();
 
 		auto new_object = PlatformObject(native_handle, object_data, &m_pool);
-		raw = m_pool.allocate(sizeof(CObjectProxy::CacheType));
-		auto proxy_cache_memory = new (raw) CObjectProxy::CacheType;
-		SCachedObject cached_object{
-			.data = object_data, .proxy = CObjectProxy(new_object), .proxy_cache_memory = proxy_cache_memory};
-		cached_object.proxy.SetCacheMemory(proxy_cache_memory);
-		m_cache[native_handle] = cached_object;
+		m_cache[native_handle] = object_data;
 
-		if constexpr (std::is_same_v<T, PlatformObject>)
-			return new_object;
-		else if constexpr (std::is_same_v<T, CObjectProxy>)
-			return cached_object.proxy;
-	}
-
-	[[nodiscard]] auto GetProxy(PlatformObject platform_object) -> CObjectProxy {
-		if (!platform_object.IsValid()) [[unlikely]]
-			return CObjectProxy();
-
-		auto native_handle = platform_object.GetNativeHandle();
-		if (!native_handle || !*native_handle) [[unlikely]]
-			return CObjectProxy();
-
-		auto it = m_cache.find(*native_handle);
-		if (it != m_cache.end()) {
-			return it->second.proxy;
-		}
-
-		return CObjectProxy();
+		return new_object;
 	}
 
 	void Remove(NativeHandle native_handle) {
@@ -98,11 +64,8 @@ public:
 			return;
 
 		LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
-		using T = CObjectProxy::CacheType;
-		it->second.proxy_cache_memory->~T();
-		m_pool.deallocate(it->second.proxy_cache_memory, sizeof(T));
-		it->second.data->~ObjectData();
-		m_pool.deallocate(it->second.data, sizeof(ObjectData));
+		it->second->~ObjectData();
+		m_pool.deallocate(it->second, sizeof(ObjectData));
 		m_cache.erase(it);
 	}
 
