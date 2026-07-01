@@ -33,18 +33,6 @@ export module Platforms.Linux.Object;
 import Core.Object;
 import Core.Rect;
 import Core.Text;
-import Traits.RefCountedObject;
-
-template <typename T> struct LifecycleTrait<T, std::enable_if_t<std::is_convertible_v<T*, GObject*>>> final {
-	static void AddRef(T* p) {
-		if (p)
-			g_object_ref(p);
-	}
-	static void Release(T* p) {
-		if (p)
-			g_object_unref(p);
-	}
-};
 
 export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
 	using enum EObjectType;

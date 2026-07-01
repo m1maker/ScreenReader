@@ -25,7 +25,6 @@ module;
 #include <utility>
 export module Core.ObjectCache;
 import Core.Singleton;
-import Traits.RefCountedObject;
 
 export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
 	using NativeHandle = PlatformObject::NativeHandle;
@@ -43,8 +42,6 @@ public:
 
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
-			LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
-
 			auto existing_object = PlatformObject(native_handle, it->second, &m_pool);
 			return existing_object;
 		}
@@ -63,7 +60,6 @@ public:
 		if (it == m_cache.end()) [[unlikely]]
 			return;
 
-		LifecycleTrait<std::remove_pointer_t<decltype(native_handle)>>::Release(native_handle);
 		it->second->~ObjectData();
 		m_pool.deallocate(it->second, sizeof(ObjectData));
 		m_cache.erase(it);
