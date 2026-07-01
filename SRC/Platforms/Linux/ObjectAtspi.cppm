@@ -525,6 +525,50 @@ public:
 	CObjectAtspi() = default;
 	explicit CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool);
 
+	~CObjectAtspi() noexcept {
+		if (m_accessible)
+			g_object_unref(m_accessible);
+		m_accessible = nullptr;
+		m_pool = nullptr;
+		m_data = nullptr;
+	}
+
+	CObjectAtspi(const CObjectAtspi& other) noexcept
+		: m_accessible(other.m_accessible), m_pool(other.m_pool), m_data(other.m_data) {
+		if (m_accessible)
+			g_object_ref(m_accessible);
+	}
+
+	auto operator=(const CObjectAtspi& other) noexcept -> CObjectAtspi& {
+		if (this == &other) [[unlikely]]
+			return *this;
+
+		if (m_accessible)
+			g_object_unref(m_accessible);
+		m_accessible = other.m_accessible;
+		if (m_accessible)
+			g_object_ref(m_accessible);
+		m_pool = other.m_pool;
+		m_data = other.m_data;
+		return *this;
+	}
+
+	CObjectAtspi(CObjectAtspi&& other) noexcept
+		: m_accessible(std::exchange(other.m_accessible, nullptr)), m_pool(std::exchange(other.m_pool, nullptr)),
+		  m_data(std::exchange(other.m_data, nullptr)) {}
+
+	auto operator=(CObjectAtspi&& other) noexcept -> CObjectAtspi& {
+		if (this == &other) [[unlikely]]
+			return *this;
+
+		if (m_accessible)
+			g_object_unref(m_accessible);
+		m_accessible = std::exchange(other.m_accessible, nullptr);
+		m_pool = std::exchange(other.m_pool, nullptr);
+		m_data = std::exchange(other.m_data, nullptr);
+		return *this;
+	}
+
 	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
 	//[[nodiscard]] auto GetSupportedInterfaces() const noexcept -> uint32_t ;

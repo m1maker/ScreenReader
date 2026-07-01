@@ -38,6 +38,8 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::me
 		if (atspi_accessible_is_value(m_accessible))
 			m_data->interfaces_mask |= SUPPORTS_VALUE;
 	*/
+	if (m_accessible)
+		g_object_ref(m_accessible);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetType() const -> ObjectResult<EObjectType> {
