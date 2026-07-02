@@ -115,7 +115,6 @@ export class CObjectProxy final : public UnknownProxy {
 public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
-	explicit CObjectProxy(ObjectVariant) noexcept {}
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
 		if (GetCachedProperties() && GetCachedProperties()->type)
