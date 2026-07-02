@@ -143,7 +143,8 @@ public:
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
 		auto result = With<void*>([](auto&& obj) { return obj.GetParent(); });
-		if (!result) return std::unexpected(result.error());
+		if (!result)
+			return std::unexpected(result.error());
 		return CObjectProxy(*result);
 	}
 
@@ -153,7 +154,8 @@ public:
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
 		auto result = With<void*>([index](auto&& obj) { return obj.GetChildAt(index); });
-		if (!result) return std::unexpected(result.error());
+		if (!result)
+			return std::unexpected(result.error());
 		return CObjectProxy(*result);
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
@@ -221,7 +223,8 @@ public:
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
 		auto result = With<void*>([index](auto&& obj) { return obj.GetChildAt(index); });
-		if (!result) return std::unexpected(result.error());
+		if (!result)
+			return std::unexpected(result.error());
 		return CObjectProxy(*result);
 	}
 };
