@@ -50,7 +50,7 @@ export template <class PlatformObject> class TObjectCache final : public TSingle
 	using RequiredRefCountedObject = TNonAtomicRefCountedObject<void, SCachedObjectData>;
 
 	std::pmr::unsynchronized_pool_resource m_pool;
-	std::pmr::unordered_map<NativeHandle, SCachedObjectData*> m_cache;
+	std::pmr::unordered_map<NativeHandle, void*> m_cache;
 
 public:
 	TObjectCache() : m_cache(&m_pool) {}
