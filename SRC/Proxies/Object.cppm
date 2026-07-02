@@ -142,7 +142,9 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto result = With<void*>([](auto&& obj) { return obj.GetParent(); });
+		if (!result) return std::unexpected(result.error());
+		return CObjectProxy(*result);
 	}
 
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
