@@ -152,7 +152,9 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto result = With<void*>([index](auto&& obj) { return obj.GetChildAt(index); });
+		if (!result) return std::unexpected(result.error());
+		return CObjectProxy(*result);
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
 		if (GetCachedProperties() && GetCachedProperties()->index)
