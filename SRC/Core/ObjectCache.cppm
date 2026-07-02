@@ -45,10 +45,9 @@ export struct SCachedObjectData final {
 
 export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
 	using NativeHandle = PlatformObject::NativeHandle;
-	using ObjectData = PlatformObject::Data;
 
 	std::pmr::unsynchronized_pool_resource m_pool;
-	std::pmr::unordered_map<NativeHandle, ObjectData*> m_cache;
+	std::pmr::unordered_map<NativeHandle, SCachedObjectData*> m_cache;
 
 public:
 	TObjectCache() : m_cache(&m_pool) {}
@@ -59,17 +58,13 @@ public:
 
 		auto it = m_cache.find(native_handle);
 		if (it != m_cache.end()) {
-			auto existing_object = PlatformObject(native_handle, it->second, &m_pool);
+			auto existing_object = PlatformObject(native_handle);
 			return existing_object;
 		}
 
-		auto raw = m_pool.allocate(sizeof(ObjectData));
-		auto object_data = new (raw) ObjectData();
+		//***...*/		m_cache[native_handle] = object_data;
 
-		auto new_object = PlatformObject(native_handle, object_data, &m_pool);
-		m_cache[native_handle] = object_data;
-
-		return new_object;
+		/*//		return new_object;*/
 	}
 
 	void Remove(NativeHandle native_handle) {
@@ -77,8 +72,6 @@ public:
 		if (it == m_cache.end()) [[unlikely]]
 			return;
 
-		it->second->~ObjectData();
-		m_pool.deallocate(it->second, sizeof(ObjectData));
 		m_cache.erase(it);
 	}
 

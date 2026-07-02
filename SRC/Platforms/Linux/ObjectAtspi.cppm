@@ -465,8 +465,6 @@ export template <typename T> struct SAtspiIface final {
 };
 
 export class CObjectAtspi final {
-	std::pmr::memory_resource* m_pool{nullptr};
-
 	mutable AtspiAccessible* m_accessible{nullptr};
 
 	mutable struct SData final {
@@ -504,22 +502,17 @@ export class CObjectAtspi final {
 			last_text = nullptr;
 			action_name = nullptr;
 		}
-	}* m_data{nullptr};
+	} m_data;
 
 public:
 	using NativeHandle = AtspiAccessible*;
-	using Data = std::remove_pointer_t<decltype(m_data)>;
 
 	void OnDestroy() noexcept;
 
 	CObjectAtspi() = default;
-	explicit CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool);
+	explicit CObjectAtspi(AtspiAccessible* accessible);
 
-	~CObjectAtspi() noexcept {
-		m_accessible = nullptr;
-		m_pool = nullptr;
-		m_data = nullptr;
-	}
+	~CObjectAtspi() noexcept { m_accessible = nullptr; }
 
 	auto operator==(const CObjectAtspi& other) const noexcept { return m_accessible == other.m_accessible; }
 
@@ -527,9 +520,7 @@ public:
 
 	[[nodiscard]] auto GetNativeHandle() const noexcept -> ObjectResult<NativeHandle> { return m_accessible; }
 
-	[[nodiscard]] inline auto IsValid() const noexcept -> bool {
-		return m_accessible != nullptr && m_data != nullptr && m_pool != nullptr;
-	}
+	[[nodiscard]] inline auto IsValid() const noexcept -> bool { return m_accessible != nullptr; }
 
 	[[nodiscard]] auto GetType() const -> ObjectResult<EObjectType>;
 

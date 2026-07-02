@@ -28,15 +28,14 @@ import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
-CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool)
-	: m_accessible(accessible), m_data(data), m_pool(pool) {
+CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible) : m_accessible(accessible) {
 	/*
 		if (atspi_accessible_is_text(m_accessible))
-			m_data->interfaces_mask |= EObjectInterfaceMaskSUPPORTS_TEXT;
+			m_data.interfaces_mask |= EObjectInterfaceMaskSUPPORTS_TEXT;
 		if (atspi_accessible_is_selection(m_accessible))
-			m_data->interfaces_mask |= SUPPORTS_SELECTION;
+			m_data.interfaces_mask |= SUPPORTS_SELECTION;
 		if (atspi_accessible_is_value(m_accessible))
-			m_data->interfaces_mask |= SUPPORTS_VALUE;
+			m_data.interfaces_mask |= SUPPORTS_VALUE;
 	*/
 }
 
@@ -45,8 +44,6 @@ void CObjectAtspi::OnDestroy() noexcept {
 		g_object_unref(m_accessible);
 		TObjectCache<CObjectAtspi>::GetInstance().Remove(m_accessible);
 		m_accessible = nullptr;
-		m_pool = nullptr;
-		m_data = nullptr;
 	}
 }
 
@@ -54,8 +51,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_data->last_error);
+	m_data.ResetLastError();
+	AtspiRole role = atspi_accessible_get_role(m_accessible, &m_data.last_error);
 	return GetObjectTypeFromAtspiRole(role);
 }
 
@@ -87,8 +84,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	AtspiAccessible* native_parent = atspi_accessible_get_parent(m_accessible, &m_data->last_error);
+	m_data.ResetLastError();
+	AtspiAccessible* native_parent = atspi_accessible_get_parent(m_accessible, &m_data.last_error);
 
 	if (!native_parent)
 		return std::unexpected(EObjectError::FAIL);
@@ -101,8 +98,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	AtspiAccessible* native_child = atspi_accessible_get_child_at_index(m_accessible, index, &m_data->last_error);
+	m_data.ResetLastError();
+	AtspiAccessible* native_child = atspi_accessible_get_child_at_index(m_accessible, index, &m_data.last_error);
 
 	if (!native_child)
 		return std::unexpected(EObjectError::FAIL);
@@ -115,8 +112,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	int child_count = atspi_accessible_get_child_count(m_accessible, &m_data->last_error);
+	m_data.ResetLastError();
+	int child_count = atspi_accessible_get_child_count(m_accessible, &m_data.last_error);
 	return child_count;
 }
 
@@ -130,8 +127,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	int index = atspi_accessible_get_index_in_parent(m_accessible, &m_data->last_error);
+	m_data.ResetLastError();
+	int index = atspi_accessible_get_index_in_parent(m_accessible, &m_data.last_error);
 	return index;
 }
 
@@ -139,40 +136,40 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	if (m_data->app_name) {
-		g_free(m_data->app_name);
-		m_data->app_name = nullptr;
+	m_data.ResetLastError();
+	if (m_data.app_name) {
+		g_free(m_data.app_name);
+		m_data.app_name = nullptr;
 	}
-	m_data->app_name = atspi_accessible_get_toolkit_name(m_accessible, &m_data->last_error);
-	return m_data->app_name;
+	m_data.app_name = atspi_accessible_get_toolkit_name(m_accessible, &m_data.last_error);
+	return m_data.app_name;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetName() const -> ObjectResult<std::string_view> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
-	if (m_data->name) {
-		g_free(m_data->name);
-		m_data->name = nullptr;
+	m_data.ResetLastError();
+	if (m_data.name) {
+		g_free(m_data.name);
+		m_data.name = nullptr;
 	}
-	m_data->name = atspi_accessible_get_name(m_accessible, &m_data->last_error);
-	return m_data->name;
+	m_data.name = atspi_accessible_get_name(m_accessible, &m_data.last_error);
+	return m_data.name;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetDescription() const -> ObjectResult<std::string_view> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	if (m_data->description) {
-		g_free(m_data->description);
-		m_data->description = nullptr;
+	if (m_data.description) {
+		g_free(m_data.description);
+		m_data.description = nullptr;
 	}
-	m_data->description = atspi_accessible_get_description(m_accessible, &m_data->last_error);
-	return m_data->description;
+	m_data.description = atspi_accessible_get_description(m_accessible, &m_data.last_error);
+	return m_data.description;
 }
 
 [[nodiscard]] auto CObjectAtspi::GetCursor() const -> ObjectResult<int> {
@@ -182,9 +179,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiText> text_interface(atspi_accessible_get_text_iface(m_accessible));
 	if (!text_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	return atspi_text_get_caret_offset(text_interface, &m_data->last_error);
+	return atspi_text_get_caret_offset(text_interface, &m_data.last_error);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetText(int cursor, const ETextGranularity& granularity) const
@@ -196,19 +193,19 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!text_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	if (m_data->last_text) {
-		g_free(m_data->last_text);
-		m_data->last_text = nullptr;
+	if (m_data.last_text) {
+		g_free(m_data.last_text);
+		m_data.last_text = nullptr;
 	}
 
 	AtspiTextRange* pTextRange = atspi_text_get_string_at_offset(
-		text_interface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_data->last_error);
+		text_interface, cursor, GetAtspiTextGranularityFromTextGranularity(granularity), &m_data.last_error);
 	if (!pTextRange)
 		return std::unexpected(EObjectError::FAIL);
 
-	m_data->last_text = pTextRange->content;
+	m_data.last_text = pTextRange->content;
 
 	auto text_range = GetTextRangeFromAtspiRange<AtspiTextRange>(*pTextRange);
 	g_free(pTextRange);
@@ -223,20 +220,20 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!text_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	if (m_data->last_text) {
-		g_free(m_data->last_text);
-		m_data->last_text = nullptr;
+	if (m_data.last_text) {
+		g_free(m_data.last_text);
+		m_data.last_text = nullptr;
 	}
 
-	AtspiRange* pRange = atspi_text_get_selection(text_interface, 0, &m_data->last_error);
+	AtspiRange* pRange = atspi_text_get_selection(text_interface, 0, &m_data.last_error);
 	if (!pRange)
 		return std::unexpected(EObjectError::FAIL);
 
-	m_data->ResetLastError();
-	gchar* pText = atspi_text_get_text(text_interface, pRange->start_offset, pRange->end_offset, &m_data->last_error);
-	m_data->last_text = pText;
+	m_data.ResetLastError();
+	gchar* pText = atspi_text_get_text(text_interface, pRange->start_offset, pRange->end_offset, &m_data.last_error);
+	m_data.last_text = pText;
 	STextRange text_range = {.start = pRange->start_offset, .end = pRange->end_offset, .text = pText};
 	g_free(pRange);
 	return text_range;
@@ -249,9 +246,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!selection_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 	AtspiAccessible* native_selected_child =
-		atspi_selection_get_selected_child(selection_interface, index, &m_data->last_error);
+		atspi_selection_get_selected_child(selection_interface, index, &m_data.last_error);
 	if (!native_selected_child)
 		return std::unexpected(EObjectError::FAIL);
 
@@ -266,8 +263,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	if (!selection_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 
-	m_data->ResetLastError();
-	int selected_child_count = atspi_selection_get_n_selected_children(selection_interface, &m_data->last_error);
+	m_data.ResetLastError();
+	int selected_child_count = atspi_selection_get_n_selected_children(selection_interface, &m_data.last_error);
 	return selected_child_count;
 }
 
@@ -278,9 +275,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));
 	if (!value_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	return atspi_value_get_minimum_value(value_interface, &m_data->last_error);
+	return atspi_value_get_minimum_value(value_interface, &m_data.last_error);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetMaxValue() const -> ObjectResult<double> {
@@ -290,9 +287,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));
 	if (!value_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	return atspi_value_get_maximum_value(value_interface, &m_data->last_error);
+	return atspi_value_get_maximum_value(value_interface, &m_data.last_error);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetCurrentValue() const -> ObjectResult<double> {
@@ -302,9 +299,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiValue> value_interface(atspi_accessible_get_value_iface(m_accessible));
 	if (!value_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	return atspi_value_get_current_value(value_interface, &m_data->last_error);
+	return atspi_value_get_current_value(value_interface, &m_data.last_error);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetActionCount() const -> ObjectResult<int> {
@@ -314,9 +311,9 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
 	if (!action_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	return atspi_action_get_n_actions(action_interface, &m_data->last_error);
+	return atspi_action_get_n_actions(action_interface, &m_data.last_error);
 }
 
 [[nodiscard]] auto CObjectAtspi::GetActionType(int number) const -> ObjectResult<EObjectAction> {
@@ -326,7 +323,7 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
 	if (!action_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
 	return std::unexpected(EObjectError::NOT_SUPPORTED);
 }
@@ -338,13 +335,13 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
 	if (!action_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	if (m_data->action_name)
-		g_free(m_data->action_name);
+	if (m_data.action_name)
+		g_free(m_data.action_name);
 
-	m_data->action_name = atspi_action_get_action_name(action_interface, number, &m_data->last_error);
-	return m_data->action_name;
+	m_data.action_name = atspi_action_get_action_name(action_interface, number, &m_data.last_error);
+	return m_data.action_name;
 }
 
 [[nodiscard]] auto CObjectAtspi::DoAction(int number) -> ObjectResult<> {
@@ -354,8 +351,8 @@ void CObjectAtspi::OnDestroy() noexcept {
 	SAtspiIface<AtspiAction> action_interface(atspi_accessible_get_action_iface(m_accessible));
 	if (!action_interface.pointer)
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	m_data->ResetLastError();
+	m_data.ResetLastError();
 
-	auto _ = atspi_action_do_action(action_interface, number, &m_data->last_error);
+	auto _ = atspi_action_do_action(action_interface, number, &m_data.last_error);
 	return ObjectResult<>();
 }
