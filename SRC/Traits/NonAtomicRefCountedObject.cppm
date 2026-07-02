@@ -65,6 +65,12 @@ protected:
 
 public:
 	[[nodiscard]] inline auto GetData(this auto&& self) noexcept -> Data* { return &self.m_dataBlock->data; }
+	[[nodiscard]] static constexpr inline auto GetDataAddressFromRawMemory(void* memory) noexcept -> Data* {
+		if (!memory) [[unlikely]]
+			return nullptr;
+		auto control_block = static_cast<SControlBlock*>(memory);
+		return &control_block->data;
+	}
 
 	inline void AddRef() const noexcept {
 		if (!m_dataBlock) [[unlikely]]
