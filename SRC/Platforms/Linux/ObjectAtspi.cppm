@@ -465,7 +465,7 @@ export template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-export class CObjectAtspi final : public TNonAtomicRefCountedObject<CObjectAtspi> {
+export class CObjectAtspi final : public TNonAtomicRefCountedObject<CObjectAtspi, char> {
 	std::pmr::memory_resource* m_pool{nullptr};
 
 	mutable AtspiAccessible* m_accessible{nullptr};

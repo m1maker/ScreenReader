@@ -18,24 +18,40 @@
  */
 
 module;
+#include <cstddef>
 #include <utility>
 export module Traits.NonAtomicRefCountedObject;
 
-export template <class Derived> class TNonAtomicRefCountedObject {
-	unsigned int m_refCount;
+export template <class Derived, typename Data> class TNonAtomicRefCountedObject {
+	mutable struct SControlBlock final {
+		unsigned int ref_count;
+		Data data;
+	}* m_dataBlock{nullptr};
+
+	inline void SetStorage(void* memory) const noexcept { m_dataBlock = static_cast<SControlBlock*>(memory); }
+
+public:
+	[[nodiscard]] static consteval auto GetNeededSize() noexcept -> size_t { return sizeof(SControlBlock); }
 
 protected:
-	TNonAtomicRefCountedObject() noexcept : m_refCount(1) {}
-	explicit TNonAtomicRefCountedObject(const TNonAtomicRefCountedObject&) noexcept { AddRef(); }
+	TNonAtomicRefCountedObject() = default;
+	explicit TNonAtomicRefCountedObject(void* memory) noexcept {
+		SetStorage(memory);
+		AddRef();
+	}
+	explicit TNonAtomicRefCountedObject(const TNonAtomicRefCountedObject& other) noexcept
+		: m_dataBlock(other.m_dataBlock) {
+		AddRef();
+	}
 	explicit TNonAtomicRefCountedObject(TNonAtomicRefCountedObject&& other) noexcept
-		: m_refCount(std::exchange(other.m_refCount, 0)) {}
-	virtual ~TNonAtomicRefCountedObject() noexcept { Release(); }
+		: m_dataBlock(std::exchange(other.m_dataBlock, nullptr)) {}
+	/*virtual*/ ~TNonAtomicRefCountedObject() noexcept { Release(); }
 
 	auto operator=(const TNonAtomicRefCountedObject& other) noexcept -> TNonAtomicRefCountedObject& {
 		if (this == &other) [[unlikely]]
 			return *this;
 		Release();
-		m_refCount = other.m_refCount;
+		m_dataBlock = other.m_dataBlock;
 		AddRef();
 		return *this;
 	}
@@ -43,19 +59,22 @@ protected:
 		if (this == &other) [[unlikely]]
 			return *this;
 		Release();
-		m_refCount = std::exchange(other.m_refCount, 0);
+		m_dataBlock = std::exchange(other.m_dataBlock, nullptr);
 		return *this;
 	}
 
 public:
-	inline void AddRef() noexcept { ++m_refCount; }
-	inline void Release() noexcept {
-		if (m_refCount == 0) [[unlikely]]
+	inline void AddRef() const noexcept {
+		if (!m_dataBlock) [[unlikely]]
 			return;
-		else if (--m_refCount == 0) {
+		++m_dataBlock->ref_count;
+	}
+	inline void Release() noexcept {
+		if (!m_dataBlock || m_dataBlock->ref_count == 0) [[unlikely]]
+			return;
+		else if (--m_dataBlock->ref_count == 0) {
 			static_cast<Derived*>(this)->do_OnDestroy();
+			m_dataBlock = nullptr;
 		}
 	}
-
-	[[nodiscard]] auto GetRefCount() const noexcept { return m_refCount; }
 };
