@@ -33,7 +33,6 @@ export module Platforms.Linux.Object;
 import Core.Object;
 import Core.Rect;
 import Core.Text;
-import Traits.NonAtomicRefCountedObject;
 
 export [[nodiscard]] constexpr inline auto GetObjectTypeFromAtspiRole(AtspiRole role) -> EObjectType {
 	using enum EObjectType;
@@ -465,7 +464,7 @@ export template <typename T> struct SAtspiIface final {
 	operator T*() const noexcept { return pointer; }
 };
 
-export class CObjectAtspi final : public TNonAtomicRefCountedObject<CObjectAtspi, char> {
+export class CObjectAtspi final {
 	std::pmr::memory_resource* m_pool{nullptr};
 
 	mutable AtspiAccessible* m_accessible{nullptr};
@@ -511,8 +510,7 @@ public:
 	using NativeHandle = AtspiAccessible*;
 	using Data = std::remove_pointer_t<decltype(m_data)>;
 
-	// TNonAtomicRefCountedObject.
-	void do_OnDestroy() noexcept;
+	void OnDestroy() noexcept;
 
 	CObjectAtspi() = default;
 	explicit CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::memory_resource* pool);

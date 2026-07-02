@@ -40,7 +40,7 @@ CObjectAtspi::CObjectAtspi(AtspiAccessible* accessible, Data* data, std::pmr::me
 	*/
 }
 
-void CObjectAtspi::do_OnDestroy() noexcept {
+void CObjectAtspi::OnDestroy() noexcept {
 	if (m_accessible) {
 		g_object_unref(m_accessible);
 		TObjectCache<CObjectAtspi>::GetInstance().Remove(m_accessible);
