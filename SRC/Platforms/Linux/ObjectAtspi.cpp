@@ -80,7 +80,7 @@ void CObjectAtspi::OnDestroy() noexcept {
 	return merged_state.capabilities;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<CObjectAtspi> {
+[[nodiscard]] auto CObjectAtspi::GetParent() const -> ObjectResult<void*> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
@@ -94,7 +94,7 @@ void CObjectAtspi::OnDestroy() noexcept {
 	return parent_object;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetChildAt(int index) const -> ObjectResult<CObjectAtspi> {
+[[nodiscard]] auto CObjectAtspi::GetChildAt(int index) const -> ObjectResult<void*> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 
@@ -239,7 +239,7 @@ void CObjectAtspi::OnDestroy() noexcept {
 	return text_range;
 }
 
-[[nodiscard]] auto CObjectAtspi::GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi> {
+[[nodiscard]] auto CObjectAtspi::GetSelectedChildAt(int index) const -> ObjectResult<void*> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
 	SAtspiIface<AtspiSelection> selection_interface(atspi_accessible_get_selection_iface(m_accessible));

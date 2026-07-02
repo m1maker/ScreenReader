@@ -527,9 +527,8 @@ public:
 	[[nodiscard]] auto GetState() const -> ObjectResult<ObjectStateMask>;
 	[[nodiscard]] auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask>;
 
-	[[nodiscard]] auto GetParent() const -> ObjectResult<CObjectAtspi>;
-	[[nodiscard]] auto GetChildren() const -> ObjectResult<std::vector<CObjectAtspi>>;
-	[[nodiscard]] auto GetChildAt(int index) const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto GetParent() const -> ObjectResult<void*>;
+	[[nodiscard]] auto GetChildAt(int index) const -> ObjectResult<void*>;
 
 	[[nodiscard]] auto GetChildrenCount() const -> ObjectResult<int>;
 
@@ -548,7 +547,7 @@ public:
 	[[nodiscard]] auto GetText(int cursor, const ETextGranularity& granularity) const -> ObjectResult<STextRange>;
 	[[nodiscard]] auto GetSelectedText() const -> ObjectResult<STextRange>;
 
-	[[nodiscard]] auto GetSelectedChildAt(int index) const -> ObjectResult<CObjectAtspi>;
+	[[nodiscard]] auto GetSelectedChildAt(int index) const -> ObjectResult<void*>;
 	[[nodiscard]] auto GetSelectedChildrenCount() const -> ObjectResult<int>;
 
 	[[nodiscard]] auto GetMinValue() const -> ObjectResult<double>;
