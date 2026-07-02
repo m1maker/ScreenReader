@@ -64,6 +64,8 @@ protected:
 	}
 
 public:
+	[[nodiscard]] inline auto GetData(this auto&& self) noexcept -> Data* { return &self.m_dataBlock->data; }
+
 	inline void AddRef() const noexcept {
 		if (!m_dataBlock) [[unlikely]]
 			return;
