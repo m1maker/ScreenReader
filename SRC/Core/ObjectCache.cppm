@@ -20,11 +20,28 @@
 module;
 #include <memory>
 #include <memory_resource>
+#include <optional>
 #include <string_view>
 #include <unordered_map>
 #include <utility>
 export module Core.ObjectCache;
+import Core.Environment;
+import Core.Object;
 import Core.Singleton;
+
+struct SCachedObjectProperties final {
+	std::optional<EObjectType> type;
+	std::optional<ObjectStateMask> states;
+	std::optional<ObjectCapabilityMask> capabilities;
+	std::optional<int> index, cursor;
+	std::optional<std::string_view> application_name, name, description;
+	std::optional<double> min_value, max_value, current_value;
+};
+
+export struct SCachedObjectData final {
+	ObjectVariant variant;
+	SCachedObjectProperties properties;
+};
 
 export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
 	using NativeHandle = PlatformObject::NativeHandle;

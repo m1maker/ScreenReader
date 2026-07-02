@@ -25,55 +25,52 @@ module;
 export module Proxies.Object;
 import Core.Environment;
 import Core.Object;
+import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
+import Traits.NonAtomicRefCountedObject;
 
-template <typename Variant> class TUnknownProxy {
-	Variant m_variant;
-
+class UnknownProxy : /*protected*/ public TNonAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
 protected:
-	mutable struct {
-		std::optional<EObjectType> type;
-		std::optional<ObjectStateMask> states;
-		std::optional<ObjectCapabilityMask> capabilities;
-		std::optional<int> index, cursor;
-		std::optional<std::string_view> application_name, name, description;
-		std::optional<double> min_value, max_value, current_value;
-	}* m_cache{nullptr};
+	UnknownProxy() = default;
+	explicit UnknownProxy(void* memory) : TNonAtomicRefCountedObject(memory) {}
 
-	TUnknownProxy() = default;
-	explicit TUnknownProxy(Variant variant) : m_variant(variant) {}
+	[[nodiscard]] inline auto GetVariant() const noexcept -> ObjectVariant* { return &GetData()->variant; }
+	[[nodiscard]] inline auto* GetCachedProperties() const noexcept /*->unknown*/ { return &GetData()->properties; }
 
 public:
-	using CacheType = std::remove_pointer_t<decltype(m_cache)>;
-
-	void SetCacheMemory(CacheType* memory) const noexcept { m_cache = memory; }
-
+	// TNonAtomicRefCountedObject
+	void do_OnDestroy() noexcept {
+		static_cast<void>(With<>([](auto&& obj) {
+			obj.OnDestroy();
+			return ObjectResult<>();
+		}));
+	}
 	void InvalidateCacheByEvent(EObjectEventType event) const noexcept {
-		if (!m_cache) [[unlikely]]
+		if (!GetCachedProperties()) [[unlikely]]
 			return;
 		using enum EObjectEventType;
 		switch (event) {
 		case STATE_CHANGED:
 		case SELECTION_CHANGED:
-			m_cache->states.reset();
+			GetCachedProperties()->states.reset();
 			break;
 		case LAYOUT_UPDATED:
-			m_cache->index.reset();
+			GetCachedProperties()->index.reset();
 			break;
 		case NAME_CHANGED:
-			m_cache->name.reset();
+			GetCachedProperties()->name.reset();
 			break;
 		case DESCRIPTION_CHANGED:
-			m_cache->description.reset();
+			GetCachedProperties()->description.reset();
 			break;
 		case CURSOR_MOVED:
-			m_cache->cursor.reset();
+			GetCachedProperties()->cursor.reset();
 			break;
 		case VALUE_CHANGED:
-			m_cache->min_value.reset();
-			m_cache->max_value.reset();
-			m_cache->current_value.reset();
+			GetCachedProperties()->min_value.reset();
+			GetCachedProperties()->max_value.reset();
+			GetCachedProperties()->current_value.reset();
 			break;
 		default:
 			break;
@@ -81,6 +78,8 @@ public:
 	}
 
 	template <typename Result = void> auto With(this auto&& self, auto&& func) /*final*/ -> ObjectResult<Result> {
+		if (!self.GetVariant()) [[unlikely]]
+			return std::unexpected(EObjectError::DEFUNCT);
 		return std::visit(
 			[&](auto&& obj) -> ObjectResult<Result> {
 				using T = std::decay_t<decltype(obj)>;
@@ -90,82 +89,61 @@ public:
 				else
 					return std::unexpected(EObjectError::DEFUNCT);
 			},
-			self.m_variant);
+			*self.GetVariant());
 	}
 
-	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider {
-		auto provider = Provider(m_variant);
-		provider.SetCacheMemory(m_cache);
-		return provider;
-	}
-
-	template <typename Impl> [[nodiscard]] auto GetImpl() const noexcept -> Impl {
-		return std::visit(
-			[](auto&& obj) -> Impl {
-				using T = std::decay_t<decltype(obj)>;
-				if constexpr (std::is_same_v<T, Impl>)
-					return obj;
-				return Impl();
-			},
-			m_variant);
-	}
+	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
 	bool IsValid() const {
-		auto valid = std::visit(
-			[&](auto&& obj) -> bool {
-				using T = std::decay_t<decltype(obj)>;
-				if constexpr (!std::is_same_v<T, std::monostate>) {
-					if constexpr (std::is_same_v<Variant, ObjectVariant>)
+		auto valid = GetVariant() &&
+			std::visit(
+				[&](auto&& obj) -> bool {
+					using T = std::decay_t<decltype(obj)>;
+					if constexpr (!std::is_same_v<T, std::monostate>) {
 						return obj.IsValid();
-					return true;
-				}
-				else
-					return false;
-			},
-			m_variant);
+					}
+					else
+						return false;
+				},
+				*GetVariant());
 		return valid;
 	}
-	[[nodiscard]] auto operator==(const TUnknownProxy& other) const -> bool { return m_variant == other.m_variant; }
+	[[nodiscard]] auto operator==(const UnknownProxy& other) const noexcept { return GetData() == other.GetData(); }
 };
 
-export class CObjectProxy final : public TUnknownProxy<ObjectVariant> {
+export class CObjectProxy final : public UnknownProxy {
 public:
 	CObjectProxy() = default;
-	explicit CObjectProxy(ObjectVariant object) : TUnknownProxy(object) {}
-	~CObjectProxy() { m_cache = nullptr; }
+	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
+	explicit CObjectProxy(ObjectVariant) noexcept {}
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-		if (m_cache && m_cache->type)
-			return *m_cache->type;
+		if (GetCachedProperties() && GetCachedProperties()->type)
+			return *GetCachedProperties()->type;
 		auto result = With<EObjectType>([](auto&& obj) { return obj.GetType(); });
-		if (result && m_cache)
-			m_cache->type = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->type = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
-		if (m_cache && m_cache->states)
-			return *m_cache->states;
+		if (GetCachedProperties() && GetCachedProperties()->states)
+			return *GetCachedProperties()->states;
 		auto result = With<ObjectStateMask>([](auto&& obj) { return obj.GetState(); });
-		if (result && m_cache)
-			m_cache->states = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->states = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		if (m_cache && m_cache->capabilities)
-			return *m_cache->capabilities;
+		if (GetCachedProperties() && GetCachedProperties()->capabilities)
+			return *GetCachedProperties()->capabilities;
 		auto result = With<ObjectCapabilityMask>([](auto&& obj) { return obj.GetCapabilities(); });
-		if (result && m_cache)
-			m_cache->capabilities = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->capabilities = *result;
 		return result;
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-		ObjectResult<ObjectVariant> variant =
-			With<ObjectVariant>([](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetParent(); });
-		if (variant) {
-			return CObjectProxy(variant.value());
-		}
-		return std::unexpected(variant.error());
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
@@ -173,18 +151,14 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		ObjectResult<ObjectVariant> variant =
-			With<ObjectVariant>([index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetChildAt(index); });
-		if (variant)
-			return ObjectResult<CObjectProxy>(variant.value());
-		return std::unexpected(variant.error());
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		if (m_cache && m_cache->index)
-			return *m_cache->index;
+		if (GetCachedProperties() && GetCachedProperties()->index)
+			return *GetCachedProperties()->index;
 		auto result = With<int>([](auto&& obj) { return obj.GetIndex(); });
-		if (result && m_cache)
-			m_cache->index = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->index = *result;
 		return result;
 	}
 
@@ -193,42 +167,39 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-		if (m_cache && m_cache->application_name)
-			return *m_cache->application_name;
+		if (GetCachedProperties() && GetCachedProperties()->application_name)
+			return *GetCachedProperties()->application_name;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetApplicationName(); });
-		if (result && m_cache)
-			m_cache->application_name = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->application_name = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
-		if (m_cache && m_cache->name)
-			return *m_cache->name;
+		if (GetCachedProperties() && GetCachedProperties()->name)
+			return *GetCachedProperties()->name;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetName(); });
-		if (result && m_cache)
-			m_cache->name = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->name = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-		if (m_cache && m_cache->description)
-			return *m_cache->description;
+		if (GetCachedProperties() && GetCachedProperties()->description)
+			return *GetCachedProperties()->description;
 		auto result = With<std::string_view>([](auto&& obj) { return obj.GetDescription(); });
-		if (result && m_cache)
-			m_cache->description = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->description = *result;
 		return result;
 	}
 };
 
-export class CTextProviderProxy final : public TUnknownProxy<TextProviderVariant> {
+export class CTextProviderProxy final : public UnknownProxy {
 public:
-	explicit CTextProviderProxy(TextProviderVariant provider) : TUnknownProxy(provider) {}
-	~CTextProviderProxy() = default;
-
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
-		if (m_cache && m_cache->cursor)
-			return *m_cache->cursor;
+		if (GetCachedProperties() && GetCachedProperties()->cursor)
+			return *GetCachedProperties()->cursor;
 		auto result = With<int>([](auto&& obj) { return obj.GetCursor(); });
-		if (result && m_cache)
-			m_cache->cursor = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->cursor = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
@@ -239,60 +210,47 @@ public:
 	}
 };
 
-export class CSelectionProviderProxy final : public TUnknownProxy<SelectionProviderVariant> {
+export class CSelectionProviderProxy final : public UnknownProxy {
 public:
-	explicit CSelectionProviderProxy(SelectionProviderVariant provider) : TUnknownProxy(provider) {}
-	~CSelectionProviderProxy() = default;
-
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetSelectedChildrenCount(); });
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		ObjectResult<ObjectVariant> variant = With<ObjectVariant>(
-			[index](auto&& obj) -> ObjectResult<ObjectVariant> { return obj.GetSelectedChildAt(index); });
-		if (variant)
-			return ObjectResult<CObjectProxy>(variant.value());
-		return std::unexpected(variant.error());
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
 
-export class CValueProviderProxy final : public TUnknownProxy<ValueProviderVariant> {
+export class CValueProviderProxy final : public UnknownProxy {
 public:
-	explicit CValueProviderProxy(ValueProviderVariant provider) : TUnknownProxy(provider) {}
-	~CValueProviderProxy() = default;
-
 	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
-		if (m_cache && m_cache->min_value)
-			return *m_cache->min_value;
+		if (GetCachedProperties() && GetCachedProperties()->min_value)
+			return *GetCachedProperties()->min_value;
 		auto result = With<double>([](auto&& obj) { return obj.GetMinValue(); });
-		if (result && m_cache)
-			m_cache->min_value = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->min_value = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> {
-		if (m_cache && m_cache->max_value)
-			return *m_cache->max_value;
+		if (GetCachedProperties() && GetCachedProperties()->max_value)
+			return *GetCachedProperties()->max_value;
 		auto result = With<double>([](auto&& obj) { return obj.GetMaxValue(); });
-		if (result && m_cache)
-			m_cache->max_value = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->max_value = *result;
 		return result;
 	}
 	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
-		if (m_cache && m_cache->current_value)
-			return *m_cache->current_value;
+		if (GetCachedProperties() && GetCachedProperties()->current_value)
+			return *GetCachedProperties()->current_value;
 		auto result = With<double>([](auto&& obj) { return obj.GetCurrentValue(); });
-		if (result && m_cache)
-			m_cache->current_value = *result;
+		if (result && GetCachedProperties())
+			GetCachedProperties()->current_value = *result;
 		return result;
 	}
 };
 
-export class CActionProviderProxy final : public TUnknownProxy<ActionProviderVariant> {
+export class ActionProviderProxy final : public UnknownProxy {
 public:
-	explicit CActionProviderProxy(ActionProviderVariant provider) : TUnknownProxy(provider) {}
-	~CActionProviderProxy() = default;
-
 	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetActionCount(); });
 	}
