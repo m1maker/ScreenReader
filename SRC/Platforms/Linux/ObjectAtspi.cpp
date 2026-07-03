@@ -357,6 +357,7 @@ void CObjectAtspi::OnDestroy() noexcept {
 	return ObjectResult<>();
 }
 
+// TODO: Optimize this and avoid unneeded GArray allocations.
 [[nodiscard]] auto CObjectAtspi::GetRelationCount() const -> ObjectResult<int> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);
@@ -407,4 +408,31 @@ void CObjectAtspi::OnDestroy() noexcept {
 	auto relation_target_count = atspi_relation_get_n_targets(relation_interface);
 	g_object_unref(array);
 	return relation_target_count;
+}
+
+[[nodiscard]] auto CObjectAtspi::GetRelationTarget(int relation_index, int target_index) const -> ObjectResult<void*> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	m_data.ResetLastError();
+	auto array = atspi_accessible_get_relation_set(m_accessible, &m_data.last_error);
+	if (!array) [[unlikely]]
+		return std::unexpected(EObjectError::FAIL);
+	else if (relation_index < 0 || relation_index > array->len - 1) [[unlikely]]
+		return std::unexpected(EObjectError::INVALID_ARGUMENTS);
+	SAtspiIface<AtspiRelation> relation_interface(g_array_index(array, AtspiRelation*, relation_index));
+	if (!relation_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+
+	auto relation_target_count = atspi_relation_get_n_targets(relation_interface);
+	if (target_index < 0 || target_index > relation_target_count - 1) [[unlikely]]
+		return std::unexpected(EObjectError::INVALID_ARGUMENTS);
+	auto native_relation_target = atspi_relation_get_target(relation_interface, target_index);
+	if (!native_relation_target) [[unlikely]]
+		return std::unexpected(EObjectError::FAIL);
+
+	auto relation_target = TObjectCache<CObjectAtspi>::GetInstance().GetOrCreate(native_relation_target);
+
+	g_object_unref(array);
+	return relation_target;
 }
