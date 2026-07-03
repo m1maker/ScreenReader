@@ -454,6 +454,61 @@ export template <class T> [[nodiscard]] inline auto GetTextRangeFromAtspiRange(c
 	return text_range;
 }
 
+export [[nodiscard]] constexpr inline auto GetObjectRelationTypeFromAtspiRelationType(AtspiRelationType type)
+	-> EObjectRelationType {
+	using enum EObjectRelationType;
+	switch (type) {
+	case ATSPI_RELATION_NULL:
+	case ATSPI_RELATION_LAST_DEFINED:
+		return EObjectRelationType::UNKNOWN;
+	case ATSPI_RELATION_LABEL_FOR:
+		return EObjectRelationType::LABEL_FOR;
+	case ATSPI_RELATION_LABELLED_BY:
+		return EObjectRelationType::LABELLED_BY;
+	case ATSPI_RELATION_CONTROLLER_FOR:
+		return EObjectRelationType::CONTROLLER_FOR;
+	case ATSPI_RELATION_CONTROLLED_BY:
+		return EObjectRelationType::CONTROLLED_BY;
+	case ATSPI_RELATION_MEMBER_OF:
+		return EObjectRelationType::MEMBER_OF;
+	case ATSPI_RELATION_TOOLTIP_FOR:
+		return EObjectRelationType::TOOLTIP_FOR;
+	case ATSPI_RELATION_NODE_CHILD_OF:
+		return EObjectRelationType::NODE_CHILD_OF;
+	case ATSPI_RELATION_NODE_PARENT_OF:
+		return EObjectRelationType::NODE_PARENT_OF;
+	case ATSPI_RELATION_EXTENDED:
+		return EObjectRelationType::EXTENDED;
+	case ATSPI_RELATION_FLOWS_TO:
+		return EObjectRelationType::FLOWS_TO;
+	case ATSPI_RELATION_FLOWS_FROM:
+		return EObjectRelationType::FLOWS_FROM;
+	case ATSPI_RELATION_SUBWINDOW_OF:
+		return EObjectRelationType::SUBWINDOW_OF;
+	case ATSPI_RELATION_EMBEDS:
+		return EObjectRelationType::EMBEDS;
+	case ATSPI_RELATION_EMBEDDED_BY:
+		return EObjectRelationType::EMBEDDED_BY;
+	case ATSPI_RELATION_POPUP_FOR:
+		return EObjectRelationType::POPUP_FOR;
+	case ATSPI_RELATION_PARENT_WINDOW_OF:
+		return EObjectRelationType::PARENT_WINDOW_OF;
+	case ATSPI_RELATION_DESCRIPTION_FOR:
+		return EObjectRelationType::DESCRIPTION_FOR;
+	case ATSPI_RELATION_DESCRIBED_BY:
+		return EObjectRelationType::DESCRIBED_BY;
+	case ATSPI_RELATION_DETAILS:
+		return EObjectRelationType::DETAILS;
+	case ATSPI_RELATION_DETAILS_FOR:
+		return EObjectRelationType::DETAILS_FOR;
+	case ATSPI_RELATION_ERROR_MESSAGE:
+		return EObjectRelationType::ERROR_MESSAGE;
+	case ATSPI_RELATION_ERROR_FOR:
+		return EObjectRelationType::ERROR_FOR;
+	}
+	return EObjectRelationType::UNKNOWN;
+}
+
 export template <typename T> struct SAtspiIface final {
 	T* pointer{nullptr};
 	explicit SAtspiIface(T* p) noexcept : pointer(p) {}
