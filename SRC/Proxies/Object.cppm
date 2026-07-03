@@ -273,3 +273,10 @@ public:
 		return With<>([number](auto&& obj) { return obj.DoAction(number); });
 	}
 };
+
+class CRelationProviderProxy final : public UnknownProxy {
+public:
+	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
+		return With<int>([](auto&& obj) { return obj.GetRelationCount(); });
+	}
+};
