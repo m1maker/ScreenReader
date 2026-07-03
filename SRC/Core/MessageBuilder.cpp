@@ -263,9 +263,16 @@ void MessageBuilder::BuildDescriptionAnnouncement(CMessage& message, CObjectProx
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	if (auto description = obj.GetDescription()) {
-		message.ApplyUtteranceParameters(m_speechParameters.description);
-		message.Append("{}", *description);
+	std::string_view description{};
+	description = obj.GetDescription().value_or({});
+	message.ApplyUtteranceParameters(m_speechParameters.description);
+	message.Append("{}", description);
+
+	if (auto help_text = obj.GetHelpText()) {
+		if (*help_text == description)
+			return;
+		message.Separate();
+		message.Append("{}", *help_text);
 	}
 }
 
