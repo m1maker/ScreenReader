@@ -36,7 +36,7 @@ struct SCachedObjectProperties final {
 	std::optional<ObjectStateMask> states;
 	std::optional<ObjectCapabilityMask> capabilities;
 	std::optional<int> index, cursor;
-	std::optional<std::string_view> application_name, name, description;
+	std::optional<std::string_view> application_name, name, description, help_text;
 	std::optional<double> min_value, max_value, current_value;
 };
 
