@@ -356,3 +356,16 @@ void CObjectAtspi::OnDestroy() noexcept {
 	auto _ = atspi_action_do_action(action_interface, number, &m_data.last_error);
 	return ObjectResult<>();
 }
+
+[[nodiscard]] auto CObjectAtspi::GetRelationCount() const -> ObjectResult<int> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	m_data.ResetLastError();
+	auto array = atspi_accessible_get_relation_set(m_accessible, &m_data.last_error);
+	if (!array) [[unlikely]]
+		return std::unexpected(EObjectError::FAIL);
+	auto relation_count = array->len;
+	g_object_unref(array);
+	return relation_count;
+}
