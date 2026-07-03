@@ -172,6 +172,20 @@ void CObjectAtspi::OnDestroy() noexcept {
 	return m_data.description;
 }
 
+[[nodiscard]] auto CObjectAtspi::GetHelpText() const -> ObjectResult<std::string_view> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	m_data.ResetLastError();
+
+	if (m_data.help_text) {
+		g_free(m_data.help_text);
+		m_data.help_text = nullptr;
+	}
+	m_data.help_text = atspi_accessible_get_description(m_accessible, &m_data.last_error);
+	return m_data.help_text;
+}
+
 [[nodiscard]] auto CObjectAtspi::GetCursor() const -> ObjectResult<int> {
 	if (!IsValid()) [[unlikely]]
 		return std::unexpected(EObjectError::DEFUNCT);

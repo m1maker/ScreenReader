@@ -526,6 +526,7 @@ export class CObjectAtspi final {
 		gchar* app_name{nullptr};
 		gchar* name{nullptr};
 		gchar* description{nullptr};
+		gchar* help_text{nullptr};
 		gchar* last_text{nullptr};
 		gchar* action_name{nullptr};
 
@@ -595,6 +596,7 @@ public:
 
 	[[nodiscard]] auto GetName() const -> ObjectResult<std::string_view>;
 	[[nodiscard]] auto GetDescription() const -> ObjectResult<std::string_view>;
+	[[nodiscard]] auto GetHelpText() const -> ObjectResult<std::string_view>;
 
 	void UpdateCacheByEvent(EObjectEventType event);
 
