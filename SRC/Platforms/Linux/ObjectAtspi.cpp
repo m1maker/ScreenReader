@@ -369,3 +369,23 @@ void CObjectAtspi::OnDestroy() noexcept {
 	g_object_unref(array);
 	return relation_count;
 }
+
+[[nodiscard]] auto CObjectAtspi::GetRelationType(int index) const -> ObjectResult<EObjectRelationType> {
+	if (!IsValid()) [[unlikely]]
+		return std::unexpected(EObjectError::DEFUNCT);
+
+	m_data.ResetLastError();
+	auto array = atspi_accessible_get_relation_set(m_accessible, &m_data.last_error);
+	if (!array) [[unlikely]]
+		return std::unexpected(EObjectError::FAIL);
+	else if (index < 0 || index > array->len - 1) [[unlikely]]
+		return std::unexpected(EObjectError::INVALID_ARGUMENTS);
+	SAtspiIface<AtspiRelation> relation_interface(g_array_index(array, AtspiRelation*, index));
+	if (!relation_interface.pointer)
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
+
+	auto relation_type =
+		GetObjectRelationTypeFromAtspiRelationType(atspi_relation_get_relation_type(relation_interface));
+	g_object_unref(array);
+	return relation_type;
+}
