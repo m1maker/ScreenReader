@@ -315,8 +315,7 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 export enum class EObjectLive : unsigned char { UNKNOWN = 0, POLITE, ASSERTIVE };
 
 export enum class EObjectRelationType : unsigned char {
-	NONE = 0,
-	UNKNOWN,
+	UNKNOWN = 0,
 	LABELLED_BY,
 	LABEL_FOR,
 	DESCRIBED_BY,
