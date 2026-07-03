@@ -285,4 +285,11 @@ public:
 	[[nodiscard]] inline auto GetTargetCount(int index) const -> ObjectResult<int> {
 		return With<int>([index](auto&& obj) { return obj.GetRelationTargetCount(index); });
 	}
+	[[nodiscard]] inline auto GetTarget(int relation_index, int target_index) const -> ObjectResult<CObjectProxy> {
+		auto result = With<void*>(
+			[relation_index, target_index](auto&& obj) { return obj.GetRelationTarget(relation_index, target_index); });
+		if (!result)
+			return std::unexpected(result.error());
+		return CObjectProxy(*result);
+	}
 };
