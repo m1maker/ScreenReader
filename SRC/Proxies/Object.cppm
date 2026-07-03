@@ -279,4 +279,7 @@ public:
 	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetRelationCount(); });
 	}
+	[[nodiscard]] inline auto GetType(int index) const -> ObjectResult<EObjectRelationType> {
+		return With<EObjectRelationType>([index](auto&& obj) { return obj.GetRelationType(index); });
+	}
 };
