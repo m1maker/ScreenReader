@@ -559,4 +559,9 @@ public:
 	[[nodiscard]] auto GetActionType(int number) const -> ObjectResult<EObjectAction>;
 	[[nodiscard]] auto GetActionName(int number) const -> ObjectResult<std::string_view>;
 	[[nodiscard]] auto DoAction(int number) -> ObjectResult<>;
+
+	[[nodiscard]] auto GetRelationCount() const -> ObjectResult<int>;
+	[[nodiscard]] auto GetRelationType(int index) const -> ObjectResult<EObjectRelationType>;
+	[[nodiscard]] auto GetRelationTargetCount(int index) const -> ObjectResult<int>;
+	[[nodiscard]] auto GetRelationTarget(int relation_index, int target_index) const -> ObjectResult<void*>;
 };
