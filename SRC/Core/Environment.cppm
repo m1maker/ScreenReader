@@ -27,11 +27,6 @@ export import Platforms.Linux.Object;
 export import Platforms.Linux.Worker;
 export using DefaultPlatformDependentWorker = CPlatformDependentWorkerLinux;
 export using ObjectVariant = std::variant<std::monostate, CObjectAtspi>;
-export using ProviderVariant = ObjectVariant;
-export using ActionProviderVariant = ObjectVariant;
-export using TextProviderVariant = ObjectVariant;
-export using SelectionProviderVariant = ObjectVariant;
-export using ValueProviderVariant = ObjectVariant;
 #else
 export module Core.Environment;
 #endif
