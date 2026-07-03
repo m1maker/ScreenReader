@@ -282,4 +282,7 @@ public:
 	[[nodiscard]] inline auto GetType(int index) const -> ObjectResult<EObjectRelationType> {
 		return With<EObjectRelationType>([index](auto&& obj) { return obj.GetRelationType(index); });
 	}
+	[[nodiscard]] inline auto GetTargetCount(int index) const -> ObjectResult<int> {
+		return With<int>([index](auto&& obj) { return obj.GetRelationTargetCount(index); });
+	}
 };
