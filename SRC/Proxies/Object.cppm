@@ -274,7 +274,7 @@ public:
 	}
 };
 
-class CRelationProviderProxy final : public UnknownProxy {
+export class CRelationProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
 		return With<int>([](auto&& obj) { return obj.GetRelationCount(); });
