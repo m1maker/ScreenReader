@@ -195,6 +195,14 @@ public:
 			GetCachedProperties()->description = *result;
 		return result;
 	}
+	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> {
+		if (GetCachedProperties() && GetCachedProperties()->help_text)
+			return *GetCachedProperties()->help_text;
+		auto result = With<std::string_view>([](auto&& obj) { return obj.GetHelpText(); });
+		if (result && GetCachedProperties())
+			GetCachedProperties()->help_text = *result;
+		return result;
+	}
 };
 
 export class CTextProviderProxy final : public UnknownProxy {
