@@ -31,7 +31,6 @@ module;
 module Platforms.Linux.EventListener;
 import Core.AppState;
 import Core.Event;
-import Core.EventQueue;
 import Core.KeyboardHandler;
 import Core.Object;
 import Core.ObjectCache;

@@ -24,41 +24,39 @@ module;
 #include <memory_resource>
 #include <mutex>
 #include <optional>
-export module Core.EventQueue;
-import Core.Event;
-import Core.Logger;
+export module Core.ThreadSafeQueue;
 import Core.Singleton;
 
-export class EventQueue final : TModule<"EventQueue">, public TSingleton<EventQueue> {
+export template<typename T> class TThreadSafeQueue final : public TSingleton<TThreadSafeQueue<T>> {
 	std::pmr::synchronized_pool_resource m_pool;
-	std::pmr::deque<CEvent> m_events;
+	std::pmr::deque<T> m_elements;
 
 	std::mutex m_mutex;
 	std::condition_variable m_cv;
 	bool m_stopping{false};
 
 public:
-	explicit EventQueue() : m_events(&m_pool) {}
+	TThreadSafeQueue() : m_elements(&m_pool) {}
 
-	~EventQueue() { Stop(); }
+	~TThreadSafeQueue() { Stop(); }
 
 	template <typename... Args> void Push(Args&&... args) {
 		std::scoped_lock _(m_mutex);
-		m_events.emplace_back(std::forward<Args>(args)...);
+		m_elements.emplace_back(std::forward<Args>(args)...);
 		m_cv.notify_one();
 	}
 
-	auto Pop() -> std::optional<CEvent> {
+	auto Pop() -> std::optional<T> {
 		std::unique_lock lock(m_mutex);
-		m_cv.wait(lock, [this] -> bool { return !m_events.empty() || m_stopping; });
+		m_cv.wait(lock, [this] -> bool { return !m_elements.empty() || m_stopping; });
 
-		if (m_stopping && m_events.empty())
+		if (m_stopping && m_elements.empty())
 			return std::nullopt;
 
-		CEvent event = std::move(m_events.front());
-		m_events.pop_front();
+		T element = std::move(m_elements.front());
+		m_elements.pop_front();
 
-		return event;
+		return element;
 	}
 
 	void Stop() {

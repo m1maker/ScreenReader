@@ -25,7 +25,6 @@ module;
 #include <thread>
 export module Core.EventHandler;
 import Core.Event;
-import Core.EventQueue;
 import Core.Logger;
 import Core.Singleton;
 #if SR_LINUX

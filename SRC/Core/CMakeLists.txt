@@ -45,7 +45,6 @@ target_sources(${PROJECT_NAME}
         Environment.cppm
         Event.cppm
         EventHandler.cppm
-        EventQueue.cppm
         FocusManager.cppm
         KeyboardHandler.cppm
         KeyInfo.cppm
@@ -71,6 +70,7 @@ target_sources(${PROJECT_NAME}
         StateMeta.cppm
         Text.cppm
         TextComparer.cppm
+        ThreadSafeQueue.cppm
         Timer.cppm
         UnicodeData.cppm
         Utterance.cppm

@@ -30,6 +30,7 @@ export module Core.Event;
 import Core.Environment;
 import Core.KeyInfo;
 import Core.Object;
+import Core.ThreadSafeQueue;
 import Proxies.Object;
 
 /*
@@ -109,3 +110,5 @@ public:
 
 	operator EventVariant() const noexcept { return m_variant; }
 };
+
+export using EventQueue = TThreadSafeQueue<CEvent>;
