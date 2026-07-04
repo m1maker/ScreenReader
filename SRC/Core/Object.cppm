@@ -28,6 +28,7 @@ export module Core.Object;
 import Core.KeyInfo;
 import Core.Rect;
 import Core.Text;
+import Core.ThreadSafeQueue;
 
 enum class EObjectFetchValue : unsigned char {
 	UNKNOWN = 0,
@@ -428,3 +429,5 @@ struct SObjectFetchRequest final {
 
 	std::promise<SObjectFetchResult> result;
 };
+
+export using ObjectFetchQueue = TThreadSafeQueue<SObjectFetchRequest>;
