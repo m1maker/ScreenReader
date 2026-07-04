@@ -20,11 +20,60 @@
 module;
 #include <bitset>
 #include <expected>
+#include <future>
+#include <span>
 #include <string_view>
 #include <utility>
 export module Core.Object;
+import Core.KeyInfo;
 import Core.Rect;
 import Core.Text;
+
+enum class EObjectFetchValue : unsigned char {
+	UNKNOWN = 0,
+
+	TYPE,
+	STATES,
+	CAPABILITIES,
+	ANCESTORS,
+	CHILDREN,
+	BOUNDS,
+	TOOLKIT_NAME,
+	TOOLKIT_VERSION,
+	NAME,
+	DESCRIPTION,
+	HELP_TEXT,
+
+	TEXT_CURSOR,
+	TEXT_LENGTH,
+	TEXT,
+	TEXT_SELECTION,
+	TEXT_SELECTION_RANGE,
+	TEXT_BY_GRANULARITY,
+
+	SELECTED_CHILDREN,
+
+	ACTION_TYPES,
+	ACTION_NAMES,
+	ACTION_DESCRIPTIONS,
+	ACTION_HOTKEYS,
+	ACTION_HOTKEY_STRINGS,
+	ACTION_DO,
+
+	VALUE_MIN,
+	VALUE_MAX,
+	VALUE_CURRENT,
+	VALUE_STEP,
+	VALUE_STRING,
+
+	RELATION_TYPES,
+	RELATION_TARGETS,
+	COUNT
+};
+
+export using ObjectFetchMask = std::bitset<std::to_underlying(EObjectFetchValue::COUNT)>;
+
+export using ObjectId = uint64_t;
 
 export enum class EObjectType : unsigned char {
 	UNKNOWN = 0,
@@ -340,4 +389,42 @@ export enum class EObjectRelationType : unsigned char {
 	TOOLTIP_FOR,
 	RADIO_GROUP,
 	EXTENDED,
+};
+
+export using ObjectIdSpan = std::span<ObjectId>;
+export using ObjectStringSpan = std::span<std::string_view>;
+export using ObjectActionSpan = std::span<EObjectAction>;
+export using ObjectHotkeySpan = std::span<SHotkeyInfo>;
+export using ObjectRelationTypeSpan = std::span<EObjectRelationType>;
+
+struct SObjectFetchResult final {
+	ObjectId id;
+
+	ObjectResult<EObjectType> type;
+	ObjectResult<ObjectStateMask> states;
+	ObjectResult<ObjectCapabilityMask> capabilities;
+	ObjectResult<ObjectIdSpan> ancestors, children, selected_children;
+	ObjectResult<SRect> bounds;
+	ObjectResult<std::string_view> toolkit_name, toolkit_version, name, description, help_text;
+
+	ObjectResult<size_t> cursor, text_length;
+	ObjectResult<std::string_view> text, text_selection, text_by_granularity;
+
+	ObjectResult<ObjectActionSpan> action_type;
+	ObjectResult<ObjectStringSpan> action_names, action_descriptions, action_hotkey_strings;
+	ObjectResult<ObjectHotkeySpan> action_hotkeys;
+	ObjectResult<void> action_do;
+
+	ObjectResult<double> value_min, value_max, value_current, value_step;
+	ObjectResult<std::string_view> value_string;
+
+	ObjectResult<ObjectRelationTypeSpan> relation_types;
+	ObjectResult<ObjectIdSpan> relation_targets;
+};
+
+struct SObjectFetchRequest final {
+	ObjectId id;
+	ObjectFetchMask mask;
+
+	std::promise<SObjectFetchResult> result;
 };
