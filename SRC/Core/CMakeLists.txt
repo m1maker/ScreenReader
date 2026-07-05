@@ -57,6 +57,7 @@ target_sources(${PROJECT_NAME}
         ObjectHandler.cppm
         ObjectMeta.cppm
         ObjectNavigator.cppm
+        ObjectProviderMeta.cppm
         OutputManager.cppm
         Outputs.cppm
         PlatformError.cppm
