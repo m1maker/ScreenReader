@@ -74,7 +74,7 @@ public:
 		if (!memory) [[unlikely]]
 			return nullptr;
 		auto this_self = static_cast<TAtomicRefCountedObject<Derived, Data>*>(memory);
-		return &this_self->m_controlBlock.load(std::memory_order::acquire)->data;
+		return &this_self->m_dataBlock.load(std::memory_order::acquire)->data;
 	}
 
 	inline void AddRef() const noexcept {

@@ -30,15 +30,17 @@ export module Core.ObjectCache;
 import Core.Environment;
 import Core.Object;
 import Core.Singleton;
-import Traits.NonAtomicRefCountedObject;
+import Traits.AtomicRefCountedObject;
 
 export struct SCachedObjectData final {
+	std::pmr::memory_resource* pool;
 	SObjectFetchResult slots[2];
 	std::atomic<unsigned char> ccurrent_slot{0};
+	SCachedObjectData(std::pmr::memory_resource* new_pool) : pool(new_pool), slots{pool, pool} {}
 };
 
-/*export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
-	using RequiredRefCountedObject = TNonAtomicRefCountedObject<void, SCachedObjectData>;
+export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
+	using RequiredRefCountedObject = TAtomicRefCountedObject<void, SCachedObjectData>;
 
 	std::pmr::unsynchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle, void*> m_cache;
@@ -63,10 +65,9 @@ public:
 		auto data_start = RequiredRefCountedObject::GetDataAddressFromRawMemory(raw);
 		if (!data_start) [[unlikely]]
 			return nullptr;
-		auto initialized_data = new (data_start) SCachedObjectData();
+		auto initialized_data = new (data_start) SCachedObjectData(&m_pool);
 		if (!initialized_data) [[unlikely]]
 			return nullptr;
-		initialized_data->variant.emplace<PlatformObject>(native_handle);
 		m_cache[native_handle] = raw;
 		return raw;
 	}
@@ -91,6 +92,6 @@ public:
 		}
 
 		m_cache.clear();
+		m_pool.release();
 	}
 };
-*/
