@@ -394,7 +394,7 @@ export enum class EObjectRelationType : unsigned char {
 	EXTENDED,
 };
 
-struct SObjectFetchResult final {
+export struct SObjectFetchResult final {
 	std::atomic_flag busy;
 	std::pmr::memory_resource* pool;
 	ObjectFetchMask mask;
@@ -432,7 +432,7 @@ struct SObjectFetchResult final {
 	auto operator=(SObjectFetchResult&&) = delete;
 };
 
-struct SObjectFetchRequest final {
+export struct SObjectFetchRequest final {
 	SObjectFetchResult* slot;
 	ObjectFetchMask mask;
 };
