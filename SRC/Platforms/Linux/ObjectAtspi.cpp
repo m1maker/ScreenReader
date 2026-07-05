@@ -29,7 +29,8 @@ import Core.Rect;
 import Core.Text;
 
 void ObjectAtspiFetch(const SObjectFetchRequest*& request) noexcept {
-	if (!request) [[unlikely]] return;
+	if (!request) [[unlikely]]
+		return;
 
 	auto slot = request->slot;
 	auto native_handle = static_cast<AtspiAccessible*>(request->native_handle);
