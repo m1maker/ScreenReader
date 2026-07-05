@@ -433,6 +433,7 @@ export struct SObjectFetchResult final {
 };
 
 export struct SObjectFetchRequest final {
+	void* native_handle;
 	SObjectFetchResult* slot;
 	ObjectFetchMask mask;
 };

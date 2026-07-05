@@ -33,10 +33,13 @@ import Core.Singleton;
 import Traits.AtomicRefCountedObject;
 
 export struct SCachedObjectData final {
+	void* native_handle;
 	std::pmr::memory_resource* pool;
 	SObjectFetchResult slots[2];
 	std::atomic<unsigned char> ccurrent_slot{0};
-	SCachedObjectData(std::pmr::memory_resource* new_pool) : pool(new_pool), slots{pool, pool} {}
+	std::atomic_flag wants_to_switch;
+
+	SCachedObjectData(void* opaque_native_handle, std::pmr::memory_resource* new_pool) : native_handle(opaque_native_handle), pool(new_pool), slots{pool, pool} {}
 };
 
 export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
@@ -65,7 +68,7 @@ public:
 		auto data_start = RequiredRefCountedObject::GetDataAddressFromRawMemory(raw);
 		if (!data_start) [[unlikely]]
 			return nullptr;
-		auto initialized_data = new (data_start) SCachedObjectData(&m_pool);
+		auto initialized_data = new (data_start) SCachedObjectData(native_handle, &m_pool);
 		if (!initialized_data) [[unlikely]]
 			return nullptr;
 		m_cache[native_handle] = raw;
