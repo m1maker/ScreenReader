@@ -20,8 +20,9 @@
 module;
 #include <bitset>
 #include <expected>
-#include <future>
-#include <span>
+#include <memory_resource>
+#include <string>
+#include <vector>
 #include <string_view>
 #include <utility>
 export module Core.Object;
@@ -36,7 +37,7 @@ enum class EObjectFetchValue : unsigned char {
 	TYPE,
 	STATES,
 	CAPABILITIES,
-	ANCESTORS,
+	PARENT,
 	CHILDREN,
 	BOUNDS,
 	TOOLKIT_NAME,
@@ -392,42 +393,35 @@ export enum class EObjectRelationType : unsigned char {
 	EXTENDED,
 };
 
-export using ObjectIdSpan = std::span<ObjectId>;
-export using ObjectStringSpan = std::span<std::string_view>;
-export using ObjectActionSpan = std::span<EObjectAction>;
-export using ObjectHotkeySpan = std::span<SHotkeyInfo>;
-export using ObjectRelationTypeSpan = std::span<EObjectRelationType>;
-
 struct SObjectFetchResult final {
-	ObjectId id;
+	ObjectFetchMask mask;
 
 	ObjectResult<EObjectType> type;
 	ObjectResult<ObjectStateMask> states;
 	ObjectResult<ObjectCapabilityMask> capabilities;
-	ObjectResult<ObjectIdSpan> ancestors, children, selected_children;
+	ObjectResult<void*> parent;
+	ObjectResult<std::pmr::vector<void*>> children, selected_children;
 	ObjectResult<SRect> bounds;
-	ObjectResult<std::string_view> toolkit_name, toolkit_version, name, description, help_text;
+	ObjectResult<std::pmr::string> toolkit_name, toolkit_version, name, description, help_text;
 
 	ObjectResult<size_t> cursor, text_length;
-	ObjectResult<std::string_view> text, text_selection, text_by_granularity;
+	ObjectResult<std::pmr::string> text, text_selection, text_by_granularity;
 
-	ObjectResult<ObjectActionSpan> action_type;
-	ObjectResult<ObjectStringSpan> action_names, action_descriptions, action_hotkey_strings;
-	ObjectResult<ObjectHotkeySpan> action_hotkeys;
+	ObjectResult<std::pmr::vector<EObjectAction>> action_types;
+	ObjectResult<std::pmr::vector<std::pmr::string>> action_names, action_descriptions, action_hotkey_strings;
+	ObjectResult<std::pmr::vector<SHotkeyInfo>> action_hotkeys;
 	ObjectResult<void> action_do;
 
 	ObjectResult<double> value_min, value_max, value_current, value_step;
-	ObjectResult<std::string_view> value_string;
+	ObjectResult<std::pmr::string> value_string;
 
-	ObjectResult<ObjectRelationTypeSpan> relation_types;
-	ObjectResult<ObjectIdSpan> relation_targets;
+	ObjectResult<std::vector<EObjectRelationType>> relation_types;
+	ObjectResult<std::pmr::vector<void*>> relation_targets;
 };
 
 struct SObjectFetchRequest final {
-	ObjectId id;
+	SObjectFetchResult* slot;
 	ObjectFetchMask mask;
-
-	std::promise<SObjectFetchResult> result;
 };
 
 export using ObjectFetchQueue = TThreadSafeQueue<SObjectFetchRequest>;
