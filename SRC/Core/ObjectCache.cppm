@@ -36,10 +36,11 @@ export struct SCachedObjectData final {
 	void* native_handle;
 	std::pmr::memory_resource* pool;
 	SObjectFetchResult slots[2];
-	std::atomic<unsigned char> ccurrent_slot{0};
+	std::atomic<unsigned char> current_slot{0};
 	std::atomic_flag wants_to_switch;
 
-	SCachedObjectData(void* opaque_native_handle, std::pmr::memory_resource* new_pool) : native_handle(opaque_native_handle), pool(new_pool), slots{pool, pool} {}
+	SCachedObjectData(void* opaque_native_handle, std::pmr::memory_resource* new_pool)
+		: native_handle(opaque_native_handle), pool(new_pool), slots{pool, pool} {}
 };
 
 export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {

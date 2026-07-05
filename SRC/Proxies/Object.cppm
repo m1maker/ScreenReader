@@ -18,6 +18,7 @@
  */
 
 module;
+#include <atomic>
 #include <expected>
 #include <optional>
 #include <string_view>
@@ -28,16 +29,35 @@ import Core.Object;
 import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
-import Traits.NonAtomicRefCountedObject;
+import Traits.AtomicRefCountedObject;
 
-class UnknownProxy : /*protected*/ public TNonAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
+class UnknownProxy : /*protected*/ public TAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
 protected:
 	UnknownProxy() = default;
-	explicit UnknownProxy(void* memory) : TNonAtomicRefCountedObject(memory) {}
+	explicit UnknownProxy(void* memory) : TAtomicRefCountedObject(memory) {}
+
+	[[nodiscard]] auto GetInactiveSlotNumber() const noexcept -> unsigned char {
+		return (GetData()->current_slot.load(std::memory_order_acquire) + 1) & 1;
+	}
+	[[nodiscard]] auto GetInactiveSlot() const noexcept -> SObjectFetchResult* {
+		return &GetData()->slots[GetInactiveSlotNumber()];
+	}
+	[[nodiscard]] auto GetActiveSlotNumber() const noexcept -> unsigned char {
+		return GetData()->current_slot.load(std::memory_order_acquire);
+	}
+	[[nodiscard]] auto GetActiveSlot() const noexcept -> SObjectFetchResult* {
+		return &GetData()->slots[GetActiveSlotNumber()];
+	}
+
+	void SwitchSlot() noexcept {
+		auto inactive_slot = GetInactiveSlot();
+		if (!inactive_slot || inactive_slot->busy.test(std::memory_order_acquire))
+			return;
+		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
+	}
 
 public:
-	// TNonAtomicRefCountedObject
-
+	// TAtomicRefCountedObject
 	void do_OnDestroy() noexcept {
 		/*
 				static_cast<void>(With<>([](auto&& obj) {
