@@ -27,6 +27,7 @@ export module Proxies.Object;
 import Core.Environment;
 import Core.Object;
 import Core.ObjectCache;
+import Core.ObjectProviderMeta;
 import Core.Rect;
 import Core.Text;
 import Traits.AtomicRefCountedObject;
@@ -49,6 +50,11 @@ protected:
 		return &GetData()->slots[GetActiveSlotNumber()];
 	}
 
+	void PushFetchRequest(ObjectFetchMask values) const {
+		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), GetInactiveSlot(), values});
+		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
+	}
+
 public:
 	// TAtomicRefCountedObject
 	void do_OnDestroy() noexcept {
@@ -61,11 +67,6 @@ public:
 	}
 
 	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* { return GetData()->native_handle; }
-
-	void PushFetchRequest(ObjectFetchMask values) const {
-		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), GetInactiveSlot(), values});
-		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
-	}
 
 	void TryPull() const noexcept {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
@@ -90,7 +91,7 @@ public:
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
-	bool IsValid() const { return false; }
+	bool IsValid() const noexcept { return GetActiveSlot(); }
 	[[nodiscard]] auto operator==(const UnknownProxy& other) const noexcept { return GetData() == other.GetData(); }
 };
 
@@ -99,26 +100,35 @@ public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
 
-	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	}
-	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	}
+	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::MAIN)); }
+
+	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetActiveSlot()->type; }
+	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> { return GetActiveSlot()->states; }
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->capabilities;
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto parent = GetActiveSlot()->parent;
+		if (!parent)
+			return std::unexpected(parent.error());
+		return CObjectProxy(*parent);
 	}
 
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto children = GetActiveSlot()->children;
+		if (!children)
+			return std::unexpected(children.error());
+		return children->size();
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto children = GetActiveSlot()->children;
+		if (!children)
+			return std::unexpected(children.error());
+		else if (index >= children->size() || index < 0) [[unlikely]]
+			return std::unexpected(EObjectError::INVALID_ARGUMENTS);
+		return CObjectProxy(children->operator[](index));
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
@@ -129,16 +139,14 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->toolkit_name;
 	}
-	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
-	}
+	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> { return GetActiveSlot()->name; }
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->description;
 	}
 	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->help_text;
 	}
 };
 
