@@ -18,6 +18,7 @@
  */
 
 module;
+#include <atomic>
 #include <bitset>
 #include <expected>
 #include <memory_resource>
@@ -394,6 +395,7 @@ export enum class EObjectRelationType : unsigned char {
 };
 
 struct SObjectFetchResult final {
+	std::atomic_flag busy;
 	std::pmr::memory_resource* pool;
 	ObjectFetchMask mask;
 
