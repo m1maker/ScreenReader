@@ -21,7 +21,9 @@ module;
 #include <atomic>
 #include <memory>
 #include <memory_resource>
+#include <mutex>
 #include <optional>
+#include <shared_mutex>
 #include <string.h>
 #include <string_view>
 #include <unordered_map>
@@ -46,8 +48,9 @@ export struct SCachedObjectData final {
 export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
 	using RequiredRefCountedObject = TAtomicRefCountedObject<void, SCachedObjectData>;
 
-	std::pmr::unsynchronized_pool_resource m_pool;
+	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::unordered_map<NativeHandle, void*> m_cache;
+	std::shared_mutex m_mutex;
 
 public:
 	TObjectCache() : m_cache(&m_pool) {}
@@ -56,9 +59,12 @@ public:
 		if (!native_handle)
 			return nullptr;
 
-		auto it = m_cache.find(native_handle);
-		if (it != m_cache.end()) {
-			return it->second;
+		{
+			std::shared_lock _(m_mutex);
+			auto it = m_cache.find(native_handle);
+			if (it != m_cache.end()) {
+				return it->second;
+			}
 		}
 
 		constexpr auto needed_size = RequiredRefCountedObject::GetNeededSize();
@@ -72,30 +78,43 @@ public:
 		auto initialized_data = new (data_start) SCachedObjectData(native_handle, &m_pool);
 		if (!initialized_data) [[unlikely]]
 			return nullptr;
-		m_cache[native_handle] = raw;
+		{
+			std::unique_lock _(m_mutex);
+			m_cache[native_handle] = raw;
+		}
+
 		return raw;
 	}
 
 	void Remove(NativeHandle native_handle) {
-		auto it = m_cache.find(native_handle);
-		if (it == m_cache.end() || !it->second) [[unlikely]]
-			return;
+		using T = std::decay_t<decltype(m_cache)>;
+		typename T::iterator it;
+		{
+			std::shared_lock _(m_mutex);
+			it = m_cache.find(native_handle);
+			if (it == m_cache.end() || !it->second) [[unlikely]] {
+				return;
+			}
+			auto initialized_data =
+				static_cast<SCachedObjectData*>(RequiredRefCountedObject::GetDataAddressFromRawMemory(it->second));
+			if (!initialized_data) [[unlikely]]
+				return;
+			initialized_data->~SCachedObjectData();
+			m_pool.deallocate(it->second, RequiredRefCountedObject::GetNeededSize());
+		}
 
-		auto initialized_data =
-			static_cast<SCachedObjectData*>(RequiredRefCountedObject::GetDataAddressFromRawMemory(it->second));
-		if (!initialized_data) [[unlikely]]
-			return;
-		initialized_data->~SCachedObjectData();
-		m_pool.deallocate(it->second, RequiredRefCountedObject::GetNeededSize());
+		std::unique_lock _(m_mutex);
 		m_cache.erase(it);
 	}
 
 	void Clear() {
+		std::shared_lock lock(m_mutex);
 		for (auto [handle, _] : m_cache) {
+			lock.unlock();
 			Remove(handle);
+			lock.lock();
 		}
 
-		m_cache.clear();
 		m_pool.release();
 	}
 };
