@@ -22,7 +22,7 @@ module;
 #include <cstddef>
 export module Traits.AtomicRefCountedObject;
 
-export template <class Derived, typename Data> class TNonAtomicRefCountedObject {
+export template <class Derived, typename Data> class TAtomicRefCountedObject {
 	struct SControlBlock final {
 		std::atomic<unsigned int> ref_count;
 		Data data;
@@ -37,20 +37,20 @@ public:
 	[[nodiscard]] static consteval auto GetNeededSize() noexcept -> size_t { return sizeof(SControlBlock); }
 
 protected:
-	TNonAtomicRefCountedObject() = default;
-	explicit TNonAtomicRefCountedObject(void* memory) noexcept {
+	TAtomicRefCountedObject() = default;
+	explicit TAtomicRefCountedObject(void* memory) noexcept {
 		SetStorage(memory);
 		AddRef();
 	}
-	explicit TNonAtomicRefCountedObject(const TNonAtomicRefCountedObject& other) noexcept
+	explicit TAtomicRefCountedObject(const TAtomicRefCountedObject& other) noexcept
 		: m_dataBlock(other.m_dataBlock.load(std::memory_order_acquire)) {
 		AddRef();
 	}
-	explicit TNonAtomicRefCountedObject(TNonAtomicRefCountedObject&& other) noexcept
+	explicit TAtomicRefCountedObject(TAtomicRefCountedObject&& other) noexcept
 		: m_dataBlock(other.m_dataBlock.exchange(nullptr, std::memory_order_acq_rel)) {}
-	/*virtual*/ ~TNonAtomicRefCountedObject() noexcept { Release(); }
+	/*virtual*/ ~TAtomicRefCountedObject() noexcept { Release(); }
 
-	auto operator=(const TNonAtomicRefCountedObject& other) noexcept -> TNonAtomicRefCountedObject& {
+	auto operator=(const TAtomicRefCountedObject& other) noexcept -> TAtomicRefCountedObject& {
 		if (this == &other) [[unlikely]]
 			return *this;
 		Release();
@@ -58,7 +58,7 @@ protected:
 		AddRef();
 		return *this;
 	}
-	auto operator=(TNonAtomicRefCountedObject&& other) noexcept -> TNonAtomicRefCountedObject& {
+	auto operator=(TAtomicRefCountedObject&& other) noexcept -> TAtomicRefCountedObject& {
 		if (this == &other) [[unlikely]]
 			return *this;
 		Release();
@@ -73,8 +73,8 @@ public:
 	[[nodiscard]] static constexpr inline auto GetDataAddressFromRawMemory(void* memory) noexcept -> Data* {
 		if (!memory) [[unlikely]]
 			return nullptr;
-		auto control_block = static_cast<SControlBlock*>(memory);
-		return &control_block->data;
+		auto this_self = static_cast<TAtomicRefCountedObject<Derived, Data>*>(memory);
+		return &this_self->m_controlBlock.load(std::memory_order::acquire)->data;
 	}
 
 	inline void AddRef() const noexcept {
