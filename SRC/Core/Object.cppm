@@ -22,9 +22,9 @@ module;
 #include <expected>
 #include <memory_resource>
 #include <string>
-#include <vector>
 #include <string_view>
 #include <utility>
+#include <vector>
 export module Core.Object;
 import Core.KeyInfo;
 import Core.Rect;
@@ -394,6 +394,7 @@ export enum class EObjectRelationType : unsigned char {
 };
 
 struct SObjectFetchResult final {
+	std::pmr::memory_resource* pool;
 	ObjectFetchMask mask;
 
 	ObjectResult<EObjectType> type;
@@ -415,8 +416,18 @@ struct SObjectFetchResult final {
 	ObjectResult<double> value_min, value_max, value_current, value_step;
 	ObjectResult<std::pmr::string> value_string;
 
-	ObjectResult<std::vector<EObjectRelationType>> relation_types;
+	ObjectResult<std::pmr::vector<EObjectRelationType>> relation_types;
 	ObjectResult<std::pmr::vector<void*>> relation_targets;
+
+	SObjectFetchResult(std::pmr::memory_resource* new_pool)
+		: pool(new_pool), children(pool), selected_children(pool), toolkit_name(pool), toolkit_version(pool),
+		  name(pool), description(pool), help_text(pool), text(pool), text_selection(pool), text_by_granularity(pool),
+		  action_types(pool), action_names(pool), action_hotkeys(pool), value_string(pool), relation_types(pool),
+		  relation_targets(pool) {}
+	SObjectFetchResult(const SObjectFetchResult&) = delete;
+	auto operator=(const SObjectFetchResult&) = delete;
+	SObjectFetchResult(SObjectFetchResult&&) = delete;
+	auto operator=(SObjectFetchResult&&) = delete;
 };
 
 struct SObjectFetchRequest final {

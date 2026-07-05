@@ -27,7 +27,7 @@ module;
 export module Core.ThreadSafeQueue;
 import Core.Singleton;
 
-export template<typename T> class TThreadSafeQueue final : public TSingleton<TThreadSafeQueue<T>> {
+export template <typename T> class TThreadSafeQueue final : public TSingleton<TThreadSafeQueue<T>> {
 	std::pmr::synchronized_pool_resource m_pool;
 	std::pmr::deque<T> m_elements;
 
