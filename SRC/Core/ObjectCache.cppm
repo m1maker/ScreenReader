@@ -37,7 +37,7 @@ export struct SCachedObjectData final {
 	std::atomic<unsigned char> ccurrent_slot{0};
 };
 
-export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
+/*export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
 	using RequiredRefCountedObject = TNonAtomicRefCountedObject<void, SCachedObjectData>;
 
 	std::pmr::unsynchronized_pool_resource m_pool;
