@@ -27,3 +27,14 @@ module Platforms.Linux.Object;
 import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
+
+void ObjectAtspiFetch(const SObjectFetchRequest*& request) noexcept {
+	if (!request) [[unlikely]] return;
+
+	auto slot = request->slot;
+	auto native_handle = static_cast<AtspiAccessible*>(request->native_handle);
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::TYPE))) {
+		auto native_role = atspi_accessible_get_role(native_handle, nullptr);
+		slot->type = GetObjectTypeFromAtspiRole(native_role);
+	}
+}
