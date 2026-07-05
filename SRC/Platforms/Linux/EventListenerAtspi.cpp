@@ -78,6 +78,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	*/
 	if ((type == EObjectEventType::FOCUS_GAINED) && !event->detail1)
 		return;
+/*
 	CObjectEvent object_event;
 	object_event.type = type;
 	g_object_ref(event->source);
@@ -85,6 +86,7 @@ void CEventListenerAtspi::OnObjectEventCallback(AtspiEvent* event, void* user_da
 	auto platform_object = cache.GetOrCreate(event->source);
 	object_event.object = CObjectProxy(platform_object);
 	EventQueue::GetInstance().Push(std::move(object_event));
+*/
 	g_boxed_free(ATSPI_TYPE_EVENT, event);
 }
 
@@ -182,7 +184,6 @@ CEventListenerAtspi::CEventListenerAtspi()
 		}
 	}
 
-	TObjectCache<CObjectAtspi>::GetInstance();
 }
 
 CEventListenerAtspi::~CEventListenerAtspi() {
@@ -198,8 +199,6 @@ CEventListenerAtspi::~CEventListenerAtspi() {
 
 		g_object_unref(m_objectEventListener);
 	}
-
-	TObjectCache<CObjectAtspi>::GetInstance().Clear();
 }
 
 struct SInvocationContext final {
