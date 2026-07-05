@@ -32,6 +32,10 @@ import Core.Rect;
 import Core.Text;
 import Core.ThreadSafeQueue;
 
+enum class EObjectProvider : unsigned char { UNKNOWN = 0, MAIN, TEXT, SELECTION, ACTION, VALUE, RELATION, COUNT };
+
+export using ObjectProviderMask = std::bitset<std::to_underlying(EObjectProvider::COUNT)>;
+
 enum class EObjectFetchValue : unsigned char {
 	UNKNOWN = 0,
 
