@@ -39,19 +39,17 @@ public:
 	// TNonAtomicRefCountedObject
 
 	void do_OnDestroy() noexcept {
-/*
-		static_cast<void>(With<>([](auto&& obj) {
-			obj.OnDestroy();
-			return ObjectResult<>();
-		}));
-*/
+		/*
+				static_cast<void>(With<>([](auto&& obj) {
+					obj.OnDestroy();
+					return ObjectResult<>();
+				}));
+		*/
 	}
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
-	bool IsValid() const {
-return false;
-	}
+	bool IsValid() const { return false; }
 	[[nodiscard]] auto operator==(const UnknownProxy& other) const noexcept { return GetData() == other.GetData(); }
 };
 
@@ -61,114 +59,112 @@ public:
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
 
 export class CTextProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetSelected() const -> ObjectResult<STextRange> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
 
 export class CSelectionProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
 
 export class CValueProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
 
 export class ActionProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 
 	[[nodiscard]] inline auto GetType(int number) const -> ObjectResult<EObjectAction> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetName(int number) const -> ObjectResult<std::string_view> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
-	[[nodiscard]] inline auto Do(int number) -> ObjectResult<> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
-	}
+	[[nodiscard]] inline auto Do(int number) -> ObjectResult<> { return std::unexpected(EObjectError::NOT_SUPPORTED); }
 };
 
 export class CRelationProviderProxy final : public UnknownProxy {
 public:
 	[[nodiscard]] inline auto GetCount() const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetType(int index) const -> ObjectResult<EObjectRelationType> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetTargetCount(int index) const -> ObjectResult<int> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	[[nodiscard]] inline auto GetTarget(int relation_index, int target_index) const -> ObjectResult<CObjectProxy> {
-	return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 };
