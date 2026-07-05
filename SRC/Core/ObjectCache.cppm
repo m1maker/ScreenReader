@@ -18,6 +18,7 @@
  */
 
 module;
+#include <atomic>
 #include <memory>
 #include <memory_resource>
 #include <optional>
@@ -32,10 +33,11 @@ import Core.Singleton;
 import Traits.NonAtomicRefCountedObject;
 
 export struct SCachedObjectData final {
+	SObjectFetchResult slots[2];
+	std::atomic<unsigned char> ccurrent_slot{0};
 };
-/*
-export template <class PlatformObject> class TObjectCache final : public TSingleton<TObjectCache<PlatformObject>> {
-	using NativeHandle = PlatformObject::NativeHandle;
+
+export template <typename NativeHandle> class TObjectCache final : public TSingleton<TObjectCache<NativeHandle>> {
 	using RequiredRefCountedObject = TNonAtomicRefCountedObject<void, SCachedObjectData>;
 
 	std::pmr::unsynchronized_pool_resource m_pool;
