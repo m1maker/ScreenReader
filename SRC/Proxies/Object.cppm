@@ -60,14 +60,14 @@ public:
 		*/
 	}
 
-	[[nodiscard]] auto GetNativeHandle() noexcept -> void* { return GetData()->native_handle; }
+	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* { return GetData()->native_handle; }
 
-	void PushFetchRequest(ObjectFetchMask values) {
+	void PushFetchRequest(ObjectFetchMask values) const {
 		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), GetInactiveSlot(), values});
 		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
 	}
 
-	void TryPull() noexcept {
+	void TryPull() const noexcept {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
 			return;
 		auto inactive_slot = GetInactiveSlot();
@@ -77,7 +77,7 @@ public:
 		GetData()->wants_to_switch.clear(std::memory_order_release);
 	}
 
-	void AwaitAndPull() noexcept {
+	void AwaitAndPull() const noexcept {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
 			return;
 		auto inactive_slot = GetInactiveSlot();
