@@ -172,6 +172,7 @@ public:
 				request->slot->busy.test_and_set(std::memory_order_release);
 				ObjectAtspiFetch(&request.value());
 				request->slot->busy.clear(std::memory_order_release);
+				request->slot->busy.notify_one();
 			}
 		});
 		if (m_atspiInitialized) {
