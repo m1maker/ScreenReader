@@ -93,4 +93,10 @@ public:
 			m_dataBlock.store(nullptr);
 		}
 	}
+
+	[[nodiscard]] auto GetRef() const noexcept -> unsigned int {
+		auto loaded_block = m_dataBlock.load(std::memory_order_acquire);
+		if (!loaded_block) return 0;
+		return loaded_block->ref_count.load(std::memory_order_acquire);
+	}
 };
