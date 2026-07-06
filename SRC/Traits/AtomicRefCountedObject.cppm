@@ -90,7 +90,7 @@ public:
 			return;
 		else if (loaded_block->ref_count.fetch_sub(1, std::memory_order_acq_rel) == 1) {
 			static_cast<Derived*>(this)->do_OnDestroy();
-			m_dataBlock.store(nullptr);
+			m_dataBlock.store(nullptr, std::memory_order_release);
 		}
 	}
 
