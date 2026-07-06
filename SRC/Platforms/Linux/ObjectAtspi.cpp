@@ -28,7 +28,7 @@ import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
-void ObjectAtspiFetch(const SObjectFetchRequest*& request) noexcept {
+void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	if (!request) [[unlikely]]
 		return;
 

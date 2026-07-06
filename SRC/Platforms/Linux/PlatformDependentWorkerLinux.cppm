@@ -24,15 +24,19 @@ module;
 #include <csignal>
 #include <filesystem>
 #include <thread>
+#include <stop_token>
 #include <unistd.h>
 export module Platforms.Linux.Worker;
 import Core.AppState;
+import Core.Object;
 import Core.PlatformError;
+import Platforms.Linux.Object;
 
 /*
 We will also handle signals here to ensure safe exit.
 */
 export class CPlatformDependentWorkerLinux final {
+	std::jthread m_fetchThread;
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {
@@ -154,11 +158,22 @@ public:
 	}
 
 	~CPlatformDependentWorkerLinux() {
+		m_fetchThread.request_stop();
 		if (m_atspiInitialized)
 			atspi_exit();
 	}
 
 	void Loop() {
+		m_fetchThread = std::jthread([](const std::stop_token& stop_token) {
+			while (!stop_token.stop_requested()) {
+				auto request = ObjectFetchQueue::GetInstance().Pop();
+				if (!request || !request->slot) [[unlikely]] continue;
+
+				request->slot->busy.test_and_set(std::memory_order_release);
+				ObjectAtspiFetch(&request.value());
+				request->slot->busy.clear(std::memory_order_release);
+			}
+		});
 		if (m_atspiInitialized) {
 			atspi_event_main();
 			auto* context = g_main_context_default();

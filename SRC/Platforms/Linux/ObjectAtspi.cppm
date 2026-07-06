@@ -509,4 +509,4 @@ export [[nodiscard]] constexpr inline auto GetObjectRelationTypeFromAtspiRelatio
 	return EObjectRelationType::UNKNOWN;
 }
 
-export void ObjectAtspiFetch(const SObjectFetchRequest*& request) noexcept;
+export void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept;
