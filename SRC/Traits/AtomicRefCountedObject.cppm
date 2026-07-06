@@ -73,8 +73,9 @@ public:
 	[[nodiscard]] static constexpr inline auto GetDataAddressFromRawMemory(void* memory) noexcept -> Data* {
 		if (!memory) [[unlikely]]
 			return nullptr;
-		auto this_self = static_cast<TAtomicRefCountedObject<Derived, Data>*>(memory);
-		return &this_self->m_dataBlock.load(std::memory_order::acquire)->data;
+		auto control_block = static_cast<SControlBlock*>(memory);
+
+		return reinterpret_cast<Data*>(reinterpret_cast<size_t>(&control_block->data));
 	}
 
 	inline void AddRef() const noexcept {
