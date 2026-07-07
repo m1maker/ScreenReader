@@ -44,7 +44,8 @@ export class FocusManager final : TModule<"FocusManager">, public TSingleton<Foc
 			return;
 
 		auto current = m_objectInFocus.GetParent();
-		while (current && current->IsValid()) {
+		auto depth{0};
+		while (current && current->IsValid() && depth < 30) {
 			m_contextChain.insert(m_contextChain.begin(), *current);
 
 			auto type = current->GetType().value_or(EObjectType::UNKNOWN);
@@ -52,6 +53,7 @@ export class FocusManager final : TModule<"FocusManager">, public TSingleton<Foc
 				break;
 			}
 			current = current->GetParent();
+			++depth;
 		}
 	}
 
