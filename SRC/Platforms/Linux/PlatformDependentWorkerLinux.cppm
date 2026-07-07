@@ -169,7 +169,6 @@ public:
 				auto request = ObjectFetchQueue::GetInstance().Pop();
 				if (!request || !request->slot) [[unlikely]] continue;
 
-				request->slot->busy.test_and_set(std::memory_order_release);
 				ObjectAtspiFetch(&request.value());
 				request->slot->busy.clear(std::memory_order_release);
 				request->slot->busy.notify_one();
