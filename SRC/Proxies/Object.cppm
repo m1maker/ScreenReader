@@ -51,6 +51,7 @@ protected:
 	}
 
 	void PushFetchRequest(ObjectFetchMask values) const {
+		GetInactiveSlot()->busy.test_and_set(std::memory_order_release);
 		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), GetInactiveSlot(), values});
 		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
 	}
