@@ -91,7 +91,7 @@ public:
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
-	bool IsValid() const noexcept { return GetRef() > 0; }
+	bool IsValid() const noexcept { return GetRef() > 0 && GetData()->native_handle; }
 	[[nodiscard]] auto operator==(const UnknownProxy& other) const noexcept { return GetData() == other.GetData(); }
 };
 
