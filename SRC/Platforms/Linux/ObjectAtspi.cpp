@@ -66,6 +66,10 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->children->operator[](i) = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_child);
 		}
 	}
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::INDEX))) {
+		auto native_index = atspi_accessible_get_index_in_parent(native_handle, nullptr);
+		slot->index = native_index;
+	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::TOOLKIT_NAME))) {
 		auto toolkit_name = atspi_accessible_get_toolkit_name(native_handle, nullptr);
 		if (!toolkit_name) {
