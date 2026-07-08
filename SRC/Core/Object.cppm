@@ -418,6 +418,7 @@ export struct SObjectFetchResult final {
 	ObjectResult<ObjectCapabilityMask> capabilities;
 	ObjectResult<void*> parent;
 	ObjectResult<std::pmr::vector<void*>> children, selected_children;
+	ObjectResult<int> index;
 	ObjectResult<SRect> bounds;
 	ObjectResult<std::pmr::string> toolkit_name, toolkit_version, name, description, help_text;
 
