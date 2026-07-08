@@ -132,7 +132,7 @@ public:
 		return CObjectProxy(children->operator[](index));
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->index;
 	}
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
