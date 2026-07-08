@@ -54,7 +54,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->parent = std::unexpected(EObjectError::FAIL);
 		}
 		else
-			slot->parent = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_handle);
+			slot->parent = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_parent);
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::CHILDREN))) {
 		auto native_children_count = atspi_accessible_get_child_count(native_handle, nullptr);
