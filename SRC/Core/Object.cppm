@@ -53,6 +53,7 @@ export enum class EObjectFetchValue : unsigned char {
 	CAPABILITIES,
 	PARENT,
 	CHILDREN,
+	INDEX,
 	BOUNDS,
 	TOOLKIT_NAME,
 	TOOLKIT_VERSION,

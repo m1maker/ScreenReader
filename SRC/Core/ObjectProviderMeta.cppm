@@ -45,6 +45,7 @@ struct SObjectProviderMeta final {
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::CAPABILITIES));
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::PARENT));
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::CHILDREN));
+		meta.value_flags.set(std::to_underlying(EObjectFetchValue::INDEX));
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::BOUNDS));
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::TOOLKIT_NAME));
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::TOOLKIT_VERSION));
