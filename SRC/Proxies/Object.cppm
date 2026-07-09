@@ -152,6 +152,8 @@ public:
 
 export class CTextProviderProxy final : public UnknownProxy {
 public:
+	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::TEXT)); }
+
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
@@ -165,25 +167,37 @@ public:
 
 export class CSelectionProviderProxy final : public UnknownProxy {
 public:
+	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::SELECTION)); }
+
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto selected_children = GetActiveSlot()->selected_children;
+		if (!selected_children)
+			return std::unexpected(selected_children.error());
+		return selected_children->size();
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		auto selected_children = GetActiveSlot()->selected_children;
+		if (!selected_children)
+			return std::unexpected(selected_children.error());
+		else if (index >= selected_children->size() || index < 0) [[unlikely]]
+			return std::unexpected(EObjectError::INVALID_ARGUMENTS);
+		return CObjectProxy(selected_children->operator[](index));
 	}
 };
 
 export class CValueProviderProxy final : public UnknownProxy {
 public:
+	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::VALUE)); }
+
 	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->value_min;
 	}
 	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->value_max;
 	}
 	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetActiveSlot()->value_current;
 	}
 };
 
