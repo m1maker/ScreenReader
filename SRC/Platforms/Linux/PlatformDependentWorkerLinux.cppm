@@ -23,8 +23,8 @@ module;
 #include <chrono>
 #include <csignal>
 #include <filesystem>
-#include <thread>
 #include <stop_token>
+#include <thread>
 #include <unistd.h>
 export module Platforms.Linux.Worker;
 import Core.AppState;
@@ -167,10 +167,11 @@ public:
 		m_fetchThread = std::jthread([](const std::stop_token& stop_token) {
 			while (!stop_token.stop_requested()) {
 				auto request = ObjectFetchQueue::GetInstance().Pop();
-				if (!request || !request->slot) [[unlikely]] continue;
+				if (!request || !request->slot) [[unlikely]]
+					continue;
 
 				ObjectAtspiFetch(&request.value());
-request->slot->Done();
+				request->slot->Done();
 			}
 		});
 		if (m_atspiInitialized) {

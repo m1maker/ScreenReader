@@ -132,9 +132,7 @@ public:
 			return std::unexpected(EObjectError::INVALID_ARGUMENTS);
 		return CObjectProxy(children->operator[](index));
 	}
-	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> {
-		return GetActiveSlot()->index;
-	}
+	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> { return GetActiveSlot()->index; }
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
