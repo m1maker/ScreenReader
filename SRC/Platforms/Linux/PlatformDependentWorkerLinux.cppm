@@ -170,8 +170,7 @@ public:
 				if (!request || !request->slot) [[unlikely]] continue;
 
 				ObjectAtspiFetch(&request.value());
-				request->slot->busy.clear(std::memory_order_release);
-				request->slot->busy.notify_one();
+request->slot->Done();
 			}
 		});
 		if (m_atspiInitialized) {
