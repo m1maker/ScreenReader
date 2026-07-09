@@ -28,6 +28,14 @@ import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
+template<typename T> using AtspiInterfaceGetFunction = T*(*)(AtspiAccessible*);
+
+template<typename T, AtspiInterfaceGetFunction<T> Function> static inline void GetInterfaceIfNeeded(AtspiAccessible* accessible, T*& interface) noexcept {
+	if (interface != nullptr) return;
+
+	interface = Function(accessible);
+}
+
 void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	if (!request) [[unlikely]]
 		return;
@@ -97,4 +105,28 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->description = description;
 		g_free(description);
 	}
+
+	AtspiText* text_interface{nullptr};
+	AtspiSelection* selection_interface{nullptr};
+	AtspiValue* value_interface{nullptr};
+	AtspiAction* action_interface{nullptr};
+	GArray* relation_set{nullptr};
+
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::SELECTED_CHILDREN))) {
+		GetInterfaceIfNeeded<AtspiSelection, atspi_accessible_get_selection_iface>(native_handle, selection_interface);
+		auto native_selected_children_count = atspi_selection_get_n_selected_children(selection_interface, nullptr);
+		slot->children->resize(native_selected_children_count);
+		for (auto i = 0; i < native_selected_children_count; ++i) {
+			auto native_selected_child = atspi_selection_get_selected_child(selection_interface, i, nullptr);
+			if (!native_selected_child)
+				continue;
+			slot->children->operator[](i) = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_selected_child);
+		}
+	}
+
+g_object_unref(text_interface);
+	g_object_unref(selection_interface);
+	g_object_unref(action_interface);
+	g_object_unref(value_interface);
+	g_array_unref(relation_set);
 }
