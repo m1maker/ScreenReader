@@ -123,6 +123,21 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->children->operator[](i) = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_selected_child);
 		}
 	}
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::VALUE_MIN))) {
+		GetInterfaceIfNeeded<AtspiValue, atspi_accessible_get_value_iface>(native_handle, value_interface);
+
+		slot->value_min = atspi_value_get_minimum_value(value_interface, nullptr);
+	}
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::VALUE_MAX))) {
+		GetInterfaceIfNeeded<AtspiValue, atspi_accessible_get_value_iface>(native_handle, value_interface);
+
+		slot->value_max = atspi_value_get_maximum_value(value_interface, nullptr);
+	}
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::VALUE_CURRENT))) {
+		GetInterfaceIfNeeded<AtspiValue, atspi_accessible_get_value_iface>(native_handle, value_interface);
+
+		slot->value_current = atspi_value_get_current_value(value_interface, nullptr);
+	}
 
 g_object_unref(text_interface);
 	g_object_unref(selection_interface);
