@@ -190,15 +190,9 @@ export class CValueProviderProxy final : public UnknownProxy {
 public:
 	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::VALUE)); }
 
-	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> {
-		return GetActiveSlot()->value_min;
-	}
-	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> {
-		return GetActiveSlot()->value_max;
-	}
-	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> {
-		return GetActiveSlot()->value_current;
-	}
+	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> { return GetActiveSlot()->value_min; }
+	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> { return GetActiveSlot()->value_max; }
+	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> { return GetActiveSlot()->value_current; }
 };
 
 export class ActionProviderProxy final : public UnknownProxy {

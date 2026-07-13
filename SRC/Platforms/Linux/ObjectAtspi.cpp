@@ -28,17 +28,21 @@ import Core.ObjectCache;
 import Core.Rect;
 import Core.Text;
 
-template<typename T> using AtspiInterfaceGetFunction = T*(*)(AtspiAccessible*);
-template<typename T, typename I> using AtspiInterfaceGetValue = T(*)(I*, GError**);
+template <typename T> using AtspiInterfaceGetFunction = T* (*)(AtspiAccessible*);
+template <typename T, typename I> using AtspiInterfaceGetValue = T (*)(I*, GError**);
 
-template<typename T, AtspiInterfaceGetFunction<T> Function> static inline void GetInterfaceIfNeeded(AtspiAccessible* accessible, T*& interface) noexcept {
-	if (interface != nullptr) return;
+template <typename T, AtspiInterfaceGetFunction<T> Function>
+static inline void GetInterfaceIfNeeded(AtspiAccessible* accessible, T*& interface) noexcept {
+	if (interface != nullptr)
+		return;
 
 	interface = Function(accessible);
 }
 
-template<typename T, typename I, AtspiInterfaceGetValue<T, I> Function> static inline void GetInterfaceValueIfNeeded(I* interface, GError**error, T& value) noexcept {
-	if (value != 0) return;
+template <typename T, typename I, AtspiInterfaceGetValue<T, I> Function>
+static inline void GetInterfaceValueIfNeeded(I* interface, GError** error, T& value) noexcept {
+	if (value != 0)
+		return;
 
 	value = Function(interface, error);
 }
@@ -128,23 +132,27 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			auto native_selected_child = atspi_selection_get_selected_child(selection_interface, i, nullptr);
 			if (!native_selected_child)
 				continue;
-			slot->children->operator[](i) = TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_selected_child);
+			slot->children->operator[](i) =
+				TObjectCache<AtspiAccessible*>::GetInstance().GetOrCreate(native_selected_child);
 		}
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::ACTION_TYPES))) {
 		GetInterfaceIfNeeded<AtspiAction, atspi_accessible_get_action_iface>(native_handle, action_interface);
-		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(action_interface, nullptr, action_count);
+		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
+			action_interface, nullptr, action_count);
 
 		slot->action_types = std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::ACTION_NAMES))) {
 		GetInterfaceIfNeeded<AtspiAction, atspi_accessible_get_action_iface>(native_handle, action_interface);
-		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(action_interface, nullptr, action_count);
+		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
+			action_interface, nullptr, action_count);
 
 		slot->action_names->resize(action_count);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_name = atspi_action_get_action_name(action_interface, i, nullptr);
-			if (!action_name) continue;
+			if (!action_name)
+				continue;
 
 			slot->action_names->operator[](i) = action_name;
 			g_free(action_name);
@@ -152,12 +160,14 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::ACTION_DESCRIPTIONS))) {
 		GetInterfaceIfNeeded<AtspiAction, atspi_accessible_get_action_iface>(native_handle, action_interface);
-		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(action_interface, nullptr, action_count);
+		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
+			action_interface, nullptr, action_count);
 
 		slot->action_descriptions->resize(action_count);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_description = atspi_action_get_action_description(action_interface, i, nullptr);
-			if (!action_description) continue;
+			if (!action_description)
+				continue;
 
 			slot->action_descriptions->operator[](i) = action_description;
 			g_free(action_description);
@@ -165,18 +175,21 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::ACTION_HOTKEYS))) {
 		GetInterfaceIfNeeded<AtspiAction, atspi_accessible_get_action_iface>(native_handle, action_interface);
-		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(action_interface, nullptr, action_count);
+		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
+			action_interface, nullptr, action_count);
 
 		slot->action_hotkeys = std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::ACTION_HOTKEY_STRINGS))) {
 		GetInterfaceIfNeeded<AtspiAction, atspi_accessible_get_action_iface>(native_handle, action_interface);
-		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(action_interface, nullptr, action_count);
+		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
+			action_interface, nullptr, action_count);
 
 		slot->action_hotkey_strings->resize(action_count);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_hotkey_string = atspi_action_get_key_binding(action_interface, i, nullptr);
-			if (!action_hotkey_string) continue;
+			if (!action_hotkey_string)
+				continue;
 
 			slot->action_hotkey_strings->operator[](i) = action_hotkey_string;
 			g_free(action_hotkey_string);
@@ -198,7 +211,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 		slot->value_current = atspi_value_get_current_value(value_interface, nullptr);
 	}
 
-g_object_unref(text_interface);
+	g_object_unref(text_interface);
 	g_object_unref(selection_interface);
 	g_object_unref(action_interface);
 	g_object_unref(value_interface);
