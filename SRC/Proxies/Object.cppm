@@ -22,6 +22,7 @@ module;
 #include <expected>
 #include <optional>
 #include <string_view>
+#include <thread>
 #include <variant>
 export module Proxies.Object;
 import Core.Environment;
@@ -30,6 +31,7 @@ import Core.ObjectCache;
 import Core.ObjectProviderMeta;
 import Core.Rect;
 import Core.Text;
+import Core.Timer;
 import Traits.AtomicRefCountedObject;
 
 class UnknownProxy : /*protected*/ public TAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
@@ -87,6 +89,22 @@ public:
 		if (!inactive_slot)
 			return;
 		inactive_slot->busy.wait(true, std::memory_order_acquire);
+		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
+		GetData()->wants_to_switch.clear(std::memory_order_release);
+	}
+	void AwaitAndPull(uint64_t timeout_ms) const noexcept {
+		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
+			return;
+		auto inactive_slot = GetInactiveSlot();
+		if (!inactive_slot)
+			return;
+
+		// Unfortunately there is no built-in atomic_flag wait until/for method.
+		CTimer wait_timer;
+		while (inactive_slot->busy.test(std::memory_order_acquire)) {
+			if (wait_timer.Elapsed() > timeout_ms) return;
+			std::this_thread::yield();
+		}
 		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
 	}

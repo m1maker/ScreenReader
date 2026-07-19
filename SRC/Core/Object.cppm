@@ -52,7 +52,8 @@ export enum class EObjectFetchMode : unsigned char {
 	AWAIT
 };
 
-export constexpr uint64_t cObjectFetchRequestTimeoutMs = 50;
+export constexpr EObjectFetchMode cObjectFetchRequestDefaultMode = EObjectFetchMode::AWAIT_WITH_TIMEOUT;
+export constexpr uint64_t cObjectFetchRequestDefaultTimeoutMs = 50;
 
 export enum class EObjectFetchValue : unsigned char {
 	UNKNOWN = 0,
