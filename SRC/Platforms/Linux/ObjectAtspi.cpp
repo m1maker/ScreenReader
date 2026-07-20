@@ -216,4 +216,6 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	g_object_unref(action_interface);
 	g_object_unref(value_interface);
 	g_array_unref(relation_set);
+
+	slot->mask = request->mask;
 }
