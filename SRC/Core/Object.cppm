@@ -334,6 +334,11 @@ export enum class EObjectAction : unsigned char {
 export enum class EObjectError : unsigned char {
 	SUCCESS = 0,
 	DEFUNCT,
+	FETCH_SLOT_DEFUNCT,
+
+	BUSY,
+	NOTHING_TO_FETCH,
+
 	NOT_SUPPORTED,
 	ACCESS_DENIED,
 	INVALID_ARGUMENTS,
