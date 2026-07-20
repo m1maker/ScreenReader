@@ -117,7 +117,7 @@ public:
 		using enum EObjectFetchMode;
 		switch (mode) {
 		case ASYNC:
-			return TryPull();
+			return EObjectError::BUSY;
 		case AWAIT:
 			return AwaitAndPull();
 		case AWAIT_WITH_TIMEOUT:
