@@ -128,6 +128,8 @@ public:
 		return EObjectError::INVALID_ARGUMENTS;
 	}
 
+	auto Fetch(ObjectFetchMask mask) const noexcept -> EObjectError { PushFetchRequest(mask); return ApplyFetchMode(GetData()->fetch_mode, GetData()->fetch_timeout_ms); }
+
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
 	bool IsValid() const noexcept { return GetRef() > 0 && GetData()->native_handle; }
@@ -139,7 +141,7 @@ public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
 
-	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::MAIN)); }
+	auto Fetch(void) const noexcept -> EObjectError { return UnknownProxy::Fetch(GetObjectProviderValueMask(EObjectProvider::MAIN)); }
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetActiveSlot()->type; }
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> { return GetActiveSlot()->states; }
