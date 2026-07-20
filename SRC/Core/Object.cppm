@@ -45,12 +45,7 @@ export enum class EObjectProvider : unsigned char {
 
 export using ObjectProviderMask = std::bitset<std::to_underlying(EObjectProvider::COUNT)>;
 
-export enum class EObjectFetchMode : unsigned char {
-	UNKNOWN = 0,
-	ASYNC,
-	AWAIT_WITH_TIMEOUT,
-	AWAIT
-};
+export enum class EObjectFetchMode : unsigned char { UNKNOWN = 0, ASYNC, AWAIT_WITH_TIMEOUT, AWAIT };
 
 export constexpr EObjectFetchMode cObjectFetchRequestDefaultMode = EObjectFetchMode::AWAIT_WITH_TIMEOUT;
 export constexpr uint64_t cObjectFetchRequestDefaultTimeoutMs = 50;

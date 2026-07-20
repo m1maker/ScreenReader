@@ -104,7 +104,8 @@ public:
 		// Unfortunately there is no built-in atomic_flag wait until/for method.
 		CTimer wait_timer;
 		while (inactive_slot->busy.test(std::memory_order_acquire)) {
-			if (wait_timer.Elapsed() > timeout_ms) return EObjectError::TIMEOUT;
+			if (wait_timer.Elapsed() > timeout_ms)
+				return EObjectError::TIMEOUT;
 			std::this_thread::yield();
 		}
 		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
@@ -115,13 +116,17 @@ public:
 	auto ApplyFetchMode(EObjectFetchMode mode, uint64_t timeout_ms = 0) const noexcept -> EObjectError {
 		using enum EObjectFetchMode;
 		switch (mode) {
-			case ASYNC: return TryPull();
-			case AWAIT: return AwaitAndPull();
-			case AWAIT_WITH_TIMEOUT: return AwaitAndPull(timeout_ms);
-			case UNKNOWN: break;
-}
-return EObjectError::INVALID_ARGUMENTS;
-}
+		case ASYNC:
+			return TryPull();
+		case AWAIT:
+			return AwaitAndPull();
+		case AWAIT_WITH_TIMEOUT:
+			return AwaitAndPull(timeout_ms);
+		case UNKNOWN:
+			break;
+		}
+		return EObjectError::INVALID_ARGUMENTS;
+	}
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
