@@ -72,42 +72,56 @@ public:
 
 	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* { return GetData()->native_handle; }
 
-	void TryPull() const noexcept {
+	auto TryPull() const noexcept -> bool {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
-			return;
+			return false;
 		auto inactive_slot = GetInactiveSlot();
 		if (!inactive_slot || inactive_slot->busy.test(std::memory_order_acquire))
-			return;
+			return false;
 		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
+		return true;
 	}
 
-	void AwaitAndPull() const noexcept {
+	auto AwaitAndPull() const noexcept -> bool {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
-			return;
+			return false;
 		auto inactive_slot = GetInactiveSlot();
 		if (!inactive_slot)
-			return;
+			return false;
 		inactive_slot->busy.wait(true, std::memory_order_acquire);
 		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
+		return true;
 	}
-	void AwaitAndPull(uint64_t timeout_ms) const noexcept {
+	auto AwaitAndPull(uint64_t timeout_ms) const noexcept -> bool {
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
-			return;
+			return false;
 		auto inactive_slot = GetInactiveSlot();
 		if (!inactive_slot)
-			return;
+			return false;
 
 		// Unfortunately there is no built-in atomic_flag wait until/for method.
 		CTimer wait_timer;
 		while (inactive_slot->busy.test(std::memory_order_acquire)) {
-			if (wait_timer.Elapsed() > timeout_ms) return;
+			if (wait_timer.Elapsed() > timeout_ms) return false;
 			std::this_thread::yield();
 		}
 		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
+		return true;
 	}
+
+	auto ApplyFetchMode(EObjectFetchMode mode, uint64_t timeout_ms = 0) const noexcept -> bool {
+		using enum EObjectFetchMode;
+		switch (mode) {
+			case ASYNC: return TryPull();
+			case AWAIT: return AwaitAndPull();
+			case AWAIT_WITH_TIMEOUT: return AwaitAndPull(timeout_ms);
+			case UNKNOWN: break;
+}
+return false;
+}
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
