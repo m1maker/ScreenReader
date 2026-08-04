@@ -39,6 +39,21 @@ protected:
 	UnknownProxy() = default;
 	explicit UnknownProxy(void* memory) : TAtomicRefCountedObject(memory) {}
 
+	auto ApplyFetchMode(EObjectFetchMode mode, uint64_t timeout_ms = 0) const noexcept -> EObjectError {
+		using enum EObjectFetchMode;
+		switch (mode) {
+		case ASYNC:
+			return EObjectError::BUSY;
+		case AWAIT:
+			return AwaitAndPull();
+		case AWAIT_WITH_TIMEOUT:
+			return AwaitAndPull(timeout_ms);
+		case UNKNOWN:
+			break;
+		}
+		return EObjectError::INVALID_ARGUMENTS;
+	}
+
 	[[nodiscard]] auto GetInactiveSlotNumber() const noexcept -> unsigned char {
 		return (GetData()->current_slot.load(std::memory_order_acquire) + 1) & 1;
 	}
@@ -113,27 +128,27 @@ public:
 		return EObjectError::SUCCESS;
 	}
 
-	auto ApplyFetchMode(EObjectFetchMode mode, uint64_t timeout_ms = 0) const noexcept -> EObjectError {
-		using enum EObjectFetchMode;
-		switch (mode) {
-		case ASYNC:
-			return EObjectError::BUSY;
-		case AWAIT:
-			return AwaitAndPull();
-		case AWAIT_WITH_TIMEOUT:
-			return AwaitAndPull(timeout_ms);
-		case UNKNOWN:
-			break;
-		}
-		return EObjectError::INVALID_ARGUMENTS;
+	inline auto Fetch(ObjectFetchMask mask, EObjectFetchMode mode, uint64_t timeout_ms) const noexcept -> EObjectError {
+		PushFetchRequest(mask);
+		return ApplyFetchMode(mode, timeout_ms);
 	}
-
-	auto Fetch(ObjectFetchMask mask) const noexcept -> EObjectError { PushFetchRequest(mask); return ApplyFetchMode(GetData()->fetch_mode, GetData()->fetch_timeout_ms); }
+	inline auto Fetch(ObjectFetchMask mask /*, void*/) const noexcept -> EObjectError {
+		return Fetch(mask,
+			GetData()->fetch_mode.load(std::memory_order_relaxed),
+			GetData()->fetch_timeout_ms.load(std::memory_order_relaxed));
+	}
 
 	template <typename Provider> [[nodiscard]] auto GetAs() const -> Provider { return Provider(*this); }
 
 	bool IsValid() const noexcept { return GetRef() > 0 && GetData()->native_handle; }
 	[[nodiscard]] auto operator==(const UnknownProxy& other) const noexcept { return GetData() == other.GetData(); }
+
+	inline void SetFetchMode(EObjectFetchMode mode = cObjectFetchRequestDefaultMode,
+		uint64_t timeout_ms = cObjectFetchRequestDefaultTimeoutMs) const noexcept {
+		GetData()->fetch_mode.store(mode, std::memory_order_relaxed);
+		GetData()->fetch_timeout_ms.store(timeout_ms, std::memory_order_relaxed);
+	}
+	inline void ResetFetchModeToConstexpr() const noexcept { SetFetchMode(); }
 };
 
 export class CObjectProxy final : public UnknownProxy {
@@ -141,7 +156,9 @@ public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
 
-	auto Fetch(void) const noexcept -> EObjectError { return UnknownProxy::Fetch(GetObjectProviderValueMask(EObjectProvider::MAIN)); }
+	auto Fetch(void) const noexcept -> EObjectError {
+		return UnknownProxy::Fetch(GetObjectProviderValueMask(EObjectProvider::MAIN));
+	}
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetActiveSlot()->type; }
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> { return GetActiveSlot()->states; }

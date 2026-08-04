@@ -41,8 +41,8 @@ export struct SCachedObjectData final {
 	std::atomic<unsigned char> current_slot{0};
 	std::atomic_flag wants_to_switch;
 
-	EObjectFetchMode fetch_mode{cObjectFetchRequestDefaultMode};
-	uint64_t fetch_timeout_ms{cObjectFetchRequestDefaultTimeoutMs};
+	std::atomic<EObjectFetchMode> fetch_mode{cObjectFetchRequestDefaultMode};
+	std::atomic<uint64_t> fetch_timeout_ms{cObjectFetchRequestDefaultTimeoutMs};
 
 	SCachedObjectData(void* opaque_native_handle, std::pmr::memory_resource* new_pool)
 		: native_handle(opaque_native_handle), pool(new_pool), slots{pool, pool} {}
