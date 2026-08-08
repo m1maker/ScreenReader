@@ -39,7 +39,7 @@ export struct SCachedObjectData final {
 	std::pmr::memory_resource* pool;
 	SObjectFetchResult slots[2];
 	std::atomic<unsigned char> current_slot{0};
-	std::atomic_flag wants_to_switch;
+	std::atomic_flag wants_to_switch, lazy_fetch;
 
 	std::atomic<EObjectFetchMode> fetch_mode{cObjectFetchRequestDefaultMode};
 	std::atomic<uint64_t> fetch_timeout_ms{cObjectFetchRequestDefaultTimeoutMs};
