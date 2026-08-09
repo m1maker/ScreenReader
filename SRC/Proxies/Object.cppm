@@ -223,35 +223,35 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetChildrenCount() const -> ObjectResult<int> {
-		auto children = GetActiveSlot()->children;
+		auto children = GetValue<CHILDREN>();
 		if (!children)
 			return std::unexpected(children.error());
 		return children->size();
 	}
 
 	[[nodiscard]] inline auto GetChildAt(int index) const -> ObjectResult<CObjectProxy> {
-		auto children = GetActiveSlot()->children;
+		auto children = GetValue<CHILDREN>();
 		if (!children)
 			return std::unexpected(children.error());
 		else if (index >= children->size() || index < 0) [[unlikely]]
 			return std::unexpected(EObjectError::INVALID_ARGUMENTS);
 		return CObjectProxy(children->operator[](index));
 	}
-	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> { return GetActiveSlot()->index; }
+	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> { return GetValue<INDEX>(); }
 
 	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetValue<BOUNDS>();
 	}
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
-		return GetActiveSlot()->toolkit_name;
+		return GetValue<TOOLKIT_NAME>();
 	}
-	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> { return GetActiveSlot()->name; }
+	[[nodiscard]] inline auto GetName() const -> ObjectResult<std::string_view> { return GetValue<NAME>(); }
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
-		return GetActiveSlot()->description;
+		return GetValue<DESCRIPTION>();
 	}
 	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> {
-		return GetActiveSlot()->help_text;
+		return GetValue<HELP_TEXT>();
 	}
 };
 
