@@ -50,51 +50,6 @@ export enum class EObjectFetchMode : unsigned char { UNKNOWN = 0, ASYNC, AWAIT_W
 export constexpr EObjectFetchMode cObjectFetchRequestDefaultMode = EObjectFetchMode::AWAIT_WITH_TIMEOUT;
 export constexpr uint64_t cObjectFetchRequestDefaultTimeoutMs = 50;
 
-export enum class EObjectFetchValue : unsigned char {
-	UNKNOWN = 0,
-
-	TYPE,
-	STATES,
-	CAPABILITIES,
-	PARENT,
-	CHILDREN,
-	INDEX,
-	BOUNDS,
-	TOOLKIT_NAME,
-	TOOLKIT_VERSION,
-	NAME,
-	DESCRIPTION,
-	HELP_TEXT,
-
-	TEXT_CURSOR,
-	TEXT_LENGTH,
-	TEXT,
-	TEXT_SELECTION,
-	TEXT_SELECTION_RANGE,
-	TEXT_BY_GRANULARITY,
-
-	SELECTED_CHILDREN,
-
-	ACTION_TYPES,
-	ACTION_NAMES,
-	ACTION_DESCRIPTIONS,
-	ACTION_HOTKEYS,
-	ACTION_HOTKEY_STRINGS,
-	ACTION_DO,
-
-	VALUE_MIN,
-	VALUE_MAX,
-	VALUE_CURRENT,
-	VALUE_STEP,
-	VALUE_STRING,
-
-	RELATION_TYPES,
-	RELATION_TARGETS,
-	COUNT
-};
-
-export using ObjectFetchMask = std::bitset<std::to_underlying(EObjectFetchValue::COUNT)>;
-
 export using ObjectId = uint64_t;
 
 export enum class EObjectType : unsigned char {
@@ -419,6 +374,102 @@ export enum class EObjectRelationType : unsigned char {
 	EXTENDED,
 };
 
+export enum class EObjectFetchValue : unsigned char {
+	UNKNOWN = 0,
+
+	TYPE,
+	STATES,
+	CAPABILITIES,
+	PARENT,
+	CHILDREN,
+	INDEX,
+	BOUNDS,
+	TOOLKIT_NAME,
+	TOOLKIT_VERSION,
+	NAME,
+	DESCRIPTION,
+	HELP_TEXT,
+
+	TEXT_CURSOR,
+	TEXT_LENGTH,
+	TEXT,
+	TEXT_SELECTION,
+	TEXT_SELECTION_RANGE,
+	TEXT_BY_GRANULARITY,
+
+	SELECTED_CHILDREN,
+
+	ACTION_TYPES,
+	ACTION_NAMES,
+	ACTION_DESCRIPTIONS,
+	ACTION_HOTKEYS,
+	ACTION_HOTKEY_STRINGS,
+	ACTION_DO,
+
+	VALUE_MIN,
+	VALUE_MAX,
+	VALUE_CURRENT,
+	VALUE_STEP,
+	VALUE_STRING,
+
+	RELATION_TYPES,
+	RELATION_TARGETS,
+	COUNT
+};
+
+export using ObjectFetchMask = std::bitset<std::to_underlying(EObjectFetchValue::COUNT)>;
+
+export template<EObjectFetchValue Value = EObjectFetchValue::UNKNOWN> struct TObjectFetchValue {
+using type = void;
+};
+
+template<> struct TObjectFetchValue<EObjectFetchValue::COUNT> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
+template<> struct TObjectFetchValue<EObjectFetchValue::TYPE> final { using type = EObjectType; };
+template<> struct TObjectFetchValue<EObjectFetchValue::STATES> final { using type = ObjectStateMask; };
+template<> struct TObjectFetchValue<EObjectFetchValue::CAPABILITIES> final { using type = ObjectCapabilityMask; };
+template<> struct TObjectFetchValue<EObjectFetchValue::PARENT> final { using type = void*; };
+
+/*
+	TYPE,
+	STATES,
+	CAPABILITIES,
+	PARENT,
+	CHILDREN,
+	INDEX,
+	BOUNDS,
+	TOOLKIT_NAME,
+	TOOLKIT_VERSION,
+	NAME,
+	DESCRIPTION,
+	HELP_TEXT,
+
+	TEXT_CURSOR,
+	TEXT_LENGTH,
+	TEXT,
+	TEXT_SELECTION,
+	TEXT_SELECTION_RANGE,
+	TEXT_BY_GRANULARITY,
+
+	SELECTED_CHILDREN,
+
+	ACTION_TYPES,
+	ACTION_NAMES,
+	ACTION_DESCRIPTIONS,
+	ACTION_HOTKEYS,
+	ACTION_HOTKEY_STRINGS,
+	ACTION_DO,
+
+	VALUE_MIN,
+	VALUE_MAX,
+	VALUE_CURRENT,
+	VALUE_STEP,
+	VALUE_STRING,
+
+	RELATION_TYPES,
+	RELATION_TARGETS,
+	COUNT
+*/
+
 export struct SObjectFetchResult final {
 	std::atomic_flag busy;
 	std::atomic<unsigned int> pending_requests;
@@ -436,7 +487,12 @@ export struct SObjectFetchResult final {
 	std::pmr::memory_resource* pool;
 	ObjectFetchMask mask;
 
-	ObjectResult<EObjectType> type;
+private:
+using enum EObjectFetchValue;
+template<EObjectFetchValue Value> using FetchValueType = TObjectFetchValue<Value>::type;
+public:
+
+	ObjectResult<FetchValueType<TYPE>> type;
 	ObjectResult<ObjectStateMask> states;
 	ObjectResult<ObjectCapabilityMask> capabilities;
 	ObjectResult<void*> parent;
