@@ -36,7 +36,8 @@ import Core.Timer;
 import Traits.AtomicRefCountedObject;
 
 class UnknownProxy : /*protected*/ public TAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
-template<EObjectFetchValue Value> using FetchValueType = TObjectFetchValue<Value>::type;
+	template <EObjectFetchValue Value> using FetchValueType = TObjectFetchValue<Value>::type;
+
 protected:
 	UnknownProxy() = default;
 	explicit UnknownProxy(void* memory) : TAtomicRefCountedObject(memory) {}
@@ -152,7 +153,8 @@ public:
 	}
 	inline void ResetFetchModeToConstexpr() const noexcept { SetFetchMode(); }
 
-	template<EObjectFetchValue Value> [[nodiscard]] auto GetValue() const noexcept -> ObjectResult<FetchValueType<Value>> {
+	template <EObjectFetchValue Value>
+	[[nodiscard]] auto GetValue() const noexcept -> ObjectResult<FetchValueType<Value>> {
 		auto active_slot = GetActiveSlot();
 		if (!active_slot) [[unlikely]] {
 			return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
@@ -172,26 +174,32 @@ public:
 
 		using enum EObjectFetchValue;
 		// It's sad that we don't have something like constexpr switch.
-			if constexpr (Value ==  TYPE)
-				return active_slot->type;
-			else if constexpr (Value == STATES)
-				return active_slot->states;
-			else if constexpr (Value == CAPABILITIES) return active_slot->capabilities;
-else if constexpr (Value == PARENT)
-return active_slot->parent;
-else if constexpr (Value == CHILDREN)
-return active_slot->children;
-else if constexpr (Value == SELECTED_CHILDREN)
-return active_slot->selected_children;
-else if constexpr (Value == INDEX) return active_slot->index;
-else if constexpr (Value == BOUNDS)
-		return active_slot->bounds;
-		else if constexpr (Value == TOOLKIT_NAME) return active_slot->toolkit_name;
-		else if constexpr (Value == TOOLKIT_VERSION) return active_slot->toolkit_version;
+		if constexpr (Value == TYPE)
+			return active_slot->type;
+		else if constexpr (Value == STATES)
+			return active_slot->states;
+		else if constexpr (Value == CAPABILITIES)
+			return active_slot->capabilities;
+		else if constexpr (Value == PARENT)
+			return active_slot->parent;
+		else if constexpr (Value == CHILDREN)
+			return active_slot->children;
+		else if constexpr (Value == SELECTED_CHILDREN)
+			return active_slot->selected_children;
+		else if constexpr (Value == INDEX)
+			return active_slot->index;
+		else if constexpr (Value == BOUNDS)
+			return active_slot->bounds;
+		else if constexpr (Value == TOOLKIT_NAME)
+			return active_slot->toolkit_name;
+		else if constexpr (Value == TOOLKIT_VERSION)
+			return active_slot->toolkit_version;
 		else if constexpr (Value == NAME)
-return active_slot->name;
-else if constexpr (Value == DESCRIPTION)return active_slot->description;
-else if constexpr (Value == HELP_TEXT) return active_slot->help_text;
+			return active_slot->name;
+		else if constexpr (Value == DESCRIPTION)
+			return active_slot->description;
+		else if constexpr (Value == HELP_TEXT)
+			return active_slot->help_text;
 
 		return std::unexpected(EObjectError::FAIL);
 	}
@@ -199,6 +207,7 @@ else if constexpr (Value == HELP_TEXT) return active_slot->help_text;
 
 export class CObjectProxy final : public UnknownProxy {
 	using enum EObjectFetchValue;
+
 public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
@@ -239,9 +248,7 @@ public:
 	}
 	[[nodiscard]] inline auto GetIndex() const -> ObjectResult<int> { return GetValue<INDEX>(); }
 
-	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> {
-		return GetValue<BOUNDS>();
-	}
+	[[nodiscard]] inline auto GetBounds() const -> ObjectResult<SRect> { return GetValue<BOUNDS>(); }
 
 	[[nodiscard]] inline auto GetApplicationName() const -> ObjectResult<std::string_view> {
 		return GetValue<TOOLKIT_NAME>();
@@ -250,9 +257,7 @@ public:
 	[[nodiscard]] inline auto GetDescription() const -> ObjectResult<std::string_view> {
 		return GetValue<DESCRIPTION>();
 	}
-	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> {
-		return GetValue<HELP_TEXT>();
-	}
+	[[nodiscard]] inline auto GetHelpText() const -> ObjectResult<std::string_view> { return GetValue<HELP_TEXT>(); }
 };
 
 export class CTextProviderProxy final : public UnknownProxy {
