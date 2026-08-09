@@ -170,35 +170,34 @@ public:
 		}
 
 		using enum EObjectFetchValue;
-		// Should we use constexpr if instead? I don't know.
-		switch (Value) {
-			case TYPE:
+		// It's sad that we don't have something like constexpr switch.
+			if constexpr (Value ==  TYPE)
 				return active_slot->type;
-			case STATES:
+			else if constexpr (Value == STATES)
 				return active_slot->states;
-			case CAPABILITIES: return active_slot->capabilities;
-case PARENT:
+			else if constexpr (Value == CAPABILITIES) return active_slot->capabilities;
+else if constexpr (Value == PARENT)
 return active_slot->parent;
-case CHILDREN:
+else if constexpr (Value == CHILDREN)
 return active_slot->children;
-case SELECTED_CHILDREN:
+else if constexpr (Value == SELECTED_CHILDREN)
 return active_slot->selected_children;
-case INDEX: return active_slot->index;
-case BOUNDS:
+else if constexpr (Value == INDEX) return active_slot->index;
+else if constexpr (Value == BOUNDS)
 		return active_slot->bounds;
-		case TOOLKIT_NAME: return active_slot->toolkit_name;
-		case TOOLKIT_VERSION: return active_slot->toolkit_version;
-		case NAME:
+		else if constexpr (Value == TOOLKIT_NAME) return active_slot->toolkit_name;
+		else if constexpr (Value == TOOLKIT_VERSION) return active_slot->toolkit_version;
+		else if constexpr (Value == NAME)
 return active_slot->name;
-case DESCRIPTION:return active_slot->description;
-case HELP_TEXT: return active_slot->help_text;
+else if constexpr (Value == DESCRIPTION)return active_slot->description;
+else if constexpr (Value == HELP_TEXT) return active_slot->help_text;
 
-		}
 		return std::unexpected(EObjectError::FAIL);
 	}
 };
 
 export class CObjectProxy final : public UnknownProxy {
+	using enum EObjectFetchValue;
 public:
 	CObjectProxy() = default;
 	explicit CObjectProxy(void* memory) : UnknownProxy(memory) {}
@@ -207,7 +206,7 @@ public:
 		return UnknownProxy::Fetch(GetObjectProviderValueMask(EObjectProvider::MAIN));
 	}
 
-	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetActiveSlot()->type; }
+	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetValue<EObjectType, TYPE>(); }
 	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> { return GetActiveSlot()->states; }
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
 		return GetActiveSlot()->capabilities;
