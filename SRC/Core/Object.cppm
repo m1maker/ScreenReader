@@ -430,6 +430,13 @@ template<> struct TObjectFetchValue<EObjectFetchValue::CAPABILITIES> final { usi
 template<> struct TObjectFetchValue<EObjectFetchValue::PARENT> final { using type = void*; };
 template<> struct TObjectFetchValue<EObjectFetchValue::CHILDREN> { using type = std::pmr::vector<void*>; };
 template<> struct TObjectFetchValue<EObjectFetchValue::SELECTED_CHILDREN> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {};
+template<> struct TObjectFetchValue<EObjectFetchValue::INDEX> final { using type = int; };
+template<> struct TObjectFetchValue<EObjectFetchValue::BOUNDS> final { using type = SRect; };
+template<> struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { using type = std::pmr::string; };
+template<> struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_VERSION> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
+template<> struct TObjectFetchValue<EObjectFetchValue::NAME> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
+template<> struct TObjectFetchValue<EObjectFetchValue::DESCRIPTION> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
+template<> struct TObjectFetchValue<EObjectFetchValue::HELP_TEXT> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
 
 /*
 	INDEX,
@@ -494,9 +501,9 @@ public:
 	ObjectResult<FetchValueType<CAPABILITIES>> capabilities;
 	ObjectResult<FetchValueType<PARENT>> parent;
 	ObjectResult<FetchValueType<CHILDREN>> children, selected_children;
-	ObjectResult<int> index;
-	ObjectResult<SRect> bounds;
-	ObjectResult<std::pmr::string> toolkit_name, toolkit_version, name, description, help_text;
+	ObjectResult<FetchValueType<INDEX>>  index;
+	ObjectResult<FetchValueType<BOUNDS>>  bounds;
+	ObjectResult<FetchValueType<TOOLKIT_NAME>>  toolkit_name, toolkit_version, name, description, help_text;
 
 	ObjectResult<size_t> cursor, text_length;
 	ObjectResult<std::pmr::string> text, text_selection, text_by_granularity;
