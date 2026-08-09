@@ -165,8 +165,35 @@ public:
 			if (error != EObjectError::SUCCESS) {
 				return std::unexpected(error);
 			}
+
+			active_slot = GetActiveSlot();
 		}
 
+		using enum EObjectFetchValue;
+		// Should we use constexpr if instead? I don't know.
+		switch (Value) {
+			case TYPE:
+				return active_slot->type;
+			case STATES:
+				return active_slot->states;
+			case CAPABILITIES: return active_slot->capabilities;
+case PARENT:
+return active_slot->parent;
+case CHILDREN:
+return active_slot->children;
+case SELECTED_CHILDREN:
+return active_slot->selected_children;
+case INDEX: return active_slot->index;
+case BOUNDS:
+		return active_slot->bounds;
+		case TOOLKIT_NAME: return active_slot->toolkit_name;
+		case TOOLKIT_VERSION: return active_slot->toolkit_version;
+		case NAME:
+return active_slot->name;
+case DESCRIPTION:return active_slot->description;
+case HELP_TEXT: return active_slot->help_text;
+
+		}
 		return std::unexpected(EObjectError::FAIL);
 	}
 };
