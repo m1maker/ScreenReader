@@ -207,13 +207,15 @@ public:
 	}
 
 	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetValue<EObjectType, TYPE>(); }
-	[[nodiscard]] inline auto GetState() const -> ObjectResult<ObjectStateMask> { return GetActiveSlot()->states; }
+	[[nodiscard]] inline auto GetStates() const -> ObjectResult<ObjectStateMask> { return GetValue<ObjectStateMask, STATES>(); }
+	[[deprecated("Use 'GetStates' instead"), nodiscard]] inline auto GetState() const { return GetStates(); }
+
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		return GetActiveSlot()->capabilities;
+		return GetValue<ObjectCapabilityMask, CAPABILITIES>();
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-		auto parent = GetActiveSlot()->parent;
+		auto parent = GetValue<void*, PARENT>();
 		if (!parent)
 			return std::unexpected(parent.error());
 		return CObjectProxy(*parent);
