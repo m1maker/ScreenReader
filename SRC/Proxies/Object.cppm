@@ -36,6 +36,7 @@ import Core.Timer;
 import Traits.AtomicRefCountedObject;
 
 class UnknownProxy : /*protected*/ public TAtomicRefCountedObject<UnknownProxy, SCachedObjectData> {
+template<EObjectFetchValue Value> using FetchValueType = TObjectFetchValue<Value>::type;
 protected:
 	UnknownProxy() = default;
 	explicit UnknownProxy(void* memory) : TAtomicRefCountedObject(memory) {}
@@ -151,7 +152,7 @@ public:
 	}
 	inline void ResetFetchModeToConstexpr() const noexcept { SetFetchMode(); }
 
-	template<typename T, EObjectFetchValue Value> [[nodiscard]] auto GetValue() const noexcept -> ObjectResult<T> {
+	template<EObjectFetchValue Value> [[nodiscard]] auto GetValue() const noexcept -> ObjectResult<FetchValueType<Value>> {
 		auto active_slot = GetActiveSlot();
 		if (!active_slot) [[unlikely]] {
 			return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
@@ -206,16 +207,16 @@ public:
 		return UnknownProxy::Fetch(GetObjectProviderValueMask(EObjectProvider::MAIN));
 	}
 
-	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetValue<EObjectType, TYPE>(); }
-	[[nodiscard]] inline auto GetStates() const -> ObjectResult<ObjectStateMask> { return GetValue<ObjectStateMask, STATES>(); }
+	[[nodiscard]] inline auto GetType() const -> ObjectResult<EObjectType> { return GetValue<TYPE>(); }
+	[[nodiscard]] inline auto GetStates() const -> ObjectResult<ObjectStateMask> { return GetValue<STATES>(); }
 	[[deprecated("Use 'GetStates' instead"), nodiscard]] inline auto GetState() const { return GetStates(); }
 
 	[[nodiscard]] inline auto GetCapabilities() const -> ObjectResult<ObjectCapabilityMask> {
-		return GetValue<ObjectCapabilityMask, CAPABILITIES>();
+		return GetValue<CAPABILITIES>();
 	}
 
 	[[nodiscard]] inline auto GetParent() const -> ObjectResult<CObjectProxy> {
-		auto parent = GetValue<void*, PARENT>();
+		auto parent = GetValue<PARENT>();
 		if (!parent)
 			return std::unexpected(parent.error());
 		return CObjectProxy(*parent);
