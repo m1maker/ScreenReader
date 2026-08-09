@@ -330,6 +330,7 @@ export enum class EObjectError : unsigned char {
 	SUCCESS = 0,
 	DEFUNCT,
 	FETCH_SLOT_DEFUNCT,
+	MANUAL_FETCH_REQUIRED,
 
 	BUSY,
 	NOTHING_TO_FETCH,

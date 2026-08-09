@@ -23,6 +23,7 @@ module;
 #include <optional>
 #include <string_view>
 #include <thread>
+#include <utility>
 #include <variant>
 export module Proxies.Object;
 import Core.Environment;
@@ -149,6 +150,25 @@ public:
 		GetData()->fetch_timeout_ms.store(timeout_ms, std::memory_order_relaxed);
 	}
 	inline void ResetFetchModeToConstexpr() const noexcept { SetFetchMode(); }
+
+	template<typename T, EObjectFetchValue Value> [[nodiscard]] auto GetValue() const noexcept -> ObjectResult<T> {
+		auto active_slot = GetActiveSlot();
+		if (!active_slot) [[unlikely]] {
+			return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
+		}
+
+		if (!active_slot->mask.test(std::to_underlying(Value))) {
+			if (!GetData()->lazy_fetch.test(std::memory_order_relaxed)) {
+				return std::unexpected(EObjectError::MANUAL_FETCH_REQUIRED);
+			}
+			auto error = Fetch(ObjectFetchMask(std::to_underlying(Value)));
+			if (error != EObjectError::SUCCESS) {
+				return std::unexpected(error);
+			}
+		}
+
+		return std::unexpected(EObjectError::FAIL);
+	}
 };
 
 export class CObjectProxy final : public UnknownProxy {
