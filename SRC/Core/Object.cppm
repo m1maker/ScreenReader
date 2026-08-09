@@ -428,13 +428,10 @@ template<> struct TObjectFetchValue<EObjectFetchValue::TYPE> final { using type 
 template<> struct TObjectFetchValue<EObjectFetchValue::STATES> final { using type = ObjectStateMask; };
 template<> struct TObjectFetchValue<EObjectFetchValue::CAPABILITIES> final { using type = ObjectCapabilityMask; };
 template<> struct TObjectFetchValue<EObjectFetchValue::PARENT> final { using type = void*; };
+template<> struct TObjectFetchValue<EObjectFetchValue::CHILDREN> { using type = std::pmr::vector<void*>; };
+template<> struct TObjectFetchValue<EObjectFetchValue::SELECTED_CHILDREN> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {};
 
 /*
-	TYPE,
-	STATES,
-	CAPABILITIES,
-	PARENT,
-	CHILDREN,
 	INDEX,
 	BOUNDS,
 	TOOLKIT_NAME,
@@ -493,10 +490,10 @@ template<EObjectFetchValue Value> using FetchValueType = TObjectFetchValue<Value
 public:
 
 	ObjectResult<FetchValueType<TYPE>> type;
-	ObjectResult<ObjectStateMask> states;
-	ObjectResult<ObjectCapabilityMask> capabilities;
-	ObjectResult<void*> parent;
-	ObjectResult<std::pmr::vector<void*>> children, selected_children;
+	ObjectResult<FetchValueType<STATES>> states;
+	ObjectResult<FetchValueType<CAPABILITIES>> capabilities;
+	ObjectResult<FetchValueType<PARENT>> parent;
+	ObjectResult<FetchValueType<CHILDREN>> children, selected_children;
 	ObjectResult<int> index;
 	ObjectResult<SRect> bounds;
 	ObjectResult<std::pmr::string> toolkit_name, toolkit_version, name, description, help_text;
