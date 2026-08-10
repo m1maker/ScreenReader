@@ -200,6 +200,12 @@ public:
 			return active_slot->description;
 		else if constexpr (Value == HELP_TEXT)
 			return active_slot->help_text;
+else if constexpr (Value == TEXT_CURSOR) return active_slot->text_cursor;
+else if constexpr (Value == TEXT_LENGTH) return active_slot->text_length;
+else if constexpr (Value == TEXT) return active_slot->text;
+else if constexpr (Value == TEXT_SELECTION) return active_slot->text_selection;
+else if constexpr (Value == TEXT_SELECTION_RANGE) return active_slot->text_selection_range;
+else if constexpr (Value == TEXT_BY_GRANULARITY) return active_slot->text_by_granularity;
 
 		return std::unexpected(EObjectError::FAIL);
 	}

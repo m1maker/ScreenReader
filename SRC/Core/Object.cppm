@@ -528,7 +528,8 @@ public:
 	ObjectResult<FetchValueType<BOUNDS>> bounds;
 	ObjectResult<FetchValueType<TOOLKIT_NAME>> toolkit_name, toolkit_version, name, description, help_text;
 
-	ObjectResult<size_t> cursor, text_length;
+	ObjectResult<size_t> text_cursor, text_length;
+	ObjectResult<STextRange> text_selection_range;
 	ObjectResult<std::pmr::string> text, text_selection, text_by_granularity;
 
 	ObjectResult<std::pmr::vector<EObjectAction>> action_types;
