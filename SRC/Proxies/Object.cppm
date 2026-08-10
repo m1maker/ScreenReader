@@ -217,7 +217,11 @@ else if constexpr (Value == VALUE_MAX) return active_slot->value_max;
 else if constexpr (Value == VALUE_CURRENT) return active_slot->value_current;
 else if constexpr (Value == VALUE_STEP) return active_slot->value_step;
 else if constexpr (Value == VALUE_STRING) return active_slot->value_string;
+else if constexpr (Value == RELATION_TYPES) return active_slot->relation_types;
+else if constexpr (Value == RELATION_TARGETS) return active_slot->relation_targets;
+else static_assert(false, "Unknown value for the request");
 
+std::unreachable();
 		return std::unexpected(EObjectError::FAIL);
 	}
 };
