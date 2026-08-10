@@ -472,6 +472,18 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::TEXT_SELECTION_RANGE> final { using type = STextRange; };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::TEXT_BY_GRANULARITY> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_TYPES> final { using type = std::pmr::vector<EObjectAction>; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> { using type = std::pmr::vector<std::pmr::string> ; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_DESCRIPTIONS> final : TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> { };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEYS> final{ using type = std::pmr::vector<SHotkeyInfo> ;};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEY_STRINGS>final : TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> { ; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::ACTION_DO>final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> { ; };
 
 /*
 	ACTION_TYPES,
@@ -527,10 +539,10 @@ public:
 	ObjectResult<FetchValueType<TEXT_SELECTION_RANGE>> text_selection_range;
 	ObjectResult<FetchValueType<TEXT>> text, text_selection, text_by_granularity;
 
-	ObjectResult<std::pmr::vector<EObjectAction>> action_types;
-	ObjectResult<std::pmr::vector<std::pmr::string>> action_names, action_descriptions, action_hotkey_strings;
-	ObjectResult<std::pmr::vector<SHotkeyInfo>> action_hotkeys;
-	ObjectResult<void> action_do;
+	ObjectResult<FetchValueType<ACTION_TYPES>>  action_types;
+	ObjectResult<FetchValueType<ACTION_NAMES>>  action_names, action_descriptions, action_hotkey_strings;
+	ObjectResult<FetchValueType<ACTION_HOTKEYS>> action_hotkeys;
+	ObjectResult<FetchValueType<ACTION_DO>>  action_do;
 
 	ObjectResult<double> value_min, value_max, value_current, value_step;
 	ObjectResult<std::pmr::string> value_string;
