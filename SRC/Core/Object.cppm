@@ -484,21 +484,18 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEY_STRINGS>final : TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> { ; };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_DO>final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> { ; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::VALUE_MIN> { using type = double; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::VALUE_MAX> final : TObjectFetchValue<EObjectFetchValue::VALUE_MIN> { };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::VALUE_CURRENT> final : TObjectFetchValue<EObjectFetchValue::VALUE_MIN> { };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::VALUE_STEP> final : TObjectFetchValue<EObjectFetchValue::VALUE_MIN> { };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::VALUE_STRING> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
 
 /*
-	ACTION_TYPES,
-	ACTION_NAMES,
-	ACTION_DESCRIPTIONS,
-	ACTION_HOTKEYS,
-	ACTION_HOTKEY_STRINGS,
-	ACTION_DO,
-
-	VALUE_MIN,
-	VALUE_MAX,
-	VALUE_CURRENT,
-	VALUE_STEP,
-	VALUE_STRING,
-
 	RELATION_TYPES,
 	RELATION_TARGETS,
 	COUNT
@@ -544,8 +541,8 @@ public:
 	ObjectResult<FetchValueType<ACTION_HOTKEYS>> action_hotkeys;
 	ObjectResult<FetchValueType<ACTION_DO>>  action_do;
 
-	ObjectResult<double> value_min, value_max, value_current, value_step;
-	ObjectResult<std::pmr::string> value_string;
+	ObjectResult<FetchValueType<VALUE_MIN>>  value_min, value_max, value_current, value_step;
+	ObjectResult<FetchValueType<VALUE_STRING>>  value_string;
 
 	ObjectResult<std::pmr::vector<EObjectRelationType>> relation_types;
 	ObjectResult<std::pmr::vector<void*>> relation_targets;
