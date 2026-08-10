@@ -212,6 +212,11 @@ else if constexpr (Value == ACTION_DESCRIPTIONS) return active_slot->action_desc
 else if constexpr (Value == ACTION_HOTKEYS) return active_slot->action_hotkeys;
 else if constexpr (Value == ACTION_HOTKEY_STRINGS) return active_slot->action_hotkey_strings;
 else if constexpr (Value == ACTION_DO) return active_slot->action_do;
+else if constexpr (Value == VALUE_MIN) return active_slot->value_min;
+else if constexpr (Value == VALUE_MAX) return active_slot->value_max;
+else if constexpr (Value == VALUE_CURRENT) return active_slot->value_current;
+else if constexpr (Value == VALUE_STEP) return active_slot->value_step;
+else if constexpr (Value == VALUE_STRING) return active_slot->value_string;
 
 		return std::unexpected(EObjectError::FAIL);
 	}
