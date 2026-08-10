@@ -206,6 +206,12 @@ else if constexpr (Value == TEXT) return active_slot->text;
 else if constexpr (Value == TEXT_SELECTION) return active_slot->text_selection;
 else if constexpr (Value == TEXT_SELECTION_RANGE) return active_slot->text_selection_range;
 else if constexpr (Value == TEXT_BY_GRANULARITY) return active_slot->text_by_granularity;
+else if constexpr (Value == ACTION_TYPES) return active_slot->action_types;
+else if constexpr (Value == ACTION_NAMES) return active_slot->action_names;
+else if constexpr (Value == ACTION_DESCRIPTIONS) return active_slot->action_descriptions;
+else if constexpr (Value == ACTION_HOTKEYS) return active_slot->action_hotkeys;
+else if constexpr (Value == ACTION_HOTKEY_STRINGS) return active_slot->action_hotkey_strings;
+else if constexpr (Value == ACTION_DO) return active_slot->action_do;
 
 		return std::unexpected(EObjectError::FAIL);
 	}
