@@ -460,25 +460,20 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::DESCRIPTION> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 template <>
 struct TObjectFetchValue<EObjectFetchValue::HELP_TEXT> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT_CURSOR> { using type = size_t;};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT_LENGTH> final : TObjectFetchValue<EObjectFetchValue::TEXT_CURSOR> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT_SELECTION> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT_SELECTION_RANGE> final { using type = STextRange; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::TEXT_BY_GRANULARITY> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 
 /*
-	INDEX,
-	BOUNDS,
-	TOOLKIT_NAME,
-	TOOLKIT_VERSION,
-	NAME,
-	DESCRIPTION,
-	HELP_TEXT,
-
-	TEXT_CURSOR,
-	TEXT_LENGTH,
-	TEXT,
-	TEXT_SELECTION,
-	TEXT_SELECTION_RANGE,
-	TEXT_BY_GRANULARITY,
-
-	SELECTED_CHILDREN,
-
 	ACTION_TYPES,
 	ACTION_NAMES,
 	ACTION_DESCRIPTIONS,
@@ -528,9 +523,9 @@ public:
 	ObjectResult<FetchValueType<BOUNDS>> bounds;
 	ObjectResult<FetchValueType<TOOLKIT_NAME>> toolkit_name, toolkit_version, name, description, help_text;
 
-	ObjectResult<size_t> text_cursor, text_length;
-	ObjectResult<STextRange> text_selection_range;
-	ObjectResult<std::pmr::string> text, text_selection, text_by_granularity;
+	ObjectResult<FetchValueType<TEXT_CURSOR>> text_cursor, text_length;
+	ObjectResult<FetchValueType<TEXT_SELECTION_RANGE>> text_selection_range;
+	ObjectResult<FetchValueType<TEXT>> text, text_selection, text_by_granularity;
 
 	ObjectResult<std::pmr::vector<EObjectAction>> action_types;
 	ObjectResult<std::pmr::vector<std::pmr::string>> action_names, action_descriptions, action_hotkey_strings;
