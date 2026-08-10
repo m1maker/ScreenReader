@@ -200,28 +200,48 @@ public:
 			return active_slot->description;
 		else if constexpr (Value == HELP_TEXT)
 			return active_slot->help_text;
-else if constexpr (Value == TEXT_CURSOR) return active_slot->text_cursor;
-else if constexpr (Value == TEXT_LENGTH) return active_slot->text_length;
-else if constexpr (Value == TEXT) return active_slot->text;
-else if constexpr (Value == TEXT_SELECTION) return active_slot->text_selection;
-else if constexpr (Value == TEXT_SELECTION_RANGE) return active_slot->text_selection_range;
-else if constexpr (Value == TEXT_BY_GRANULARITY) return active_slot->text_by_granularity;
-else if constexpr (Value == ACTION_TYPES) return active_slot->action_types;
-else if constexpr (Value == ACTION_NAMES) return active_slot->action_names;
-else if constexpr (Value == ACTION_DESCRIPTIONS) return active_slot->action_descriptions;
-else if constexpr (Value == ACTION_HOTKEYS) return active_slot->action_hotkeys;
-else if constexpr (Value == ACTION_HOTKEY_STRINGS) return active_slot->action_hotkey_strings;
-else if constexpr (Value == ACTION_DO) return active_slot->action_do;
-else if constexpr (Value == VALUE_MIN) return active_slot->value_min;
-else if constexpr (Value == VALUE_MAX) return active_slot->value_max;
-else if constexpr (Value == VALUE_CURRENT) return active_slot->value_current;
-else if constexpr (Value == VALUE_STEP) return active_slot->value_step;
-else if constexpr (Value == VALUE_STRING) return active_slot->value_string;
-else if constexpr (Value == RELATION_TYPES) return active_slot->relation_types;
-else if constexpr (Value == RELATION_TARGETS) return active_slot->relation_targets;
-else static_assert(false, "Unknown value for the request");
+		else if constexpr (Value == TEXT_CURSOR)
+			return active_slot->text_cursor;
+		else if constexpr (Value == TEXT_LENGTH)
+			return active_slot->text_length;
+		else if constexpr (Value == TEXT)
+			return active_slot->text;
+		else if constexpr (Value == TEXT_SELECTION)
+			return active_slot->text_selection;
+		else if constexpr (Value == TEXT_SELECTION_RANGE)
+			return active_slot->text_selection_range;
+		else if constexpr (Value == TEXT_BY_GRANULARITY)
+			return active_slot->text_by_granularity;
+		else if constexpr (Value == ACTION_TYPES)
+			return active_slot->action_types;
+		else if constexpr (Value == ACTION_NAMES)
+			return active_slot->action_names;
+		else if constexpr (Value == ACTION_DESCRIPTIONS)
+			return active_slot->action_descriptions;
+		else if constexpr (Value == ACTION_HOTKEYS)
+			return active_slot->action_hotkeys;
+		else if constexpr (Value == ACTION_HOTKEY_STRINGS)
+			return active_slot->action_hotkey_strings;
+		else if constexpr (Value == ACTION_DO)
+			return active_slot->action_do;
+		else if constexpr (Value == VALUE_MIN)
+			return active_slot->value_min;
+		else if constexpr (Value == VALUE_MAX)
+			return active_slot->value_max;
+		else if constexpr (Value == VALUE_CURRENT)
+			return active_slot->value_current;
+		else if constexpr (Value == VALUE_STEP)
+			return active_slot->value_step;
+		else if constexpr (Value == VALUE_STRING)
+			return active_slot->value_string;
+		else if constexpr (Value == RELATION_TYPES)
+			return active_slot->relation_types;
+		else if constexpr (Value == RELATION_TARGETS)
+			return active_slot->relation_targets;
+		else
+			static_assert(false, "Unknown value for the request");
 
-std::unreachable();
+		std::unreachable();
 		return std::unexpected(EObjectError::FAIL);
 	}
 };
