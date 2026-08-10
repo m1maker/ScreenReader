@@ -494,12 +494,10 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::VALUE_STEP> final : TObjectFetchValue<EObjectFetchValue::VALUE_MIN> { };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::VALUE_STRING> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> { };
-
-/*
-	RELATION_TYPES,
-	RELATION_TARGETS,
-	COUNT
-*/
+template <>
+struct TObjectFetchValue<EObjectFetchValue::RELATION_TYPES> final { using type = std::pmr::vector<EObjectRelationType>; };
+template <>
+struct TObjectFetchValue<EObjectFetchValue::RELATION_TARGETS> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> { };
 
 export struct SObjectFetchResult final {
 	std::atomic_flag busy;
@@ -544,8 +542,8 @@ public:
 	ObjectResult<FetchValueType<VALUE_MIN>>  value_min, value_max, value_current, value_step;
 	ObjectResult<FetchValueType<VALUE_STRING>>  value_string;
 
-	ObjectResult<std::pmr::vector<EObjectRelationType>> relation_types;
-	ObjectResult<std::pmr::vector<void*>> relation_targets;
+	ObjectResult<FetchValueType<RELATION_TYPES>> relation_types;
+	ObjectResult<FetchValueType<RELATION_TARGETS>> relation_targets;
 
 	SObjectFetchResult(std::pmr::memory_resource* new_pool)
 		: pool(new_pool), children(pool), selected_children(pool), toolkit_name(pool), toolkit_version(pool),
