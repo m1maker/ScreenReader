@@ -508,7 +508,7 @@ export struct SObjectFetchResult final {
 			return;
 
 		else if (pending_requests.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-			busy.test_and_set(std::memory_order_release);
+			busy.clear(std::memory_order_release);
 			busy.notify_one();
 		}
 	}
