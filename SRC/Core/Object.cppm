@@ -327,6 +327,14 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 		return "No error: The operation completed successfully.";
 	case DEFUNCT:
 		return "Object Defunct: The target accessibility object is no longer valid.";
+	case FETCH_SLOT_DEFUNCT:
+		return "Object Fetch Slot Defunct: The target object fetch slot is no longer valid.";
+	case MANUAL_FETCH_REQUIRED:
+		return "Manual Fetch Required: This field cannot be obtained automatically with the 'Lazy Fetch' function disabled, and the request for its receipt must be pushed manually.";
+	case BUSY:
+		return "Busy: An operation to fill a free slot or another blocking operation is underway, which depends on the implementation of the platform-dependent accessibility provider.";
+	case NOTHING_TO_FETCH:
+		return "Nothing To Fetch: An attempt to change the slot without an explicit fetch request means that the slot does not want to switch unnecessarily.";
 	case NOT_SUPPORTED:
 		return "Interface Not Supported: The object does not implement the requested accessibility interface.";
 	case ACCESS_DENIED:
@@ -338,10 +346,10 @@ export [[nodiscard]] constexpr auto ObjectErrorToString(EObjectError error) -> s
 		return "Operation Timeout: The application or the accessibility registry failed to respond within the "
 			   "expected timeframe.";
 	case FAIL:
-	default:
+break;
+	}
 		return "Unknown Error: An unexpected or undocumented failure occurred during the interaction with the "
 			   "accessibility API.";
-	}
 }
 
 export enum class EObjectLive : unsigned char { UNKNOWN = 0, POLITE, ASSERTIVE };
