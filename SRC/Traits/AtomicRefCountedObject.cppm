@@ -100,4 +100,8 @@ public:
 			return 0;
 		return loaded_block->ref_count.load(std::memory_order_acquire);
 	}
+
+	[[nodiscard]] auto IsValid() const noexcept -> bool {
+		return m_dataBlock.load(std::memory_order_acquire) != nullptr;
+	}
 };
