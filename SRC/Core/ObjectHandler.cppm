@@ -17,9 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+module;
+#include <source_location>
 export module Core.ObjectHandler;
 import Core.Event;
 import Core.Logger;
+import Core.Object;
 import Core.Singleton;
 
 export class ObjectHandler final : TModule<"ObjectHandler">, public TSingleton<ObjectHandler> {
@@ -27,4 +30,8 @@ public:
 	explicit ObjectHandler() = default;
 
 	void Handle(CObjectEvent& event);
+
+	inline void HandleError(EObjectError error, std::source_location source_location = std::source_location::current()) {
+		Log(ERROR, "Object error at {} {}. {}", source_location.function_name(), source_location.line(), ObjectErrorToString(error));
+	}
 };
