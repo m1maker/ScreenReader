@@ -155,7 +155,8 @@ public:
 
 	template <EObjectFetchValue Value>
 	[[nodiscard]] auto GetValue() const noexcept -> ObjectResult<FetchValueType<Value>> {
-		if (!IsValid()) return std::unexpected(EObjectError::DEFUNCT);
+		if (!IsValid())
+			return std::unexpected(EObjectError::DEFUNCT);
 		auto active_slot = GetActiveSlot();
 		if (!active_slot) [[unlikely]] {
 			return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);

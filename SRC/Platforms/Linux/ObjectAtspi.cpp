@@ -211,11 +211,16 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 		slot->value_current = atspi_value_get_current_value(value_interface, nullptr);
 	}
 
-	if (text_interface) g_object_unref(text_interface);
-	if (selection_interface) g_object_unref(selection_interface);
-	if (action_interface) g_object_unref(action_interface);
-	if (value_interface) g_object_unref(value_interface);
-	if (relation_set) g_array_unref(relation_set);
+	if (text_interface)
+		g_object_unref(text_interface);
+	if (selection_interface)
+		g_object_unref(selection_interface);
+	if (action_interface)
+		g_object_unref(action_interface);
+	if (value_interface)
+		g_object_unref(value_interface);
+	if (relation_set)
+		g_array_unref(relation_set);
 
 	slot->mask = request->mask;
 }
