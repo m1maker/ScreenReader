@@ -79,7 +79,7 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		}
 	}
 
-	if (auto name = obj.GetName()) {
+	if (auto name = obj.GetName().or_else(ObjectHandler::HandleUnexpected<"">)) {
 		if (!name->empty() && *name != label_before) {
 			message.Append("{}", *name);
 			if (is_container && !is_feedback)
@@ -88,24 +88,25 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	}
 
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
+	if (auto text = text_provider.GetText(*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
 		if (!text->text.empty()) {
 			message.Append("{}", text->text);
 			return;
 		}
 	}
 
+else ObjectHandler::GetInstance().HandleError(text.error());
 	if (is_container)
 		return;
 
 	CRecursiveObjectIterator iterator;
 	iterator.Iterate(obj, [&message](CObjectProxy current) -> ERecursiveObjectIteratorInstruction {
-		auto current_type = current.GetType().value_or(EObjectType::UNKNOWN);
-		if (current_type == EObjectType::LABEL) {
-			auto name = current.GetName().value_or("");
-			if (!name.empty()) {
+		auto current_type = current.GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
+		if (*current_type == EObjectType::LABEL) {
+			auto name = current.GetName().or_else(ObjectHandler::HandleUnexpected<"">);
+			if (!name->empty()) {
 				message.Separate();
-				message.Append("{}", name);
+				message.Append("{}", *name);
 			}
 		}
 
