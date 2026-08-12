@@ -18,6 +18,7 @@
  */
 
 module;
+#include <string_view>
 #include <type_traits>
 #include <source_location>
 export module Core.ObjectHandler;
@@ -25,6 +26,7 @@ import Core.Event;
 import Core.Logger;
 import Core.Object;
 import Core.Singleton;
+import Core.StringLiteral;
 
 export class ObjectHandler final : TModule<"ObjectHandler">, public TSingleton<ObjectHandler> {
 public:
@@ -40,4 +42,9 @@ public:
 		ObjectHandler::GetInstance().HandleError(error);
 		return Fallback;
 	}
+	template<TStringLiteral String = ""> [[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::string_view> {
+		ObjectHandler::GetInstance().HandleError(error);
+		return String.operator std::string_view();
+	}
+
 };

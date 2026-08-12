@@ -34,6 +34,7 @@ import Core.ObjectHandler;
 import Core.ObjectMeta;
 import Core.RecursiveObjectIterator;
 import Core.StateMeta;
+import Core.StringLiteral;
 import Core.Text;
 import Proxies.Object;
 
@@ -70,7 +71,7 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 			else {
 				auto previous_object_type = previous_object->GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
 				if (*previous_object_type == EObjectType::LABEL) {
-					label_before = previous_object->GetName().value_or({});
+					label_before = *previous_object->GetName().or_else(ObjectHandler::HandleUnexpected<"">);
 					if (!label_before.empty())
 						message.Append("{}", label_before);
 				}
