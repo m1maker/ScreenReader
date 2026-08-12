@@ -18,9 +18,9 @@
  */
 
 module;
+#include <source_location>
 #include <string_view>
 #include <type_traits>
-#include <source_location>
 export module Core.ObjectHandler;
 import Core.Event;
 import Core.Logger;
@@ -34,17 +34,25 @@ public:
 
 	void Handle(CObjectEvent& event);
 
-	/*static*/ inline void HandleError(EObjectError error, std::source_location source_location = std::source_location::current()) {
-		Log(ERROR, "Object error at {} {}. {}", source_location.function_name(), source_location.line(), ObjectErrorToString(error));
+	/*static*/ inline void HandleError(
+		EObjectError error, std::source_location source_location = std::source_location::current()) {
+		Log(ERROR,
+			"Object error at {} {}. {}",
+			source_location.function_name(),
+			source_location.line(),
+			ObjectErrorToString(error));
 	}
 
-	template<auto Fallback> [[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::decay_t<decltype(Fallback)>> {
+	template <auto Fallback>
+	[[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(
+		noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::decay_t<decltype(Fallback)>> {
 		ObjectHandler::GetInstance().HandleError(error);
 		return Fallback;
 	}
-	template<TStringLiteral String = ""> [[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::string_view> {
+	template <TStringLiteral String = "">
+	[[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(
+		noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::string_view> {
 		ObjectHandler::GetInstance().HandleError(error);
 		return String.operator std::string_view();
 	}
-
 };

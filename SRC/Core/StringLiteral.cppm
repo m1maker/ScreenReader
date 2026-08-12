@@ -27,7 +27,5 @@ export template <size_t N> struct TStringLiteral final {
 
 	constexpr TStringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
 
-	consteval operator std::string_view() const noexcept {
-		return std::string_view(value, N);
-	}
+	consteval operator std::string_view() const noexcept { return std::string_view(value, N); }
 };

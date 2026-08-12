@@ -61,15 +61,19 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		is_container || (IsObjectInGroup(*type, EObjectGroup::INPUT) || IsObjectInGroup(*type, EObjectGroup::VALUE));
 	if (should_search_for_label) {
 		auto parent = obj.GetParent();
-		if (!parent) ObjectHandler::GetInstance().HandleError(parent.error());
+		if (!parent)
+			ObjectHandler::GetInstance().HandleError(parent.error());
 		auto index = obj.GetIndex();
-		if (!index) ObjectHandler::GetInstance().HandleError(index.error());
+		if (!index)
+			ObjectHandler::GetInstance().HandleError(index.error());
 		if (parent && index && *index > 0) {
 			auto previous_index = (*index) - 1;
 			auto previous_object = parent->GetChildAt(previous_index);
-			if (!previous_object) ObjectHandler::GetInstance().HandleError(previous_object.error());
+			if (!previous_object)
+				ObjectHandler::GetInstance().HandleError(previous_object.error());
 			else {
-				auto previous_object_type = previous_object->GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
+				auto previous_object_type =
+					previous_object->GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
 				if (*previous_object_type == EObjectType::LABEL) {
 					label_before = *previous_object->GetName().or_else(ObjectHandler::HandleUnexpected<"">);
 					if (!label_before.empty())
@@ -88,14 +92,16 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 	}
 
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	if (auto text = text_provider.GetText(*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
+	if (auto text = text_provider.GetText(
+			*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
 		if (!text->text.empty()) {
 			message.Append("{}", text->text);
 			return;
 		}
 	}
 
-else ObjectHandler::GetInstance().HandleError(text.error());
+	else
+		ObjectHandler::GetInstance().HandleError(text.error());
 	if (is_container)
 		return;
 
