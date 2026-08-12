@@ -69,6 +69,7 @@ target_sources(${PROJECT_NAME}
         SpeechEngineEspeakNg.cppm
         SpeechSystem.cppm
         StateMeta.cppm
+        StringLiteral.cppm
         Text.cppm
         TextComparer.cppm
         ThreadSafeQueue.cppm
