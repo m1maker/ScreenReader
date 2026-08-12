@@ -26,6 +26,7 @@ module;
 export module Core.Logger;
 import Core.AppState;
 import Core.Singleton;
+import Core.StringLiteral;
 
 export enum class ELogLevel : unsigned char { DEBUG = 0, INFO, WARNING, ERROR, NOTHING };
 
@@ -87,12 +88,6 @@ public:
 	}
 
 	inline auto GetLevel() const noexcept -> ELogLevel { return m_level; }
-};
-
-template <size_t N> struct TStringLiteral final {
-	char value[N];
-
-	constexpr TStringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
 };
 
 export template <TStringLiteral Name> class TModule {
