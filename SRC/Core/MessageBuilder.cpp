@@ -30,6 +30,7 @@ import Core.KeyboardHandler;
 import Core.KeyInfo;
 import Core.KeyMeta;
 import Core.Object;
+import Core.ObjectHandler;
 import Core.ObjectMeta;
 import Core.RecursiveObjectIterator;
 import Core.StateMeta;
@@ -51,20 +52,24 @@ void MessageBuilder::FindAnnouncementInHierarchy(
 		return;
 
 	std::string_view label_before{};
-	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
-	auto is_container = IsObjectInGroup(type, EObjectGroup::CONTAINER);
-	auto is_feedback = IsObjectInGroup(type, EObjectGroup::FEEDBACK);
+	auto type = obj.GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
+
+	auto is_container = IsObjectInGroup(*type, EObjectGroup::CONTAINER);
+	auto is_feedback = IsObjectInGroup(*type, EObjectGroup::FEEDBACK);
 	auto should_search_for_label =
-		is_container || (IsObjectInGroup(type, EObjectGroup::INPUT) || IsObjectInGroup(type, EObjectGroup::VALUE));
+		is_container || (IsObjectInGroup(*type, EObjectGroup::INPUT) || IsObjectInGroup(*type, EObjectGroup::VALUE));
 	if (should_search_for_label) {
 		auto parent = obj.GetParent();
+		if (!parent) ObjectHandler::GetInstance().HandleError(parent.error());
 		auto index = obj.GetIndex();
+		if (!index) ObjectHandler::GetInstance().HandleError(index.error());
 		if (parent && index && *index > 0) {
 			auto previous_index = (*index) - 1;
 			auto previous_object = parent->GetChildAt(previous_index);
-			if (previous_object) {
-				auto previous_object_type = previous_object->GetType();
-				if (previous_object_type && *previous_object_type == EObjectType::LABEL) {
+			if (!previous_object) ObjectHandler::GetInstance().HandleError(previous_object.error());
+			else {
+				auto previous_object_type = previous_object->GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
+				if (*previous_object_type == EObjectType::LABEL) {
 					label_before = previous_object->GetName().value_or({});
 					if (!label_before.empty())
 						message.Append("{}", label_before);

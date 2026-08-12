@@ -18,6 +18,7 @@
  */
 
 module;
+#include <type_traits>
 #include <source_location>
 export module Core.ObjectHandler;
 import Core.Event;
@@ -31,7 +32,12 @@ public:
 
 	void Handle(CObjectEvent& event);
 
-	inline void HandleError(EObjectError error, std::source_location source_location = std::source_location::current()) {
+	/*static*/ inline void HandleError(EObjectError error, std::source_location source_location = std::source_location::current()) {
 		Log(ERROR, "Object error at {} {}. {}", source_location.function_name(), source_location.line(), ObjectErrorToString(error));
+	}
+
+	template<auto Fallback> [[nodiscard]] static inline auto HandleUnexpected(EObjectError error) noexcept(noexcept(&ObjectHandler::HandleError)) -> ObjectResult<std::decay_t<decltype(Fallback)>> {
+		ObjectHandler::GetInstance().HandleError(error);
+		return Fallback;
 	}
 };
