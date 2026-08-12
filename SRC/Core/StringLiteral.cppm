@@ -17,8 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-template <size_t N> struct TStringLiteral final {
+module;
+#include <algorithm>
+#include <string_view>
+export module Core.StringLiteral;
+
+export template <size_t N> struct TStringLiteral final {
 	char value[N];
 
 	constexpr TStringLiteral(const char (&str)[N]) { std::copy_n(str, N, value); }
+
+	consteval operator std::string_view() const noexcept {
+		return std::string_view(value, N);
+	}
 };
