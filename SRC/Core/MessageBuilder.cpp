@@ -218,16 +218,17 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 	if (!obj.IsValid()) [[unlikely]]
 		return;
 
-	if (auto state = obj.GetState()) {
+	if (auto states = obj.GetStates()) {
 		message.ApplyUtteranceParameters(m_speechParameters.state);
 
 		for (unsigned char i = 1; i < std::to_underlying(EObjectState::COUNT); ++i) {
-			if (state->test(i) && ShouldObjectStateBeAnnounced(static_cast<EObjectState>(i))) {
+			if (states->test(i) && ShouldObjectStateBeAnnounced(static_cast<EObjectState>(i))) {
 				message.Separate();
 				message.Append("{}", GetObjectStateName(static_cast<EObjectState>(i)));
 			}
 		}
 	}
+else ObjectHandler::GetInstance().HandleError(states.error());
 }
 
 void MessageBuilder::BuildCapabilityAnnouncement(CMessage& message, CObjectProxy obj, bool require_all) {
