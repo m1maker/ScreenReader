@@ -267,7 +267,7 @@ void MessageBuilder::BuildValueAnnouncement(CMessage& message, CObjectProxy obj)
 		return;
 
 	auto value_provider = obj.GetAs<CValueProviderProxy>();
-	if (auto current = value_provider.GetCurrent()) {
+	if (auto current = value_provider.GetCurrent().or_else(ObjectHandler::HandleUnexpected<0.0>)) {
 		message.ApplyUtteranceParameters(m_speechParameters.state);
 		message.Append("{}", *current);
 	}
