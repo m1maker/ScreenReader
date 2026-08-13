@@ -245,6 +245,7 @@ void MessageBuilder::BuildCapabilityAnnouncement(CMessage& message, CObjectProxy
 			}
 		}
 	}
+else ObjectHandler::GetInstance().HandleError(capabilities.error());
 }
 
 void MessageBuilder::BuildSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
