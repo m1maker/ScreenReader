@@ -254,11 +254,12 @@ void MessageBuilder::BuildSelectionAnnouncement(CMessage& message, CObjectProxy 
 
 	auto selection_provider = obj.GetAs<CSelectionProviderProxy>();
 	if (auto current_selected = selection_provider.GetChildAt(0)) {
-		if (auto name = current_selected->GetName()) {
+		if (auto name = current_selected->GetName().or_else(ObjectHandler::HandleUnexpected<"">)) {
 			message.ApplyUtteranceParameters(m_speechParameters.name);
 			message.Append("{}", *name);
 		}
 	}
+else ObjectHandler::GetInstance().HandleError(current_selected.error());
 }
 
 void MessageBuilder::BuildValueAnnouncement(CMessage& message, CObjectProxy obj) {
