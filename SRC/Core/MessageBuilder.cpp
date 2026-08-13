@@ -316,8 +316,10 @@ void MessageBuilder::BuildTextSelectionAnnouncement(CMessage& message, CObjectPr
 
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto selected_text = text_provider.GetSelected();
-	if (!selected_text)
+	if (!selected_text) {
+		ObjectHandler::GetInstance().HandleError(selected_text.error());
 		return;
+	}
 
 	message.ApplyUtteranceParameters(m_speechParameters.text);
 	message.Append("{}", selected_text->text);
