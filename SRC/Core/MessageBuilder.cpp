@@ -286,11 +286,11 @@ void MessageBuilder::BuildDescriptionAnnouncement(CMessage& message, CObjectProx
 		return;
 
 	std::string_view description{};
-	description = obj.GetDescription().value_or({});
+	description = *obj.GetDescription().or_else(ObjectHandler::HandleUnexpected<"">);
 	message.ApplyUtteranceParameters(m_speechParameters.description);
 	message.Append("{}", description);
 
-	if (auto help_text = obj.GetHelpText()) {
+	if (auto help_text = obj.GetHelpText().or_else(ObjectHandler::HandleUnexpected<"">)) {
 		if (*help_text == description)
 			return;
 		message.Separate();
