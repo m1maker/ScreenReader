@@ -131,6 +131,7 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 
 	auto current_cursor = provider.GetCursor();
 	if (!current_cursor) {
+		ObjectHandler::GetInstance().HandleError(current_cursor.error());
 		return;
 	}
 
@@ -167,11 +168,15 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 			message.Append("{}", range->text);
 			return;
 		}
+		else {
+			ObjectHandler::GetInstance().HandleError(range.error());
+		}
 	}
 
 	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
 		message.Append("{}", keys_range->text);
 	}
+	else ObjectHandler::GetInstance().HandleError(keys_range.error());
 }
 
 // Announcement builders
@@ -181,21 +186,22 @@ void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj,
 
 	BuildNameAnnouncement(message, obj);
 
-	auto type = obj.GetType().value_or(EObjectType::UNKNOWN);
+	auto type = obj.GetType().or_else(ObjectHandler::HandleUnexpected<EObjectType::UNKNOWN>);
 	message.Separate();
 	message.ApplyUtteranceParameters(m_speechParameters.role);
-	message.Append("{}", GetObjectTypeName(type));
+	message.Append("{}", GetObjectTypeName(*type));
 	message.Separate();
 	BuildStateAnnouncement(message, obj, require_all);
 	message.Separate();
 	BuildCapabilityAnnouncement(message, obj, require_all);
 
 	if (ScreenReaderApp::GetInstance().GetSettings().object_presentation.read_item_count &&
-		IsObjectInGroup(type, EObjectGroup::DATA_ELIMENT)) {
-		auto index = obj.GetIndex().value_or(0) + 1;
+		IsObjectInGroup(*type, EObjectGroup::DATA_ELIMENT)) {
+		auto index = *obj.GetIndex().or_else(ObjectHandler::HandleUnexpected<0>) + 1;
 		auto parent = obj.GetParent();
-		if (parent || parent->IsValid()) {
-			auto children_count = parent->GetChildrenCount().value_or(0);
+		if (!parent) ObjectHandler::GetInstance().HandleError(parent.error());
+		else if (parent->IsValid()) {
+			auto children_count = *parent->GetChildrenCount().or_else(ObjectHandler::HandleUnexpected<0>);
 			message.Separate();
 			message.Append("{} of {}", index, children_count);
 		}
