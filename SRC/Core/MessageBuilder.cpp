@@ -335,6 +335,7 @@ void MessageBuilder::BuildCursorAnnouncement(CMessage& message, CObjectProxy obj
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
 	auto cursor = text_provider.GetCursor();
 	if (!cursor) {
+		ObjectHandler::GetInstance().HandleError(cursor.error());
 		return;
 	}
 
