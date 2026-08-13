@@ -303,10 +303,11 @@ void MessageBuilder::BuildTextAnnouncement(CMessage& message, CObjectProxy obj) 
 		return;
 
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	if (auto text = text_provider.GetText(text_provider.GetCursor().value_or(0), ETextGranularity::LINE)) {
+	if (auto text = text_provider.GetText(*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
 		message.ApplyUtteranceParameters(m_speechParameters.text);
 		message.Append("{}", text->text);
 	}
+	else ObjectHandler::GetInstance().HandleError(text.error());
 }
 
 void MessageBuilder::BuildTextSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
