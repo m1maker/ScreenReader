@@ -176,7 +176,8 @@ void MessageBuilder::FindAnnouncementOfCursorPosition(
 	if (auto keys_range = provider.GetText(current_cursor.value_or(0), granularity)) {
 		message.Append("{}", keys_range->text);
 	}
-	else ObjectHandler::GetInstance().HandleError(keys_range.error());
+	else
+		ObjectHandler::GetInstance().HandleError(keys_range.error());
 }
 
 // Announcement builders
@@ -199,7 +200,8 @@ void MessageBuilder::BuildFocusAnnouncement(CMessage& message, CObjectProxy obj,
 		IsObjectInGroup(*type, EObjectGroup::DATA_ELIMENT)) {
 		auto index = *obj.GetIndex().or_else(ObjectHandler::HandleUnexpected<0>) + 1;
 		auto parent = obj.GetParent();
-		if (!parent) ObjectHandler::GetInstance().HandleError(parent.error());
+		if (!parent)
+			ObjectHandler::GetInstance().HandleError(parent.error());
 		else if (parent->IsValid()) {
 			auto children_count = *parent->GetChildrenCount().or_else(ObjectHandler::HandleUnexpected<0>);
 			message.Separate();
@@ -228,7 +230,8 @@ void MessageBuilder::BuildStateAnnouncement(CMessage& message, CObjectProxy obj,
 			}
 		}
 	}
-else ObjectHandler::GetInstance().HandleError(states.error());
+	else
+		ObjectHandler::GetInstance().HandleError(states.error());
 }
 
 void MessageBuilder::BuildCapabilityAnnouncement(CMessage& message, CObjectProxy obj, bool require_all) {
@@ -245,7 +248,8 @@ void MessageBuilder::BuildCapabilityAnnouncement(CMessage& message, CObjectProxy
 			}
 		}
 	}
-else ObjectHandler::GetInstance().HandleError(capabilities.error());
+	else
+		ObjectHandler::GetInstance().HandleError(capabilities.error());
 }
 
 void MessageBuilder::BuildSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
@@ -259,7 +263,8 @@ void MessageBuilder::BuildSelectionAnnouncement(CMessage& message, CObjectProxy 
 			message.Append("{}", *name);
 		}
 	}
-else ObjectHandler::GetInstance().HandleError(current_selected.error());
+	else
+		ObjectHandler::GetInstance().HandleError(current_selected.error());
 }
 
 void MessageBuilder::BuildValueAnnouncement(CMessage& message, CObjectProxy obj) {
@@ -303,11 +308,13 @@ void MessageBuilder::BuildTextAnnouncement(CMessage& message, CObjectProxy obj) 
 		return;
 
 	auto text_provider = obj.GetAs<CTextProviderProxy>();
-	if (auto text = text_provider.GetText(*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
+	if (auto text = text_provider.GetText(
+			*text_provider.GetCursor().or_else(ObjectHandler::HandleUnexpected<0>), ETextGranularity::LINE)) {
 		message.ApplyUtteranceParameters(m_speechParameters.text);
 		message.Append("{}", text->text);
 	}
-	else ObjectHandler::GetInstance().HandleError(text.error());
+	else
+		ObjectHandler::GetInstance().HandleError(text.error());
 }
 
 void MessageBuilder::BuildTextSelectionAnnouncement(CMessage& message, CObjectProxy obj) {
