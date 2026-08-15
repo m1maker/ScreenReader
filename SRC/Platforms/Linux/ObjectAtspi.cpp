@@ -110,7 +110,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::DESCRIPTION))) {
 		auto description = atspi_accessible_get_description(native_handle, nullptr);
 		if (!description) {
-			slot->name = std::unexpected(EObjectError::FAIL);
+			slot->description = std::unexpected(EObjectError::FAIL);
 		}
 		else
 			slot->description = description;
