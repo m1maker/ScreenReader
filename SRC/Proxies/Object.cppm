@@ -71,9 +71,11 @@ protected:
 	}
 
 	void PushFetchRequest(ObjectFetchMask values) const {
-		GetInactiveSlot()->busy.test_and_set(std::memory_order_release);
-		GetInactiveSlot()->pending_requests.fetch_add(1, std::memory_order_relaxed);
-		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), GetInactiveSlot(), values});
+		auto inactive_slot = GetInactiveSlot();
+		if (!inactive_slot) [[unlikely]] return;
+		inactive_slot->busy.test_and_set(std::memory_order_release);
+		inactive_slot->pending_requests.fetch_add(1, std::memory_order_relaxed);
+		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), inactive_slot, values});
 		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
 	}
 
