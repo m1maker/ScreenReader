@@ -25,6 +25,7 @@ import Core.Object;
 import Core.OutputManager;
 
 void ObjectHandler::Handle(CObjectEvent& event) {
+	event.object.Fetch();
 	auto& _ = ScreenReaderApp::GetInstance().GetSettings();
 	auto& focus_manager = FocusManager::GetInstance();
 	auto& output_manager = OutputManager::GetInstance();

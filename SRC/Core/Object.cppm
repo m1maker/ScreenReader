@@ -448,7 +448,7 @@ template <> struct TObjectFetchValue<EObjectFetchValue::PARENT> final {
 	using type = void*;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::CHILDREN> {
-	using type = std::pmr::vector<void*>;
+	using type = std::vector<void*>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::SELECTED_CHILDREN> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {
@@ -460,7 +460,7 @@ template <> struct TObjectFetchValue<EObjectFetchValue::BOUNDS> final {
 	using type = SRect;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {
-	using type = std::pmr::string;
+	using type = std::string;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_VERSION> final
@@ -488,16 +488,16 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::TEXT_BY_GRANULARITY> final
 	: TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_TYPES> final {
-	using type = std::pmr::vector<EObjectAction>;
+	using type = std::vector<EObjectAction>;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> {
-	using type = std::pmr::vector<std::pmr::string>;
+	using type = std::vector<std::string>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_DESCRIPTIONS> final
 	: TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEYS> final {
-	using type = std::pmr::vector<SHotkeyInfo>;
+	using type = std::vector<SHotkeyInfo>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEY_STRINGS> final
@@ -520,7 +520,7 @@ struct TObjectFetchValue<EObjectFetchValue::VALUE_STEP> final : TObjectFetchValu
 template <>
 struct TObjectFetchValue<EObjectFetchValue::VALUE_STRING> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::RELATION_TYPES> final {
-	using type = std::pmr::vector<EObjectRelationType>;
+	using type = std::vector<EObjectRelationType>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::RELATION_TARGETS> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {};
@@ -572,10 +572,7 @@ public:
 	ObjectResult<FetchValueType<RELATION_TARGETS>> relation_targets;
 
 	SObjectFetchResult(std::pmr::memory_resource* new_pool)
-		: pool(new_pool), children(pool), selected_children(pool), toolkit_name(pool), toolkit_version(pool),
-		  name(pool), description(pool), help_text(pool), text(pool), text_selection(pool), text_by_granularity(pool),
-		  action_types(pool), action_names(pool), action_hotkeys(pool), value_string(pool), relation_types(pool),
-		  relation_targets(pool) {}
+		: pool(new_pool) {}
 	SObjectFetchResult(const SObjectFetchResult&) = delete;
 	auto operator=(const SObjectFetchResult&) = delete;
 	SObjectFetchResult(SObjectFetchResult&&) = delete;
