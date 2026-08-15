@@ -18,6 +18,7 @@
  */
 
 module;
+#include <assert.h>
 #include <atomic>
 #include <expected>
 #include <optional>
@@ -96,9 +97,10 @@ public:
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
 			return EObjectError::NOTHING_TO_FETCH;
 		auto inactive_slot = GetInactiveSlot();
+		auto inactive_slot_number = GetInactiveSlotNumber();
 		if (!inactive_slot || inactive_slot->busy.test(std::memory_order_acquire))
 			return EObjectError::BUSY;
-		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
+		GetData()->current_slot.store(inactive_slot_number, std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
 		return EObjectError::SUCCESS;
 	}
@@ -107,10 +109,11 @@ public:
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
 			return EObjectError::NOTHING_TO_FETCH;
 		auto inactive_slot = GetInactiveSlot();
+		auto inactive_slot_number = GetInactiveSlotNumber();
 		if (!inactive_slot)
 			return EObjectError::FETCH_SLOT_DEFUNCT;
 		inactive_slot->busy.wait(true, std::memory_order_acquire);
-		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
+		GetData()->current_slot.store(inactive_slot_number, std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
 		return EObjectError::SUCCESS;
 	}
@@ -118,6 +121,7 @@ public:
 		if (!GetData()->wants_to_switch.test(std::memory_order_acquire))
 			return EObjectError::NOTHING_TO_FETCH;
 		auto inactive_slot = GetInactiveSlot();
+		auto inactive_slot_number = GetInactiveSlotNumber();
 		if (!inactive_slot)
 			return EObjectError::FETCH_SLOT_DEFUNCT;
 
@@ -128,7 +132,7 @@ public:
 				return EObjectError::TIMEOUT;
 			std::this_thread::yield();
 		}
-		GetData()->current_slot.store(GetInactiveSlotNumber(), std::memory_order_release);
+		GetData()->current_slot.store(inactive_slot_number, std::memory_order_release);
 		GetData()->wants_to_switch.clear(std::memory_order_release);
 		return EObjectError::SUCCESS;
 	}
@@ -174,7 +178,14 @@ public:
 			}
 
 			active_slot = GetActiveSlot();
+			if (!active_slot) [[unlikely]]
+				return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
+				else if (active_slot->busy.test())
+return std::unexpected(EObjectError::BUSY);
+
 		}
+
+		assert(active_slot->pending_requests.load(std::memory_order_acquire) <= 0);
 
 		using enum EObjectFetchValue;
 		// It's sad that we don't have something like constexpr switch.
