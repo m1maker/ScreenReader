@@ -20,7 +20,7 @@
 module;
 #include <array>
 #include <atomic>
-#include <shared_mutex>
+#include <mutex>
 #include <unordered_map>
 #include <utility>
 export module Core.KeyboardHandler;
@@ -31,6 +31,8 @@ import Core.KeyInfo;
 import Core.Singleton;
 import Core.Timer;
 
+using KeycodeArray = std::array<std::atomic<unsigned char>, KEYCODE_COUNT>;
+
 export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSingleton<KeyboardHandler> {
 	struct SActionInfo final {
 		uint32_t id{0};
@@ -39,9 +41,9 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 	};
 
 	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
-	mutable std::shared_mutex m_actionsMutex;
+	mutable std::mutex m_actionsMutex;
 
-	std::atomic<unsigned char> m_keysDown;
+	KeycodeArray m_keysDown;
 
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.

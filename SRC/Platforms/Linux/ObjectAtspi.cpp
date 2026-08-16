@@ -222,5 +222,5 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	if (relation_set)
 		g_array_unref(relation_set);
 
-	slot->mask |= request->mask;
+	slot->mask = request->mask;
 }
