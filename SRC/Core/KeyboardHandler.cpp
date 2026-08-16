@@ -48,7 +48,7 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 [[nodiscard]] auto KeyboardHandler::GetModifiers() const -> ModifierMask {
 	ModifierMask mask;
 
-	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
+	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
 		auto keycode = static_cast<EKeycode>(i);
 		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
 			continue;
