@@ -27,10 +27,10 @@ import Core.KeyMeta;
 
 auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
 	{
-	std::shared_lock _(m_actionsMutex);
-	if (m_actions.find(hotkey) != m_actions.end()) {
-		return false;
-	}
+		std::shared_lock _(m_actionsMutex);
+		if (m_actions.find(hotkey) != m_actions.end()) {
+			return false;
+		}
 	}
 
 	std::unique_lock _(m_actionsMutex);
@@ -67,7 +67,8 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto keycode = event.keycode;
 	switch (type) {
 	case CKeyboardEvent::KEY_PRESSED:
-		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_or(1ULL << (std::to_underlying(keycode) % cWordDevider), std::memory_order::release);
+		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_or(
+			1ULL << (std::to_underlying(keycode) % cWordDevider), std::memory_order::release);
 		{
 			auto modifiers = GetModifiers();
 			for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
@@ -92,7 +93,9 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 		}
 		break;
 	case CKeyboardEvent::KEY_RELEASED:
-		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_and(~(1ULL << (std::to_underlying(keycode) % cWordDevider)), std::memory_order::release);		break;
+		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_and(
+			~(1ULL << (std::to_underlying(keycode) % cWordDevider)), std::memory_order::release);
+		break;
 	default:
 		break;
 	}
@@ -103,7 +106,8 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 
 	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
 		auto down = m_keysDown[i / cWordDevider].load(std::memory_order::acquire) & 1ULL << (i % cWordDevider);
-		if (!down) continue;
+		if (!down)
+			continue;
 		mask[i] = true;
 	}
 }
