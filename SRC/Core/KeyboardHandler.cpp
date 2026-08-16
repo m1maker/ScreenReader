@@ -48,12 +48,11 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 [[nodiscard]] auto KeyboardHandler::GetModifiers() const -> ModifierMask {
 	ModifierMask mask;
 
-	auto loaded_state = m_keysDown.load(std::memory_order::acquire);
 	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
 		auto keycode = static_cast<EKeycode>(i);
 		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
 			continue;
-		else if (loaded_state & 1 << i) {
+		else if (m_keysDown[i / cWordDevider].load(std::memory_order::acquire) & 1ULL << (i % cWordDevider)) {
 			auto modifier = GetModifierFromKeycode(keycode);
 			if (modifier != MODIFIER_NONE)
 				mask[std::to_underlying(modifier)] = true;
@@ -68,7 +67,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto keycode = event.keycode;
 	switch (type) {
 	case CKeyboardEvent::KEY_PRESSED:
-		m_keysDown.fetch_or(1 << std::to_underlying(keycode), std::memory_order::release);
+		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_or(1ULL << (std::to_underlying(keycode) % cWordDevider), std::memory_order::release);
 		{
 			auto modifiers = GetModifiers();
 			for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
@@ -93,19 +92,26 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 		}
 		break;
 	case CKeyboardEvent::KEY_RELEASED:
-		m_keysDown.fetch_and(~(1 << std::to_underlying(keycode)), std::memory_order::release);
-		break;
+		m_keysDown[(std::to_underlying(keycode)) / cWordDevider].fetch_and(~(1ULL << (std::to_underlying(keycode) % cWordDevider)), std::memory_order::release);		break;
 	default:
 		break;
 	}
 }
 
 [[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeycodeMask {
-	return m_keysDown.load(std::memory_order::acquire);
+	KeycodeMask mask;
+
+	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
+		auto down = m_keysDown[i / cWordDevider].load(std::memory_order::acquire) & 1ULL << (i % cWordDevider);
+		if (!down) continue;
+		mask[i] = true;
+	}
 }
 
 void KeyboardHandler::ResetState() {
-	m_keysDown.store(0, std::memory_order::acq_rel);
+	for (size_t i = 0; i < cKeycodeArraySize; ++i) {
+		m_keysDown[i].store(0, std::memory_order::acq_rel);
+	}
 }
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(EKeycode keycode) const -> bool {

@@ -31,6 +31,9 @@ import Core.KeyInfo;
 import Core.Singleton;
 import Core.Timer;
 
+inline constexpr size_t cWordDevider = 64;
+inline constexpr size_t cKeycodeArraySize = 4;
+
 export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSingleton<KeyboardHandler> {
 	struct SActionInfo final {
 		uint32_t id{0};
@@ -41,7 +44,7 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
 	mutable std::shared_mutex m_actionsMutex;
 
-	std::atomic<unsigned char> m_keysDown;
+	std::atomic<unsigned long long int> m_keysDown[cKeycodeArraySize];
 
 	/*
 	These are the modifier keys that screen reader uses for its ke bindings.
