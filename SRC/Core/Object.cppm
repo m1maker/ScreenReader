@@ -552,7 +552,7 @@ export struct SObjectFetchResult final {
 		if (!allocated) [[unlikely]] return;
 
 		std::memcpy(allocated, data.data(), data.size());
-		memory = (const char*) allocated;
+		memory = std::string_view((const char*) allocated, data.size());
 	}
 	template<typename T> void MakeCopy(std::span<T> data, ObjectResult<std::span<T>>& memory) {
 		if (!pool) [[unlikely]] return;
@@ -563,7 +563,7 @@ export struct SObjectFetchResult final {
 		if (!allocated) [[unlikely]] return;
 
 		std::memcpy(allocated, data.data(), data.size());
-		memory = (T*) allocated;
+		memory = std::span<T>((T*) allocated, data.size());
 	}
 
 	ObjectFetchMask mask;
