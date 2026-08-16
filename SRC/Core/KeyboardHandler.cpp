@@ -100,13 +100,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 [[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeycodeMask {
-	KeycodeMask mask;
-
-	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
-		mask[i] = m_keysDown.load(std::memory_order::acquire) & 1 << i;
-	}
-
-	return mask;
+	return m_keysDown.load(std::memory_order::acquire);
 }
 
 void KeyboardHandler::ResetState() {
