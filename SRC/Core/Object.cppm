@@ -450,7 +450,7 @@ template <> struct TObjectFetchValue<EObjectFetchValue::PARENT> final {
 	using type = void*;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::CHILDREN> {
-	using type = std::vector<void*>;
+	using type = std::span<void*>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::SELECTED_CHILDREN> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {
@@ -490,16 +490,16 @@ template <>
 struct TObjectFetchValue<EObjectFetchValue::TEXT_BY_GRANULARITY> final
 	: TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_TYPES> final {
-	using type = std::vector<EObjectAction>;
+	using type = std::span<EObjectAction>;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> {
-	using type = std::vector<std::string>;
+	using type = std::span<std::string_view>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_DESCRIPTIONS> final
 	: TObjectFetchValue<EObjectFetchValue::ACTION_NAMES> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEYS> final {
-	using type = std::vector<SHotkeyInfo>;
+	using type = std::span<SHotkeyInfo>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::ACTION_HOTKEY_STRINGS> final
@@ -522,7 +522,7 @@ struct TObjectFetchValue<EObjectFetchValue::VALUE_STEP> final : TObjectFetchValu
 template <>
 struct TObjectFetchValue<EObjectFetchValue::VALUE_STRING> final : TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::RELATION_TYPES> final {
-	using type = std::vector<EObjectRelationType>;
+	using type = std::span<EObjectRelationType>;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::RELATION_TARGETS> final : TObjectFetchValue<EObjectFetchValue::CHILDREN> {};
@@ -543,10 +543,10 @@ export struct SObjectFetchResult final {
 
 	std::pmr::memory_resource* pool;
 
-	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) {
+	void MakeCopy(std::string_view data, std::string_view& memory) {
 		if (!pool) [[unlikely]] return;
-		if (memory.has_value()) {
-			pool->deallocate((void*) memory->data(), memory->size());
+		if (memory.data()) {
+			pool->deallocate((void*) memory.data(), memory.size());
 		}
 		auto allocated = pool->allocate(data.size());
 		if (!allocated) [[unlikely]] return;
@@ -554,6 +554,8 @@ export struct SObjectFetchResult final {
 		std::memcpy(allocated, data.data(), data.size());
 		memory = std::string_view((const char*) allocated, data.size());
 	}
+	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) { if (!memory.has_value()) return; MakeCopy(data, *memory); }
+
 	template<typename T> void MakeCopy(std::span<T> data, ObjectResult<std::span<T>>& memory) {
 		if (!pool) [[unlikely]] return;
 		if (memory.has_value()) {
@@ -564,6 +566,17 @@ export struct SObjectFetchResult final {
 
 		std::memcpy(allocated, data.data(), data.size());
 		memory = std::span<T>((T*) allocated, data.size());
+	}
+
+	template<typename T> void ReserveMemory(size_t size, ObjectResult<std::span<T>>& memory) {
+		if (!pool) [[unlikely]] return;
+		if (memory.has_value()) {
+			pool->deallocate((void*) memory->data(), memory->size());
+		}
+		auto allocated = pool->allocate(size * sizeof(T));
+		if (!allocated) [[unlikely]] return;
+
+		memory = std::span<T>((T*) allocated, size);
 	}
 
 	ObjectFetchMask mask;

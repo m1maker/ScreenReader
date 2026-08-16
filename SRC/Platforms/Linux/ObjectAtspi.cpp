@@ -77,7 +77,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::CHILDREN))) {
 		auto native_children_count = atspi_accessible_get_child_count(native_handle, nullptr);
-		slot->children->resize(native_children_count);
+		slot->ReserveMemory(native_children_count, slot->children);
 		for (auto i = 0; i < native_children_count; ++i) {
 			auto native_child = atspi_accessible_get_child_at_index(native_handle, i, nullptr);
 			if (!native_child)
@@ -127,7 +127,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::SELECTED_CHILDREN))) {
 		GetInterfaceIfNeeded<AtspiSelection, atspi_accessible_get_selection_iface>(native_handle, selection_interface);
 		auto native_selected_children_count = atspi_selection_get_n_selected_children(selection_interface, nullptr);
-		slot->children->resize(native_selected_children_count);
+		slot->ReserveMemory(native_selected_children_count, slot->selected_children);
 		for (auto i = 0; i < native_selected_children_count; ++i) {
 			auto native_selected_child = atspi_selection_get_selected_child(selection_interface, i, nullptr);
 			if (!native_selected_child)
@@ -148,13 +148,13 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
 			action_interface, nullptr, action_count);
 
-		slot->action_names->resize(action_count);
+		slot->ReserveMemory(action_count, slot->action_names);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_name = atspi_action_get_action_name(action_interface, i, nullptr);
 			if (!action_name)
 				continue;
 
-			slot->action_names->operator[](i) = action_name;
+			slot->MakeCopy(action_name, slot->action_names->operator[](i));
 			g_free(action_name);
 		}
 	}
@@ -163,13 +163,13 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
 			action_interface, nullptr, action_count);
 
-		slot->action_descriptions->resize(action_count);
+		slot->ReserveMemory(action_count, slot->action_descriptions);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_description = atspi_action_get_action_description(action_interface, i, nullptr);
 			if (!action_description)
 				continue;
 
-			slot->action_descriptions->operator[](i) = action_description;
+			slot->MakeCopy(action_description, slot->action_descriptions->operator[](i));
 			g_free(action_description);
 		}
 	}
@@ -185,13 +185,13 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 		GetInterfaceValueIfNeeded<int, AtspiAction, atspi_action_get_n_actions>(
 			action_interface, nullptr, action_count);
 
-		slot->action_hotkey_strings->resize(action_count);
+		slot->ReserveMemory(action_count, slot->action_hotkey_strings);
 		for (auto i = 0; i < action_count; ++i) {
 			auto action_hotkey_string = atspi_action_get_key_binding(action_interface, i, nullptr);
 			if (!action_hotkey_string)
 				continue;
 
-			slot->action_hotkey_strings->operator[](i) = action_hotkey_string;
+			slot->MakeCopy(action_hotkey_string, slot->action_hotkey_strings->operator[](i));
 			g_free(action_hotkey_string);
 		}
 	}
