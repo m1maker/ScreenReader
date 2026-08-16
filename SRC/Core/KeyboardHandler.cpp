@@ -20,16 +20,20 @@
 module;
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 #include <utility>
 module Core.KeyboardHandler;
 import Core.KeyMeta;
 
 auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
-	std::scoped_lock _(m_actionsMutex);
+	{
+	std::shared_lock _(m_actionsMutex);
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
+	}
 
+	std::unique_lock _(m_actionsMutex);
 	m_actions[hotkey].id = type;
 	m_actions[hotkey].executable = TActions<SHotkeyInfo>::GetStaticExecutable(type);
 	m_actions[hotkey].hook = hook;
@@ -37,7 +41,7 @@ auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hoo
 }
 
 void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
-	std::scoped_lock _(m_actionsMutex);
+	std::unique_lock _(m_actionsMutex);
 	m_actions.erase(action);
 }
 

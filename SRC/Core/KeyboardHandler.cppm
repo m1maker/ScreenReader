@@ -20,7 +20,7 @@
 module;
 #include <array>
 #include <atomic>
-#include <mutex>
+#include <shared_mutex>
 #include <unordered_map>
 #include <utility>
 export module Core.KeyboardHandler;
@@ -39,7 +39,7 @@ export class KeyboardHandler final : TModule<"KeyboardHandler">, public TSinglet
 	};
 
 	std::unordered_map<SHotkeyInfo, SActionInfo> m_actions;
-	mutable std::mutex m_actionsMutex;
+	mutable std::shared_mutex m_actionsMutex;
 
 	std::atomic<unsigned char> m_keysDown;
 
