@@ -73,7 +73,8 @@ protected:
 
 	void PushFetchRequest(ObjectFetchMask values) const {
 		auto inactive_slot = GetInactiveSlot();
-		if (!inactive_slot) [[unlikely]] return;
+		if (!inactive_slot) [[unlikely]]
+			return;
 		inactive_slot->busy.test_and_set(std::memory_order_release);
 		inactive_slot->pending_requests.fetch_add(1, std::memory_order_relaxed);
 		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), inactive_slot, values});
@@ -180,9 +181,8 @@ public:
 			active_slot = GetActiveSlot();
 			if (!active_slot) [[unlikely]]
 				return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
-				else if (active_slot->busy.test())
-return std::unexpected(EObjectError::BUSY);
-
+			else if (active_slot->busy.test())
+				return std::unexpected(EObjectError::BUSY);
 		}
 
 		assert(active_slot->pending_requests.load(std::memory_order_acquire) <= 0);

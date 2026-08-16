@@ -19,12 +19,12 @@
 
 module;
 #include <atomic>
-#include <cstring>
 #include <bitset>
+#include <cstring>
 #include <expected>
 #include <memory_resource>
-#include <string>
 #include <span>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -544,39 +544,49 @@ export struct SObjectFetchResult final {
 	std::pmr::memory_resource* pool;
 
 	void MakeCopy(std::string_view data, std::string_view& memory) {
-		if (!pool) [[unlikely]] return;
+		if (!pool) [[unlikely]]
+			return;
 		if (memory.data()) {
-			pool->deallocate((void*) memory.data(), memory.size());
+			pool->deallocate((void*)memory.data(), memory.size());
 		}
 		auto allocated = pool->allocate(data.size());
-		if (!allocated) [[unlikely]] return;
+		if (!allocated) [[unlikely]]
+			return;
 
 		std::memcpy(allocated, data.data(), data.size());
-		memory = std::string_view((const char*) allocated, data.size());
+		memory = std::string_view((const char*)allocated, data.size());
 	}
-	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) { if (!memory.has_value()) return; MakeCopy(data, *memory); }
+	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) {
+		if (!memory.has_value())
+			return;
+		MakeCopy(data, *memory);
+	}
 
-	template<typename T> void MakeCopy(std::span<T> data, ObjectResult<std::span<T>>& memory) {
-		if (!pool) [[unlikely]] return;
+	template <typename T> void MakeCopy(std::span<T> data, ObjectResult<std::span<T>>& memory) {
+		if (!pool) [[unlikely]]
+			return;
 		if (memory.has_value()) {
-			pool->deallocate((void*) memory->data(), memory->size());
+			pool->deallocate((void*)memory->data(), memory->size());
 		}
 		auto allocated = pool->allocate(data.size());
-		if (!allocated) [[unlikely]] return;
+		if (!allocated) [[unlikely]]
+			return;
 
 		std::memcpy(allocated, data.data(), data.size());
-		memory = std::span<T>((T*) allocated, data.size());
+		memory = std::span<T>((T*)allocated, data.size());
 	}
 
-	template<typename T> void ReserveMemory(size_t size, ObjectResult<std::span<T>>& memory) {
-		if (!pool) [[unlikely]] return;
+	template <typename T> void ReserveMemory(size_t size, ObjectResult<std::span<T>>& memory) {
+		if (!pool) [[unlikely]]
+			return;
 		if (memory.has_value()) {
-			pool->deallocate((void*) memory->data(), memory->size());
+			pool->deallocate((void*)memory->data(), memory->size());
 		}
 		auto allocated = pool->allocate(size * sizeof(T));
-		if (!allocated) [[unlikely]] return;
+		if (!allocated) [[unlikely]]
+			return;
 
-		memory = std::span<T>((T*) allocated, size);
+		memory = std::span<T>((T*)allocated, size);
 	}
 
 	ObjectFetchMask mask;
@@ -610,8 +620,7 @@ public:
 	ObjectResult<FetchValueType<RELATION_TYPES>> relation_types;
 	ObjectResult<FetchValueType<RELATION_TARGETS>> relation_targets;
 
-	SObjectFetchResult(std::pmr::memory_resource* new_pool)
-		: pool(new_pool) {}
+	SObjectFetchResult(std::pmr::memory_resource* new_pool) : pool(new_pool) {}
 	SObjectFetchResult(const SObjectFetchResult&) = delete;
 	auto operator=(const SObjectFetchResult&) = delete;
 	SObjectFetchResult(SObjectFetchResult&&) = delete;
