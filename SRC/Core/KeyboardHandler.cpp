@@ -78,7 +78,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 				}
 			}
 			SHotkeyInfo hotkey(keycode, modifiers);
-			std::scoped_lock _(m_actionsMutex);
+			std::shared_lock _(m_actionsMutex);
 			auto it = m_actions.find(hotkey);
 			if (it == m_actions.end()) {
 				it = m_actions.find(SHotkeyInfo::GetAny());
