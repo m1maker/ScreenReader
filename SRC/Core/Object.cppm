@@ -24,6 +24,7 @@ module;
 #include <expected>
 #include <memory_resource>
 #include <string>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -552,6 +553,17 @@ export struct SObjectFetchResult final {
 
 		std::memcpy(allocated, data.data(), data.size());
 		memory = (const char*) allocated;
+	}
+	template<typename T> void MakeCopy(std::span<T> data, ObjectResult<std::span<T>>& memory) {
+		if (!pool) [[unlikely]] return;
+		if (memory.has_value()) {
+			pool->deallocate((void*) memory->data(), memory->size());
+		}
+		auto allocated = pool->allocate(data.size());
+		if (!allocated) [[unlikely]] return;
+
+		std::memcpy(allocated, data.data(), data.size());
+		memory = (T*) allocated;
 	}
 
 	ObjectFetchMask mask;
