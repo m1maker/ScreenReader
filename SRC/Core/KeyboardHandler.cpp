@@ -18,17 +18,22 @@
  */
 
 module;
+#include <atomic>
 #include <mutex>
+#include <shared_mutex>
 #include <utility>
 module Core.KeyboardHandler;
 import Core.KeyMeta;
 
 auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hook) -> bool {
-	std::scoped_lock _(m_actionsMutex);
+	{
+	std::shared_lock _(m_actionsMutex);
 	if (m_actions.find(hotkey) != m_actions.end()) {
 		return false;
 	}
+	}
 
+	std::unique_lock _(m_actionsMutex);
 	m_actions[hotkey].id = type;
 	m_actions[hotkey].executable = TActions<SHotkeyInfo>::GetStaticExecutable(type);
 	m_actions[hotkey].hook = hook;
@@ -36,18 +41,19 @@ auto KeyboardHandler::RegisterAction(SHotkeyInfo hotkey, uint32_t type, bool hoo
 }
 
 void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
-	std::scoped_lock _(m_actionsMutex);
+	std::unique_lock _(m_actionsMutex);
 	m_actions.erase(action);
 }
 
 [[nodiscard]] auto KeyboardHandler::GetModifiers() const -> ModifierMask {
 	ModifierMask mask;
 
-	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
+	auto loaded_state = m_keysDown.load(std::memory_order::acquire);
+	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
 		auto keycode = static_cast<EKeycode>(i);
 		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
 			continue;
-		else if (m_keysDown[keycode].load() > 0) {
+		else if (loaded_state & 1 << i) {
 			auto modifier = GetModifierFromKeycode(keycode);
 			if (modifier != MODIFIER_NONE)
 				mask[std::to_underlying(modifier)] = true;
@@ -62,7 +68,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 	auto keycode = event.keycode;
 	switch (type) {
 	case CKeyboardEvent::KEY_PRESSED:
-		m_keysDown[keycode].store(1);
+		m_keysDown.fetch_or(1 << std::to_underlying(keycode), std::memory_order::release);
 		{
 			auto modifiers = GetModifiers();
 			for (unsigned char i = MODIFIER_NONE; i < MODIFIER_COUNT; ++i) {
@@ -73,7 +79,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 				}
 			}
 			SHotkeyInfo hotkey(keycode, modifiers);
-			std::scoped_lock _(m_actionsMutex);
+			std::shared_lock _(m_actionsMutex);
 			auto it = m_actions.find(hotkey);
 			if (it == m_actions.end()) {
 				it = m_actions.find(SHotkeyInfo::GetAny());
@@ -87,7 +93,7 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 		}
 		break;
 	case CKeyboardEvent::KEY_RELEASED:
-		m_keysDown[keycode].store(0);
+		m_keysDown.fetch_and(~(1 << std::to_underlying(keycode)), std::memory_order::release);
 		break;
 	default:
 		break;
@@ -95,19 +101,11 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 }
 
 [[nodiscard]] auto KeyboardHandler::GetKeysDown() const -> KeycodeMask {
-	KeycodeMask mask;
-
-	for (size_t i = KEYCODE_NONE; i < KEYCODE_COUNT; ++i) {
-		mask[i] = m_keysDown[i].load();
-	}
-
-	return mask;
+	return m_keysDown.load(std::memory_order::acquire);
 }
 
 void KeyboardHandler::ResetState() {
-	for (auto&& keycode : m_keysDown) {
-		keycode.store(0);
-	}
+	m_keysDown.store(0, std::memory_order::acq_rel);
 }
 
 [[nodiscard]] auto KeyboardHandler::IsHooked(EKeycode keycode) const -> bool {
