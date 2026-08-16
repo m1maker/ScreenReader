@@ -544,6 +544,9 @@ export struct SObjectFetchResult final {
 
 	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) {
 		if (!pool) [[unlikely]] return;
+		if (memory.has_value()) {
+			pool->deallocate((void*) memory->data(), memory->size());
+		}
 		auto allocated = pool->allocate(data.size());
 		if (!allocated) [[unlikely]] return;
 
