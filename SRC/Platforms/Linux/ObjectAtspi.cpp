@@ -95,7 +95,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->toolkit_name = std::unexpected(EObjectError::FAIL);
 		}
 		else
-			slot->toolkit_name = toolkit_name;
+			slot->MakeCopy(toolkit_name, slot->toolkit_name);
 		g_free(toolkit_name);
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::NAME))) {
@@ -104,7 +104,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->name = std::unexpected(EObjectError::FAIL);
 		}
 		else
-			slot->name = name;
+			slot->MakeCopy(name, slot->name);
 		g_free(name);
 	}
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::DESCRIPTION))) {
@@ -113,7 +113,7 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 			slot->description = std::unexpected(EObjectError::FAIL);
 		}
 		else
-			slot->description = description;
+			slot->MakeCopy(description, slot->description);
 		g_free(description);
 	}
 

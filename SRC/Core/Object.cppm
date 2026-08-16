@@ -19,6 +19,7 @@
 
 module;
 #include <atomic>
+#include <cstring>
 #include <bitset>
 #include <expected>
 #include <memory_resource>
@@ -460,7 +461,7 @@ template <> struct TObjectFetchValue<EObjectFetchValue::BOUNDS> final {
 	using type = SRect;
 };
 template <> struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_NAME> {
-	using type = std::string;
+	using type = std::string_view;
 };
 template <>
 struct TObjectFetchValue<EObjectFetchValue::TOOLKIT_VERSION> final
@@ -540,6 +541,16 @@ export struct SObjectFetchResult final {
 	}
 
 	std::pmr::memory_resource* pool;
+
+	void MakeCopy(std::string_view data, ObjectResult<std::string_view>& memory) {
+		if (!pool) [[unlikely]] return;
+		auto allocated = pool->allocate(data.size());
+		if (!allocated) [[unlikely]] return;
+
+		std::memcpy(allocated, data.data(), data.size());
+		memory = (const char*) allocated;
+	}
+
 	ObjectFetchMask mask;
 
 private:
