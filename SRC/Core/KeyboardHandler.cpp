@@ -48,11 +48,12 @@ void KeyboardHandler::UnregisterAction(SHotkeyInfo action) {
 [[nodiscard]] auto KeyboardHandler::GetModifiers() const -> ModifierMask {
 	ModifierMask mask;
 
+	auto loaded_state = m_keysDown.load(std::memory_order::acquire);
 	for (unsigned char i = 0; i < std::to_underlying(EKeycode::KEYCODE_COUNT); ++i) {
 		auto keycode = static_cast<EKeycode>(i);
 		if (!IsKeycodeInGroup(keycode, EKeyGroup::MODIFIER))
 			continue;
-		else if (m_keysDown.load(std::memory_order::acquire) & 1 << keycode) {
+		else if (loaded_state & 1 << i) {
 			auto modifier = GetModifierFromKeycode(keycode);
 			if (modifier != MODIFIER_NONE)
 				mask[std::to_underlying(modifier)] = true;
