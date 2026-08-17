@@ -110,6 +110,8 @@ void KeyboardHandler::Handle(CKeyboardEvent& event) {
 			continue;
 		mask[i] = true;
 	}
+
+	return mask;
 }
 
 void KeyboardHandler::ResetState() {
