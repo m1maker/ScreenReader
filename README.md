@@ -3,30 +3,23 @@
 > [!NOTE]
 > This project in active development. It's not cross-platform yet (linux only, but it's a start). There are not many possibilities, and the documentation is incomplete. Any contributions will be appreciated! I have the motivation to develop it.
 
-A cross-platform, native screen reader designed for accessibility and performance. Built with C++ and a modular architecture to support multiple platforms and accessibility APIs.
+A cross-platform, native screen reader.
 
-## 🌍 Language Note
+## Why?
 
-*Note: I am not a native English speaker. All documentation, including this README, has been written with AI assistance to ensure clarity and proper grammar while maintaining the technical accuracy of the project descriptions.*
+Of course, we already have screen readers. However, they are united by the fact that each of them was created for a specific OS/accessibility interface and they have almost no abstractions.
+I'm trying to make sure that I abstract the SR core as much as possible from platform-dependent libraries in order to run it not only on Linux in the future.
+Of course, I'm not saying that this is a production ready project and I still have a lot of work to do, but still I hope it's not in vain.
 
-## 🌟 Overview
+## Architecture
 
-This project aims to create a modern, open-source screen reader that provides:
-- **Native performance** through C++ implementation
-- **Cross-platform support** (only Linux)
-- **Modular architecture** for easy extensibility
+In general, the project can be divided into two parts: the core and the platform implementation.
+Please note that platform implementations interact with the core in different ways: someone just uses interfaces/`std::variant` abstractions, but the main accessibility object, or some parts of the event listener implementations uses an asynchronous request queue.
 
-## 🏗️ Architecture
-
-### Core Design Principles
-- **Interface/variant-based abstraction** - All platform-specific code wrapped in single or variant types
-- **Minimum dependencies** - Only essential components, all abstracted
-- **Extensible design** - Easy to add new features and platform support
-
-## 🛠️ Building and running
+## Building and running
 
 ### Prerequisites
-- C++26 compatible compiler (only LLVM/clang supported)
+- C++26 compatible compiler (only LLVM/clang supported).
 - CMake 3.28+
 - Ninja
 - Platform-specific accessibility libraries (AT-SPI 2 core)
@@ -52,10 +45,10 @@ And then run the ScreenReader
 build/screenreader
 ```
 
-## 🤝 Contributing
+### Just using
 
-This project is currently in active development. Contributions are welcome!
+Please note that this is not production ready and do not be surprised if something does not work at all or has stopped working. The project has gone through a lot of rewrites, and still some components are either completely changed or removed altogether. As long as you see this message in the README, it means that this SR cannot be used every day yet and it is very, very, very unfinished.
 
-## 📄 License
+## License
 
 GPL-3.0
