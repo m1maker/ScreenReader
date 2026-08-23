@@ -181,7 +181,7 @@ public:
 			active_slot = GetActiveSlot();
 			if (!active_slot) [[unlikely]]
 				return std::unexpected(EObjectError::FETCH_SLOT_DEFUNCT);
-			else if (active_slot->busy.test())
+			else if (active_slot->busy.test(std::memory_order::acquire))
 				return std::unexpected(EObjectError::BUSY);
 		}
 
