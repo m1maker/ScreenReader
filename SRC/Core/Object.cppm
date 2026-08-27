@@ -591,7 +591,7 @@ export struct SObjectFetchResult final {
 		if (!allocated) [[unlikely]]
 			return;
 
-		memory = std::span<T>((T*)allocated, size * sizeof(T));
+		memory = std::span<T>((T*)allocated, size);
 	}
 	template <typename T> void ReserveMemory(size_t size, ObjectResult<std::span<T>>& memory) {
 		if (!memory.has_value())
