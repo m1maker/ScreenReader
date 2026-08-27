@@ -586,7 +586,7 @@ export struct SObjectFetchResult final {
 		if (!allocated) [[unlikely]]
 			return;
 
-		memory = std::span<T>((T*)allocated, size);
+		memory = std::span<T>((T*)allocated, size * sizeof(T));
 	}
 
 	ObjectFetchMask mask;
