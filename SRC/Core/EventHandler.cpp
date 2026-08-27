@@ -72,36 +72,8 @@ void EventHandler::Start() {
 		while (!stop_token.stop_requested()) {
 			auto event = m_eventQueue.Pop();
 			if (event) [[likely]] {
-				if (std::holds_alternative<CObjectEvent>(event.value().operator EventVariant())) {
-					auto pool = m_eventQueue.GetPool();
-					if (!pool) [[unlikely]] {
-						Log(ERROR,
-							"Failed to get memory resource from event queue. It is not possible to allocate data to "
-							"move the object event for handling to the main thread");
-						continue;
-					}
-					auto raw = pool->allocate(sizeof(CEvent));
-					auto raw_event = new (raw) CEvent(std::move(event.value()));
-					m_listener.PushToMainThread(
-						[](void* pData) -> void {
-							if (!pData) [[unlikely]] {
-								return;
-							}
-							auto event_casted = static_cast<CEvent*>(pData);
-							EventHandler::GetInstance().Handle(std::move(*event_casted));
-							auto pool = EventQueue::GetInstance().GetPool();
-							if (!pool) [[unlikely]] {
-								return;
-							}
-							event_casted->~CEvent();
-							pool->deallocate(pData, sizeof(CEvent));
-						},
-						raw_event);
+				Handle(std::move(event.value()));
 				}
-				else {
-					Handle(std::move(event.value()));
-				}
-			}
 		}
 
 		m_listener.ListenDevice(EDeviceType::KEYBOARD, false);
