@@ -390,6 +390,8 @@ export enum class EObjectRelationType : unsigned char {
 export enum class EObjectFetchValue : unsigned char {
 	UNKNOWN = 0,
 
+	DESTROY,
+
 	TYPE,
 	STATES,
 	CAPABILITIES,
@@ -437,6 +439,7 @@ export template <EObjectFetchValue Value = EObjectFetchValue::UNKNOWN> struct TO
 };
 
 template <> struct TObjectFetchValue<EObjectFetchValue::COUNT> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
+template <> struct TObjectFetchValue<EObjectFetchValue::DESTROY> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::TYPE> final {
 	using type = EObjectType;
 };

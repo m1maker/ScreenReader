@@ -84,12 +84,7 @@ protected:
 public:
 	// TAtomicRefCountedObject
 	void do_OnDestroy() noexcept {
-		/*
-				static_cast<void>(With<>([](auto&& obj) {
-					obj.OnDestroy();
-					return ObjectResult<>();
-				}));
-		*/
+		Fetch(ObjectFetchMask(std::to_underlying(EObjectFetchValue::DESTROY)), EObjectFetchMode::ASYNC, 0);
 	}
 
 	[[nodiscard]] auto GetNativeHandle() const noexcept -> void* { return GetData()->native_handle; }

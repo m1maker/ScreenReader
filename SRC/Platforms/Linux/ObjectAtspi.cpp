@@ -53,6 +53,12 @@ void ObjectAtspiFetch(const SObjectFetchRequest* request) noexcept {
 
 	auto slot = request->slot;
 	auto native_handle = static_cast<AtspiAccessible*>(request->native_handle);
+	if (request->mask.test(std::to_underlying(EObjectFetchValue::DESTROY)) && native_handle) {
+		g_object_unref(native_handle);
+		TObjectCache<AtspiAccessible*>::GetInstance().Remove(native_handle);
+		return;
+	}
+
 	if (request->mask.test(std::to_underlying(EObjectFetchValue::TYPE))) {
 		auto native_role = atspi_accessible_get_role(native_handle, nullptr);
 		slot->type = GetObjectTypeFromAtspiRole(native_role);
