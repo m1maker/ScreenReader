@@ -166,12 +166,13 @@ public:
 	void Loop() {
 		m_fetchThread = std::jthread([](const std::stop_token& stop_token) {
 			while (!stop_token.stop_requested()) {
-				auto request = ObjectFetchQueue::GetInstance().Pop();
-				if (!request || !request->slot) [[unlikely]]
+				SObjectFetchRequest request;
+				auto found = ObjectFetchQueue::GetInstance().try_dequeue(request);
+				if (!found) 
 					continue;
 
-				ObjectAtspiFetch(&request.value());
-				request->slot->Done();
+				ObjectAtspiFetch(&request);
+				request.slot->Done();
 			}
 		});
 		if (m_atspiInitialized) {

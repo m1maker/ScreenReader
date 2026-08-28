@@ -20,6 +20,7 @@
 module;
 #include <atomic>
 #include <bitset>
+#include <concurrentqueue.h>
 #include <cstring>
 #include <expected>
 #include <memory_resource>
@@ -31,8 +32,8 @@ module;
 export module Core.Object;
 import Core.KeyInfo;
 import Core.Rect;
+import Core.Singleton;
 import Core.Text;
-import Core.ThreadSafeQueue;
 
 export enum class EObjectProvider : unsigned char {
 	UNKNOWN = 0,
@@ -646,4 +647,4 @@ export struct SObjectFetchRequest final {
 	ObjectFetchMask mask;
 };
 
-export using ObjectFetchQueue = TThreadSafeQueue<SObjectFetchRequest>;
+export using ObjectFetchQueue = TSingleton<moodycamel::ConcurrentQueue<SObjectFetchRequest>, ESingletonConstructorAccessModifier::PRIVATE>;

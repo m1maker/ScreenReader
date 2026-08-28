@@ -77,7 +77,7 @@ protected:
 			return;
 		inactive_slot->busy.test_and_set(std::memory_order_release);
 		inactive_slot->pending_requests.fetch_add(1, std::memory_order_relaxed);
-		ObjectFetchQueue::GetInstance().Push(SObjectFetchRequest{GetNativeHandle(), inactive_slot, values});
+		ObjectFetchQueue::GetInstance().enqueue(SObjectFetchRequest{GetNativeHandle(), inactive_slot, values});
 		GetData()->wants_to_switch.test_and_set(std::memory_order_release);
 	}
 

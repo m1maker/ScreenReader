@@ -42,6 +42,9 @@ set(CMAKE_LINKER_TYPE LLD)
 
 project(screenreader VERSION 1.0.0 LANGUAGES CXX)
 
+add_subdirectory(concurrentqueue)
+include_directories(${CMAKE_SOURCE_DIR}/concurrentqueue)
+
 include(FetchContent)
 
 FetchContent_Declare(
