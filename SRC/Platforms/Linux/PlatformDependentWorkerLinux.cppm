@@ -164,17 +164,16 @@ public:
 	}
 
 	void Loop() {
-		m_fetchThread = std::jthread([](const std::stop_token& stop_token) {
-			while (!stop_token.stop_requested()) {
+		g_idle_add([]([[maybe_unused]] gpointer user_data) -> gboolean {
 				SObjectFetchRequest request;
 				auto found = ObjectFetchQueue::GetInstance().try_dequeue(request);
 				if (!found) 
-					continue;
+					return G_SOURCE_CONTINUE;
 
 				ObjectAtspiFetch(&request);
 				request.slot->Done();
-			}
-		});
+return G_SOURCE_CONTINUE;
+		}, nullptr);
 		if (m_atspiInitialized) {
 			atspi_event_main();
 			auto* context = g_main_context_default();
