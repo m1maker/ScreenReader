@@ -36,7 +36,6 @@ import Platforms.Linux.Object;
 We will also handle signals here to ensure safe exit.
 */
 export class CPlatformDependentWorkerLinux final {
-	std::jthread m_fetchThread;
 	bool m_atspiInitialized{false};
 
 	enum class EDbusError : signed int {
@@ -158,13 +157,12 @@ public:
 	}
 
 	~CPlatformDependentWorkerLinux() {
-		m_fetchThread.request_stop();
 		if (m_atspiInitialized)
 			atspi_exit();
 	}
 
 	void Loop() {
-		g_idle_add([]([[maybe_unused]] gpointer user_data) -> gboolean {
+		g_timeout_add(1, []([[maybe_unused]] gpointer user_data) -> gboolean {
 				SObjectFetchRequest request;
 				auto found = ObjectFetchQueue::GetInstance().try_dequeue(request);
 				if (!found) 
