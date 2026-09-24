@@ -37,6 +37,7 @@ import Core.Singleton;
 import Core.SpeechSystem;
 
 export class ScreenReaderApp final : TModule<"Application">, public TSingleton<ScreenReaderApp> {
+	static constexpr inline unsigned int cMaxLoopRestarts = 5;
 	SScreenReaderAppSettings m_settings;
 
 	/*
@@ -77,7 +78,11 @@ public:
 		while (g_running.load()) {
 			Log(DEBUG, "Main loop running. Attempt: {}", m_loopRestartAttempts + 1);
 			m_worker.Loop();
-			++m_loopRestartAttempts;
+			if (++m_loopRestartAttempts >= cMaxLoopRestarts) {
+				Log(ERROR, "Max loop restarts reached the maximum of {}. Exiting", cMaxLoopRestarts);
+				g_running.store(false);
+				break;
+			}
 		}
 
 		g_running.store(false);
