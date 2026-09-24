@@ -25,6 +25,13 @@ module Core.OutputManager;
 import Core.FocusManager;
 import Proxies.Output;
 
+class CScopedTrueFlag final {
+	bool& m_flag;
+public:
+	explicit CScopedTrueFlag(bool& flag) : m_flag(flag) { m_flag = true; }
+	~CScopedTrueFlag() { m_flag = false; }
+};
+
 /*
 This method tries to find parents who have not been announced or have changed, and pushes the announcements without
 "Stop()" in reverse order, except the last object.
@@ -51,7 +58,7 @@ auto OutputManager::WhereAmI() -> bool {
 	}
 
 	std::string_view last_name{};
-	m_isWhereAmIOperation = true;
+	CScopedTrueFlag _(m_isWhereAmIOperation);
 	for (size_t i = diff_index; i < chain.size(); ++i) {
 		const auto current_object = chain[i];
 
@@ -69,7 +76,6 @@ auto OutputManager::WhereAmI() -> bool {
 		CObjectEvent event{.type = EObjectEventType::FOCUS_GAINED, .object = current_object};
 		Output(event);
 	}
-	m_isWhereAmIOperation = false;
 	m_contextChain = chain;
 	return true;
 }
