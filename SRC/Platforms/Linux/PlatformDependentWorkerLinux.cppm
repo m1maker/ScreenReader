@@ -162,16 +162,19 @@ public:
 	}
 
 	void Loop() {
-		g_timeout_add(1, []([[maybe_unused]] gpointer user_data) -> gboolean {
+		g_timeout_add(
+			1,
+			[]([[maybe_unused]] gpointer user_data) -> gboolean {
 				SObjectFetchRequest request;
 				auto found = ObjectFetchQueue::GetInstance().try_dequeue(request);
-				if (!found) 
+				if (!found)
 					return G_SOURCE_CONTINUE;
 
 				ObjectAtspiFetch(&request);
 				request.slot->Done();
-return G_SOURCE_CONTINUE;
-		}, nullptr);
+				return G_SOURCE_CONTINUE;
+			},
+			nullptr);
 		if (m_atspiInitialized) {
 			atspi_event_main();
 		}
@@ -185,7 +188,8 @@ return G_SOURCE_CONTINUE;
 	[[nodiscard]] auto GetExecutablePath() -> std::filesystem::path {
 		char buffer[PATH_MAX];
 		auto n = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-		if (n < 0) return {};
+		if (n < 0)
+			return {};
 		buffer[n] = '\0';
 		return std::filesystem::path(buffer);
 	}

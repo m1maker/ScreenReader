@@ -73,7 +73,7 @@ void EventHandler::Start() {
 			auto event = m_eventQueue.Pop();
 			if (event) [[likely]] {
 				Handle(std::move(event.value()));
-				}
+			}
 		}
 
 		m_listener.ListenDevice(EDeviceType::KEYBOARD, false);

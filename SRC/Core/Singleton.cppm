@@ -19,12 +19,10 @@
 
 export module Core.Singleton;
 
-export enum class ESingletonConstructorAccessModifier : unsigned char {
-	PROTECTED,
-	PRIVATE
-};
+export enum class ESingletonConstructorAccessModifier : unsigned char { PROTECTED, PRIVATE };
 
-export template <class T, ESingletonConstructorAccessModifier Modifier = ESingletonConstructorAccessModifier::PROTECTED> class TSingleton {
+export template <class T, ESingletonConstructorAccessModifier Modifier = ESingletonConstructorAccessModifier::PROTECTED>
+class TSingleton {
 public:
 	static auto GetInstance() noexcept(noexcept(T())) -> T& {
 		static T instance;
@@ -41,9 +39,12 @@ protected:
 	~TSingleton() = default;
 };
 
-template <class T> class TSingleton<T, ESingletonConstructorAccessModifier::PRIVATE> final : TSingleton<T, ESingletonConstructorAccessModifier::PROTECTED> {
+template <class T>
+class TSingleton<T, ESingletonConstructorAccessModifier::PRIVATE> final
+	: TSingleton<T, ESingletonConstructorAccessModifier::PROTECTED> {
 	TSingleton() = delete;
 	~TSingleton() = delete;
+
 public:
 	using TSingleton<T, ESingletonConstructorAccessModifier::PROTECTED>::GetInstance;
 };

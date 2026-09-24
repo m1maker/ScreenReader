@@ -27,6 +27,7 @@ import Proxies.Output;
 
 class CScopedTrueFlag final {
 	bool& m_flag;
+
 public:
 	explicit CScopedTrueFlag(bool& flag) : m_flag(flag) { m_flag = true; }
 	~CScopedTrueFlag() { m_flag = false; }

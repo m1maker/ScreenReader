@@ -313,12 +313,11 @@ public:
 
 export class CTextProviderProxy final : public UnknownProxy {
 	using enum EObjectFetchValue;
+
 public:
 	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::TEXT)); }
 
-	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
-		return GetValue<TEXT_CURSOR>();
-	}
+	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> { return GetValue<TEXT_CURSOR>(); }
 	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
 	}
@@ -350,6 +349,7 @@ public:
 
 export class CValueProviderProxy final : public UnknownProxy {
 	using enum EObjectFetchValue;
+
 public:
 	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::VALUE)); }
 

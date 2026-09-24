@@ -440,7 +440,8 @@ export template <EObjectFetchValue Value = EObjectFetchValue::UNKNOWN> struct TO
 };
 
 template <> struct TObjectFetchValue<EObjectFetchValue::COUNT> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
-template <> struct TObjectFetchValue<EObjectFetchValue::DESTROY> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
+template <>
+struct TObjectFetchValue<EObjectFetchValue::DESTROY> final : TObjectFetchValue<EObjectFetchValue::UNKNOWN> {};
 template <> struct TObjectFetchValue<EObjectFetchValue::TYPE> final {
 	using type = EObjectType;
 };
@@ -647,4 +648,5 @@ export struct SObjectFetchRequest final {
 	ObjectFetchMask mask;
 };
 
-export using ObjectFetchQueue = TSingleton<moodycamel::ConcurrentQueue<SObjectFetchRequest>, ESingletonConstructorAccessModifier::PRIVATE>;
+export using ObjectFetchQueue =
+	TSingleton<moodycamel::ConcurrentQueue<SObjectFetchRequest>, ESingletonConstructorAccessModifier::PRIVATE>;

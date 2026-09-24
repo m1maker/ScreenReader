@@ -35,6 +35,7 @@ struct SObjectProviderMeta final {
 
 	switch (provider) {
 	case EObjectProvider::UNKNOWN:
+	case EObjectProvider::COUNT:
 		meta.name = "unknown";
 		meta.value_flags.set(std::to_underlying(EObjectFetchValue::UNKNOWN));
 		break;
