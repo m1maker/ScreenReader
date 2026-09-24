@@ -312,11 +312,12 @@ public:
 };
 
 export class CTextProviderProxy final : public UnknownProxy {
+	using enum EObjectFetchValue;
 public:
 	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::TEXT)); }
 
 	[[nodiscard]] inline auto GetCursor() const -> ObjectResult<int> {
-		return std::unexpected(EObjectError::NOT_SUPPORTED);
+		return GetValue<TEXT_CURSOR>();
 	}
 	[[nodiscard]] inline auto GetText(int cursor, ETextGranularity granularity) const -> ObjectResult<STextRange> {
 		return std::unexpected(EObjectError::NOT_SUPPORTED);
@@ -348,12 +349,13 @@ public:
 };
 
 export class CValueProviderProxy final : public UnknownProxy {
+	using enum EObjectFetchValue;
 public:
 	void Fetch() const noexcept { PushFetchRequest(GetObjectProviderValueMask(EObjectProvider::VALUE)); }
 
-	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> { return GetActiveSlot()->value_min; }
-	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> { return GetActiveSlot()->value_max; }
-	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> { return GetActiveSlot()->value_current; }
+	[[nodiscard]] inline auto GetMin() const -> ObjectResult<double> { return GetValue<VALUE_MIN>(); }
+	[[nodiscard]] inline auto GetMax() const -> ObjectResult<double> { return GetValue<VALUE_MAX>(); }
+	[[nodiscard]] inline auto GetCurrent() const -> ObjectResult<double> { return GetValue<VALUE_CURRENT>(); }
 };
 
 export class ActionProviderProxy final : public UnknownProxy {
