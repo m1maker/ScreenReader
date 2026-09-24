@@ -184,7 +184,9 @@ return G_SOURCE_CONTINUE;
 
 	[[nodiscard]] auto GetExecutablePath() -> std::filesystem::path {
 		char buffer[PATH_MAX];
-		readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+		auto n = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+		if (n < 0) return {};
+		buffer[n] = '\0';
 		return std::filesystem::path(buffer);
 	}
 };
