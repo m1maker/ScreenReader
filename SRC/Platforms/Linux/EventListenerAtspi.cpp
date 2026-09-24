@@ -111,7 +111,7 @@ void CEventListenerAtspi::StartEvdevWatcher() {
 					auto fd = event.data.fd;
 					struct input_event ev{};
 					ssize_t n = read(fd, &ev, sizeof(ev));
-					if (errno == EBADFD) {
+					if (n < 0 && errno == EBADFD) {
 						descriptor_manager.PushBad(fd);
 						break;
 					}
